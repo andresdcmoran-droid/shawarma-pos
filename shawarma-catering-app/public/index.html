@@ -1,0 +1,2939 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>SHAWARMA en casa® - Kiosko & KDS</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Shawarma">
+  <link rel="apple-touch-icon" href="images/brand-icon.png">
+  <link rel="icon" type="image/png" href="images/brand-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Montserrat:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Syne:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    /* ==========================================================================
+       SHAWARMA EN CASA® - ULTRA MODERN LUXURY POS & KDS
+       ========================================================================== */
+    :root {
+      --brand-pink: #ff007f;
+      --brand-pink-dark: #d6006b;
+      --brand-pink-glow: rgba(255, 0, 127, 0.4);
+      
+      --bg-dark: #0d0d11;
+      --bg-surface: #17171e;
+      --bg-surface-2: #21212b;
+      --border-color: #2e2e3d;
+      
+      --text-white: #ffffff;
+      --text-dim: #9494a8;
+      
+      --yes-green: #10b981;
+      --yes-green-bg: rgba(16, 185, 129, 0.12);
+      --yes-green-border: #10b981;
+      
+      --no-red: #ef4444;
+      --no-red-bg: rgba(239, 68, 68, 0.15);
+      --no-red-border: #ef4444;
+      
+      --amber-gold: #f59e0b;
+      --cyan-blue: #06b6d4;
+      
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --radius-full: 9999px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg-dark);
+      color: var(--text-white);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    input, textarea {
+      user-select: text;
+      font-family: inherit;
+    }
+
+    /* Top Navigation Bar - MATHEMATICALLY DEAD CENTERED GRID */
+    .header-bar {
+      background: rgba(23, 23, 30, 0.98);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 2px solid #232330;
+      padding: 10px 24px;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      width: 100%;
+    }
+
+    .brand-section {
+      display: flex;
+      align-items: center;
+      justify-self: start;
+    }
+
+    .brand-logo-img {
+      height: 48px;
+      max-height: 1.5in;
+      width: auto;
+      object-fit: contain;
+      display: block;
+    }
+
+    /* Role Tabs - STRICTLY 100% CENTERED IN THE MIDDLE OF THE SCREEN (Fixed over header) */
+    .tabs-nav {
+      position: fixed;
+      top: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 110;
+      display: flex;
+      background: #09090c;
+      padding: 4px;
+      border-radius: var(--radius-full);
+      border: 1px solid var(--border-color);
+      gap: 4px;
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-dim);
+      padding: 9px 20px;
+      border-radius: var(--radius-full);
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .tab-btn.active {
+      background: var(--brand-pink);
+      color: #ffffff;
+      box-shadow: 0 2px 14px var(--brand-pink-glow);
+    }
+
+    .badge-count {
+      background: #ef4444;
+      color: white;
+      font-size: 11px;
+      padding: 1px 7px;
+      border-radius: var(--radius-full);
+      font-weight: 900;
+    }
+
+    .connection-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: #10b981;
+      background: rgba(16, 185, 129, 0.1);
+      padding: 6px 14px;
+      border-radius: var(--radius-full);
+      border: 1px solid rgba(16, 185, 129, 0.25);
+      font-weight: 800;
+      justify-self: end;
+    }
+
+    .connection-dot {
+      width: 8px;
+      height: 8px;
+      background: #10b981;
+      border-radius: 50%;
+      box-shadow: 0 0 6px #10b981;
+    }
+
+    /* SPECIFIC RESPONSIVE TUNING FOR IPHONE & SMARTPHONES (< 768px) */
+    @media (max-width: 768px) {
+      html, body {
+        overflow-x: hidden;
+        max-width: 100vw;
+        touch-action: pan-y;
+      }
+
+      /* Compact Top Header for Mobile */
+      .header-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 16px;
+        height: 58px;
+        width: 100%;
+        max-width: 100vw;
+      }
+
+      .brand-section {
+        display: flex;
+        align-items: center;
+        flex: 0 0 auto;
+      }
+
+      .brand-logo-img {
+        height: 34px;
+        max-height: 34px;
+      }
+
+      .connection-badge {
+        padding: 4px 10px;
+        font-size: 11px;
+        flex: 0 0 auto;
+      }
+
+      /* Native iOS Bottom Navigation Bar */
+      .tabs-nav {
+        position: fixed !important;
+        top: auto !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        transform: none !important;
+        width: 100%;
+        height: 64px;
+        background: rgba(18, 18, 24, 0.97);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border-top: 1px solid #2e2e3d;
+        border-radius: 0;
+        border-left: none;
+        border-right: none;
+        border-bottom: none;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        padding: 4px 6px calc(4px + env(safe-area-inset-bottom));
+        z-index: 1000;
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.6);
+        margin: 0;
+      }
+
+      .tab-btn {
+        flex-direction: column;
+        gap: 3px;
+        padding: 6px 2px;
+        border-radius: var(--radius-sm);
+        font-size: 10px;
+        font-weight: 800;
+        justify-content: center;
+        text-align: center;
+      }
+
+      .tab-btn span.tab-icon {
+        font-size: 19px;
+        line-height: 1;
+      }
+
+      .tab-btn span.tab-text {
+        font-size: 10px;
+      }
+
+      .tab-btn.active {
+        background: rgba(255, 0, 127, 0.2);
+        color: #ff3399;
+        box-shadow: none;
+        border: 1px solid rgba(255, 0, 127, 0.4);
+      }
+
+      /* View Content with padding for bottom nav */
+      .view-content {
+        padding: 14px 12px 100px 12px;
+        max-width: 100vw;
+        overflow-x: hidden;
+      }
+
+      .kiosk-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      .pos-card {
+        padding: 16px 12px;
+      }
+
+      .guest-inputs-row {
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        margin-bottom: 16px;
+      }
+
+      .text-input-pos {
+        height: 48px;
+        font-size: 15px;
+        padding: 0 10px;
+      }
+
+      .protein-selector-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        margin-bottom: 20px;
+      }
+
+      .protein-card-btn {
+        height: 105px; /* Tamaño exacto para proteínas y atajos */
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 10px;
+        gap: 6px;
+        text-align: center;
+      }
+
+      .protein-card-btn .protein-emoji {
+        font-size: 32px;
+      }
+
+      .protein-card-btn .protein-title {
+        font-size: 13px;
+        line-height: 1.2;
+      }
+
+      .presets-row {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        margin-bottom: 20px;
+      }
+
+      .preset-pill-btn {
+        height: 50px; /* Súper compacto (mitad del tamaño de proteína) */
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-start;
+        text-align: left;
+        padding: 0 10px;
+        gap: 8px;
+        border-radius: var(--radius-sm);
+      }
+
+      .preset-pill-btn .preset-icon {
+        font-size: 22px;
+        flex-shrink: 0;
+      }
+
+      .preset-pill-btn > div {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+
+      .preset-pill-btn .preset-txt-main {
+        display: block;
+        font-size: 11px;
+        font-weight: 800;
+        line-height: 1.1;
+      }
+
+      .preset-pill-btn .preset-txt-sub {
+        display: block;
+        font-size: 9px;
+        color: #9494a8;
+        line-height: 1.1;
+        margin-top: 2px;
+      }
+
+      .ingredients-grid-pos {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 8px !important;
+        margin-bottom: 24px !important;
+      }
+
+      .ing-card-item {
+        padding: 8px 12px !important;
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        gap: 10px !important;
+        height: 56px !important;
+        border-radius: var(--radius-sm) !important;
+      }
+
+      .ing-card-item > div:first-child {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
+        gap: 8px !important;
+        width: auto !important;
+      }
+
+      .ing-name {
+        font-size: 14px !important;
+        font-weight: 900 !important;
+      }
+
+      .ing-emoji {
+        font-size: 18px !important;
+      }
+
+      .switch-dual-btn {
+        width: 140px !important;
+        height: 38px !important;
+        flex-shrink: 0 !important;
+      }
+
+      .switch-opt {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        padding: 0 !important;
+        font-size: 11px !important;
+        font-weight: 900 !important;
+        letter-spacing: 0.5px !important;
+      }
+
+      /* MONITOR DE TURNOS - MOBILE (COMO ATAJOS 50px - HARD OVERRIDE) */
+      .turn-display-layout {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 8px !important;
+        height: auto !important;
+      }
+
+      .turn-column-box {
+        padding: 4px !important;
+        border-radius: var(--radius-sm) !important;
+        background: transparent !important;
+        border: none !important;
+      }
+
+      .turn-column-header {
+        font-size: 10px !important;
+        padding-bottom: 4px !important;
+        margin-bottom: 6px !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        text-align: center !important;
+        gap: 2px !important;
+        line-height: 1.1 !important;
+        border-bottom: 1px solid var(--border-color) !important;
+      }
+
+      .turn-column-header span:first-child {
+        font-size: 14px !important;
+        margin-bottom: 2px !important;
+      }
+
+      .turns-cards-container {
+        grid-template-columns: 1fr !important;
+        gap: 6px !important;
+      }
+
+      /* Botón idéntico al Atajo (50px) */
+      .turn-tile {
+        height: 50px !important;
+        display: grid !important;
+        grid-template-columns: 26px 1fr !important;
+        grid-template-rows: 1fr 1fr !important;
+        column-gap: 4px !important;
+        padding: 0 4px !important;
+        align-items: center !important;
+        border-radius: var(--radius-sm) !important;
+        border-width: 1px !important;
+        text-align: left !important;
+      }
+
+      .turn-tile-num {
+        grid-column: 1 !important;
+        grid-row: 1 / 3 !important;
+        font-size: 14px !important;
+        font-weight: 900 !important;
+        text-align: center !important;
+      }
+
+      .turn-tile-name {
+        grid-column: 2 !important;
+        grid-row: 1 !important;
+        font-size: 11px !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        align-self: end !important;
+      }
+
+      .turn-tile > div:nth-child(3) {
+        grid-column: 2 !important;
+        grid-row: 2 !important;
+        font-size: 8px !important;
+        color: #9494a8 !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        align-self: start !important;
+        margin-top: 2px !important;
+      }
+
+      .turn-tile > div:nth-child(4) {
+        display: none !important;
+      }
+
+      .desktop-only-kds-summary {
+        display: none !important;
+      }
+    }
+
+    /* Views */
+    .view-content {
+      flex: 1;
+      display: none;
+      padding: 16px;
+      max-width: 1400px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    .view-content.active {
+      display: block;
+    }
+
+    /* ==========================================================================
+       VIEW 1: ORDERING / POS
+       ========================================================================== */
+    .kiosk-grid {
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 24px;
+    }
+
+    @media (max-width: 980px) {
+      .kiosk-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .pos-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+
+    .pos-section-header {
+      font-size: 13px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-dim);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* Guest Input Fields */
+    .guest-inputs-row {
+      display: grid;
+      grid-template-columns: 1fr 140px;
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+
+    .field-label {
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--text-white);
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    .text-input-pos {
+      width: 100%;
+      height: 56px;
+      background: var(--bg-surface-2);
+      border: 2px solid var(--border-color);
+      border-radius: var(--radius-md);
+      color: var(--text-white);
+      font-size: 18px;
+      font-weight: 800;
+      padding: 0 18px;
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .text-input-pos:focus {
+      border-color: var(--brand-pink);
+      box-shadow: 0 0 0 4px var(--brand-pink-glow);
+    }
+
+    /* Clean Protein Grid: Mixto, Pollo, Carne, Falafel */
+    .protein-selector-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    @media (max-width: 650px) {
+      .protein-selector-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .protein-card-btn {
+      background: var(--bg-surface-2);
+      border: 2px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 18px 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      touch-action: manipulation;
+    }
+
+    .protein-card-btn .protein-emoji {
+      font-size: 36px;
+    }
+
+    .protein-card-btn .protein-title {
+      font-size: 15px;
+      font-weight: 900;
+      color: var(--text-white);
+      text-align: center;
+    }
+
+    .protein-card-btn:active {
+      transform: scale(0.97);
+    }
+
+    .protein-card-btn.selected {
+      border-color: var(--brand-pink);
+      background: linear-gradient(135deg, rgba(255, 0, 127, 0.18), rgba(255, 0, 127, 0.06));
+      box-shadow: 0 0 20px var(--brand-pink-glow);
+    }
+
+    .protein-card-btn.selected .protein-title {
+      color: var(--brand-pink);
+    }
+
+    /* Fast Presets Grid */
+    .presets-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+
+    .preset-pill-btn {
+      background: var(--bg-surface-2);
+      border: 2px dashed #3a3a4c;
+      border-radius: var(--radius-md);
+      padding: 12px 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: all 0.15s ease;
+    }
+
+    .preset-pill-btn .preset-icon {
+      font-size: 22px;
+      flex-shrink: 0;
+    }
+
+    .preset-pill-btn .preset-txt-main {
+      font-size: 13px;
+      font-weight: 900;
+      color: var(--text-white);
+      display: block;
+    }
+
+    .preset-pill-btn .preset-txt-sub {
+      font-size: 10px;
+      color: var(--text-dim);
+      display: block;
+      margin-top: 1px;
+    }
+
+    .preset-pill-btn.active {
+      border: 2px solid var(--brand-pink);
+      background: rgba(255, 0, 127, 0.14);
+    }
+
+    .preset-pill-btn.preset-bowl.active {
+      border-color: var(--cyan-blue);
+      background: rgba(6, 182, 212, 0.15);
+    }
+    .preset-pill-btn.preset-bowl.active .preset-txt-main { color: #67e8f9; }
+
+    .preset-pill-btn.preset-ninos.active {
+      border-color: #60a5fa;
+      background: rgba(96, 165, 250, 0.15);
+    }
+    .preset-pill-btn.preset-ninos.active .preset-txt-main { color: #93c5fd; }
+
+    .preset-pill-btn.preset-no-item.active {
+      border-color: var(--no-red);
+      background: var(--no-red-bg);
+    }
+    .preset-pill-btn.preset-no-item.active .preset-txt-main { color: #f87171; }
+
+    /* Clean 8 Ingredients Matrix with Direct SÍ / NO Toggles */
+    .ingredients-grid-pos {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .ing-card-item {
+      background: var(--bg-surface-2);
+      border: 2px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 12px 16px;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .ing-item-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .ing-item-icon {
+      font-size: 24px;
+    }
+
+    .ing-item-name {
+      font-size: 15px;
+      font-weight: 900;
+      color: var(--text-white);
+      display: block;
+    }
+
+    .switch-dual-btn {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      border: 1px solid #3a3a4c;
+    }
+
+    .switch-opt {
+      padding: 9px 4px;
+      font-size: 12px;
+      font-weight: 900;
+      text-align: center;
+      transition: all 0.12s;
+    }
+
+    /* State YES */
+    .ing-card-item.state-yes {
+      border-color: var(--yes-green-border);
+      background: rgba(16, 185, 129, 0.06);
+    }
+    .ing-card-item.state-yes .switch-yes {
+      background: var(--yes-green);
+      color: white;
+    }
+    .ing-card-item.state-yes .switch-no {
+      background: #17171e;
+      color: #64748b;
+    }
+
+    /* State NO */
+    .ing-card-item.state-no {
+      border-color: var(--no-red-border);
+      background: var(--no-red-bg);
+    }
+    .ing-card-item.state-no .ing-item-name {
+      color: #f87171;
+      text-decoration: line-through;
+    }
+    .ing-card-item.state-no .switch-yes {
+      background: #17171e;
+      color: #64748b;
+    }
+    .ing-card-item.state-no .switch-no {
+      background: var(--no-red);
+      color: white;
+    }
+
+    /* Quick Note Buttons for PREPARADOR */
+    .quick-notes-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .quick-note-chip {
+      background: var(--bg-surface-2);
+      border: 1px solid #3a3a4c;
+      color: #cbd5e1;
+      padding: 9px 14px;
+      border-radius: var(--radius-full);
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .quick-note-chip:active {
+      transform: scale(0.96);
+    }
+
+    .quick-note-chip.active {
+      background: var(--amber-gold);
+      color: #000;
+      border-color: var(--amber-gold);
+      font-weight: 900;
+    }
+
+    /* Sidebar Summary */
+    .sidebar-pos {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .summary-card-pos {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      position: sticky;
+      top: 86px;
+    }
+
+    .turn-badge-card {
+      background: #09090c;
+      border: 2px solid var(--brand-pink);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      text-align: center;
+      box-shadow: 0 0 20px var(--brand-pink-glow);
+    }
+
+    .turn-label-txt {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-dim);
+    }
+
+    .turn-number-giant {
+      font-size: 44px;
+      font-weight: 900;
+      color: var(--brand-pink);
+      line-height: 1.1;
+      margin-top: 2px;
+    }
+
+    .live-preview-box {
+      background: var(--bg-surface-2);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 16px;
+    }
+
+    .live-preview-box h4 {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: 10px;
+    }
+
+    .tags-flow-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .pos-tag {
+      font-size: 11px;
+      font-weight: 800;
+      padding: 5px 10px;
+      border-radius: 6px;
+    }
+
+    .pos-tag.tag-protein {
+      background: rgba(255, 0, 127, 0.2);
+      color: #ff66b3;
+      border: 1px solid rgba(255, 0, 127, 0.4);
+    }
+
+    .pos-tag.tag-bowl {
+      background: rgba(6, 182, 212, 0.2);
+      color: #67e8f9;
+      border: 1px solid var(--cyan-blue);
+    }
+
+    .pos-tag.tag-removed {
+      background: var(--no-red-bg);
+      color: #fca5a5;
+      border: 1px solid #ef4444;
+    }
+
+    .pos-tag.tag-all {
+      background: var(--yes-green-bg);
+      color: #6ee7b7;
+      border: 1px solid #10b981;
+    }
+
+    .pos-tag.tag-note {
+      background: rgba(245, 158, 11, 0.2);
+      color: #fcd34d;
+      border: 1px solid #f59e0b;
+    }
+
+    .btn-submit-pos {
+      background: linear-gradient(135deg, #ff007f, #d6006b);
+      color: white;
+      border: none;
+      border-radius: var(--radius-md);
+      padding: 20px 16px;
+      font-size: 18px;
+      font-weight: 900;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      box-shadow: 0 8px 25px var(--brand-pink-glow);
+      transition: all 0.15s ease;
+      touch-action: manipulation;
+    }
+
+    .btn-submit-pos:active {
+      transform: scale(0.98);
+    }
+
+    /* ==========================================================================
+       VIEW 2: KITCHEN DISPLAY SYSTEM (KDS)
+       ========================================================================== */
+    .kds-batching-bar {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .batch-label {
+      font-size: 15px;
+      font-weight: 900;
+      color: var(--brand-pink);
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .batch-chips-wrapper {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .batch-pill-item {
+      background: #09090c;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 6px 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .batch-pill-item .count-badge {
+      background: var(--brand-pink);
+      color: white;
+      padding: 2px 8px;
+      border-radius: var(--radius-full);
+      font-weight: 900;
+    }
+
+    .batch-pill-item.total-chip .count-badge {
+      background: #ef4444;
+    }
+
+    .kds-filter-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .kds-filter-tab {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      color: var(--text-dim);
+      padding: 8px 16px;
+      border-radius: var(--radius-md);
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .kds-filter-tab.active {
+      background: var(--bg-surface-2);
+      color: white;
+      border-color: var(--brand-pink);
+    }
+
+    .kds-cards-stream {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap: 18px;
+    }
+
+    .kds-card-box {
+      background: var(--bg-surface);
+      border: 2px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 16px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    }
+
+    .kds-card-box.status-preparing {
+      border-color: var(--amber-gold);
+      box-shadow: 0 0 20px rgba(245, 158, 11, 0.2);
+    }
+
+    .kds-card-box.status-ready {
+      border-color: var(--yes-green);
+      background: #062b1e;
+    }
+
+    .kds-card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 12px;
+    }
+
+    .kds-turn-title {
+      font-size: 24px;
+      font-weight: 900;
+      color: var(--brand-pink);
+    }
+
+    .kds-guest-name {
+      font-size: 20px;
+      font-weight: 900;
+      color: white;
+      text-transform: uppercase;
+      text-align: right;
+    }
+
+    .kds-table-badge {
+      font-size: 13px;
+      font-weight: 800;
+      color: #38bdf8;
+      background: #1e293b;
+      padding: 4px 10px;
+      border-radius: 6px;
+      display: inline-block;
+      margin-top: 4px;
+      border: 1px solid #334155;
+    }
+
+    .kds-time-info {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-dim);
+      margin-top: 3px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .kds-protein-flag {
+      background: var(--bg-surface-2);
+      border-left: 4px solid var(--brand-pink);
+      padding: 8px 12px;
+      border-radius: var(--radius-sm);
+      font-size: 16px;
+      font-weight: 900;
+      margin: 10px 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* BOWL EXCLUSIVE HEADER IN KDS */
+    .kds-bowl-flag-header {
+      background: rgba(6, 182, 212, 0.18);
+      border: 2px solid var(--cyan-blue);
+      color: #67e8f9;
+      padding: 10px 14px;
+      border-radius: var(--radius-sm);
+      font-size: 17px;
+      font-weight: 900;
+      margin: 10px 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 0 15px rgba(6, 182, 212, 0.2);
+    }
+
+    .kds-alert-tag-danger {
+      background: #3b0d0d;
+      border: 2px solid #ef4444;
+      color: #fecaca;
+      border-radius: var(--radius-md);
+      padding: 10px 12px;
+      font-weight: 900;
+      font-size: 13px;
+      margin-top: 6px;
+      line-height: 1.4;
+    }
+
+    .kds-alert-tag-success {
+      background: #062b1e;
+      border: 1.5px solid #10b981;
+      color: #a7f3d0;
+      border-radius: var(--radius-md);
+      padding: 10px 12px;
+      font-weight: 800;
+      font-size: 13px;
+      margin-top: 6px;
+      line-height: 1.4;
+    }
+
+    .kds-actions-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .kds-btn-action {
+      border: none;
+      border-radius: var(--radius-md);
+      padding: 14px 10px;
+      font-size: 14px;
+      font-weight: 900;
+      cursor: pointer;
+      text-transform: uppercase;
+      transition: all 0.1s ease;
+      touch-action: manipulation;
+    }
+
+    .kds-btn-prep {
+      background: var(--bg-surface-2);
+      color: white;
+    }
+
+    .kds-btn-ready {
+      background: var(--yes-green);
+      color: white;
+      grid-column: span 2;
+    }
+
+    .kds-btn-deliver {
+      background: #0284c7;
+      color: white;
+      grid-column: span 2;
+    }
+
+    /* ==========================================================================
+       VIEW 3: MONITOR DE TURNOS + POPUP MODAL DETALLE
+       ========================================================================== */
+    .turn-display-layout {
+      height: calc(100vh - 90px);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    .turn-column-box {
+      background: var(--bg-surface);
+      border: 2px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .turn-column-header {
+      font-size: 24px;
+      font-weight: 900;
+      text-transform: uppercase;
+      padding-bottom: 16px;
+      border-bottom: 2px solid var(--border-color);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .col-prep-hdr { color: var(--amber-gold); }
+    .col-ready-hdr { color: var(--yes-green); }
+
+    .turns-cards-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 16px;
+      overflow-y: auto;
+    }
+
+    .turn-tile {
+      background: #09090c;
+      border: 2px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .turn-tile:active {
+      transform: scale(0.96);
+    }
+
+    .turn-tile.tile-ready {
+      border-color: var(--yes-green);
+      background: #062b1e;
+      animation: pulse-ready 2s infinite;
+    }
+
+    @keyframes pulse-ready {
+      0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+      70% { transform: scale(1.02); box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+      100% { transform: scale(1); }
+    }
+
+    .turn-tile-num {
+      font-size: 36px;
+      font-weight: 900;
+      color: var(--brand-pink);
+    }
+
+    .turn-tile.tile-ready .turn-tile-num {
+      color: #6ee7b7;
+    }
+
+    .turn-tile-name {
+      font-size: 16px;
+      font-weight: 800;
+      color: white;
+      margin-top: 4px;
+    }
+
+    /* Modal Flotante de Detalle de Turno */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(8px);
+      z-index: 2000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-card {
+      background: var(--bg-surface);
+      border: 2px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 28px;
+      max-width: 520px;
+      width: 100%;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+      animation: zoomModal 0.2s ease-out;
+    }
+
+    @keyframes zoomModal {
+      from { transform: scale(0.92); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    /* Toast */
+    .toast-tray {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      pointer-events: none;
+    }
+
+    .toast-msg {
+      background: #1e1e28;
+      border-left: 5px solid var(--brand-pink);
+      color: white;
+      padding: 14px 20px;
+      border-radius: var(--radius-md);
+      font-size: 14px;
+      font-weight: 800;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .toast-msg.toast-success { border-left-color: var(--yes-green); }
+    .toast-msg.toast-danger { border-left-color: var(--no-red); }
+    /* ==========================================================================
+       MODO ELEGANTE (HAUTE GASTRONOMIE & VANGUARDIST LUXURY)
+       Estética de Alta Gama: Terciopelo Obsidiana, Oro Champán Satinado, Siluetas Curvas y Micro-Relieve Háptico
+       ========================================================================== */
+    body.theme-elegant {
+      --brand-pink: #d4af37;
+      --brand-pink-dark: #b5952f;
+      --brand-pink-glow: rgba(212, 175, 55, 0.28);
+      
+      --bg-dark: #08080b;
+      --bg-surface: #101015;
+      --bg-surface-2: #16161d;
+      --border-color: rgba(212, 175, 55, 0.2);
+      
+      --text-white: #f5f5f7;
+      --text-dim: #9295a0;
+      
+      --yes-green: #d4af37;
+      --yes-green-bg: rgba(212, 175, 55, 0.14);
+      --yes-green-border: #d4af37;
+      
+      --no-red: #444652;
+      --no-red-bg: #121217;
+      --no-red-border: rgba(255, 255, 255, 0.08);
+      
+      --amber-gold: #e6c894;
+      --cyan-blue: #a0a4b5;
+      
+      --radius-sm: 12px;
+      --radius-md: 20px;
+      --radius-lg: 28px;
+      --radius-full: 9999px;
+      
+      font-family: "Plus Jakarta Sans", -apple-system, sans-serif;
+      font-weight: 400;
+      letter-spacing: 0.2px;
+      background-color: var(--bg-dark);
+      background-image: 
+        radial-gradient(ellipse 80% 40% at 50% -10%, rgba(212, 175, 55, 0.08), transparent 70%),
+        radial-gradient(ellipse 60% 50% at 100% 100%, rgba(25, 20, 35, 0.25), transparent 70%);
+      background-attachment: fixed;
+      color: var(--text-white);
+    }
+    
+    /* Header & Floating Luxury Pill Navigation */
+    body.theme-elegant .header-bar {
+      background: rgba(8, 8, 11, 0.88);
+      backdrop-filter: blur(24px) saturate(140%);
+      -webkit-backdrop-filter: blur(24px) saturate(140%);
+      border-bottom: 1px solid rgba(212, 175, 55, 0.18);
+    }
+    
+    body.theme-elegant .tabs-nav {
+      background: rgba(14, 14, 19, 0.9);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(212, 175, 55, 0.25);
+      border-radius: var(--radius-full);
+      padding: 5px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    }
+    
+    body.theme-elegant .tab-btn {
+      font-family: "Cinzel", serif;
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      font-weight: 600;
+      border-radius: var(--radius-full);
+      padding: 10px 22px;
+      color: #9295a0;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    
+    body.theme-elegant .tab-btn.active {
+      background: linear-gradient(135deg, #e6c894 0%, #d4af37 50%, #b89130 100%) !important;
+      color: #08080a !important;
+      font-weight: 700;
+      box-shadow: 0 4px 18px rgba(212, 175, 55, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+    }
+    
+    /* Main Cards & Squircles */
+    body.theme-elegant .pos-card {
+      background: linear-gradient(145deg, rgba(22, 22, 29, 0.75) 0%, rgba(13, 13, 18, 0.85) 100%);
+      backdrop-filter: blur(24px) saturate(140%);
+      -webkit-backdrop-filter: blur(24px) saturate(140%);
+      border: 1px solid rgba(212, 175, 55, 0.18);
+      border-radius: var(--radius-lg);
+      box-shadow: 0 16px 40px -8px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      padding: 24px;
+    }
+    
+    /* Section Headers */
+    body.theme-elegant .section-title,
+    body.theme-elegant h2,
+    body.theme-elegant h3,
+    body.theme-elegant h4 {
+      font-family: "Cinzel", serif !important;
+      color: #e6c894 !important;
+      letter-spacing: 2.5px !important;
+      text-transform: uppercase !important;
+      font-weight: 600 !important;
+    }
+    
+    /* Protein Selection: Organic Rounded Squircles */
+    body.theme-elegant .protein-card-btn {
+      background: linear-gradient(145deg, rgba(26, 26, 34, 0.6) 0%, rgba(14, 14, 19, 0.8) 100%);
+      border: 1px solid rgba(212, 175, 55, 0.15);
+      border-radius: var(--radius-md);
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      padding: 16px 12px;
+    }
+    
+    body.theme-elegant .protein-card-btn .protein-title {
+      font-family: "Cinzel", serif;
+      font-size: 13px;
+      letter-spacing: 2px;
+      color: #f5f5f7;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+    
+    body.theme-elegant .protein-card-btn:hover {
+      transform: translateY(-2px);
+      border-color: rgba(212, 175, 55, 0.4);
+      box-shadow: 0 10px 25px rgba(212, 175, 55, 0.15);
+    }
+    
+    body.theme-elegant .protein-card-btn.selected {
+      background: linear-gradient(145deg, rgba(42, 36, 22, 0.9) 0%, rgba(20, 18, 12, 0.95) 100%) !important;
+      border-color: #d4af37 !important;
+      box-shadow: 0 0 25px rgba(212, 175, 55, 0.28), inset 0 0 0 1px rgba(212, 175, 55, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+      transform: scale(1.02);
+    }
+    
+    body.theme-elegant .protein-card-btn.selected .protein-title {
+      color: #e6c894 !important;
+      font-weight: 700;
+    }
+    
+    /* Presets / Atajos: Sculpted Floating Pills */
+    body.theme-elegant .preset-pill-btn {
+      background: rgba(22, 22, 29, 0.7);
+      border: 1px solid rgba(212, 175, 55, 0.18);
+      border-radius: var(--radius-full);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    
+    body.theme-elegant .preset-pill-btn .preset-txt-main {
+      font-family: "Plus Jakarta Sans", sans-serif;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: #d1d3dc;
+    }
+    
+    body.theme-elegant .preset-pill-btn:hover {
+      border-color: rgba(212, 175, 55, 0.45);
+      background: rgba(30, 30, 40, 0.8);
+    }
+    
+    body.theme-elegant .preset-pill-btn.active,
+    body.theme-elegant .preset-pill-btn.preset-bowl.active,
+    body.theme-elegant .preset-pill-btn.preset-ninos.active,
+    body.theme-elegant .preset-pill-btn.preset-no-item.active {
+      background: linear-gradient(135deg, rgba(212, 175, 55, 0.22) 0%, rgba(181, 149, 47, 0.12) 100%) !important;
+      border-color: #d4af37 !important;
+      box-shadow: 0 0 18px rgba(212, 175, 55, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+    }
+    
+    body.theme-elegant .preset-pill-btn.active .preset-txt-main,
+    body.theme-elegant .preset-pill-btn.preset-bowl.active .preset-txt-main,
+    body.theme-elegant .preset-pill-btn.preset-ninos.active .preset-txt-main,
+    body.theme-elegant .preset-pill-btn.preset-no-item.active .preset-txt-main {
+      color: #f5f5f7 !important;
+      font-weight: 700;
+    }
+    
+    /* Ingredients: Soft Curvature & Tactile Segmented Switch */
+    body.theme-elegant .ing-card-item {
+      background: linear-gradient(145deg, rgba(22, 22, 29, 0.6) 0%, rgba(14, 14, 18, 0.8) 100%);
+      border: 1px solid rgba(212, 175, 55, 0.15);
+      border-radius: var(--radius-md);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+      transition: all 0.25s ease;
+    }
+    
+    body.theme-elegant .ing-name {
+      font-family: "Plus Jakarta Sans", sans-serif;
+      font-size: 13px !important;
+      font-weight: 600 !important;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      color: #e5e5ea;
+    }
+    
+    body.theme-elegant .switch-dual-btn {
+      background: #09090d;
+      border: 1px solid rgba(212, 175, 55, 0.2);
+      border-radius: var(--radius-full);
+      padding: 3px;
+      box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.6);
+      gap: 3px;
+    }
+    
+    body.theme-elegant .switch-opt {
+      font-family: "Plus Jakarta Sans", sans-serif;
+      font-size: 10px;
+      letter-spacing: 1px;
+      font-weight: 700;
+      border-radius: var(--radius-full);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    
+    body.theme-elegant .switch-opt.opt-yes.active {
+      background: linear-gradient(135deg, #e6c894 0%, #d4af37 100%) !important;
+      color: #08080a !important;
+      box-shadow: 0 2px 8px rgba(212, 175, 55, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+    }
+    
+    body.theme-elegant .switch-opt.opt-no.active {
+      background: #1c1c24 !important;
+      color: #7b7e8c !important;
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.4);
+    }
+    
+    /* Main CTA: Floating Champagne Pill */
+    body.theme-elegant .btn-submit-pos {
+      background: linear-gradient(135deg, #f0d59e 0%, #d4af37 50%, #ad8a2c 100%) !important;
+      color: #08080a !important;
+      font-family: "Cinzel", serif !important;
+      font-weight: 700 !important;
+      font-size: 14px !important;
+      letter-spacing: 2.5px !important;
+      text-transform: uppercase !important;
+      border-radius: var(--radius-full) !important;
+      padding: 16px 28px !important;
+      box-shadow: 0 8px 30px rgba(212, 175, 55, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.6), inset 0 -1px 2px rgba(0, 0, 0, 0.2) !important;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    }
+    
+    body.theme-elegant .btn-submit-pos:hover {
+      transform: translateY(-2px) scale(1.01);
+      box-shadow: 0 12px 36px rgba(212, 175, 55, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.8) !important;
+    }
+    
+    body.theme-elegant .guest-name-input {
+      background: rgba(12, 12, 16, 0.8) !important;
+      border: 1px solid rgba(212, 175, 55, 0.3) !important;
+      color: #f5f5f7 !important;
+      font-family: "Plus Jakarta Sans", sans-serif !important;
+      border-radius: var(--radius-md) !important;
+      box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.5) !important;
+      padding: 14px 18px !important;
+    }
+    
+    body.theme-elegant .guest-name-input:focus {
+      border-color: #d4af37 !important;
+      box-shadow: 0 0 16px rgba(212, 175, 55, 0.25), inset 0 1px 3px rgba(0, 0, 0, 0.5) !important;
+    }
+    
+    /* Monitor & Turn Tiles: Haute Horlogerie Obsidian Crystals */
+    body.theme-elegant .col-prep-hdr {
+      color: #9295a0 !important;
+      font-family: "Cinzel", serif !important;
+      letter-spacing: 2.5px !important;
+    }
+    
+    body.theme-elegant .col-ready-hdr {
+      color: #e6c894 !important;
+      font-family: "Cinzel", serif !important;
+      letter-spacing: 2.5px !important;
+    }
+    
+    body.theme-elegant .turn-tile {
+      border-radius: var(--radius-md) !important;
+      background: linear-gradient(145deg, rgba(20, 20, 26, 0.7) 0%, rgba(11, 11, 15, 0.9) 100%) !important;
+      border: 1px solid rgba(212, 175, 55, 0.16) !important;
+      backdrop-filter: blur(16px) !important;
+      -webkit-backdrop-filter: blur(16px) !important;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    }
+    
+    body.theme-elegant .turn-tile.tile-ready {
+      border-color: #d4af37 !important;
+      background: linear-gradient(145deg, rgba(38, 32, 18, 0.85) 0%, rgba(18, 16, 10, 0.95) 100%) !important;
+      box-shadow: 0 0 28px rgba(212, 175, 55, 0.25), inset 0 0 0 1px rgba(212, 175, 55, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+      animation: none;
+    }
+    
+    body.theme-elegant .turn-tile-num {
+      font-family: "Cormorant Garamond", "Cinzel", serif !important;
+      color: #e6c894 !important;
+      font-weight: 700 !important;
+      font-size: 28px !important;
+      letter-spacing: 1px !important;
+    }
+    
+    body.theme-elegant .turn-tile-name {
+      font-family: "Plus Jakarta Sans", sans-serif !important;
+      color: #f5f5f7 !important;
+      font-weight: 600 !important;
+      letter-spacing: 0.6px !important;
+    }
+    
+    /* Modal & KDS Luxury Styling */
+    body.theme-elegant #order-detail-modal > div {
+      background: linear-gradient(145deg, rgba(22, 22, 29, 0.95) 0%, rgba(12, 12, 16, 0.98) 100%) !important;
+      border: 1px solid rgba(212, 175, 55, 0.35) !important;
+      border-radius: var(--radius-lg) !important;
+      box-shadow: 0 25px 70px rgba(0, 0, 0, 0.9), 0 0 40px rgba(212, 175, 55, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+      backdrop-filter: blur(30px) !important;
+      -webkit-backdrop-filter: blur(30px) !important;
+    }
+    
+    body.theme-elegant #modal-turn-title {
+      font-family: "Cinzel", serif !important;
+      color: #e6c894 !important;
+      letter-spacing: 3px !important;
+    }
+    
+    body.theme-elegant .kds-card {
+      background: linear-gradient(145deg, rgba(20, 20, 26, 0.8) 0%, rgba(11, 11, 15, 0.9) 100%) !important;
+      border: 1px solid rgba(212, 175, 55, 0.2) !important;
+      border-radius: var(--radius-md) !important;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+    }
+    
+    body.theme-elegant .kds-card-turn {
+      font-family: "Cormorant Garamond", "Cinzel", serif !important;
+      color: #e6c894 !important;
+      font-size: 26px !important;
+      font-weight: 700 !important;
+    }
+    
+    body.theme-elegant .kds-filter-tab {
+      font-family: "Cinzel", serif !important;
+      font-size: 11px !important;
+      letter-spacing: 1.5px !important;
+      text-transform: uppercase !important;
+      border: 1px solid rgba(212, 175, 55, 0.2) !important;
+      border-radius: var(--radius-full) !important;
+      color: #9295a0 !important;
+      padding: 8px 18px !important;
+      transition: all 0.25s ease !important;
+    }
+    
+    body.theme-elegant .kds-filter-tab.active {
+      background: linear-gradient(135deg, #e6c894 0%, #d4af37 100%) !important;
+      color: #08080a !important;
+      font-weight: 700 !important;
+      box-shadow: 0 4px 16px rgba(212, 175, 55, 0.3) !important;
+    }
+    
+    body.theme-elegant .kds-batching-bar {
+      border: 1px solid rgba(212, 175, 55, 0.25) !important;
+      border-radius: var(--radius-lg) !important;
+      background: linear-gradient(145deg, rgba(18, 18, 24, 0.85) 0%, rgba(10, 10, 14, 0.95) 100%) !important;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+    }
+
+    body.theme-elegant textarea {
+      background: rgba(12, 12, 16, 0.8) !important;
+      border: 1px solid rgba(212, 175, 55, 0.25) !important;
+      color: #f5f5f7 !important;
+      font-family: "Plus Jakarta Sans", sans-serif !important;
+      border-radius: var(--radius-md) !important;
+      box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.5) !important;
+    }
+    
+    body.theme-elegant #modal-btn-prev,
+    body.theme-elegant #modal-btn-next {
+      background: rgba(26, 26, 34, 0.8) !important;
+      border: 1px solid rgba(212, 175, 55, 0.25) !important;
+      color: #f5f5f7 !important;
+      border-radius: var(--radius-full) !important;
+      font-family: "Plus Jakarta Sans", sans-serif !important;
+    }
+    
+    body.theme-elegant #order-detail-modal button[onclick="app.closeModal()"] {
+      background: linear-gradient(135deg, #e6c894 0%, #d4af37 100%) !important;
+      color: #08080a !important;
+      border-radius: var(--radius-full) !important;
+      font-family: "Cinzel", serif !important;
+      letter-spacing: 1.5px !important;
+    }
+
+    /* Emojis Hidden in Elegant Mode */
+    body.theme-elegant .emoji-icon,
+    body.theme-elegant .preset-icon,
+    body.theme-elegant .ing-emoji,
+    body.theme-elegant .protein-emoji {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top App Navigation Header - BRAND LEFT, TABS CENTER, BADGE RIGHT -->
+  <header class="header-bar">
+    <div class="brand-section">
+      <img src="images/shawarma-logo-exact.png" alt="SHAWARMA en casa®" class="brand-logo-img">
+    </div>
+
+    <!-- Local Offline Sync Status (Right) -->
+    <div class="connection-badge" id="conn-badge">
+      <div class="connection-dot"></div>
+      <span id="conn-text">Red Local OK</span>
+    </div>
+  </header>
+
+  <!-- Navigation Tabs (Centered over header on iPad/Mac, Native Bottom Bar on Phone) -->
+  <nav class="tabs-nav" role="tablist">
+    <button class="tab-btn active" id="tab-order" onclick="app.switchView('order')">
+      <span class="tab-icon">📱</span>
+      <span class="tab-text">Pedidos</span>
+    </button>
+    <button class="tab-btn" id="tab-kitchen" onclick="app.switchView('kitchen')">
+      <span class="tab-icon">👨‍🍳</span>
+      <span class="tab-text">Cocina KDS</span>
+      <span class="badge-count" id="badge-kds-count">0</span>
+    </button>
+    <button class="tab-btn" id="tab-display" onclick="app.switchView('display')">
+      <span class="tab-icon">📺</span>
+      <span class="tab-text">Monitor Turnos</span>
+    </button>
+    <button class="tab-btn" id="tab-admin" onclick="app.switchView('admin')">
+      <span class="tab-icon">⚙️</span>
+      <span class="tab-text">Admin</span>
+    </button>
+  </nav>
+
+  <!-- ========================================================================= -->
+  <!-- VIEW 1: POS PEDIDOS (ULTRA SPEED)                                         -->
+  <!-- ========================================================================= -->
+  <main class="view-content active" id="view-order">
+    <div class="kiosk-grid">
+      
+      <!-- Left Column: Fast Controls -->
+      <section class="pos-card">
+        
+        <!-- Guest Name & Table -->
+        <div class="guest-inputs-row">
+          <div>
+            <label class="field-label" for="guest-name">👤 Nombre del Comensal</label>
+            <input type="text" id="guest-name" class="text-input-pos" placeholder="Ej: María / Carlos" autocomplete="off" autocorrect="off">
+          </div>
+          <div>
+            <label class="field-label" for="guest-table">📍 Mesa / Referencia</label>
+            <input type="text" id="guest-table" class="text-input-pos" placeholder="Ej: Mesa 2" autocomplete="off">
+          </div>
+        </div>
+
+        <!-- 1. Protein Selection (Mixto, Pollo, Carne, Falafel) -->
+        <div class="pos-section-header">
+          <span>1. Selección de Proteína</span>
+          <span style="color: var(--brand-pink);">Obligatorio</span>
+        </div>
+        <div class="protein-selector-grid">
+          <button type="button" class="protein-card-btn selected" data-protein="Mixto" onclick="app.selectProtein('Mixto')">
+            <span class="protein-emoji">🌯</span>
+            <span class="protein-title">Shawarma Mixto</span>
+          </button>
+          <button type="button" class="protein-card-btn" data-protein="Pollo" onclick="app.selectProtein('Pollo')">
+            <span class="protein-emoji">🍗</span>
+            <span class="protein-title">Shawarma de Pollo</span>
+          </button>
+          <button type="button" class="protein-card-btn" data-protein="Carne" onclick="app.selectProtein('Carne')">
+            <span class="protein-emoji">🥩</span>
+            <span class="protein-title">Shawarma de Carne</span>
+          </button>
+          <button type="button" class="protein-card-btn" data-protein="Falafel" onclick="app.selectProtein('Falafel')">
+            <span class="protein-emoji">🧆</span>
+            <span class="protein-title">Shawarma Falafel</span>
+          </button>
+        </div>
+
+        <!-- 2. Fast Presets (Con Todo, Bowl, Para Niños, Sin Salsas, Solo Carnes, Sin Cebolla, Sin Pepinillo, Sin Tomate) -->
+        <div class="pos-section-header">
+          <span>2. Atajos de 1 Toque</span>
+          <span>Rapidez máxima</span>
+        </div>
+        <div class="presets-row">
+          <button type="button" class="preset-pill-btn active" id="preset-con-todo" onclick="app.applyPreset('con-todo')">
+            <span class="preset-icon">⭐</span>
+            <div>
+              <span class="preset-txt-main">Shawarma Con Todo</span>
+              <span class="preset-txt-sub">Todos los 8 ingredientes</span>
+            </div>
+          </button>
+          <button type="button" class="preset-pill-btn preset-bowl" id="preset-bowl" onclick="app.applyPreset('bowl')">
+            <span class="preset-icon">🥗</span>
+            <div>
+              <span class="preset-txt-main">Bowl (Sin Pan)</span>
+              <span class="preset-txt-sub">Servido en plato con todo</span>
+            </div>
+          </button>
+          <button type="button" class="preset-pill-btn preset-ninos" id="preset-ninos" onclick="app.applyPreset('ninos')">
+            <span class="preset-icon">👶</span>
+            <div>
+              <span class="preset-txt-main">Shawarma para Niños</span>
+              <span class="preset-txt-sub">Solo pan y carne (cero salsas)</span>
+            </div>
+          </button>
+          <button type="button" class="preset-pill-btn" id="preset-sin-salsas" onclick="app.applyPreset('sin-salsas')">
+            <span class="preset-icon">🚫</span>
+            <div>
+              <span class="preset-txt-main">Sin Salsas</span>
+              <span class="preset-txt-sub">Sin hummus, ajo, ajonjolí</span>
+            </div>
+          </button>
+          <button type="button" class="preset-pill-btn" id="preset-solo-carnes" onclick="app.applyPreset('solo-carnes')">
+            <span class="preset-icon">🍖</span>
+            <div>
+              <span class="preset-txt-main">Solo Carnes & Salsas</span>
+              <span class="preset-txt-sub">Hummus y salsas (sin vegetales)</span>
+            </div>
+          </button>
+          <button type="button" class="preset-pill-btn preset-no-item" id="preset-sin-cebolla" onclick="app.applyPreset('sin-cebolla')">
+            <span class="preset-icon">🧅</span>
+            <div>
+              <span class="preset-txt-main">Shawarma sin cebolla</span>
+              <span class="preset-txt-sub">Completo sin cebolla</span>
+            </div>
+          </button>
+          <button type="button" class="preset-pill-btn preset-no-item" id="preset-sin-pepinillo" onclick="app.applyPreset('sin-pepinillo')">
+            <span class="preset-icon">🥒</span>
+            <div>
+              <span class="preset-txt-main">Shawarma sin pepinillo</span>
+              <span class="preset-txt-sub">Completo sin pepinillo</span>
+            </div>
+          </button>
+          <button type="button" class="preset-pill-btn preset-no-item" id="preset-sin-tomate" onclick="app.applyPreset('sin-tomate')">
+            <span class="preset-icon">🍅</span>
+            <div>
+              <span class="preset-txt-main">Shawarma sin tomate</span>
+              <span class="preset-txt-sub">Completo sin tomate</span>
+            </div>
+          </button>
+        </div>
+
+        <!-- 3. Clean 8 Ingredients Matrix (SÍ QUIERE / NO QUIERE) -->
+        <div class="pos-section-header">
+          <span>3. Ingredientes (Toca para Cambiar Sí / No)</span>
+          <span>Personalización</span>
+        </div>
+        <div class="ingredients-grid-pos" id="ingredients-matrix">
+          <!-- Rendered dynamically by JS without subtitles -->
+        </div>
+
+        <!-- 4. Quick Notes Buttons for PREPARADOR -->
+        <div style="margin-top: 10px;">
+          <label class="field-label">✏️ Notas para el PREPARADOR</label>
+          <div class="quick-notes-container" id="quick-notes-bar">
+            <button type="button" class="quick-note-chip" onclick="app.toggleQuickNote('Salsa Adicional')">➕ Salsa Adicional</button>
+            <button type="button" class="quick-note-chip" onclick="app.toggleQuickNote('Salsa Aparte')">🥣 Salsa Aparte</button>
+            <button type="button" class="quick-note-chip" onclick="app.toggleQuickNote('Tabule Aparte')">🥗 Tabule Aparte</button>
+            <button type="button" class="quick-note-chip" onclick="app.toggleQuickNote('Salsa de Tahini')">🥣 Salsa de Tahini</button>
+            <button type="button" class="quick-note-chip" onclick="app.toggleQuickNote('Cortado por la mitad')">🔪 Cortado por la mitad</button>
+            <button type="button" class="quick-note-chip" onclick="app.toggleQuickNote('Bien Tostado')">🔥 Bien Tostado</button>
+            <button type="button" class="quick-note-chip" onclick="app.toggleQuickNote('No Falafel')">🧆 No Falafel</button>
+          </div>
+          <input type="text" id="order-notes" class="text-input-pos" style="height: 48px; font-size: 14px;" placeholder="O escribe una nota personalizada aquí..." oninput="app.updateQuickNoteButtons()">
+        </div>
+
+      </section>
+
+      <!-- Right Column: Live Turn Badge & Submit -->
+      <aside class="sidebar-pos">
+        <div class="summary-card-pos">
+          
+          <!-- Strict Turn Counter -->
+          <div class="turn-badge-card">
+            <div class="turn-label-txt">Turno Asignado (FIFO)</div>
+            <div class="turn-number-giant" id="next-turn-display">#1</div>
+            <div style="font-size: 11px; color: var(--text-dim); margin-top: 2px;">Garantía estricta de orden</div>
+          </div>
+
+          <!-- Recipe Preview -->
+          <div class="live-preview-box">
+            <h4>Resumen del Pedido</h4>
+            <div class="tags-flow-container" id="preview-tags-container">
+              <!-- Rendered by JS -->
+            </div>
+            <div style="margin-top: 12px; font-size: 11px; color: var(--text-dim); display: flex; align-items: center; gap: 4px;" id="prep-type-hint">
+              <span>🔥</span> <span>Envuelto y tostado en plancha grill</span>
+            </div>
+          </div>
+
+          <!-- Submit Button -->
+          <button type="button" class="btn-submit-pos" id="btn-submit-order" onclick="app.submitOrder()">
+            <span>🚀</span>
+            <span id="btn-submit-label">ENVIAR A COCINA (TURNO #1)</span>
+          </button>
+
+          <!-- Logo Ahumado Sutil (Más Claro y Visible) -->
+          <div style="margin-top: 20px; text-align: center; opacity: 0.5; pointer-events: none;">
+            <img src="images/brand-icon.png" alt="Shawarma Watermark" style="height: 100px; width: auto; object-fit: contain;">
+            <div style="font-size: 11px; font-style: italic; color: #cbd5e1; margin-top: 6px; line-height: 1.4;">
+              “Y ahora, que toda la Gloria sea para Dios...”<br>Efesios 3:20 NTV
+            </div>
+          </div>
+
+        </div>
+      </aside>
+
+    </div>
+  </main>
+
+  <!-- ========================================================================= -->
+  <!-- VIEW 2: KITCHEN DISPLAY SYSTEM (KDS)                                      -->
+  <!-- ========================================================================= -->
+  <main class="view-content" id="view-kitchen">
+    
+    <!-- Top Batching Bar / Intelligent Summary -->
+    <div class="kds-batching-bar desktop-only-kds-summary" style="margin-bottom: 20px; flex-direction: column; align-items: stretch; gap: 12px; background: #13131a; padding: 16px; border: 2px solid #3a3a4c; border-radius: 12px;">
+      <div class="batch-label" style="font-size: 16px; font-weight: 900; color: var(--brand-pink); border-bottom: 1px solid #3a3a4c; padding-bottom: 10px;">
+        <span>🔥</span>
+        <span>Resumen Rápido (Igualdad de Shawarmas)</span>
+      </div>
+      <div class="batch-chips-wrapper" id="kds-batch-counters" style="display: flex; flex-wrap: wrap; gap: 12px;">
+        <!-- Rendered by JS -->
+      </div>
+    </div>
+
+    <!-- Status Filters -->
+    <div class="kds-filter-row">
+      <button class="kds-filter-tab active" data-filter="active" onclick="app.setKdsFilter('active')">
+        ⏳ En Cola / Plancha (<span id="count-active-kds">0</span>)
+      </button>
+      <button class="kds-filter-tab" data-filter="ready" onclick="app.setKdsFilter('ready')">
+        ✅ Listos para Entrega (<span id="count-ready-kds">0</span>)
+      </button>
+      <button class="kds-filter-tab" data-filter="delivered" onclick="app.setKdsFilter('delivered')">
+        📦 Entregados (<span id="count-delivered-kds">0</span>)
+      </button>
+      <button class="kds-filter-tab" data-filter="all" onclick="app.setKdsFilter('all')">
+        📋 Todos
+      </button>
+    </div>
+
+    <!-- Cards Grid -->
+    <div class="kds-cards-stream" id="kds-cards-grid">
+      <!-- Order cards rendered dynamically -->
+    </div>
+
+  </main>
+
+  <!-- ========================================================================= -->
+  <!-- VIEW 3: MONITOR DE TURNOS                                                 -->
+  <!-- ========================================================================= -->
+  <main class="view-content" id="view-display">
+    <div class="turn-display-layout">
+      
+      <!-- In Prep Column -->
+      <div class="turn-column-box">
+        <div class="turn-column-header col-prep-hdr">
+          <span>🔥</span> <span>En Preparación / Plancha</span>
+        </div>
+        <div class="turns-cards-container" id="display-prep-list"></div>
+      </div>
+
+      <!-- Ready Column -->
+      <div class="turn-column-box">
+        <div class="turn-column-header col-ready-hdr">
+          <span>✨</span> <span>¡Listos para Retirar!</span>
+        </div>
+        <div class="turns-cards-container" id="display-ready-list"></div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- ========================================================================= -->
+  <!-- VIEW 4: ADMIN & REPORTES                                                  -->
+  <!-- ========================================================================= -->
+  <main class="view-content" id="view-admin">
+    <div style="max-width: 800px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px;">
+      
+      <div class="pos-card" style="margin-bottom: 0px;">
+        <h2 style="font-size: 18px; margin-bottom: 12px;">🎨 Apariencia del Sistema</h2>
+        <p style="font-size: 14px; color: var(--text-dim); margin-bottom: 16px;">
+          Alterna entre el Modo Fiesta (colores, neón) y el Modo Elegante (sobrio, oscuro, minimalista).
+        </p>
+        <div style="display: flex; gap: 12px;">
+          <button style="background: var(--bg-surface-2); color: white; border: 1px solid var(--border-color); padding: 12px 20px; border-radius: var(--radius-md); font-weight: 800; cursor: pointer; flex: 1;" onclick="app.setTheme('fiesta')">
+            🎉 Modo Fiesta
+          </button>
+          <button style="background: #000; color: white; border: 1px solid #333; padding: 12px 20px; font-weight: 400; cursor: pointer; letter-spacing: 1px; flex: 1; text-transform: uppercase;" onclick="app.setTheme('elegante')">
+            Modo Elegante
+          </button>
+        </div>
+      </div>
+
+      <div class="pos-card">
+        <h2 style="font-size: 18px; margin-bottom: 12px;">📶 Conexión de iPads sin Internet</h2>
+        <p style="font-size: 14px; color: var(--text-dim); margin-bottom: 16px;">
+          Conecta los iPads al Wi-Fi o Hotspot y abre esta dirección en Safari:
+        </p>
+        <div style="background: var(--bg-surface-2); padding: 14px; border-radius: var(--radius-md); font-family: monospace; font-size: 16px; color: var(--brand-pink); font-weight: 800;">
+          <span id="admin-url-text">http://10.0.0.161:8080</span>
+        </div>
+      </div>
+
+      <div class="pos-card">
+        <h2 style="font-size: 18px; margin-bottom: 12px;">📊 Estadísticas de Consumo</h2>
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; text-align: center;">
+          <div style="background: var(--bg-surface-2); padding: 14px; border-radius: var(--radius-md);">
+            <div style="font-size: 28px; font-weight: 900; color: var(--brand-pink);" id="stat-total">0</div>
+            <div style="font-size: 12px; color: var(--text-dim);">Total Shawarmas</div>
+          </div>
+          <div style="background: var(--bg-surface-2); padding: 14px; border-radius: var(--radius-md);">
+            <div style="font-size: 28px; font-weight: 900; color: #fbbf24;" id="stat-mixto">0</div>
+            <div style="font-size: 12px; color: var(--text-dim);">Mixto 🌯</div>
+          </div>
+          <div style="background: var(--bg-surface-2); padding: 14px; border-radius: var(--radius-md);">
+            <div style="font-size: 28px; font-weight: 900; color: #60a5fa;" id="stat-pollo">0</div>
+            <div style="font-size: 12px; color: var(--text-dim);">Pollo 🍗</div>
+          </div>
+          <div style="background: var(--bg-surface-2); padding: 14px; border-radius: var(--radius-md);">
+            <div style="font-size: 28px; font-weight: 900; color: #f87171;" id="stat-carne">0</div>
+            <div style="font-size: 12px; color: var(--text-dim);">Carne 🥩</div>
+          </div>
+        </div>
+
+        <div style="margin-top: 20px; display: flex; gap: 12px;">
+          <button style="background: var(--bg-surface-2); color: white; border: 1px solid var(--border-color); padding: 12px 20px; border-radius: var(--radius-md); font-weight: 800; cursor: pointer;" onclick="app.exportCSV()">
+            📥 Descargar CSV (Excel)
+          </button>
+          <button style="background: var(--no-red); color: white; border: none; padding: 12px 20px; border-radius: var(--radius-md); font-weight: 800; cursor: pointer;" onclick="app.resetEventPrompt()">
+            🔄 Nuevo Evento / Limpiar
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL FLOTANTE DE DETALLE DE PEDIDO (MONITOR DE TURNOS)                   -->
+  <!-- ========================================================================= -->
+  <div class="modal-overlay" id="order-detail-modal" onclick="app.closeModal(event)">
+    <div class="modal-card" onclick="event.stopPropagation()">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; border-bottom:1px solid var(--border-color); padding-bottom:14px; margin-bottom:16px;">
+        <div>
+          <div style="font-size:26px; font-weight:900; color:var(--brand-pink);" id="modal-turn-title">TURNO #0</div>
+          <div style="font-size:13px; color:var(--text-dim);" id="modal-time-detail">Hora del pedido</div>
+        </div>
+        <button type="button" style="background:#272736; border:none; color:white; font-size:18px; font-weight:900; width:36px; height:36px; border-radius:50%; cursor:pointer;" onclick="app.closeModal()">✕</button>
+      </div>
+
+      <div style="margin-bottom:16px;">
+        <div style="font-size:18px; font-weight:900; color:white;" id="modal-guest-name">COMENSAL</div>
+        <div style="font-size:13px; color:#38bdf8; font-weight:800; margin-top:2px;" id="modal-table-name">📍 Mesa / Ref</div>
+      </div>
+
+      <div id="modal-product-banner" style="margin-bottom:14px;"></div>
+      <div id="modal-ingredients-body" style="display:flex; flex-direction:column; gap:8px;"></div>
+      <div id="modal-notes-box" style="margin-top:14px;"></div>
+
+      <div style="margin-top:20px; display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+        <button type="button" id="modal-btn-prev" style="background:#272736; color:white; border:none; padding:12px; border-radius:var(--radius-md); font-weight:900; font-size:14px; cursor:pointer; flex: 1;" onclick="app.navigateModal(-1)">◀ Ant.</button>
+        <button type="button" style="background:var(--brand-pink); color:white; border:none; padding:12px 16px; border-radius:var(--radius-md); font-weight:900; font-size:14px; cursor:pointer; flex: 2;" onclick="app.closeModal()">Entendido</button>
+        <button type="button" id="modal-btn-next" style="background:#272736; color:white; border:none; padding:12px; border-radius:var(--radius-md); font-weight:900; font-size:14px; cursor:pointer; flex: 1;" onclick="app.navigateModal(1)">Sig. ▶</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-tray" id="toast-tray"></div>
+
+  <!-- ========================================================================= -->
+  <!-- JAVASCRIPT LOGIC (100% INLINE, ROBUST & OFFLINE)                          -->
+  <!-- ========================================================================= -->
+  <script>
+    const INGREDIENTS_CONFIG = [
+      { id: 'hummus', name: 'Hummus', icon: '🫘', isDefault: true },
+      { id: 'tabule', name: 'Tabule', icon: '🥗', isDefault: true },
+      { id: 'cebolla', name: 'Cebolla', icon: '🧅', isDefault: true },
+      { id: 'tomate', name: 'Tomate', icon: '🍅', isDefault: true },
+      { id: 'pepinillo', name: 'Pepinillo', icon: '🥒', isDefault: true },
+      { id: 'nabo', name: 'Encurtido de Nabo', icon: '🟣', isDefault: true },
+      { id: 'ajo', name: 'Salsa de Ajo', icon: '🧄', isDefault: true },
+      { id: 'ajonjoli', name: 'Salsa de Ajonjolí', icon: '🥣', isDefault: true },
+      { id: 'picante', name: 'Picante (Opcional)', icon: '🔥', isDefault: false }
+    ];
+
+    class SoundEngine {
+      constructor() { this.ctx = null; }
+      init() {
+        if (!this.ctx) {
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          if (AudioCtx) this.ctx = new AudioCtx();
+        }
+        if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume();
+      }
+      playClick() {
+        this.init();
+        if (!this.ctx) return;
+        try {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.frequency.setValueAtTime(800, this.ctx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(300, this.ctx.currentTime + 0.04);
+          gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.04);
+          osc.connect(gain); gain.connect(this.ctx.destination);
+          osc.start(); osc.stop(this.ctx.currentTime + 0.04);
+        } catch(e) {}
+      }
+      playChime() {
+        this.init();
+        if (!this.ctx) return;
+        try {
+          const now = this.ctx.currentTime;
+          [587.33, 880].forEach((freq, idx) => {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.frequency.setValueAtTime(freq, now + idx * 0.14);
+            gain.gain.setValueAtTime(0.25, now + idx * 0.14);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.14 + 0.35);
+            osc.connect(gain); gain.connect(this.ctx.destination);
+            osc.start(now + idx * 0.14); osc.stop(now + idx * 0.14 + 0.35);
+          });
+        } catch(e) {}
+      }
+    }
+
+    const soundEngine = new SoundEngine();
+
+    class AppState {
+      constructor() {
+        this.currentView = 'order';
+        this.selectedProtein = 'Mixto';
+        this.selectedPreset = 'con-todo';
+        this.ingredientPreferences = {};
+        this.db = {
+          event_info: { name: 'Shawarma en Casa®', turn_counter: 0 },
+          orders: []
+        };
+        this.kdsFilter = 'active';
+        this.broadcast = null;
+      }
+
+      init() {
+        const savedTheme = localStorage.getItem('shawarma_theme') || 'fiesta';
+        this.setTheme(savedTheme, false);
+
+        this.initBroadcast();
+        this.resetForm();
+        this.checkParams();
+        this.loadLocal();
+        this.fetchServer();
+        this.startSSE();
+
+        setInterval(() => this.updateTimers(), 10000);
+        document.addEventListener('touchstart', () => soundEngine.init(), { once: true });
+        document.addEventListener('click', () => soundEngine.init(), { once: true });
+      }
+
+      initBroadcast() {
+        if ('BroadcastChannel' in window) {
+          this.broadcast = new BroadcastChannel('shawarma_channel');
+          this.broadcast.onmessage = (e) => {
+            if (e.data && e.data.db) this.syncData(e.data.db, false);
+          };
+        }
+      }
+
+      checkParams() {
+        const p = new URLSearchParams(window.location.search);
+        const v = p.get('view');
+        if (v && ['order', 'kitchen', 'display', 'admin'].includes(v)) {
+          this.switchView(v);
+        }
+      }
+
+      switchView(v) {
+        this.currentView = v;
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        const tab = document.getElementById(`tab-${v}`);
+        if (tab) tab.classList.add('active');
+
+        document.querySelectorAll('.view-content').forEach(view => view.classList.remove('active'));
+        const activeEl = document.getElementById(`view-${v}`);
+        if (activeEl) activeEl.classList.add('active');
+
+        if (v === 'kitchen') this.renderKDS();
+        if (v === 'display') this.renderDisplay();
+        if (v === 'admin') this.renderAdmin();
+      }
+
+      loadLocal() {
+        try {
+          const cached = localStorage.getItem('shawarma_db_v6');
+          if (cached) this.syncData(JSON.parse(cached), false);
+        } catch(e) {}
+      }
+
+      async fetchServer() {
+        try {
+          const res = await fetch('/api/orders');
+          if (res.ok) {
+            const data = await res.json();
+            this.syncData(data, true);
+          }
+        } catch(e) {
+          console.warn('Modo local activo:', e);
+        }
+      }
+
+      startSSE() {
+        try {
+          const sse = new EventSource('/api/stream');
+          sse.addEventListener('init', (e) => this.syncData(JSON.parse(e.data), true));
+          sse.addEventListener('sync', (e) => {
+            const currentOrders = this.db.orders ? this.db.orders.length : 0;
+            const fresh = JSON.parse(e.data);
+            this.syncData(fresh, true);
+            if (fresh.orders && fresh.orders.length > currentOrders) {
+              soundEngine.playChime();
+              this.showToast('¡Nueva comanda recibida en cocina!', 'success');
+            }
+          });
+        } catch(e) {}
+      }
+
+      syncData(data, saveCache = true) {
+        if (!data) return;
+        this.db = data;
+        if (saveCache) {
+          try { localStorage.setItem('shawarma_db_v6', JSON.stringify(data)); } catch(e) {}
+        }
+        if (this.broadcast && saveCache) {
+          this.broadcast.postMessage({ db: data });
+        }
+
+        this.updatePreviewAndTurn();
+        if (this.currentView === 'kitchen') this.renderKDS();
+        if (this.currentView === 'display') this.renderDisplay();
+        if (this.currentView === 'admin') this.renderAdmin();
+
+        const pending = (this.db.orders || []).filter(o => o.status === 'pending' || o.status === 'preparing').length;
+        const badge = document.getElementById('badge-kds-count');
+        if (badge) badge.textContent = pending;
+      }
+
+      resetForm() {
+        this.selectedProtein = 'Mixto';
+        this.selectedPreset = 'con-todo';
+        this.ingredientPreferences = {};
+        INGREDIENTS_CONFIG.forEach(i => { this.ingredientPreferences[i.id] = !!i.isDefault; });
+
+        const nameInp = document.getElementById('guest-name');
+        const tableInp = document.getElementById('guest-table');
+        const notesInp = document.getElementById('order-notes');
+        if (nameInp) nameInp.value = '';
+        if (tableInp) tableInp.value = '';
+        if (notesInp) notesInp.value = '';
+
+        this.updateProteinCards();
+        this.updatePresetPills();
+        this.renderIngredientsMatrix();
+        this.updateQuickNoteButtons();
+        this.updatePreviewAndTurn();
+      }
+
+      selectProtein(protein) {
+        soundEngine.playClick();
+        this.selectedProtein = protein;
+        this.updateProteinCards();
+        this.updatePreviewAndTurn();
+      }
+
+      updateProteinCards() {
+        document.querySelectorAll('.protein-card-btn').forEach(btn => {
+          btn.classList.toggle('selected', btn.dataset.protein === this.selectedProtein);
+        });
+      }
+
+      applyPreset(preset) {
+        soundEngine.playClick();
+        this.selectedPreset = preset;
+
+        if (preset === 'con-todo' || preset === 'bowl') {
+          // Standard 8 ingredients YES, Picante remains false
+          INGREDIENTS_CONFIG.forEach(i => {
+            this.ingredientPreferences[i.id] = (i.id !== 'picante');
+          });
+        } else if (preset === 'ninos') {
+          // Kids: Pure bread + meat. All false
+          INGREDIENTS_CONFIG.forEach(i => { this.ingredientPreferences[i.id] = false; });
+        } else if (preset === 'sin-salsas') {
+          // Sin Salsas: Sin hummus, ajo, ajonjoli, picante. Vegetales YES
+          INGREDIENTS_CONFIG.forEach(i => {
+            const isSauce = (i.id === 'hummus' || i.id === 'ajo' || i.id === 'ajonjoli' || i.id === 'picante');
+            this.ingredientPreferences[i.id] = !isSauce;
+          });
+        } else if (preset === 'solo-carnes') {
+          // Hummus & Sauces YES, Veggies NO
+          INGREDIENTS_CONFIG.forEach(i => {
+            const isSauce = (i.id === 'hummus' || i.id === 'ajo' || i.id === 'ajonjoli');
+            this.ingredientPreferences[i.id] = isSauce;
+          });
+        } else if (preset === 'sin-cebolla') {
+          // Con Todo sin cebolla
+          INGREDIENTS_CONFIG.forEach(i => {
+            this.ingredientPreferences[i.id] = (i.id !== 'cebolla' && i.id !== 'picante');
+          });
+        } else if (preset === 'sin-pepinillo') {
+          // Con Todo sin pepinillo
+          INGREDIENTS_CONFIG.forEach(i => {
+            this.ingredientPreferences[i.id] = (i.id !== 'pepinillo' && i.id !== 'picante');
+          });
+        } else if (preset === 'sin-tomate') {
+          // Con Todo sin tomate
+          INGREDIENTS_CONFIG.forEach(i => {
+            this.ingredientPreferences[i.id] = (i.id !== 'tomate' && i.id !== 'picante');
+          });
+        }
+
+        this.updatePresetPills();
+        this.renderIngredientsMatrix();
+        this.updatePreviewAndTurn();
+      }
+
+      updatePresetPills() {
+        const presets = ['con-todo', 'bowl', 'ninos', 'sin-salsas', 'solo-carnes', 'sin-cebolla', 'sin-pepinillo', 'sin-tomate'];
+        presets.forEach(p => {
+          const el = document.getElementById(`preset-${p}`);
+          if (el) el.classList.toggle('active', this.selectedPreset === p);
+        });
+      }
+
+      setPreference(id, wantsIt) {
+        soundEngine.playClick();
+        this.ingredientPreferences[id] = wantsIt;
+        this.selectedPreset = 'custom';
+        this.updatePresetPills();
+        this.renderIngredientsMatrix();
+        this.updatePreviewAndTurn();
+      }
+
+      toggleItem(id) {
+        const current = this.ingredientPreferences[id] === true;
+        this.setPreference(id, !current);
+      }
+
+      renderIngredientsMatrix() {
+        const grid = document.getElementById('ingredients-matrix');
+        if (!grid) return;
+
+        grid.innerHTML = INGREDIENTS_CONFIG.map(item => {
+          const wantsIt = this.ingredientPreferences[item.id] === true;
+          return `
+            <div class="ing-card-item ${wantsIt ? 'state-yes' : 'state-no'}" onclick="app.toggleItem('${item.id}')">
+              <div class="ing-item-header">
+                <span class="ing-item-icon">${item.icon}</span>
+                <span class="ing-item-name">${item.name}</span>
+              </div>
+              <div class="switch-dual-btn" onclick="event.stopPropagation()">
+                <div class="switch-opt switch-yes" onclick="app.setPreference('${item.id}', true)">✓ SÍ QUIERE</div>
+                <div class="switch-opt switch-no" onclick="app.setPreference('${item.id}', false)">✕ NO QUIERE</div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      toggleQuickNote(text) {
+        soundEngine.playClick();
+        const notesInp = document.getElementById('order-notes');
+        if (!notesInp) return;
+        let current = notesInp.value.trim();
+        let parts = current ? current.split(', ').filter(Boolean) : [];
+        
+        const idx = parts.indexOf(text);
+        if (idx >= 0) {
+          parts.splice(idx, 1);
+        } else {
+          parts.push(text);
+        }
+        notesInp.value = parts.join(', ');
+        this.updateQuickNoteButtons();
+        this.updatePreviewAndTurn();
+      }
+
+      updateQuickNoteButtons() {
+        const notesInp = document.getElementById('order-notes');
+        const current = notesInp ? notesInp.value : '';
+        document.querySelectorAll('.quick-note-chip').forEach(chip => {
+          const txt = chip.textContent.replace(/^[^\wáéíóúÁÉÍÓÚ]+/, '').trim();
+          chip.classList.toggle('active', current.includes(txt));
+        });
+      }
+
+      getRemoved() {
+        return INGREDIENTS_CONFIG
+          .filter(i => i.isDefault && this.ingredientPreferences[i.id] === false)
+          .map(i => i.name);
+      }
+
+      getActive() {
+        return INGREDIENTS_CONFIG
+          .filter(i => this.ingredientPreferences[i.id] === true)
+          .map(i => i.name);
+      }
+
+      updatePreviewAndTurn() {
+        const nextTurn = (this.db.event_info?.turn_counter || 0) + 1;
+        const turnEl = document.getElementById('next-turn-display');
+        const submitLabel = document.getElementById('btn-submit-label');
+        if (turnEl) turnEl.textContent = `#${nextTurn}`;
+        if (submitLabel) submitLabel.textContent = `ENVIAR A COCINA (TURNO #${nextTurn})`;
+
+        const tagsContainer = document.getElementById('preview-tags-container');
+        const hintEl = document.getElementById('prep-type-hint');
+        if (!tagsContainer) return;
+
+        const isBowl = this.selectedPreset === 'bowl';
+        if (hintEl) {
+          hintEl.innerHTML = isBowl 
+            ? `<span>🥗</span> <span>Servido en Bowl / Plato (Sin pan)</span>`
+            : `<span>🔥</span> <span>Envuelto y tostado en plancha grill</span>`;
+        }
+
+        const tags = [];
+        if (isBowl) {
+          tags.push(`<span class="pos-tag tag-bowl">🥗 BOWL DE ${this.selectedProtein.toUpperCase()}</span>`);
+        } else {
+          tags.push(`<span class="pos-tag tag-protein">🌯 SHAWARMA ${this.selectedProtein.toUpperCase()}</span>`);
+        }
+
+        const removed = this.getRemoved();
+
+        if (this.selectedPreset === 'ninos') {
+          tags.push(`<span class="pos-tag tag-protein" style="background:#1e3a8a; color:#93c5fd; border-color:#3b82f6;">👶 PARA NIÑOS (SOLO CARNE)</span>`);
+        } else if (removed.length > 0) {
+          removed.forEach(r => {
+            tags.push(`<span class="pos-tag tag-removed">⛔ SIN ${r.toUpperCase()}</span>`);
+          });
+        } else {
+          tags.push(`<span class="pos-tag tag-all">⭐ CON TODO (8 INGREDIENTES)</span>`);
+        }
+
+        if (this.ingredientPreferences['picante'] === true) {
+          tags.push(`<span class="pos-tag tag-note">🔥 CON PICANTE</span>`);
+        }
+
+        const notesVal = document.getElementById('order-notes')?.value.trim();
+        if (notesVal) {
+          tags.push(`<span class="pos-tag tag-note">📝 ${notesVal.toUpperCase()}</span>`);
+        }
+
+        tagsContainer.innerHTML = tags.join('');
+      }
+
+      async submitOrder() {
+        const nameInput = document.getElementById('guest-name');
+        const tableInput = document.getElementById('guest-table');
+        const notesInput = document.getElementById('order-notes');
+
+        const guestName = nameInput?.value.trim() || 'Comensal';
+        const table = tableInput?.value.trim() || '';
+        const notes = notesInput?.value.trim() || '';
+        const removed = this.getRemoved();
+        const active = this.getActive();
+
+        const orderData = {
+          guest_name: guestName,
+          table: table,
+          protein: this.selectedProtein,
+          preset: this.selectedPreset,
+          is_bowl: this.selectedPreset === 'bowl',
+          ingredients: active,
+          removed_ingredients: removed,
+          notes: notes,
+          quantity: 1,
+          created_at: new Date().toISOString()
+        };
+
+        const btn = document.getElementById('btn-submit-order');
+        if (btn) btn.disabled = true;
+
+        try {
+          const res = await fetch('/api/orders', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(orderData)
+          });
+
+          if (res.ok) {
+            const data = await res.json();
+            soundEngine.playClick();
+            this.showToast(`¡Turno #${data.order.turn} creado para ${guestName}!`, 'success');
+            this.resetForm();
+          } else {
+            throw new Error();
+          }
+        } catch(e) {
+          const nextTurn = (this.db.event_info?.turn_counter || 0) + 1;
+          if (!this.db.event_info) this.db.event_info = { name: 'Shawarma en Casa®', turn_counter: 0 };
+          this.db.event_info.turn_counter = nextTurn;
+
+          const newOrder = {
+            id: `ord_${Date.now()}`,
+            turn: nextTurn,
+            ...orderData,
+            status: 'pending',
+            created_at: new Date().toISOString()
+          };
+
+          if (!this.db.orders) this.db.orders = [];
+          this.db.orders.push(newOrder);
+          this.syncData(this.db, true);
+
+          soundEngine.playClick();
+          this.showToast(`¡Turno #${nextTurn} registrado para ${guestName}!`, 'success');
+          this.resetForm();
+        } finally {
+          if (btn) btn.disabled = false;
+        }
+      }
+
+      setKdsFilter(f) {
+        this.kdsFilter = f;
+        document.querySelectorAll('.kds-filter-tab').forEach(t => {
+          t.classList.toggle('active', t.dataset.filter === f);
+        });
+        this.renderKDS();
+      }
+
+      renderKDS() {
+        const grid = document.getElementById('kds-cards-grid');
+        const batchEl = document.getElementById('kds-batch-counters');
+        if (!grid) return;
+
+        const orders = this.db.orders || [];
+        const active = orders.filter(o => o.status === 'pending' || o.status === 'preparing');
+        const ready = orders.filter(o => o.status === 'ready');
+        const delivered = orders.filter(o => o.status === 'delivered');
+
+        document.getElementById('count-active-kds').textContent = active.length;
+        document.getElementById('count-ready-kds').textContent = ready.length;
+        document.getElementById('count-delivered-kds').textContent = delivered.length;
+
+        // Smart Batching (Group identically configured shawarmas)
+        const summaryGroup = {};
+        active.forEach(o => {
+          let desc = '';
+          if (o.preset === 'con-todo') {
+             desc = '⭐ Con Todo';
+          } else if (o.preset === 'bowl' || o.is_bowl) {
+             desc = '🥗 Bowl (Sin Pan)';
+          } else if (o.preset === 'ninos') {
+             desc = '👶 Para Niños';
+          } else if (o.preset === 'sin-salsas') {
+             desc = '🚫 Sin Salsas';
+          } else if (o.preset === 'solo-carnes') {
+             desc = '🍖 Solo Carnes';
+          } else if (o.preset === 'sin-cebolla') {
+             desc = '🧅 Sin Cebolla';
+          } else if (o.preset === 'sin-pepinillo') {
+             desc = '🥒 Sin Pepinillo';
+          } else if (o.preset === 'sin-tomate') {
+             desc = '🍅 Sin Tomate';
+          } else if (o.preset === 'custom' || !o.preset) {
+             if (!o.removed_ingredients || o.removed_ingredients.length === 0) {
+               desc = '⭐ Con Todo';
+             } else {
+               desc = `🚫 Sin: ${o.removed_ingredients.map(x=>x.toUpperCase()).join(', ')}`;
+             }
+          }
+
+          const key = `${o.protein}|${desc}`;
+          if (!summaryGroup[key]) {
+            summaryGroup[key] = { protein: o.protein, desc: desc, count: 0 };
+          }
+          summaryGroup[key].count++;
+        });
+
+        if (batchEl) {
+          let summaryHtml = '';
+          const grps = Object.values(summaryGroup);
+          if (grps.length === 0) {
+            summaryHtml = `<div style="color:var(--text-dim); font-size:14px; font-style:italic;">No hay pedidos en preparación.</div>`;
+          } else {
+            grps.forEach(grp => {
+              summaryHtml += `
+                <div style="background:var(--bg-surface-2); border:1px solid #3a3a4c; border-radius:8px; padding:10px 14px; display:flex; align-items:center; gap:12px; min-width:200px;">
+                  <div style="background:var(--brand-pink); color:white; font-size:18px; font-weight:900; width:36px; height:36px; display:flex; justify-content:center; align-items:center; border-radius:50%; flex-shrink:0;">${grp.count}</div>
+                  <div style="display:flex; flex-direction:column; gap:2px;">
+                    <div style="font-weight:900; color:white; font-size:15px; text-transform:uppercase;">${grp.protein}</div>
+                    <div style="font-size:12px; color:var(--text-dim); font-weight:800;">${grp.desc}</div>
+                  </div>
+                </div>
+              `;
+            });
+          }
+          batchEl.innerHTML = summaryHtml;
+        }
+
+        let displayed = (this.kdsFilter === 'active') ? active : (this.kdsFilter === 'ready' ? ready : (this.kdsFilter === 'delivered' ? delivered : orders));
+        displayed.sort((a,b) => a.turn - b.turn);
+
+        if (displayed.length === 0) {
+          grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 60px; color: var(--text-dim); font-size: 18px;">Sin comandas en esta sección</div>`;
+          return;
+        }
+
+        grid.innerHTML = displayed.map(o => {
+          const createdAt = new Date(o.created_at || Date.now());
+          const timeStr = createdAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+          const elapsedMins = Math.floor((Date.now() - createdAt.getTime()) / 60000);
+          
+          let prepDurationInfo = '';
+          if (o.status === 'ready' && o.prepared_at) {
+            const readyAt = new Date(o.prepared_at);
+            const readyTimeStr = readyAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const totalMins = Math.max(1, Math.round((readyAt.getTime() - createdAt.getTime()) / 60000));
+            prepDurationInfo = `<div style="color:#6ee7b7; font-weight:800;">⏱️ Listo a las ${readyTimeStr} (Tardó ${totalMins} min)</div>`;
+          } else {
+            prepDurationInfo = `<div>📥 Pedido: ${timeStr} • ⏱️ Hace ${elapsedMins === 0 ? 'un momento' : `${elapsedMins} min`}</div>`;
+          }
+
+          let kdsContentHtml = '';
+
+          // Distinct Protein Header for BOWL vs SHAWARMA
+          let productHeaderHtml = '';
+          if (o.preset === 'bowl' || o.is_bowl) {
+            productHeaderHtml = `
+              <div class="kds-bowl-flag-header">
+                <span>🥗 BOWL DE ${o.protein.toUpperCase()} (EN PLATO - SIN PAN)</span>
+              </div>
+            `;
+          } else {
+            productHeaderHtml = `
+              <div class="kds-protein-flag">
+                <span>🌯 SHAWARMA DE ${o.protein.toUpperCase()}</span>
+              </div>
+            `;
+          }
+
+          if (o.preset === 'ninos') {
+            kdsContentHtml += `<div class="kds-alert-tag-danger" style="background:#1e3a8a; border-color:#3b82f6; color:#bfdbfe;">👶 PARA NIÑOS (SOLO PAN Y CARNE - SIN SALSAS NI VEGETALES)</div>`;
+          } else {
+            // 1. WHAT DOESN'T WANT (RED BOX)
+            if (o.removed_ingredients && o.removed_ingredients.length > 0) {
+              kdsContentHtml += `
+                <div class="kds-alert-tag-danger">
+                  <div style="font-size:11px; text-transform:uppercase; color:#fca5a5; margin-bottom:2px; font-weight:900;">⛔ NO QUIERE:</div>
+                  <div>${o.removed_ingredients.map(r => r.toUpperCase()).join(' • ')}</div>
+                </div>
+              `;
+            }
+
+            // 2. WHAT DOES WANT (GREEN BOX)
+            if (o.ingredients && o.ingredients.length > 0) {
+              const allCore = (o.removed_ingredients || []).length === 0;
+              kdsContentHtml += `
+                <div class="kds-alert-tag-success">
+                  <div style="font-size:11px; text-transform:uppercase; color:#a7f3d0; margin-bottom:2px; font-weight:900;">✅ SÍ LLEVA:</div>
+                  <div>${allCore ? '⭐ CON TODO (LOS 8 INGREDIENTES COMPLETOS)' : o.ingredients.map(i => i.toUpperCase()).join(' • ')}</div>
+                </div>
+              `;
+            }
+          }
+
+          let actBtns = '';
+          if (o.status === 'pending') {
+            actBtns = `
+              <button class="kds-btn-action kds-btn-prep" onclick="app.updateStatus('${o.id}', 'preparing')">🔥 Preparando</button>
+              <button class="kds-btn-action kds-btn-ready" onclick="app.updateStatus('${o.id}', 'ready')">✅ ¡LISTO!</button>
+            `;
+          } else if (o.status === 'preparing') {
+            actBtns = `<button class="kds-btn-action kds-btn-ready" onclick="app.updateStatus('${o.id}', 'ready')">✅ ¡LISTO PARA ENTREGAR!</button>`;
+          } else if (o.status === 'ready') {
+            actBtns = `<button class="kds-btn-action kds-btn-deliver" onclick="app.updateStatus('${o.id}', 'delivered')">🎉 ENTREGADO</button>`;
+          } else {
+            actBtns = `<div style="grid-column: span 2; text-align: center; color: #10b981; font-weight: 800;">✓ Entregado</div>`;
+          }
+
+          return `
+            <div class="kds-card-box status-${o.status}">
+              <div>
+                <div class="kds-card-top">
+                  <div>
+                    <div class="kds-turn-title">TURNO #${o.turn}</div>
+                    <div class="kds-time-info">${prepDurationInfo}</div>
+                  </div>
+                  <div style="text-align:right;">
+                    <div class="kds-guest-name">${o.guest_name}</div>
+                    ${o.table ? `<div class="kds-table-badge">📍 MESA / REF: ${o.table}</div>` : ''}
+                  </div>
+                </div>
+
+                ${productHeaderHtml}
+                ${kdsContentHtml}
+
+                ${o.notes ? `<div style="margin-top: 8px; font-size: 13px; font-weight: 900; color: #fbbf24; background: #261f0d; border: 1px solid #78350f; padding: 8px 10px; border-radius: 6px;">📝 NOTA: ${o.notes.toUpperCase()}</div>` : ''}
+              </div>
+
+              <div class="kds-actions-grid">${actBtns}</div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      async updateStatus(id, newStatus) {
+        soundEngine.playClick();
+        const o = this.db.orders.find(item => item.id === id);
+        if (o) {
+          o.status = newStatus;
+          if (newStatus === 'ready') o.prepared_at = new Date().toISOString();
+          if (newStatus === 'delivered') o.delivered_at = new Date().toISOString();
+          this.syncData(this.db, true);
+        }
+
+        try {
+          await fetch('/api/orders/status', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: id, status: newStatus })
+          });
+        } catch(e) {}
+      }
+
+      renderDisplay() {
+        const prepEl = document.getElementById('display-prep-list');
+        const readyEl = document.getElementById('display-ready-list');
+        if (!prepEl || !readyEl) return;
+
+        const orders = this.db.orders || [];
+        const preps = orders.filter(o => o.status === 'pending' || o.status === 'preparing');
+        const readies = orders.filter(o => o.status === 'ready');
+
+        prepEl.innerHTML = preps.length === 0 ? '<div style="color: var(--text-dim); padding: 20px;">Sin pedidos en cola</div>' : preps.map(o => `
+          <div class="turn-tile" onclick="app.openModal('${o.id}')">
+            <div class="turn-tile-num">#${o.turn}</div>
+            <div class="turn-tile-name">${o.guest_name}</div>
+            <div style="font-size: 11px; color: var(--text-dim); margin-top:2px;">${o.is_bowl ? '🥗 BOWL' : '🌯 SHAWARMA'} ${o.protein.toUpperCase()}</div>
+            <div style="font-size: 10px; color: #38bdf8; margin-top: 4px;">🔍 Toca para ver detalle</div>
+          </div>
+        `).join('');
+
+        readyEl.innerHTML = readies.length === 0 ? '<div style="color: var(--text-dim); padding: 20px;">Esperando deliciosos shawarmas...</div>' : readies.map(o => `
+          <div class="turn-tile tile-ready" onclick="app.openModal('${o.id}')">
+            <div class="turn-tile-num">#${o.turn}</div>
+            <div class="turn-tile-name">${o.guest_name}</div>
+            <div style="font-size: 11px; color: #a7f3d0; font-weight: 800;">¡LISTO!</div>
+            <div style="font-size: 10px; color: #6ee7b7; margin-top: 4px;">🔍 Toca para ver detalle</div>
+          </div>
+        `).join('');
+      }
+
+      navigateModal(direction) {
+        if (!this.currentModalOrderId) return;
+        const orders = this.db.orders || [];
+        const currentIndex = orders.findIndex(o => o.id === this.currentModalOrderId);
+        if (currentIndex === -1) return;
+        
+        const newIndex = currentIndex + direction;
+        if (newIndex >= 0 && newIndex < orders.length) {
+          this.openModal(orders[newIndex].id);
+        } else {
+          this.showToast('No hay más pedidos en esa dirección', 'danger');
+        }
+      }
+
+      openModal(orderId) {
+        soundEngine.playClick();
+        const o = this.db.orders.find(item => item.id === orderId);
+        if (!o) return;
+
+        this.currentModalOrderId = orderId;
+
+        const modal = document.getElementById('order-detail-modal');
+        document.getElementById('modal-turn-title').textContent = `TURNO #${o.turn}`;
+        
+        const createdAt = new Date(o.created_at || Date.now());
+        document.getElementById('modal-time-detail').textContent = `Hora pedido: ${createdAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+        document.getElementById('modal-guest-name').textContent = o.guest_name.toUpperCase();
+        document.getElementById('modal-table-name').textContent = o.table ? `📍 MESA / REFERENCIA: ${o.table}` : '📍 Sin mesa asignada';
+
+        const bannerEl = document.getElementById('modal-product-banner');
+        if (o.is_bowl || o.preset === 'bowl') {
+          bannerEl.innerHTML = `<div style="background:rgba(6,182,212,0.2); border:2px solid var(--cyan-blue); color:#67e8f9; padding:10px 14px; border-radius:8px; font-weight:900; font-size:16px;">🥗 BOWL DE ${o.protein.toUpperCase()} (EN PLATO - SIN PAN)</div>`;
+        } else {
+          bannerEl.innerHTML = `<div style="background:rgba(255,0,127,0.2); border:2px solid var(--brand-pink); color:#ff66b3; padding:10px 14px; border-radius:8px; font-weight:900; font-size:16px;">🌯 SHAWARMA DE ${o.protein.toUpperCase()}</div>`;
+        }
+
+        const bodyEl = document.getElementById('modal-ingredients-body');
+        let bodyHtml = '';
+
+        if (o.preset === 'ninos') {
+          bodyHtml += `<div style="background:#1e3a8a; border:2px solid #3b82f6; color:#bfdbfe; padding:10px 14px; border-radius:8px; font-weight:900; font-size:14px;">👶 PARA NIÑOS: Solo pan y carne (Sin salsas ni vegetales)</div>`;
+        } else {
+          if (o.removed_ingredients && o.removed_ingredients.length > 0) {
+            bodyHtml += `
+              <div style="background:#3b0d0d; border:2px solid #ef4444; color:#fecaca; padding:10px 12px; border-radius:8px; font-size:13px; font-weight:900;">
+                <div style="color:#fca5a5; font-size:11px; text-transform:uppercase;">⛔ NO QUIERE:</div>
+                <div>${o.removed_ingredients.map(r => r.toUpperCase()).join(' • ')}</div>
+              </div>
+            `;
+          }
+          if (o.ingredients && o.ingredients.length > 0) {
+            const allCore = (o.removed_ingredients || []).length === 0;
+            bodyHtml += `
+              <div style="background:#062b1e; border:1.5px solid #10b981; color:#a7f3d0; padding:10px 12px; border-radius:8px; font-size:13px; font-weight:800;">
+                <div style="color:#a7f3d0; font-size:11px; text-transform:uppercase;">✅ SÍ LLEVA:</div>
+                <div>${allCore ? '⭐ CON TODO (LOS 8 INGREDIENTES COMPLETOS)' : o.ingredients.map(i => i.toUpperCase()).join(' • ')}</div>
+              </div>
+            `;
+          }
+        }
+        bodyEl.innerHTML = bodyHtml;
+
+        const notesBox = document.getElementById('modal-notes-box');
+        if (o.notes) {
+          notesBox.innerHTML = `<div style="background:#261f0d; border:1px solid #78350f; color:#fbbf24; padding:8px 12px; border-radius:6px; font-size:13px; font-weight:900;">📝 NOTA: ${o.notes.toUpperCase()}</div>`;
+        } else {
+          notesBox.innerHTML = '';
+        }
+
+        modal.classList.add('active');
+      }
+
+      closeModal() {
+        const modal = document.getElementById('order-detail-modal');
+        if (modal) modal.classList.remove('active');
+      }
+
+      renderAdmin() {
+        const orders = this.db.orders || [];
+        document.getElementById('stat-total').textContent = orders.length;
+        document.getElementById('stat-mixto').textContent = orders.filter(o => o.protein === 'Mixto').length;
+        document.getElementById('stat-pollo').textContent = orders.filter(o => o.protein === 'Pollo').length;
+        document.getElementById('stat-carne').textContent = orders.filter(o => o.protein === 'Carne').length;
+      }
+
+      setTheme(themeName, playSound = true) {
+        if (playSound) soundEngine.playClick();
+        if (themeName === 'elegante') {
+          document.body.classList.add('theme-elegant');
+        } else {
+          document.body.classList.remove('theme-elegant');
+        }
+        localStorage.setItem('shawarma_theme', themeName);
+      }
+
+      exportCSV() {
+        const orders = this.db.orders || [];
+        const rows = orders.map(o => [o.turn, `"${o.guest_name}"`, `"${o.protein}"`, o.is_bowl ? 'BOWL' : 'SHAWARMA', `"${(o.removed_ingredients || []).join(', ')}"`, `"${o.notes || ''}"`, o.status, `"${o.created_at}"`]);
+        const csv = 'Turno,Invitado,Proteina,Tipo,Sin_Ingredientes,Notas,Estado,Fecha\n' + rows.map(r => r.join(',')).join('\n');
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `shawarma_en_casa_${Date.now()}.csv`;
+        a.click();
+      }
+
+      async resetEventPrompt() {
+        if (confirm('¿Deseas reiniciar y limpiar TODO el evento para empezar uno nuevo desde el Turno #1? (Esto eliminará las comandas anteriores en todos los teléfonos y iPads)')) {
+          try {
+            const res = await fetch('/api/event/reset', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ name: `Evento ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}` })
+            });
+            if (res.ok) {
+              const data = await res.json();
+              localStorage.removeItem('shawarma_db_v6');
+              this.syncData(data.data, true);
+              this.resetForm();
+              this.showToast('✅ ¡Evento reiniciado con éxito! Todos los dispositivos quedaron en Turno #1', 'success');
+            } else {
+              throw new Error();
+            }
+          } catch(e) {
+            this.db = { event_info: { id: `evt_${Date.now()}`, name: 'Shawarma en Casa®', turn_counter: 0 }, orders: [] };
+            localStorage.setItem('shawarma_db_v6', JSON.stringify(this.db));
+            this.syncData(this.db, true);
+            this.resetForm();
+            this.showToast('✅ Evento reiniciado localmente', 'success');
+          }
+        }
+      }
+
+      updateTimers() {
+        if (this.currentView === 'kitchen') this.renderKDS();
+      }
+
+      showToast(msg, type = 'success') {
+        const tray = document.getElementById('toast-tray');
+        if (!tray) return;
+        const t = document.createElement('div');
+        t.className = `toast-msg toast-${type}`;
+        t.innerHTML = `<span>${type === 'success' ? '✅' : '⚠️'}</span><span>${msg}</span>`;
+        tray.appendChild(t);
+        setTimeout(() => t.remove(), 3500);
+      }
+    }
+
+    window.app = new AppState();
+    window.addEventListener('DOMContentLoaded', () => window.app.init());
+  </script>
+</body>
+</html>
