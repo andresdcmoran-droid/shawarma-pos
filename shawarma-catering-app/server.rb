@@ -219,7 +219,40 @@ server.mount_proc '/api/orders/status' do |req, res|
   end
 end
 
-# API: Reset / New Event
+# API: Customer Ack Coming to Pick Up
+server.mount_proc '/api/orders/ack' do |req, res|
+  set_api_headers(res)
+
+  if req.request_method == 'OPTIONS'
+    res.status = 204
+    next
+  end
+
+  if req.request_method == 'POST'
+    begin
+      body = JSON.parse(req.body)
+      order_id = body['id']
+
+      db = load_db
+      order = db['orders'].find { |o| o['id'] == order_id || o['turn'].to_s == order_id.to_s }
+
+      if order
+        order['guest_ack'] = true
+        order['guest_ack_at'] = Time.now.iso8601
+        order['updated_at'] = Time.now.iso8601
+        save_db(db)
+
+        res.body = JSON.generate({ status: 'ok', order: order })
+      else
+        res.status = 404
+        res.body = JSON.generate({ error: 'Order not found' })
+      end
+    rescue StandardError => e
+      res.status = 400
+      res.body = JSON.generate({ error: e.message })
+    end
+  end
+end
 server.mount_proc '/api/event/reset' do |req, res|
   set_api_headers(res)
 

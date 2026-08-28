@@ -1278,7 +1278,7 @@
     }
 
     .modal-overlay.active {
-      display: flex;
+      display: flex !important;
     }
 
     .modal-card {
@@ -1295,6 +1295,31 @@
     @keyframes zoomModal {
       from { transform: scale(0.92); opacity: 0; }
       to { transform: scale(1); opacity: 1; }
+    }
+
+    /* Haptic Feedback & Vibrating Buzzer Effects */
+    button {
+      transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.12s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+    button:active {
+      transform: scale(0.95) !important;
+    }
+
+    @keyframes elegantPulse {
+      0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 10px 30px rgba(16, 185, 129, 0.2), 0 0 0 0 rgba(16, 185, 129, 0.4);
+      }
+      50% {
+        transform: scale(1.015);
+        box-shadow: 0 16px 45px rgba(16, 185, 129, 0.4), 0 0 0 12px rgba(16, 185, 129, 0);
+      }
+    }
+
+    .buzzer-ready-active {
+      animation: elegantPulse 2.2s ease-in-out infinite !important;
+      border-color: var(--yes-green) !important;
     }
 
     /* Toast */
@@ -1326,403 +1351,513 @@
     .toast-msg.toast-success { border-left-color: var(--yes-green); }
     .toast-msg.toast-danger { border-left-color: var(--no-red); }
     /* ==========================================================================
-       MODO ELEGANTE (HAUTE GASTRONOMIE & VANGUARDIST LUXURY)
-       Estética de Alta Gama: Terciopelo Obsidiana, Oro Champán Satinado, Siluetas Curvas y Micro-Relieve Háptico
+       MODO DÍA / EXTERIOR (HIGH CONTRAST SUNLIGHT VISIBILITY)
+       Diseñado específicamente para eventos diurnos al aire libre bajo la luz solar.
        ========================================================================== */
-    body.theme-elegant {
-      --brand-pink: #d4af37;
-      --brand-pink-dark: #b5952f;
-      --brand-pink-glow: rgba(212, 175, 55, 0.28);
+    body.theme-day {
+      --bg-dark: #f8fafc;
+      --bg-surface: #ffffff;
+      --bg-surface-2: #f1f5f9;
+      --border-color: #cbd5e1;
       
-      --bg-dark: #08080b;
-      --bg-surface: #101015;
-      --bg-surface-2: #16161d;
-      --border-color: rgba(212, 175, 55, 0.2);
+      --text-white: #0f172a;
+      --text-dim: #475569;
       
-      --text-white: #f5f5f7;
-      --text-dim: #9295a0;
+      --brand-pink: #ff007f;
+      --brand-pink-dark: #d6006b;
+      --brand-pink-glow: rgba(255, 0, 127, 0.2);
       
-      --yes-green: #d4af37;
-      --yes-green-bg: rgba(212, 175, 55, 0.14);
-      --yes-green-border: #d4af37;
+      --yes-green: #059669;
+      --yes-green-bg: rgba(5, 150, 105, 0.12);
+      --yes-green-border: #059669;
       
-      --no-red: #444652;
-      --no-red-bg: #121217;
-      --no-red-border: rgba(255, 255, 255, 0.08);
+      --no-red: #dc2626;
+      --no-red-bg: rgba(220, 38, 38, 0.1);
+      --no-red-border: #dc2626;
       
-      --amber-gold: #e6c894;
-      --cyan-blue: #a0a4b5;
+      --amber-gold: #d97706;
+      --cyan-blue: #0284c7;
       
-      --radius-sm: 12px;
-      --radius-md: 20px;
-      --radius-lg: 28px;
-      --radius-full: 9999px;
-      
-      font-family: "Plus Jakarta Sans", -apple-system, sans-serif;
-      font-weight: 400;
-      letter-spacing: 0.2px;
-      background-color: var(--bg-dark);
-      background-image: 
-        radial-gradient(ellipse 80% 40% at 50% -10%, rgba(212, 175, 55, 0.08), transparent 70%),
-        radial-gradient(ellipse 60% 50% at 100% 100%, rgba(25, 20, 35, 0.25), transparent 70%);
-      background-attachment: fixed;
-      color: var(--text-white);
+      background-color: #f8fafc;
+      color: #0f172a;
     }
     
-    /* Header & Floating Luxury Pill Navigation */
-    body.theme-elegant .header-bar {
-      background: rgba(8, 8, 11, 0.88);
-      backdrop-filter: blur(24px) saturate(140%);
-      -webkit-backdrop-filter: blur(24px) saturate(140%);
-      border-bottom: 1px solid rgba(212, 175, 55, 0.18);
-    }
-    
-    body.theme-elegant .tabs-nav {
-      background: rgba(14, 14, 19, 0.9);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid rgba(212, 175, 55, 0.25);
-      border-radius: var(--radius-full);
-      padding: 5px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.06);
-    }
-    
-    body.theme-elegant .tab-btn {
-      font-family: "Cinzel", serif;
-      font-size: 11px;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      font-weight: 600;
-      border-radius: var(--radius-full);
-      padding: 10px 22px;
-      color: #9295a0;
-      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    
-    body.theme-elegant .tab-btn.active {
-      background: linear-gradient(135deg, #e6c894 0%, #d4af37 50%, #b89130 100%) !important;
-      color: #08080a !important;
-      font-weight: 700;
-      box-shadow: 0 4px 18px rgba(212, 175, 55, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.4);
-    }
-    
-    /* Main Cards & Squircles */
-    body.theme-elegant .pos-card {
-      background: linear-gradient(145deg, rgba(22, 22, 29, 0.75) 0%, rgba(13, 13, 18, 0.85) 100%);
-      backdrop-filter: blur(24px) saturate(140%);
-      -webkit-backdrop-filter: blur(24px) saturate(140%);
-      border: 1px solid rgba(212, 175, 55, 0.18);
-      border-radius: var(--radius-lg);
-      box-shadow: 0 16px 40px -8px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.08);
-      padding: 24px;
-    }
-    
-    /* Section Headers */
-    body.theme-elegant .section-title,
-    body.theme-elegant h2,
-    body.theme-elegant h3,
-    body.theme-elegant h4 {
-      font-family: "Cinzel", serif !important;
-      color: #e6c894 !important;
-      letter-spacing: 2.5px !important;
-      text-transform: uppercase !important;
-      font-weight: 600 !important;
-    }
-    
-    /* Protein Selection: Organic Rounded Squircles */
-    body.theme-elegant .protein-card-btn {
-      background: linear-gradient(145deg, rgba(26, 26, 34, 0.6) 0%, rgba(14, 14, 19, 0.8) 100%);
-      border: 1px solid rgba(212, 175, 55, 0.15);
-      border-radius: var(--radius-md);
-      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05);
-      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-      padding: 16px 12px;
-    }
-    
-    body.theme-elegant .protein-card-btn .protein-title {
-      font-family: "Cinzel", serif;
-      font-size: 13px;
-      letter-spacing: 2px;
-      color: #f5f5f7;
-      font-weight: 600;
-      text-transform: uppercase;
-      margin-top: 4px;
-    }
-    
-    body.theme-elegant .protein-card-btn:hover {
-      transform: translateY(-2px);
-      border-color: rgba(212, 175, 55, 0.4);
-      box-shadow: 0 10px 25px rgba(212, 175, 55, 0.15);
-    }
-    
-    body.theme-elegant .protein-card-btn.selected {
-      background: linear-gradient(145deg, rgba(42, 36, 22, 0.9) 0%, rgba(20, 18, 12, 0.95) 100%) !important;
-      border-color: #d4af37 !important;
-      box-shadow: 0 0 25px rgba(212, 175, 55, 0.28), inset 0 0 0 1px rgba(212, 175, 55, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
-      transform: scale(1.02);
-    }
-    
-    body.theme-elegant .protein-card-btn.selected .protein-title {
-      color: #e6c894 !important;
-      font-weight: 700;
-    }
-    
-    /* Presets / Atajos: Sculpted Floating Pills */
-    body.theme-elegant .preset-pill-btn {
-      background: rgba(22, 22, 29, 0.7);
-      border: 1px solid rgba(212, 175, 55, 0.18);
-      border-radius: var(--radius-full);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05);
-      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    
-    body.theme-elegant .preset-pill-btn .preset-txt-main {
-      font-family: "Plus Jakarta Sans", sans-serif;
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      color: #d1d3dc;
-    }
-    
-    body.theme-elegant .preset-pill-btn:hover {
-      border-color: rgba(212, 175, 55, 0.45);
-      background: rgba(30, 30, 40, 0.8);
-    }
-    
-    body.theme-elegant .preset-pill-btn.active,
-    body.theme-elegant .preset-pill-btn.preset-bowl.active,
-    body.theme-elegant .preset-pill-btn.preset-ninos.active,
-    body.theme-elegant .preset-pill-btn.preset-no-item.active {
-      background: linear-gradient(135deg, rgba(212, 175, 55, 0.22) 0%, rgba(181, 149, 47, 0.12) 100%) !important;
-      border-color: #d4af37 !important;
-      box-shadow: 0 0 18px rgba(212, 175, 55, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
-    }
-    
-    body.theme-elegant .preset-pill-btn.active .preset-txt-main,
-    body.theme-elegant .preset-pill-btn.preset-bowl.active .preset-txt-main,
-    body.theme-elegant .preset-pill-btn.preset-ninos.active .preset-txt-main,
-    body.theme-elegant .preset-pill-btn.preset-no-item.active .preset-txt-main {
-      color: #f5f5f7 !important;
-      font-weight: 700;
-    }
-    
-    /* Ingredients: Soft Curvature & Tactile Segmented Switch */
-    body.theme-elegant .ing-card-item {
-      background: linear-gradient(145deg, rgba(22, 22, 29, 0.6) 0%, rgba(14, 14, 18, 0.8) 100%);
-      border: 1px solid rgba(212, 175, 55, 0.15);
-      border-radius: var(--radius-md);
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.04);
-      transition: all 0.25s ease;
-    }
-    
-    body.theme-elegant .ing-name {
-      font-family: "Plus Jakarta Sans", sans-serif;
-      font-size: 13px !important;
-      font-weight: 600 !important;
-      letter-spacing: 0.8px;
-      text-transform: uppercase;
-      color: #e5e5ea;
-    }
-    
-    body.theme-elegant .switch-dual-btn {
-      background: #09090d;
-      border: 1px solid rgba(212, 175, 55, 0.2);
-      border-radius: var(--radius-full);
-      padding: 3px;
-      box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.6);
-      gap: 3px;
-    }
-    
-    body.theme-elegant .switch-opt {
-      font-family: "Plus Jakarta Sans", sans-serif;
-      font-size: 10px;
-      letter-spacing: 1px;
-      font-weight: 700;
-      border-radius: var(--radius-full);
-      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    
-    body.theme-elegant .switch-opt.opt-yes.active {
-      background: linear-gradient(135deg, #e6c894 0%, #d4af37 100%) !important;
-      color: #08080a !important;
-      box-shadow: 0 2px 8px rgba(212, 175, 55, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.4);
-    }
-    
-    body.theme-elegant .switch-opt.opt-no.active {
-      background: #1c1c24 !important;
-      color: #7b7e8c !important;
-      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.4);
-    }
-    
-    /* Main CTA: Floating Champagne Pill */
-    body.theme-elegant .btn-submit-pos {
-      background: linear-gradient(135deg, #f0d59e 0%, #d4af37 50%, #ad8a2c 100%) !important;
-      color: #08080a !important;
-      font-family: "Cinzel", serif !important;
-      font-weight: 700 !important;
-      font-size: 14px !important;
-      letter-spacing: 2.5px !important;
-      text-transform: uppercase !important;
-      border-radius: var(--radius-full) !important;
-      padding: 16px 28px !important;
-      box-shadow: 0 8px 30px rgba(212, 175, 55, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.6), inset 0 -1px 2px rgba(0, 0, 0, 0.2) !important;
-      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
-    }
-    
-    body.theme-elegant .btn-submit-pos:hover {
-      transform: translateY(-2px) scale(1.01);
-      box-shadow: 0 12px 36px rgba(212, 175, 55, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.8) !important;
-    }
-    
-    body.theme-elegant .guest-name-input {
-      background: rgba(12, 12, 16, 0.8) !important;
-      border: 1px solid rgba(212, 175, 55, 0.3) !important;
-      color: #f5f5f7 !important;
-      font-family: "Plus Jakarta Sans", sans-serif !important;
-      border-radius: var(--radius-md) !important;
-      box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.5) !important;
-      padding: 14px 18px !important;
-    }
-    
-    body.theme-elegant .guest-name-input:focus {
-      border-color: #d4af37 !important;
-      box-shadow: 0 0 16px rgba(212, 175, 55, 0.25), inset 0 1px 3px rgba(0, 0, 0, 0.5) !important;
-    }
-    
-    /* Monitor & Turn Tiles: Haute Horlogerie Obsidian Crystals */
-    body.theme-elegant .col-prep-hdr {
-      color: #9295a0 !important;
-      font-family: "Cinzel", serif !important;
-      letter-spacing: 2.5px !important;
-    }
-    
-    body.theme-elegant .col-ready-hdr {
-      color: #e6c894 !important;
-      font-family: "Cinzel", serif !important;
-      letter-spacing: 2.5px !important;
-    }
-    
-    body.theme-elegant .turn-tile {
-      border-radius: var(--radius-md) !important;
-      background: linear-gradient(145deg, rgba(20, 20, 26, 0.7) 0%, rgba(11, 11, 15, 0.9) 100%) !important;
-      border: 1px solid rgba(212, 175, 55, 0.16) !important;
-      backdrop-filter: blur(16px) !important;
-      -webkit-backdrop-filter: blur(16px) !important;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
-      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
-    }
-    
-    body.theme-elegant .turn-tile.tile-ready {
-      border-color: #d4af37 !important;
-      background: linear-gradient(145deg, rgba(38, 32, 18, 0.85) 0%, rgba(18, 16, 10, 0.95) 100%) !important;
-      box-shadow: 0 0 28px rgba(212, 175, 55, 0.25), inset 0 0 0 1px rgba(212, 175, 55, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
-      animation: none;
-    }
-    
-    body.theme-elegant .turn-tile-num {
-      font-family: "Cormorant Garamond", "Cinzel", serif !important;
-      color: #e6c894 !important;
-      font-weight: 700 !important;
-      font-size: 28px !important;
-      letter-spacing: 1px !important;
-    }
-    
-    body.theme-elegant .turn-tile-name {
-      font-family: "Plus Jakarta Sans", sans-serif !important;
-      color: #f5f5f7 !important;
-      font-weight: 600 !important;
-      letter-spacing: 0.6px !important;
-    }
-    
-    /* Modal & KDS Luxury Styling */
-    body.theme-elegant #order-detail-modal > div {
-      background: linear-gradient(145deg, rgba(22, 22, 29, 0.95) 0%, rgba(12, 12, 16, 0.98) 100%) !important;
-      border: 1px solid rgba(212, 175, 55, 0.35) !important;
-      border-radius: var(--radius-lg) !important;
-      box-shadow: 0 25px 70px rgba(0, 0, 0, 0.9), 0 0 40px rgba(212, 175, 55, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
-      backdrop-filter: blur(30px) !important;
-      -webkit-backdrop-filter: blur(30px) !important;
-    }
-    
-    body.theme-elegant #modal-turn-title {
-      font-family: "Cinzel", serif !important;
-      color: #e6c894 !important;
-      letter-spacing: 3px !important;
-    }
-    
-    body.theme-elegant .kds-card {
-      background: linear-gradient(145deg, rgba(20, 20, 26, 0.8) 0%, rgba(11, 11, 15, 0.9) 100%) !important;
-      border: 1px solid rgba(212, 175, 55, 0.2) !important;
-      border-radius: var(--radius-md) !important;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
-    }
-    
-    body.theme-elegant .kds-card-turn {
-      font-family: "Cormorant Garamond", "Cinzel", serif !important;
-      color: #e6c894 !important;
-      font-size: 26px !important;
-      font-weight: 700 !important;
-    }
-    
-    body.theme-elegant .kds-filter-tab {
-      font-family: "Cinzel", serif !important;
-      font-size: 11px !important;
-      letter-spacing: 1.5px !important;
-      text-transform: uppercase !important;
-      border: 1px solid rgba(212, 175, 55, 0.2) !important;
-      border-radius: var(--radius-full) !important;
-      color: #9295a0 !important;
-      padding: 8px 18px !important;
-      transition: all 0.25s ease !important;
-    }
-    
-    body.theme-elegant .kds-filter-tab.active {
-      background: linear-gradient(135deg, #e6c894 0%, #d4af37 100%) !important;
-      color: #08080a !important;
-      font-weight: 700 !important;
-      box-shadow: 0 4px 16px rgba(212, 175, 55, 0.3) !important;
-    }
-    
-    body.theme-elegant .kds-batching-bar {
-      border: 1px solid rgba(212, 175, 55, 0.25) !important;
-      border-radius: var(--radius-lg) !important;
-      background: linear-gradient(145deg, rgba(18, 18, 24, 0.85) 0%, rgba(10, 10, 14, 0.95) 100%) !important;
-      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+    body.theme-day .header-bar {
+      background: rgba(255, 255, 255, 0.98);
+      border-bottom: 2px solid #e2e8f0;
     }
 
-    body.theme-elegant textarea {
-      background: rgba(12, 12, 16, 0.8) !important;
-      border: 1px solid rgba(212, 175, 55, 0.25) !important;
-      color: #f5f5f7 !important;
-      font-family: "Plus Jakarta Sans", sans-serif !important;
-      border-radius: var(--radius-md) !important;
-      box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.5) !important;
+    body.theme-day .brand-logo-img {
+      height: 64px !important;
+      max-height: 64px !important;
+      width: auto !important;
+      object-fit: contain !important;
     }
     
-    body.theme-elegant #modal-btn-prev,
-    body.theme-elegant #modal-btn-next {
-      background: rgba(26, 26, 34, 0.8) !important;
-      border: 1px solid rgba(212, 175, 55, 0.25) !important;
-      color: #f5f5f7 !important;
-      border-radius: var(--radius-full) !important;
-      font-family: "Plus Jakarta Sans", sans-serif !important;
+    body.theme-day .tabs-nav {
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
     }
     
-    body.theme-elegant #order-detail-modal button[onclick="app.closeModal()"] {
-      background: linear-gradient(135deg, #e6c894 0%, #d4af37 100%) !important;
-      color: #08080a !important;
-      border-radius: var(--radius-full) !important;
-      font-family: "Cinzel", serif !important;
-      letter-spacing: 1.5px !important;
+    body.theme-day .tab-btn {
+      color: #475569;
+      font-weight: 700;
+    }
+    
+    body.theme-day .tab-btn.active {
+      background: var(--brand-pink) !important;
+      color: #ffffff !important;
+      box-shadow: 0 2px 10px rgba(255, 0, 127, 0.35);
+    }
+    
+    body.theme-day .pos-card {
+      background: #ffffff;
+      border: 1.5px solid #e2e8f0;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+    }
+    
+    body.theme-day .section-title,
+    body.theme-day h1,
+    body.theme-day h2,
+    body.theme-day h3,
+    body.theme-day h4,
+    body.theme-day .field-label,
+    body.theme-day .pos-section-header {
+      color: #0f172a !important;
+      font-weight: 900;
+    }
+    
+    body.theme-day .protein-card-btn {
+      background: #ffffff;
+      border: 2px solid #e2e8f0;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+    }
+    
+    body.theme-day .protein-card-btn .protein-title {
+      color: #0f172a;
+      font-weight: 800;
+    }
+    
+    body.theme-day .protein-card-btn.selected {
+      background: #fff1f2 !important;
+      border-color: var(--brand-pink) !important;
+      box-shadow: 0 0 0 1px var(--brand-pink), 0 4px 12px rgba(255, 0, 127, 0.18) !important;
+    }
+    
+    body.theme-day .protein-card-btn.selected .protein-title {
+      color: var(--brand-pink) !important;
+    }
+    
+    body.theme-day .preset-pill-btn {
+      background: #f8fafc;
+      border: 1.5px solid #cbd5e1;
+    }
+    
+    body.theme-day .preset-pill-btn .preset-txt-main {
+      color: #0f172a;
+      font-weight: 800;
     }
 
-    /* Emojis Hidden in Elegant Mode */
-    body.theme-elegant .emoji-icon,
-    body.theme-elegant .preset-icon,
-    body.theme-elegant .ing-emoji,
-    body.theme-elegant .protein-emoji {
-      display: none !important;
+    body.theme-day .preset-pill-btn .preset-txt-sub {
+      color: #475569;
+    }
+    
+    body.theme-day .preset-pill-btn.active,
+    body.theme-day .preset-pill-btn.preset-bowl.active,
+    body.theme-day .preset-pill-btn.preset-ninos.active,
+    body.theme-day .preset-pill-btn.preset-no-item.active {
+      background: #fff1f2 !important;
+      border-color: var(--brand-pink) !important;
+    }
+    
+    body.theme-day .preset-pill-btn.active .preset-txt-main,
+    body.theme-day .preset-pill-btn.preset-bowl.active .preset-txt-main,
+    body.theme-day .preset-pill-btn.preset-ninos.active .preset-txt-main,
+    body.theme-day .preset-pill-btn.preset-no-item.active .preset-txt-main {
+      color: var(--brand-pink) !important;
+    }
+    
+    body.theme-day .ing-card-item {
+      background: #ffffff !important;
+      border: 1.5px solid #e2e8f0 !important;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+    }
+    
+    body.theme-day .ing-item-name {
+      color: #0f172a !important;
+      font-weight: 800 !important;
+    }
+    
+    body.theme-day .switch-dual-btn {
+      background: #f1f5f9 !important;
+      border: 1px solid #cbd5e1 !important;
+    }
+    
+    body.theme-day .ing-card-item.state-yes {
+      border-color: #10b981 !important;
+      background: #f0fdf4 !important;
+    }
+    
+    body.theme-day .ing-card-item.state-yes .switch-yes {
+      background: #059669 !important;
+      color: #ffffff !important;
+      font-weight: 900 !important;
+    }
+    
+    body.theme-day .ing-card-item.state-yes .switch-no {
+      background: #f1f5f9 !important;
+      color: #334155 !important;
+      font-weight: 800 !important;
+    }
+    
+    body.theme-day .ing-card-item.state-no {
+      border-color: #fca5a5 !important;
+      background: #fef2f2 !important;
+    }
+    
+    body.theme-day .ing-card-item.state-no .ing-item-name {
+      color: #dc2626 !important;
+      font-weight: 800 !important;
+      text-decoration: line-through;
+    }
+    
+    body.theme-day .ing-card-item.state-no .switch-yes {
+      background: #f1f5f9 !important;
+      color: #334155 !important;
+      font-weight: 800 !important;
+    }
+    
+    body.theme-day .ing-card-item.state-no .switch-no {
+      background: #dc2626 !important;
+      color: #ffffff !important;
+      font-weight: 900 !important;
+    }
+    
+    body.theme-day .quick-note-chip {
+      background: #f1f5f9 !important;
+      border: 1.5px solid #cbd5e1 !important;
+      color: #0f172a !important;
+      font-weight: 900 !important;
+    }
+    
+    body.theme-day .quick-note-chip.active {
+      background: #fff1f2 !important;
+      border-color: var(--brand-pink) !important;
+      color: var(--brand-pink) !important;
+      font-weight: 900 !important;
+    }
+    
+    body.theme-day .text-input-pos,
+    body.theme-day textarea {
+      background: #ffffff !important;
+      border: 1.5px solid #cbd5e1 !important;
+      color: #0f172a !important;
+    }
+    
+    body.theme-day .text-input-pos:focus,
+    body.theme-day textarea:focus {
+      border-color: var(--brand-pink) !important;
+      box-shadow: 0 0 0 3px rgba(255, 0, 127, 0.15) !important;
+    }
+
+    /* Tarjeta de Turno Asignado en Gris con Borde Fucsia y Letras en Negro */
+    body.theme-day .turn-badge-card {
+      background: #f1f5f9 !important;
+      border: 2.5px solid var(--brand-pink) !important;
+      box-shadow: 0 4px 14px rgba(255, 0, 127, 0.15) !important;
+    }
+    body.theme-day .turn-label-txt {
+      color: #334155 !important;
+      font-weight: 800 !important;
+    }
+    body.theme-day .turn-number-giant {
+      color: #0f172a !important;
+      font-weight: 900 !important;
+    }
+    body.theme-day .turn-badge-card > div:last-child {
+      color: #475569 !important;
+      font-weight: 700 !important;
+    }
+
+    /* Tags en Resumen del Pedido (Igualados con Cocina) */
+    body.theme-day .live-preview-box {
+      background: #f8fafc !important;
+      border: 1.5px solid #cbd5e1 !important;
+    }
+    body.theme-day .live-preview-box h4 {
+      color: #0f172a !important;
+      font-weight: 900 !important;
+    }
+    body.theme-day .pos-tag.tag-protein {
+      background: #f1f5f9 !important;
+      border: 1.5px solid #cbd5e1 !important;
+      border-left: 4px solid var(--brand-pink) !important;
+      color: #0f172a !important;
+      font-weight: 900 !important;
+    }
+    body.theme-day .pos-tag.tag-bowl {
+      background: #e0f2fe !important;
+      border: 1.5px solid #0284c7 !important;
+      color: #0369a1 !important;
+      font-weight: 800 !important;
+    }
+    body.theme-day .pos-tag.tag-removed {
+      background: #fef2f2 !important;
+      border: 1.5px solid #ef4444 !important;
+      color: #b91c1c !important;
+      font-weight: 800 !important;
+    }
+    body.theme-day .pos-tag.tag-all {
+      background: #ecfdf5 !important;
+      border: 1.5px solid #10b981 !important;
+      color: #047857 !important;
+      font-weight: 800 !important;
+    }
+    body.theme-day .pos-tag.tag-note {
+      background: #fffbeb !important;
+      border: 1.5px solid #f59e0b !important;
+      color: #92400e !important;
+      font-weight: 800 !important;
+    }
+    
+    /* Botón Derecho "Enviar a Cocina": Fucsia Sólido Idéntico al Modo Oscuro */
+    body.theme-day .btn-submit-pos {
+      background: linear-gradient(135deg, #ff007f, #d6006b) !important;
+      color: #ffffff !important;
+      border: none !important;
+      box-shadow: 0 4px 16px rgba(255, 0, 127, 0.35) !important;
+      font-weight: 900 !important;
+    }
+    body.theme-day .btn-submit-pos:hover {
+      background: linear-gradient(135deg, #e60073, #be005f) !important;
+    }
+    
+    /* Logo Marca de Agua y Versículo en Modo Día */
+    body.theme-day .sidebar-watermark-container {
+      opacity: 0.85 !important;
+    }
+    body.theme-day .sidebar-watermark-verse {
+      color: #0f172a !important;
+      font-weight: 800 !important;
+      opacity: 1 !important;
+    }
+    
+    /* Cocina KDS: Colores en Tarjetas y Tags en Modo Día */
+    body.theme-day .kds-card {
+      background: #ffffff !important;
+      border: 1.5px solid #cbd5e1 !important;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04) !important;
+    }
+    body.theme-day .kds-card-box {
+      background: #ffffff !important;
+      border: 1.5px solid #cbd5e1 !important;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04) !important;
+    }
+    body.theme-day .kds-card-box.status-ready {
+      background: #f0fdf4 !important;
+      border: 2px solid #10b981 !important;
+    }
+    body.theme-day .kds-guest-name {
+      color: #0f172a !important;
+      font-weight: 900 !important;
+    }
+    body.theme-day .kds-turn-title {
+      color: var(--brand-pink) !important;
+      font-weight: 900 !important;
+    }
+    body.theme-day .kds-time-info {
+      color: #475569 !important;
+      font-weight: 700 !important;
+    }
+    body.theme-day .kds-table-badge {
+      background: #e0f2fe !important;
+      border: 1px solid #bae6fd !important;
+      color: #0284c7 !important;
+      font-weight: 800 !important;
+    }
+    body.theme-day .kds-protein-flag {
+      background: #f1f5f9 !important;
+      border: 1.5px solid #cbd5e1 !important;
+      border-left: 5px solid var(--brand-pink) !important;
+      color: #0f172a !important;
+      font-weight: 900 !important;
+    }
+    body.theme-day .kds-bowl-flag-header {
+      background: #e0f2fe !important;
+      border: 1.5px solid #0284c7 !important;
+      color: #0369a1 !important;
+      box-shadow: none !important;
+      font-weight: 900 !important;
+    }
+    body.theme-day .kds-alert-tag-success {
+      background: #ecfdf5 !important;
+      border: 1.5px solid #10b981 !important;
+      color: #047857 !important;
+      font-weight: 800 !important;
+    }
+    body.theme-day .kds-alert-tag-success div {
+      color: #047857 !important;
+    }
+    body.theme-day .kds-alert-tag-danger {
+      background: #fef2f2 !important;
+      border: 1.5px solid #ef4444 !important;
+      color: #b91c1c !important;
+      font-weight: 800 !important;
+    }
+    body.theme-day .kds-alert-tag-danger div {
+      color: #b91c1c !important;
+    }
+    body.theme-day .kds-filter-tab {
+      background: #ffffff !important;
+      border: 1.5px solid #cbd5e1 !important;
+      color: #475569 !important;
+      font-weight: 800 !important;
+    }
+    body.theme-day .kds-filter-tab.active {
+      background: var(--brand-pink) !important;
+      color: #ffffff !important;
+      border-color: var(--brand-pink) !important;
+    }
+    body.theme-day .kds-btn-prep {
+      background: #f1f5f9 !important;
+      color: #0f172a !important;
+      border: 1.5px solid #cbd5e1 !important;
+    }
+
+    /* Barra de Batching (Igualdad de Shawarmas) */
+    body.theme-day .kds-batching-bar {
+      background: #ffffff !important;
+      border: 1.5px solid #cbd5e1 !important;
+    }
+    body.theme-day .kds-batch-chip {
+      background: #f8fafc !important;
+      border: 1.5px solid #cbd5e1 !important;
+    }
+    body.theme-day .kds-batch-protein {
+      color: #0f172a !important;
+      font-weight: 900 !important;
+    }
+    body.theme-day .kds-batch-desc {
+      color: #334155 !important;
+      font-weight: 800 !important;
+    }
+
+    /* Monitor de Turnos: Cajas Claras con Tonos Lavados */
+    body.theme-day .turn-column-box {
+      background: #ffffff !important;
+      border: 1.5px solid #cbd5e1 !important;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04) !important;
+    }
+    body.theme-day .turn-tile.tile-prep {
+      background: #fffbeb !important;
+      border: 1.5px solid #fde68a !important;
+      box-shadow: 0 2px 8px rgba(217, 119, 6, 0.06) !important;
+    }
+    body.theme-day .turn-tile.tile-prep .turn-tile-num {
+      color: #b45309 !important;
+      font-weight: 900 !important;
+    }
+    body.theme-day .turn-tile.tile-prep .turn-tile-name {
+      color: #0f172a !important;
+      font-weight: 800 !important;
+    }
+    body.theme-day .turn-tile.tile-prep .turn-tile-sub {
+      color: #475569 !important;
+      font-weight: 700 !important;
+    }
+    body.theme-day .turn-tile.tile-prep .turn-tile-action {
+      color: #0284c7 !important;
+      font-weight: 700 !important;
+    }
+    body.theme-day .turn-tile.tile-ready {
+      background: #ecfdf5 !important;
+      border: 1.5px solid #86efac !important;
+      box-shadow: 0 2px 10px rgba(16, 185, 129, 0.12) !important;
+      animation: none !important;
+    }
+    body.theme-day .turn-tile.tile-ready .turn-tile-num {
+      color: #047857 !important;
+      font-weight: 900 !important;
+    }
+    body.theme-day .turn-tile.tile-ready .turn-tile-name {
+      color: #0f172a !important;
+      font-weight: 800 !important;
+    }
+    body.theme-day .turn-tile.tile-ready .turn-tile-ready-badge {
+      color: #059669 !important;
+      font-weight: 900 !important;
+    }
+    body.theme-day .turn-tile.tile-ready .turn-tile-ready-action {
+      color: #047857 !important;
+      font-weight: 700 !important;
+    }
+
+    /* Modal y Notificador Móvil en Modo Día */
+    body.theme-day .modal-card,
+    body.theme-day #guest-buzzer-card,
+    body.theme-day #order-qr-modal .modal-card,
+    body.theme-day #order-detail-modal > div {
+      background: #ffffff !important;
+      border: 2px solid #cbd5e1 !important;
+      color: #0f172a !important;
+    }
+    body.theme-day #guest-view-name,
+    body.theme-day #qr-modal-name,
+    body.theme-day #modal-guest-name {
+      color: #0f172a !important;
+      font-weight: 900 !important;
+    }
+    body.theme-day #guest-view-detail {
+      color: #475569 !important;
+      font-weight: 800 !important;
+    }
+    body.theme-day #modal-table-name {
+      color: #0284c7 !important;
+      font-weight: 800 !important;
+    }
+    body.theme-day #modal-btn-prev,
+    body.theme-day #modal-btn-next {
+      background: #f1f5f9 !important;
+      border: 1px solid #cbd5e1 !important;
+      color: #0f172a !important;
+      font-weight: 800 !important;
+    }
+
+    /* Admin en Modo Día */
+    body.theme-day .stat-card {
+      background: #f8fafc !important;
+      border: 1.5px solid #cbd5e1 !important;
+    }
+    body.theme-day .stat-number {
+      color: #0f172a !important;
+      font-weight: 900 !important;
+    }
+    body.theme-day .stat-label {
+      color: #475569 !important;
+      font-weight: 800 !important;
+    }
+    body.theme-day #btn-theme-noche,
+    body.theme-day #btn-theme-dia,
+    body.theme-day #view-admin button:not([onclick*="resetEventPrompt"]) {
+      background: #f1f5f9 !important;
+      color: #0f172a !important;
+      border: 1.5px solid #cbd5e1 !important;
+      font-weight: 900 !important;
+    }
+
+    @media (max-width: 768px) {
+      body.theme-day .tabs-nav {
+        background: #ffffff !important;
+        border-top: 1px solid #cbd5e1 !important;
+      }
+      body.theme-day .tab-btn {
+        color: #475569 !important;
+      }
+      body.theme-day .tab-btn.active {
+        background: #fff1f2 !important;
+        color: #e11d48 !important;
+      }
     }
   </style>
 </head>
@@ -1926,9 +2061,9 @@
           </button>
 
           <!-- Logo Ahumado Sutil (Más Claro y Visible) -->
-          <div style="margin-top: 20px; text-align: center; opacity: 0.5; pointer-events: none;">
-            <img src="images/brand-icon.png" alt="Shawarma Watermark" style="height: 100px; width: auto; object-fit: contain;">
-            <div style="font-size: 11px; font-style: italic; color: #cbd5e1; margin-top: 6px; line-height: 1.4;">
+          <div class="sidebar-watermark-container" style="margin-top: 20px; text-align: center; opacity: 0.5; pointer-events: none;">
+            <img src="images/brand-icon.png" alt="Shawarma Watermark" id="sidebar-watermark-logo" class="sidebar-watermark-img" style="height: 100px; width: auto; object-fit: contain;">
+            <div class="sidebar-watermark-verse" style="font-size: 11px; font-style: italic; color: #cbd5e1; margin-top: 6px; line-height: 1.4;">
               “Y ahora, que toda la Gloria sea para Dios...”<br>Efesios 3:20 NTV
             </div>
           </div>
@@ -1945,8 +2080,8 @@
   <main class="view-content" id="view-kitchen">
     
     <!-- Top Batching Bar / Intelligent Summary -->
-    <div class="kds-batching-bar desktop-only-kds-summary" style="margin-bottom: 20px; flex-direction: column; align-items: stretch; gap: 12px; background: #13131a; padding: 16px; border: 2px solid #3a3a4c; border-radius: 12px;">
-      <div class="batch-label" style="font-size: 16px; font-weight: 900; color: var(--brand-pink); border-bottom: 1px solid #3a3a4c; padding-bottom: 10px;">
+    <div class="kds-batching-bar desktop-only-kds-summary" style="margin-bottom: 20px; flex-direction: column; align-items: stretch; gap: 12px; background: var(--bg-surface); padding: 16px; border: 2px solid var(--border-color); border-radius: 12px;">
+      <div class="batch-label" style="font-size: 16px; font-weight: 900; color: var(--brand-pink); border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">
         <span>🔥</span>
         <span>Resumen Rápido (Igualdad de Shawarmas)</span>
       </div>
@@ -2012,14 +2147,14 @@
       <div class="pos-card" style="margin-bottom: 0px;">
         <h2 style="font-size: 18px; margin-bottom: 12px;">🎨 Apariencia del Sistema</h2>
         <p style="font-size: 14px; color: var(--text-dim); margin-bottom: 16px;">
-          Alterna entre el Modo Fiesta (colores, neón) y el Modo Elegante (sobrio, oscuro, minimalista).
+          Alterna entre el Modo Noche / Fiesta (fondo oscuro) y el Modo Día / Exterior (fondo blanco de alto contraste para luz solar directa).
         </p>
         <div style="display: flex; gap: 12px;">
-          <button style="background: var(--bg-surface-2); color: white; border: 1px solid var(--border-color); padding: 12px 20px; border-radius: var(--radius-md); font-weight: 800; cursor: pointer; flex: 1;" onclick="app.setTheme('fiesta')">
-            🎉 Modo Fiesta
+          <button id="btn-theme-noche" style="background: var(--bg-surface-2); color: white; border: 1px solid var(--border-color); padding: 14px 20px; border-radius: var(--radius-md); font-weight: 800; cursor: pointer; flex: 1;" onclick="app.setTheme('noche')">
+            🌙 Modo Noche / Fiesta
           </button>
-          <button style="background: #000; color: white; border: 1px solid #333; padding: 12px 20px; font-weight: 400; cursor: pointer; letter-spacing: 1px; flex: 1; text-transform: uppercase;" onclick="app.setTheme('elegante')">
-            Modo Elegante
+          <button id="btn-theme-dia" style="background: #ffffff; color: #0f172a; border: 2px solid #cbd5e1; padding: 14px 20px; border-radius: var(--radius-md); font-weight: 900; cursor: pointer; letter-spacing: 0.5px; flex: 1;" onclick="app.setTheme('dia')">
+            ☀️ Modo Día / Exterior
           </button>
         </div>
       </div>
@@ -2064,9 +2199,104 @@
           </button>
         </div>
       </div>
+    </div>
+  </main>
+
+  <!-- ========================================================================= -->
+  <!-- VIEW 5: NOTIFICADOR VIRTUAL DEL COMENSAL / BUZZER MÓVIL                    -->
+  <!-- ========================================================================= -->
+  <main class="view-content" id="view-guest" style="max-width: 600px; margin: 20px auto; padding: 16px;">
+    <div style="text-align: center; margin-bottom: 24px;">
+      <img src="images/shawarma-logo-exact.png" id="guest-view-logo" alt="SHAWARMA en casa®" style="height: 48px; max-width: 220px; object-fit: contain;">
+    </div>
+
+    <!-- Pager Container -->
+    <div id="guest-buzzer-card" style="background: var(--bg-surface); border: 2px solid var(--border-color); border-radius: var(--radius-lg); padding: 32px 24px; text-align: center; box-shadow: 0 12px 32px rgba(0,0,0,0.4); transition: all 0.3s ease;">
+      
+      <!-- Order Turn & Name -->
+      <div style="font-size: 13px; font-weight: 800; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px;">Tu Turno Asignado</div>
+      <div style="font-size: 54px; font-weight: 900; color: var(--brand-pink); line-height: 1.1; margin: 8px 0;" id="guest-view-turn">#0</div>
+      <div style="font-size: 22px; font-weight: 900; color: var(--text-white);" id="guest-view-name">Comensal</div>
+      <div style="font-size: 14px; color: var(--text-dim); margin-top: 4px;" id="guest-view-detail">Shawarma Mixto</div>
+
+      <!-- Divider -->
+      <div style="height: 1px; background: var(--border-color); margin: 24px 0;"></div>
+
+      <!-- State In Preparation -->
+      <div id="guest-state-prep">
+        <div style="font-size: 48px; margin-bottom: 12px; animation: pulse 1.8s infinite;">⏳ 🔥</div>
+        <div style="font-size: 20px; font-weight: 900; color: var(--amber-gold); margin-bottom: 8px;">En Preparación</div>
+        <p style="font-size: 14px; color: var(--text-dim); line-height: 1.5; max-width: 380px; margin: 0 auto 16px;">
+          Tu pedido está en fila y se preparará fresco al momento. Tiempo estimado: <strong>~10 - 15 min</strong>.
+        </p>
+        <div style="background: var(--bg-surface-2); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 12px 16px; font-size: 13px; color: var(--text-white); display: inline-flex; align-items: center; gap: 8px; margin-bottom: 18px;">
+          <span>📳</span>
+          <span>Recibirás una alerta por vibración en tu teléfono cuando tu shawarma esté listo para retirar.</span>
+        </div>
+
+        <div id="guest-perm-box" style="margin-bottom: 14px;">
+          <button type="button" id="btn-request-perm" style="background: var(--bg-surface-2); border: 1.5px solid var(--yes-green); color: var(--yes-green); font-size: 13px; font-weight: 800; padding: 9px 18px; border-radius: var(--radius-full); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15);" onclick="app.requestNotificationPermission()">
+            🔔 Toca aquí para activar aviso en pantalla bloqueada
+          </button>
+        </div>
+
+        <div>
+          <button type="button" style="background: var(--bg-surface-2); border: 1.5px solid var(--brand-pink); color: var(--brand-pink); font-size: 13px; font-weight: 900; padding: 10px 18px; border-radius: var(--radius-full); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(255, 0, 127, 0.15);" onclick="app.simulateGuestReady()">
+            ⚡ Probar animación y aviso de "¡Listo!"
+          </button>
+        </div>
+      </div>
+
+      <!-- State Ready (Buzzer Alarm) -->
+      <div id="guest-state-ready" style="display: none;">
+        <div style="font-size: 56px; margin-bottom: 12px; animation: bounce 1s infinite;">🎉 🌯</div>
+        <div style="font-size: 26px; font-weight: 900; color: var(--yes-green); margin-bottom: 8px;">¡TU SHAWARMA ESTÁ LISTO!</div>
+        <p style="font-size: 16px; color: var(--text-white); font-weight: 700; line-height: 1.4; margin-bottom: 20px;">
+          Su orden está lista. Le invitamos a pasar a retirarla.
+        </p>
+        <div id="guest-ack-btn-container">
+          <button type="button" style="background: var(--yes-green); color: white; border: none; padding: 16px 32px; border-radius: var(--radius-full); font-size: 16px; font-weight: 900; cursor: pointer; width: 100%; box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4); margin-bottom: 12px;" onclick="app.ackGuestReady()">
+            ✅ ¡Entendido! Voy a recogerlo
+          </button>
+        </div>
+        <button type="button" style="background: transparent; color: var(--text-dim); border: none; font-size: 12px; font-weight: 800; cursor: pointer;" onclick="app.resetGuestSimulation()">
+          ↺ Volver a estado de preparación
+        </button>
+      </div>
 
     </div>
   </main>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL DE CÓDIGO QR PARA EL INVITADO (BUZZER VIRTUAL)                      -->
+  <!-- ========================================================================= -->
+  <div class="modal-overlay" id="order-qr-modal" style="z-index: 2500;" onclick="app.closeQRModal(event)">
+    <div class="modal-card" onclick="event.stopPropagation()" style="max-width: 420px; text-align: center;">
+      <div style="font-size: 13px; font-weight: 800; color: var(--text-dim); text-transform: uppercase;">Aviso al Celular del Invitado</div>
+      <div style="font-size: 32px; font-weight: 900; color: var(--brand-pink); margin: 6px 0;" id="qr-modal-turn">TURNO #0</div>
+      <div style="font-size: 16px; font-weight: 800; color: var(--text-white); margin-bottom: 16px;" id="qr-modal-name">Comensal</div>
+
+      <div style="background: white; padding: 16px; border-radius: 16px; display: inline-block; box-shadow: 0 8px 24px rgba(0,0,0,0.2); margin-bottom: 12px;">
+        <div id="qr-code-canvas-container"></div>
+      </div>
+
+      <div style="margin-bottom: 14px;">
+        <a id="qr-modal-test-link" href="#" target="_blank" style="display: inline-block; background: var(--bg-surface-2); border: 1px solid var(--border-color); color: var(--brand-pink); padding: 8px 14px; border-radius: var(--radius-full); font-size: 12px; font-weight: 800; text-decoration: none;">
+          📱 Toca aquí para abrir la pantalla del celular y probar
+        </a>
+      </div>
+
+      <p style="font-size: 13px; color: var(--text-dim); line-height: 1.4; margin-bottom: 20px;">
+        📸 Pídele al comensal que <strong>escanee este código con la cámara de su teléfono</strong> para recibir la vibración y alerta en su bolsillo cuando su shawarma esté listo.
+      </p>
+
+      <div style="display: flex; gap: 8px;">
+        <button type="button" style="background: var(--brand-pink); color: white; border: none; padding: 14px 20px; border-radius: var(--radius-md); font-weight: 900; font-size: 15px; cursor: pointer; flex: 1;" onclick="app.closeQRModal()">
+          Cerrar Ventana
+        </button>
+      </div>
+    </div>
+  </div>
 
   <!-- ========================================================================= -->
   <!-- MODAL FLOTANTE DE DETALLE DE PEDIDO (MONITOR DE TURNOS)                   -->
@@ -2090,7 +2320,7 @@
       <div id="modal-ingredients-body" style="display:flex; flex-direction:column; gap:8px;"></div>
       <div id="modal-notes-box" style="margin-top:14px;"></div>
 
-      <div style="margin-top:20px; display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+      <div style="margin-top:16px; display: flex; justify-content: space-between; align-items: center; gap: 8px;">
         <button type="button" id="modal-btn-prev" style="background:#272736; color:white; border:none; padding:12px; border-radius:var(--radius-md); font-weight:900; font-size:14px; cursor:pointer; flex: 1;" onclick="app.navigateModal(-1)">◀ Ant.</button>
         <button type="button" style="background:var(--brand-pink); color:white; border:none; padding:12px 16px; border-radius:var(--radius-md); font-weight:900; font-size:14px; cursor:pointer; flex: 2;" onclick="app.closeModal()">Entendido</button>
         <button type="button" id="modal-btn-next" style="background:#272736; color:white; border:none; padding:12px; border-radius:var(--radius-md); font-weight:900; font-size:14px; cursor:pointer; flex: 1;" onclick="app.navigateModal(1)">Sig. ▶</button>
@@ -2155,6 +2385,24 @@
           });
         } catch(e) {}
       }
+      playReady() {
+        this.init();
+        if (!this.ctx) return;
+        try {
+          const now = this.ctx.currentTime;
+          const notes = [523.25, 659.25, 783.99, 1046.50];
+          notes.forEach((freq, idx) => {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(freq, now + idx * 0.12);
+            gain.gain.setValueAtTime(0.3, now + idx * 0.12);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.12 + 0.6);
+            osc.connect(gain); gain.connect(this.ctx.destination);
+            osc.start(now + idx * 0.12); osc.stop(now + idx * 0.12 + 0.6);
+          });
+        } catch(e) {}
+      }
     }
 
     const soundEngine = new SoundEngine();
@@ -2174,8 +2422,14 @@
       }
 
       init() {
-        const savedTheme = localStorage.getItem('shawarma_theme') || 'fiesta';
+        const savedTheme = localStorage.getItem('shawarma_theme') || 'noche';
         this.setTheme(savedTheme, false);
+
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.register('/sw.js').then(reg => {
+            this.swRegistration = reg;
+          }).catch(() => {});
+        }
 
         this.initBroadcast();
         this.resetForm();
@@ -2201,6 +2455,11 @@
       checkParams() {
         const p = new URLSearchParams(window.location.search);
         const v = p.get('view');
+        if (v === 'guest') {
+          this.guestOrderId = p.get('order_id') || p.get('id');
+          this.switchView('guest');
+          return;
+        }
         if (v && ['order', 'kitchen', 'display', 'admin'].includes(v)) {
           this.switchView(v);
         }
@@ -2208,6 +2467,17 @@
 
       switchView(v) {
         this.currentView = v;
+        const detailModal = document.getElementById('order-detail-modal');
+        if (detailModal) {
+          detailModal.classList.remove('active');
+          detailModal.style.display = 'none';
+        }
+        const qrModal = document.getElementById('order-qr-modal');
+        if (qrModal) {
+          qrModal.classList.remove('active');
+          qrModal.style.display = 'none';
+        }
+
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         const tab = document.getElementById(`tab-${v}`);
         if (tab) tab.classList.add('active');
@@ -2215,6 +2485,19 @@
         document.querySelectorAll('.view-content').forEach(view => view.classList.remove('active'));
         const activeEl = document.getElementById(`view-${v}`);
         if (activeEl) activeEl.classList.add('active');
+
+        if (v === 'guest') {
+          const header = document.querySelector('.header-bar');
+          const nav = document.querySelector('.tabs-nav');
+          if (header) header.style.display = 'none';
+          if (nav) nav.style.display = 'none';
+          this.renderGuestView();
+        } else {
+          const header = document.querySelector('.header-bar');
+          const nav = document.querySelector('.tabs-nav');
+          if (header) header.style.display = '';
+          if (nav) nav.style.display = '';
+        }
 
         if (v === 'kitchen') this.renderKDS();
         if (v === 'display') this.renderDisplay();
@@ -2245,13 +2528,25 @@
           const sse = new EventSource('/api/stream');
           sse.addEventListener('init', (e) => this.syncData(JSON.parse(e.data), true));
           sse.addEventListener('sync', (e) => {
-            const currentOrders = this.db.orders ? this.db.orders.length : 0;
+            const oldOrders = this.db.orders || [];
             const fresh = JSON.parse(e.data);
-            this.syncData(fresh, true);
-            if (fresh.orders && fresh.orders.length > currentOrders) {
+            const freshOrders = fresh.orders || [];
+
+            // Alert kitchen/monitor when a guest confirms they are coming
+            freshOrders.forEach(fo => {
+              const prev = oldOrders.find(oo => oo.id === fo.id);
+              if (fo.guest_ack && (!prev || !prev.guest_ack)) {
+                soundEngine.playChime();
+                this.showToast(`🏃 ¡Turno #${fo.turn} (${fo.guest_name}) viene en camino a retirar!`, 'info');
+              }
+            });
+
+            if (freshOrders.length > oldOrders.length) {
               soundEngine.playChime();
               this.showToast('¡Nueva comanda recibida en cocina!', 'success');
             }
+
+            this.syncData(fresh, true);
           });
         } catch(e) {}
       }
@@ -2270,6 +2565,7 @@
         if (this.currentView === 'kitchen') this.renderKDS();
         if (this.currentView === 'display') this.renderDisplay();
         if (this.currentView === 'admin') this.renderAdmin();
+        if (this.currentView === 'guest') this.renderGuestView();
 
         const pending = (this.db.orders || []).filter(o => o.status === 'pending' || o.status === 'preparing').length;
         const badge = document.getElementById('badge-kds-count');
@@ -2548,6 +2844,7 @@
           soundEngine.playClick();
           this.showToast(`¡Turno #${nextTurn} registrado para ${guestName}!`, 'success');
           this.resetForm();
+          this.showOrderQRModal(newOrder);
         } finally {
           if (btn) btn.disabled = false;
         }
@@ -2618,11 +2915,11 @@
           } else {
             grps.forEach(grp => {
               summaryHtml += `
-                <div style="background:var(--bg-surface-2); border:1px solid #3a3a4c; border-radius:8px; padding:10px 14px; display:flex; align-items:center; gap:12px; min-width:200px;">
+                <div class="kds-batch-chip" style="background:var(--bg-surface-2); border:1.5px solid var(--border-color); border-radius:8px; padding:10px 14px; display:flex; align-items:center; gap:12px; min-width:200px;">
                   <div style="background:var(--brand-pink); color:white; font-size:18px; font-weight:900; width:36px; height:36px; display:flex; justify-content:center; align-items:center; border-radius:50%; flex-shrink:0;">${grp.count}</div>
                   <div style="display:flex; flex-direction:column; gap:2px;">
-                    <div style="font-weight:900; color:white; font-size:15px; text-transform:uppercase;">${grp.protein}</div>
-                    <div style="font-size:12px; color:var(--text-dim); font-weight:800;">${grp.desc}</div>
+                    <div class="kds-batch-protein" style="font-weight:900; color:var(--text-white); font-size:15px; text-transform:uppercase;">${grp.protein}</div>
+                    <div class="kds-batch-desc" style="font-size:12px; color:var(--text-dim); font-weight:800;">${grp.desc}</div>
                   </div>
                 </div>
               `;
@@ -2701,15 +2998,26 @@
           if (o.status === 'pending') {
             actBtns = `
               <button class="kds-btn-action kds-btn-prep" onclick="app.updateStatus('${o.id}', 'preparing')">🔥 Preparando</button>
+              <button class="kds-btn-action kds-btn-prep" onclick="app.showOrderQRModalById('${o.id}')">📱 Código QR</button>
               <button class="kds-btn-action kds-btn-ready" onclick="app.updateStatus('${o.id}', 'ready')">✅ ¡LISTO!</button>
             `;
           } else if (o.status === 'preparing') {
-            actBtns = `<button class="kds-btn-action kds-btn-ready" onclick="app.updateStatus('${o.id}', 'ready')">✅ ¡LISTO PARA ENTREGAR!</button>`;
+            actBtns = `
+              <button class="kds-btn-action kds-btn-prep" style="grid-column: span 1;" onclick="app.showOrderQRModalById('${o.id}')">📱 Código QR</button>
+              <button class="kds-btn-action kds-btn-ready" style="grid-column: span 1;" onclick="app.updateStatus('${o.id}', 'ready')">✅ ¡LISTO!</button>
+            `;
           } else if (o.status === 'ready') {
             actBtns = `<button class="kds-btn-action kds-btn-deliver" onclick="app.updateStatus('${o.id}', 'delivered')">🎉 ENTREGADO</button>`;
           } else {
             actBtns = `<div style="grid-column: span 2; text-align: center; color: #10b981; font-weight: 800;">✓ Entregado</div>`;
           }
+
+          const ackBanner = o.guest_ack && o.status === 'ready' ? `
+            <div style="background: #e0f2fe; border: 1.5px solid #0284c7; color: #0369a1; padding: 8px 12px; border-radius: 8px; font-size: 12px; font-weight: 900; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 10px; box-shadow: 0 2px 8px rgba(2,132,199,0.15); animation: pulse 2s infinite;">
+              <span style="font-size: 16px; line-height: 1; flex-shrink: 0;">🏃‍♂️</span>
+              <span>COMENSAL CONFIRMÓ QUE VIENE EN CAMINO</span>
+            </div>
+          ` : '';
 
           return `
             <div class="kds-card-box status-${o.status}">
@@ -2725,6 +3033,7 @@
                   </div>
                 </div>
 
+                ${ackBanner}
                 ${productHeaderHtml}
                 ${kdsContentHtml}
 
@@ -2766,11 +3075,11 @@
         const readies = orders.filter(o => o.status === 'ready');
 
         prepEl.innerHTML = preps.length === 0 ? '<div style="color: var(--text-dim); padding: 20px;">Sin pedidos en cola</div>' : preps.map(o => `
-          <div class="turn-tile" onclick="app.openModal('${o.id}')">
+          <div class="turn-tile tile-prep" onclick="app.openModal('${o.id}')">
             <div class="turn-tile-num">#${o.turn}</div>
             <div class="turn-tile-name">${o.guest_name}</div>
-            <div style="font-size: 11px; color: var(--text-dim); margin-top:2px;">${o.is_bowl ? '🥗 BOWL' : '🌯 SHAWARMA'} ${o.protein.toUpperCase()}</div>
-            <div style="font-size: 10px; color: #38bdf8; margin-top: 4px;">🔍 Toca para ver detalle</div>
+            <div class="turn-tile-sub" style="font-size: 11px; margin-top:2px;">${o.is_bowl ? '🥗 BOWL' : '🌯 SHAWARMA'} ${o.protein.toUpperCase()}</div>
+            <div class="turn-tile-action" style="font-size: 10px; margin-top: 4px;">🔍 Toca para ver detalle</div>
           </div>
         `).join('');
 
@@ -2778,8 +3087,9 @@
           <div class="turn-tile tile-ready" onclick="app.openModal('${o.id}')">
             <div class="turn-tile-num">#${o.turn}</div>
             <div class="turn-tile-name">${o.guest_name}</div>
-            <div style="font-size: 11px; color: #a7f3d0; font-weight: 800;">¡LISTO!</div>
-            <div style="font-size: 10px; color: #6ee7b7; margin-top: 4px;">🔍 Toca para ver detalle</div>
+            <div class="turn-tile-ready-badge" style="font-size: 11px; font-weight: 800;">¡LISTO!</div>
+            ${o.guest_ack ? '<div style="background:#0284c7; color:white; font-size:10px; font-weight:900; border-radius:4px; padding:2px 6px; margin-top:4px; display:inline-flex; align-items:center; gap:4px; animation:pulse 1.5s infinite;"><span>🏃‍♂️</span> <span>En camino</span></div>' : ''}
+            <div class="turn-tile-ready-action" style="font-size: 10px; margin-top: 4px;">🔍 Toca para ver detalle</div>
           </div>
         `).join('');
       }
@@ -2800,12 +3110,13 @@
 
       openModal(orderId) {
         soundEngine.playClick();
-        const o = this.db.orders.find(item => item.id === orderId);
+        const o = (this.db.orders || []).find(item => String(item.id) === String(orderId) || String(item.turn) === String(orderId));
         if (!o) return;
 
         this.currentModalOrderId = orderId;
 
         const modal = document.getElementById('order-detail-modal');
+        if (!modal) return;
         document.getElementById('modal-turn-title').textContent = `TURNO #${o.turn}`;
         
         const createdAt = new Date(o.created_at || Date.now());
@@ -2813,52 +3124,378 @@
         document.getElementById('modal-guest-name').textContent = o.guest_name.toUpperCase();
         document.getElementById('modal-table-name').textContent = o.table ? `📍 MESA / REFERENCIA: ${o.table}` : '📍 Sin mesa asignada';
 
+        const isDay = document.body.classList.contains('theme-day');
+
         const bannerEl = document.getElementById('modal-product-banner');
         if (o.is_bowl || o.preset === 'bowl') {
-          bannerEl.innerHTML = `<div style="background:rgba(6,182,212,0.2); border:2px solid var(--cyan-blue); color:#67e8f9; padding:10px 14px; border-radius:8px; font-weight:900; font-size:16px;">🥗 BOWL DE ${o.protein.toUpperCase()} (EN PLATO - SIN PAN)</div>`;
+          bannerEl.innerHTML = isDay 
+            ? `<div style="background:#e0f2fe; border:1.5px solid #0284c7; color:#0369a1; padding:10px 14px; border-radius:8px; font-weight:900; font-size:16px;">🥗 BOWL DE ${o.protein.toUpperCase()} (EN PLATO - SIN PAN)</div>`
+            : `<div style="background:rgba(6,182,212,0.2); border:2px solid var(--cyan-blue); color:#67e8f9; padding:10px 14px; border-radius:8px; font-weight:900; font-size:16px;">🥗 BOWL DE ${o.protein.toUpperCase()} (EN PLATO - SIN PAN)</div>`;
         } else {
-          bannerEl.innerHTML = `<div style="background:rgba(255,0,127,0.2); border:2px solid var(--brand-pink); color:#ff66b3; padding:10px 14px; border-radius:8px; font-weight:900; font-size:16px;">🌯 SHAWARMA DE ${o.protein.toUpperCase()}</div>`;
+          bannerEl.innerHTML = isDay
+            ? `<div style="background:#f1f5f9; border:1.5px solid #cbd5e1; border-left:5px solid var(--brand-pink); color:#0f172a; padding:10px 14px; border-radius:8px; font-weight:900; font-size:16px;">🌯 SHAWARMA DE ${o.protein.toUpperCase()}</div>`
+            : `<div style="background:rgba(255,0,127,0.2); border:2px solid var(--brand-pink); color:#ff66b3; padding:10px 14px; border-radius:8px; font-weight:900; font-size:16px;">🌯 SHAWARMA DE ${o.protein.toUpperCase()}</div>`;
         }
 
         const bodyEl = document.getElementById('modal-ingredients-body');
         let bodyHtml = '';
 
         if (o.preset === 'ninos') {
-          bodyHtml += `<div style="background:#1e3a8a; border:2px solid #3b82f6; color:#bfdbfe; padding:10px 14px; border-radius:8px; font-weight:900; font-size:14px;">👶 PARA NIÑOS: Solo pan y carne (Sin salsas ni vegetales)</div>`;
+          bodyHtml += isDay
+            ? `<div style="background:#eff6ff; border:1.5px solid #3b82f6; color:#1d4ed8; padding:10px 14px; border-radius:8px; font-weight:900; font-size:14px;">👶 PARA NIÑOS: Solo pan y carne (Sin salsas ni vegetales)</div>`
+            : `<div style="background:#1e3a8a; border:2px solid #3b82f6; color:#bfdbfe; padding:10px 14px; border-radius:8px; font-weight:900; font-size:14px;">👶 PARA NIÑOS: Solo pan y carne (Sin salsas ni vegetales)</div>`;
         } else {
           if (o.removed_ingredients && o.removed_ingredients.length > 0) {
-            bodyHtml += `
-              <div style="background:#3b0d0d; border:2px solid #ef4444; color:#fecaca; padding:10px 12px; border-radius:8px; font-size:13px; font-weight:900;">
-                <div style="color:#fca5a5; font-size:11px; text-transform:uppercase;">⛔ NO QUIERE:</div>
-                <div>${o.removed_ingredients.map(r => r.toUpperCase()).join(' • ')}</div>
-              </div>
-            `;
+            bodyHtml += isDay
+              ? `
+                <div style="background:#fef2f2; border:1.5px solid #ef4444; color:#b91c1c; padding:10px 12px; border-radius:8px; font-size:13px; font-weight:900;">
+                  <div style="color:#b91c1c; font-size:11px; text-transform:uppercase;">⛔ NO QUIERE:</div>
+                  <div>${o.removed_ingredients.map(r => r.toUpperCase()).join(' • ')}</div>
+                </div>
+              `
+              : `
+                <div style="background:#3b0d0d; border:2px solid #ef4444; color:#fecaca; padding:10px 12px; border-radius:8px; font-size:13px; font-weight:900;">
+                  <div style="color:#fca5a5; font-size:11px; text-transform:uppercase;">⛔ NO QUIERE:</div>
+                  <div>${o.removed_ingredients.map(r => r.toUpperCase()).join(' • ')}</div>
+                </div>
+              `;
           }
           if (o.ingredients && o.ingredients.length > 0) {
             const allCore = (o.removed_ingredients || []).length === 0;
-            bodyHtml += `
-              <div style="background:#062b1e; border:1.5px solid #10b981; color:#a7f3d0; padding:10px 12px; border-radius:8px; font-size:13px; font-weight:800;">
-                <div style="color:#a7f3d0; font-size:11px; text-transform:uppercase;">✅ SÍ LLEVA:</div>
-                <div>${allCore ? '⭐ CON TODO (LOS 8 INGREDIENTES COMPLETOS)' : o.ingredients.map(i => i.toUpperCase()).join(' • ')}</div>
-              </div>
-            `;
+            bodyHtml += isDay
+              ? `
+                <div style="background:#ecfdf5; border:1.5px solid #10b981; color:#047857; padding:10px 12px; border-radius:8px; font-size:13px; font-weight:800;">
+                  <div style="color:#047857; font-size:11px; text-transform:uppercase; font-weight:900;">✅ SÍ LLEVA:</div>
+                  <div>${allCore ? '⭐ CON TODO (LOS 8 INGREDIENTES COMPLETOS)' : o.ingredients.map(i => i.toUpperCase()).join(' • ')}</div>
+                </div>
+              `
+              : `
+                <div style="background:#062b1e; border:1.5px solid #10b981; color:#a7f3d0; padding:10px 12px; border-radius:8px; font-size:13px; font-weight:800;">
+                  <div style="color:#a7f3d0; font-size:11px; text-transform:uppercase;">✅ SÍ LLEVA:</div>
+                  <div>${allCore ? '⭐ CON TODO (LOS 8 INGREDIENTES COMPLETOS)' : o.ingredients.map(i => i.toUpperCase()).join(' • ')}</div>
+                </div>
+              `;
           }
         }
         bodyEl.innerHTML = bodyHtml;
 
         const notesBox = document.getElementById('modal-notes-box');
         if (o.notes) {
-          notesBox.innerHTML = `<div style="background:#261f0d; border:1px solid #78350f; color:#fbbf24; padding:8px 12px; border-radius:6px; font-size:13px; font-weight:900;">📝 NOTA: ${o.notes.toUpperCase()}</div>`;
+          notesBox.innerHTML = isDay
+            ? `<div style="background:#fffbeb; border:1.5px solid #f59e0b; color:#92400e; padding:8px 12px; border-radius:6px; font-size:13px; font-weight:900;">📝 NOTA: ${o.notes.toUpperCase()}</div>`
+            : `<div style="background:#261f0d; border:1px solid #78350f; color:#fbbf24; padding:8px 12px; border-radius:6px; font-size:13px; font-weight:900;">📝 NOTA: ${o.notes.toUpperCase()}</div>`;
         } else {
           notesBox.innerHTML = '';
         }
 
         modal.classList.add('active');
+        modal.style.display = 'flex';
       }
 
-      closeModal() {
+      closeModal(event) {
+        if (event && event.target && event.target.id !== 'order-detail-modal') return;
         const modal = document.getElementById('order-detail-modal');
-        if (modal) modal.classList.remove('active');
+        if (modal) {
+          modal.classList.remove('active');
+          modal.style.display = 'none';
+        }
+      }
+
+      showOrderQRModal(order) {
+        if (!order) return;
+        const detailModal = document.getElementById('order-detail-modal');
+        if (detailModal) {
+          detailModal.classList.remove('active');
+          detailModal.style.display = 'none';
+        }
+
+        const modal = document.getElementById('order-qr-modal');
+        if (!modal) return;
+        
+        document.getElementById('qr-modal-turn').textContent = `TURNO #${order.turn}`;
+        document.getElementById('qr-modal-name').textContent = `${order.guest_name} • ${order.protein}`;
+        
+        const origin = window.location.origin.includes('localhost') || window.location.origin.includes('127.0.0.1')
+          ? `http://10.0.0.161:8080`
+          : window.location.origin;
+        const guestUrl = `${origin}/?view=guest&order_id=${order.id || order.turn}`;
+        
+        const testLink = document.getElementById('qr-modal-test-link');
+        if (testLink) {
+          testLink.href = guestUrl;
+        }
+
+        const qrContainer = document.getElementById('qr-code-canvas-container');
+        if (qrContainer) {
+          qrContainer.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(guestUrl)}" alt="QR Code" style="display:block; width:220px; height:220px; border-radius:8px; margin:0 auto;">`;
+        }
+        modal.classList.add('active');
+        modal.style.display = 'flex';
+      }
+
+      showOrderQRModalById(id) {
+        soundEngine.playClick();
+        let order = (this.db.orders || []).find(o => String(o.id) === String(id) || String(o.turn) === String(id));
+        if (!order) {
+          order = { id: id, turn: 1, guest_name: 'Comensal', protein: 'Mixto' };
+        }
+        this.showOrderQRModal(order);
+      }
+
+      closeQRModal(event) {
+        if (event && event.target && event.target.id !== 'order-qr-modal') return;
+        const modal = document.getElementById('order-qr-modal');
+        if (modal) {
+          modal.classList.remove('active');
+          modal.style.display = 'none';
+        }
+      }
+
+      async renderGuestView() {
+        const guestView = document.getElementById('view-guest');
+        if (!guestView) return;
+
+        let order = null;
+        const orders = this.db.orders || [];
+        if (this.guestOrderId) {
+          order = orders.find(o => String(o.id) === String(this.guestOrderId) || String(o.turn) === String(this.guestOrderId));
+        }
+        if (!order && orders.length > 0) {
+          order = orders[orders.length - 1];
+        }
+
+        if (!order) {
+          try {
+            const res = await fetch('/api/orders');
+            if (res.ok) {
+              const data = await res.json();
+              this.syncData(data, false);
+              const freshOrders = this.db.orders || [];
+              if (this.guestOrderId) {
+                order = freshOrders.find(o => String(o.id) === String(this.guestOrderId) || String(o.turn) === String(this.guestOrderId));
+              }
+              if (!order && freshOrders.length > 0) {
+                order = freshOrders[freshOrders.length - 1];
+              }
+            }
+          } catch(e) {}
+        }
+
+        if (!order) {
+          order = {
+            turn: 12,
+            guest_name: 'Comensal Invitado',
+            protein: 'Mixto',
+            is_bowl: false,
+            removed_ingredients: [],
+            status: 'preparing'
+          };
+        }
+
+        document.getElementById('guest-view-turn').textContent = `#${order.turn}`;
+        document.getElementById('guest-view-name').textContent = `${order.guest_name}`;
+        
+        const removedTxt = order.removed_ingredients && order.removed_ingredients.length > 0 ? ` (Sin: ${order.removed_ingredients.join(', ')})` : ' (Con Todo)';
+        document.getElementById('guest-view-detail').textContent = `${order.is_bowl ? '🥗 Bowl' : '🌯 Shawarma'} de ${order.protein}${removedTxt}`;
+
+        const prepState = document.getElementById('guest-state-prep');
+        const readyState = document.getElementById('guest-state-ready');
+        const card = document.getElementById('guest-buzzer-card');
+
+        this.updateNotificationButtonState();
+
+        if (order.status === 'ready' || order.status === 'delivered') {
+          if (prepState) prepState.style.display = 'none';
+          if (readyState) readyState.style.display = 'block';
+          if (card) {
+            card.classList.add('buzzer-ready-active');
+          }
+          
+          if (!this.guestAlarmTriggered) {
+            this.guestAlarmTriggered = true;
+            this.triggerLockScreenNotification(order);
+          }
+        } else {
+          this.guestAlarmTriggered = false;
+          if (prepState) prepState.style.display = 'block';
+          if (readyState) readyState.style.display = 'none';
+          if (card) {
+            card.classList.remove('buzzer-ready-active');
+            card.style.borderColor = 'var(--border-color)';
+            card.style.boxShadow = '0 12px 32px rgba(0,0,0,0.4)';
+          }
+        }
+      }
+
+      async requestNotificationPermission() {
+        soundEngine.playClick();
+        if ('Notification' in window) {
+          try {
+            const perm = await Notification.requestPermission();
+            this.updateNotificationButtonState();
+            if (perm === 'granted') {
+              this.showToast('✅ Avisos en pantalla bloqueada activados', 'success');
+              if (navigator.vibrate) {
+                try { navigator.vibrate([100, 50, 100]); } catch(e) {}
+              }
+            }
+          } catch(e) {}
+        } else {
+          this.showToast('ℹ️ En la nube con HTTPS se activan las alertas de pantalla bloqueada', 'info');
+        }
+      }
+
+      updateNotificationButtonState() {
+        const box = document.getElementById('guest-perm-box');
+        const btn = document.getElementById('btn-request-perm');
+        if (!btn || !box) return;
+        
+        if (!('Notification' in window)) {
+          box.style.display = 'none';
+          return;
+        }
+
+        box.style.display = 'block';
+        if (Notification.permission === 'granted') {
+          btn.style.background = '#ecfdf5';
+          btn.style.borderColor = '#10b981';
+          btn.style.color = '#047857';
+          btn.innerHTML = '✅ Avisos en pantalla bloqueada activados';
+        } else if (Notification.permission === 'denied') {
+          btn.style.background = '#fef2f2';
+          btn.style.borderColor = '#ef4444';
+          btn.style.color = '#b91c1c';
+          btn.innerHTML = '⚠️ Permiso de avisos bloqueado en tu navegador';
+        }
+      }
+
+      triggerLockScreenNotification(order) {
+        const turn = order?.turn || '0';
+        const title = `🌯 ¡Tu Shawarma está Listo! (Turno #${turn})`;
+        const body = 'Su orden está lista. Le invitamos a pasar a retirarla.';
+
+        // 1. Service Worker notification (wakes phone & displays on Lock Screen)
+        if (this.swRegistration && this.swRegistration.active) {
+          this.swRegistration.active.postMessage({
+            type: 'SHOW_READY_NOTIFICATION',
+            title: title,
+            body: body,
+            turn: turn,
+            url: window.location.href
+          });
+        } else if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+          navigator.serviceWorker.controller.postMessage({
+            type: 'SHOW_READY_NOTIFICATION',
+            title: title,
+            body: body,
+            turn: turn,
+            url: window.location.href
+          });
+        } else if ('Notification' in window && Notification.permission === 'granted') {
+          try {
+            new Notification(title, {
+              body: body,
+              icon: 'images/brand-icon.png',
+              badge: 'images/brand-icon.png',
+              vibrate: [250, 400, 250, 400, 250],
+              tag: 'order-ready-' + turn,
+              renotify: true,
+              requireInteraction: true
+            });
+          } catch(e) {}
+        }
+
+        // 2. Gentle haptic vibration
+        if (navigator.vibrate) {
+          try { navigator.vibrate([250, 400, 250, 400, 250]); } catch(e) {}
+        }
+      }
+
+      simulateGuestReady() {
+        const prepState = document.getElementById('guest-state-prep');
+        const readyState = document.getElementById('guest-state-ready');
+        const card = document.getElementById('guest-buzzer-card');
+        const container = document.getElementById('guest-ack-btn-container');
+        if (container) {
+          container.innerHTML = `
+            <button type="button" style="background: var(--yes-green); color: white; border: none; padding: 16px 32px; border-radius: var(--radius-full); font-size: 16px; font-weight: 900; cursor: pointer; width: 100%; box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4); margin-bottom: 12px; display: flex; align-items: center; justify-content: center; gap: 8px;" onclick="app.ackGuestReady()">
+              <span>✅</span> <span>¡Entendido! Voy a recogerlo</span>
+            </button>
+          `;
+        }
+        if (prepState) prepState.style.display = 'none';
+        if (readyState) readyState.style.display = 'block';
+        if (card) {
+          card.classList.add('buzzer-ready-active');
+        }
+        this.triggerLockScreenNotification({ turn: 12 });
+      }
+
+      resetGuestSimulation() {
+        soundEngine.playClick();
+        const prepState = document.getElementById('guest-state-prep');
+        const readyState = document.getElementById('guest-state-ready');
+        const card = document.getElementById('guest-buzzer-card');
+        const container = document.getElementById('guest-ack-btn-container');
+        if (container) {
+          container.innerHTML = `
+            <button type="button" style="background: var(--yes-green); color: white; border: none; padding: 16px 32px; border-radius: var(--radius-full); font-size: 16px; font-weight: 900; cursor: pointer; width: 100%; box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4); margin-bottom: 12px; display: flex; align-items: center; justify-content: center; gap: 8px;" onclick="app.ackGuestReady()">
+              <span>✅</span> <span>¡Entendido! Voy a recogerlo</span>
+            </button>
+          `;
+        }
+        if (prepState) prepState.style.display = 'block';
+        if (readyState) readyState.style.display = 'none';
+        if (card) {
+          card.classList.remove('buzzer-ready-active');
+          card.style.borderColor = 'var(--border-color)';
+          card.style.boxShadow = '0 12px 32px rgba(0,0,0,0.4)';
+        }
+        if (navigator.vibrate) {
+          try { navigator.vibrate(0); } catch(e) {}
+        }
+      }
+
+      async ackGuestReady() {
+        soundEngine.playClick();
+        const container = document.getElementById('guest-ack-btn-container');
+        if (container) {
+          container.innerHTML = `
+            <div style="background: linear-gradient(135deg, #0284c7, #0369a1); color: white; border-radius: var(--radius-full); padding: 14px 20px; font-size: 14px; font-weight: 900; margin-bottom: 12px; box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35); animation: pulse 2s infinite; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; box-sizing: border-box; text-align: center;">
+              <span style="font-size: 18px; line-height: 1; flex-shrink: 0;">🏃‍♂️</span>
+              <span>¡Aviso enviado! Te esperamos en la barra.</span>
+            </div>
+          `;
+        }
+        this.showToast('¡Aviso enviado a cocina! Te esperamos en la barra.', 'success');
+
+        let orderId = this.guestOrderId;
+        const orders = this.db.orders || [];
+        if (!orderId && orders.length > 0) {
+          const readyOrder = orders.find(o => o.status === 'ready') || orders[orders.length - 1];
+          if (readyOrder) orderId = readyOrder.id || readyOrder.turn;
+        }
+
+        if (orders.length > 0) {
+          const target = orderId 
+            ? orders.find(o => String(o.id) === String(orderId) || String(o.turn) === String(orderId))
+            : (orders.find(o => o.status === 'ready') || orders[orders.length - 1]);
+          if (target) {
+            target.guest_ack = true;
+            target.guest_ack_at = new Date().toISOString();
+            this.syncData(this.db, true);
+          }
+        }
+
+        if (orderId) {
+          try {
+            await fetch('/api/orders/ack', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ id: orderId })
+            });
+          } catch(e) {}
+        }
       }
 
       renderAdmin() {
@@ -2871,11 +3508,22 @@
 
       setTheme(themeName, playSound = true) {
         if (playSound) soundEngine.playClick();
-        if (themeName === 'elegante') {
-          document.body.classList.add('theme-elegant');
-        } else {
-          document.body.classList.remove('theme-elegant');
+        document.body.classList.remove('theme-elegant', 'theme-day');
+        const isDay = themeName === 'dia';
+        if (isDay) {
+          document.body.classList.add('theme-day');
         }
+
+        // Swap Logos dynamically for Day (black text logo) vs Night (white text logo)
+        const headerLogo = document.querySelector('.brand-logo-img');
+        const guestLogo = document.getElementById('guest-view-logo');
+        const watermarkLogo = document.getElementById('sidebar-watermark-logo');
+        
+        const logoSrc = isDay ? 'images/shawarma-logo-light.png' : 'images/shawarma-logo-exact.png';
+        if (headerLogo) headerLogo.src = logoSrc;
+        if (guestLogo) guestLogo.src = logoSrc;
+        if (watermarkLogo) watermarkLogo.src = 'images/brand-icon.png';
+
         localStorage.setItem('shawarma_theme', themeName);
       }
 
