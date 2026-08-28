@@ -2025,7 +2025,7 @@
             <button type="button" class="quick-note-chip" onclick="app.toggleQuickNote('Salsa de Tahini')">🥣 Salsa de Tahini</button>
             <button type="button" class="quick-note-chip" onclick="app.toggleQuickNote('Cortado por la mitad')">🔪 Cortado por la mitad</button>
             <button type="button" class="quick-note-chip" onclick="app.toggleQuickNote('Bien Tostado')">🔥 Bien Tostado</button>
-            <button type="button" class="quick-note-chip" onclick="app.toggleQuickNote('No Falafel')">🧆 No Falafel</button>
+            <button type="button" class="quick-note-chip" onclick="app.toggleQuickNote('Sin Falafel')">🧆 Sin Falafel</button>
           </div>
           <input type="text" id="order-notes" class="text-input-pos" style="height: 48px; font-size: 14px;" placeholder="O escribe una nota personalizada aquí..." oninput="app.updateQuickNoteButtons()">
         </div>
@@ -2090,20 +2090,29 @@
       </div>
     </div>
 
-    <!-- Status Filters -->
-    <div class="kds-filter-row">
-      <button class="kds-filter-tab active" data-filter="active" onclick="app.setKdsFilter('active')">
-        ⏳ En Cola / Plancha (<span id="count-active-kds">0</span>)
-      </button>
-      <button class="kds-filter-tab" data-filter="ready" onclick="app.setKdsFilter('ready')">
-        ✅ Listos para Entrega (<span id="count-ready-kds">0</span>)
-      </button>
-      <button class="kds-filter-tab" data-filter="delivered" onclick="app.setKdsFilter('delivered')">
-        📦 Entregados (<span id="count-delivered-kds">0</span>)
-      </button>
-      <button class="kds-filter-tab" data-filter="all" onclick="app.setKdsFilter('all')">
-        📋 Todos
-      </button>
+    <!-- Status Filters & Mass Action -->
+    <div class="kds-filter-row" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+      <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+        <button class="kds-filter-tab active" data-filter="active" onclick="app.setKdsFilter('active')">
+          ⏳ En Preparación (<span id="count-active-kds">0</span>)
+        </button>
+        <button class="kds-filter-tab" data-filter="ready" onclick="app.setKdsFilter('ready')">
+          ✅ Listos para Entregar (<span id="count-ready-kds">0</span>)
+        </button>
+        <button class="kds-filter-tab" data-filter="delivered" onclick="app.setKdsFilter('delivered')">
+          📦 Entregados (<span id="count-delivered-kds">0</span>)
+        </button>
+        <button class="kds-filter-tab" data-filter="all" onclick="app.setKdsFilter('all')">
+          📋 Todos
+        </button>
+      </div>
+
+      <!-- Botón exclusivo para iPad y Mac: Marcar Tanda de 6 Listos -->
+      <div class="desktop-only-kds-summary">
+        <button type="button" style="background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; padding: 10px 18px; border-radius: var(--radius-md); font-size: 13px; font-weight: 900; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35); transition: all 0.15s ease;" onclick="app.markNextBatchReady()">
+          <span>⚡</span> <span>Marcar Tanda (Próximos 6 Listos)</span>
+        </button>
+      </div>
     </div>
 
     <!-- Cards Grid -->
@@ -2122,7 +2131,7 @@
       <!-- In Prep Column -->
       <div class="turn-column-box">
         <div class="turn-column-header col-prep-hdr">
-          <span>🔥</span> <span>En Preparación / Plancha</span>
+          <span>🔥</span> <span>En Preparación</span>
         </div>
         <div class="turns-cards-container" id="display-prep-list"></div>
       </div>
@@ -2130,7 +2139,7 @@
       <!-- Ready Column -->
       <div class="turn-column-box">
         <div class="turn-column-header col-ready-hdr">
-          <span>✨</span> <span>¡Listos para Retirar!</span>
+          <span>✨</span> <span>¡Listos para Entregar!</span>
         </div>
         <div class="turns-cards-container" id="display-ready-list"></div>
       </div>
@@ -2936,7 +2945,22 @@
           return;
         }
 
-        grid.innerHTML = displayed.map(o => {
+        let cardListHtml = '';
+        displayed.forEach((o, index) => {
+          // Línea divisora visual cada 6 shawarmas
+          if (index > 0 && index % 6 === 0) {
+            const batchCompleted = index / 6;
+            cardListHtml += `
+              <div class="kds-batch-divider" style="grid-column: 1 / -1; display: flex; align-items: center; justify-content: center; gap: 14px; margin: 24px 0 12px 0;">
+                <div style="flex: 1; height: 2px; background: linear-gradient(90deg, transparent, var(--brand-pink), transparent); opacity: 0.6;"></div>
+                <div style="background: var(--bg-surface-2); border: 1.5px solid var(--brand-pink); color: var(--brand-pink); font-size: 12px; font-weight: 900; padding: 6px 18px; border-radius: var(--radius-full); text-transform: uppercase; letter-spacing: 0.5px; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(255, 0, 127, 0.15);">
+                  <span>🌯</span> <span>Fin de Tanda de 6 Shawarmas (Tanda #${batchCompleted + 1})</span>
+                </div>
+                <div style="flex: 1; height: 2px; background: linear-gradient(90deg, transparent, var(--brand-pink), transparent); opacity: 0.6;"></div>
+              </div>
+            `;
+          }
+
           const createdAt = new Date(o.created_at || Date.now());
           const timeStr = createdAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
           const elapsedMins = Math.floor((Date.now() - createdAt.getTime()) / 60000);
@@ -2946,9 +2970,11 @@
             const readyAt = new Date(o.prepared_at);
             const readyTimeStr = readyAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             const totalMins = Math.max(1, Math.round((readyAt.getTime() - createdAt.getTime()) / 60000));
-            prepDurationInfo = `<div style="color:#6ee7b7; font-weight:800;">⏱️ Listo a las ${readyTimeStr} (Tardó ${totalMins} min)</div>`;
+            prepDurationInfo = `<div style="color:#6ee7b7; font-weight:800;">⏱️ Listo para entregar a las ${readyTimeStr} (Tardó ${totalMins} min)</div>`;
+          } else if (o.status === 'delivered') {
+            prepDurationInfo = `<div style="color:#10b981; font-weight:800;">✓ Entregado</div>`;
           } else {
-            prepDurationInfo = `<div>📥 Pedido: ${timeStr} • ⏱️ Hace ${elapsedMins === 0 ? 'un momento' : `${elapsedMins} min`}</div>`;
+            prepDurationInfo = `<div>📥 Pedido: ${timeStr} • ⏱️ En preparación hace ${elapsedMins === 0 ? 'un momento' : `${elapsedMins} min`}</div>`;
           }
 
           let kdsContentHtml = '';
@@ -2997,19 +3023,27 @@
           let actBtns = '';
           if (o.status === 'pending') {
             actBtns = `
-              <button class="kds-btn-action kds-btn-prep" onclick="app.updateStatus('${o.id}', 'preparing')">🔥 Preparando</button>
+              <button class="kds-btn-action kds-btn-prep" onclick="app.updateStatus('${o.id}', 'preparing')">🔥 En Preparación</button>
               <button class="kds-btn-action kds-btn-prep" onclick="app.showOrderQRModalById('${o.id}')">📱 Código QR</button>
-              <button class="kds-btn-action kds-btn-ready" onclick="app.updateStatus('${o.id}', 'ready')">✅ ¡LISTO!</button>
+              <button class="kds-btn-action kds-btn-ready" onclick="app.updateStatus('${o.id}', 'ready')">✅ Listo para Entregar</button>
             `;
           } else if (o.status === 'preparing') {
             actBtns = `
               <button class="kds-btn-action kds-btn-prep" style="grid-column: span 1;" onclick="app.showOrderQRModalById('${o.id}')">📱 Código QR</button>
-              <button class="kds-btn-action kds-btn-ready" style="grid-column: span 1;" onclick="app.updateStatus('${o.id}', 'ready')">✅ ¡LISTO!</button>
+              <button class="kds-btn-action kds-btn-ready" style="grid-column: span 1;" onclick="app.updateStatus('${o.id}', 'ready')">✅ Listo para Entregar</button>
             `;
           } else if (o.status === 'ready') {
-            actBtns = `<button class="kds-btn-action kds-btn-deliver" onclick="app.updateStatus('${o.id}', 'delivered')">🎉 ENTREGADO</button>`;
+            actBtns = `
+              <button class="kds-btn-action kds-btn-deliver" style="grid-column: span 2; font-size: 15px; font-weight: 900; padding: 12px 18px;" onclick="app.updateStatus('${o.id}', 'delivered')">
+                📦 Confirmar Entrega
+              </button>
+            `;
           } else {
-            actBtns = `<div style="grid-column: span 2; text-align: center; color: #10b981; font-weight: 800;">✓ Entregado</div>`;
+            actBtns = `
+              <div style="grid-column: span 2; text-align: center; color: #10b981; font-weight: 900; padding: 10px; background: rgba(16,185,129,0.1); border-radius: 8px;">
+                ✓ Entregado
+              </div>
+            `;
           }
 
           const ackBanner = o.guest_ack && o.status === 'ready' ? `
@@ -3019,7 +3053,7 @@
             </div>
           ` : '';
 
-          return `
+          cardListHtml += `
             <div class="kds-card-box status-${o.status}">
               <div>
                 <div class="kds-card-top">
@@ -3043,7 +3077,9 @@
               <div class="kds-actions-grid">${actBtns}</div>
             </div>
           `;
-        }).join('');
+        });
+
+        grid.innerHTML = cardListHtml;
       }
 
       async updateStatus(id, newStatus) {
@@ -3062,6 +3098,47 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ id: id, status: newStatus })
           });
+        } catch(e) {}
+      }
+
+      async markNextBatchReady() {
+        soundEngine.playClick();
+        const activeOrders = (this.db.orders || [])
+          .filter(o => o.status === 'pending' || o.status === 'preparing')
+          .sort((a, b) => a.turn - b.turn);
+
+        if (activeOrders.length === 0) {
+          this.showToast('No hay shawarmas en preparación actualmente', 'info');
+          return;
+        }
+
+        // Take up to 6 active orders
+        const batchToReady = activeOrders.slice(0, 6);
+        const count = batchToReady.length;
+        const nowIso = new Date().toISOString();
+        const turnRange = count === 1 
+          ? `Turno #${batchToReady[0].turn}` 
+          : `Turnos #${batchToReady[0].turn} al #${batchToReady[count - 1].turn}`;
+
+        soundEngine.playReady();
+
+        // Update all locally for instant response
+        batchToReady.forEach(o => {
+          o.status = 'ready';
+          o.prepared_at = nowIso;
+        });
+        this.syncData(this.db, true);
+        this.showToast(`✅ Tanda de ${count} shawarma(s) lista para entregar (${turnRange})`, 'success');
+
+        // Send to server
+        try {
+          await Promise.all(batchToReady.map(o =>
+            fetch('/api/orders/status', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ id: o.id, status: 'ready' })
+            })
+          ));
         } catch(e) {}
       }
 
@@ -3087,7 +3164,7 @@
           <div class="turn-tile tile-ready" onclick="app.openModal('${o.id}')">
             <div class="turn-tile-num">#${o.turn}</div>
             <div class="turn-tile-name">${o.guest_name}</div>
-            <div class="turn-tile-ready-badge" style="font-size: 11px; font-weight: 800;">¡LISTO!</div>
+            <div class="turn-tile-ready-badge" style="font-size: 11px; font-weight: 800;">¡LISTO PARA ENTREGAR!</div>
             ${o.guest_ack ? '<div style="background:#0284c7; color:white; font-size:10px; font-weight:900; border-radius:4px; padding:2px 6px; margin-top:4px; display:inline-flex; align-items:center; gap:4px; animation:pulse 1.5s infinite;"><span>🏃‍♂️</span> <span>En camino</span></div>' : ''}
             <div class="turn-tile-ready-action" style="font-size: 10px; margin-top: 4px;">🔍 Toca para ver detalle</div>
           </div>
