@@ -1,0 +1,547 @@
+{
+  "event_info": {
+    "id": "evt_1787980402",
+    "name": "Evento 8/29/2026 01:13 a.m.",
+    "created_at": "2026-08-29T01:13:22-04:00",
+    "turn_counter": 20
+  },
+  "orders": [
+    {
+      "id": "ord_1787960407999995",
+      "turn": 1,
+      "guest_name": "Comensal",
+      "table": "",
+      "protein": "Mixto",
+      "preset": "con-todo",
+      "ingredients": [
+        "Hummus",
+        "Tabule",
+        "Cebolla",
+        "Tomate",
+        "Pepinillo",
+        "Encurtido de Nabo",
+        "Salsa de Ajo",
+        "Salsa de Ajonjolí"
+      ],
+      "removed_ingredients": [
+
+      ],
+      "added_extras": [
+
+      ],
+      "notes": "",
+      "quantity": 1,
+      "status": "delivered",
+      "created_at": "2026-08-28T19:40:08-04:00",
+      "updated_at": "2026-08-28T19:42:36-04:00",
+      "prepared_at": "2026-08-28T19:42:02-04:00",
+      "delivered_at": "2026-08-28T19:42:36-04:00"
+    },
+    {
+      "id": "ord_1787960409506992",
+      "turn": 2,
+      "guest_name": "Comensal",
+      "table": "",
+      "protein": "Carne",
+      "preset": "con-todo",
+      "ingredients": [
+        "Hummus",
+        "Tabule",
+        "Cebolla",
+        "Tomate",
+        "Pepinillo",
+        "Encurtido de Nabo",
+        "Salsa de Ajo",
+        "Salsa de Ajonjolí"
+      ],
+      "removed_ingredients": [
+
+      ],
+      "added_extras": [
+
+      ],
+      "notes": "",
+      "quantity": 1,
+      "status": "delivered",
+      "created_at": "2026-08-28T19:40:09-04:00",
+      "updated_at": "2026-08-28T19:43:15-04:00",
+      "prepared_at": "2026-08-28T19:42:02-04:00",
+      "delivered_at": "2026-08-28T19:43:15-04:00"
+    },
+    {
+      "id": "ord_1787960410728817",
+      "turn": 3,
+      "guest_name": "Comensal",
+      "table": "",
+      "protein": "Falafel",
+      "preset": "con-todo",
+      "ingredients": [
+        "Hummus",
+        "Tabule",
+        "Cebolla",
+        "Tomate",
+        "Pepinillo",
+        "Encurtido de Nabo",
+        "Salsa de Ajo",
+        "Salsa de Ajonjolí"
+      ],
+      "removed_ingredients": [
+
+      ],
+      "added_extras": [
+
+      ],
+      "notes": "",
+      "quantity": 1,
+      "status": "ready",
+      "created_at": "2026-08-28T19:40:10-04:00",
+      "updated_at": "2026-08-28T19:42:02-04:00",
+      "prepared_at": "2026-08-28T19:42:02-04:00"
+    },
+    {
+      "id": "ord_1787960504637155",
+      "turn": 4,
+      "guest_name": "Comensal",
+      "table": "",
+      "protein": "Pollo",
+      "preset": "con-todo",
+      "ingredients": [
+        "Hummus",
+        "Tabule",
+        "Cebolla",
+        "Tomate",
+        "Pepinillo",
+        "Encurtido de Nabo",
+        "Salsa de Ajo",
+        "Salsa de Ajonjolí"
+      ],
+      "removed_ingredients": [
+
+      ],
+      "added_extras": [
+
+      ],
+      "notes": "",
+      "quantity": 1,
+      "status": "ready",
+      "created_at": "2026-08-28T19:41:44-04:00",
+      "updated_at": "2026-08-28T19:42:02-04:00",
+      "prepared_at": "2026-08-28T19:42:02-04:00"
+    },
+    {
+      "id": "ord_1787960504902635",
+      "turn": 5,
+      "guest_name": "Comensal",
+      "table": "",
+      "protein": "Mixto",
+      "preset": "con-todo",
+      "ingredients": [
+        "Hummus",
+        "Tabule",
+        "Cebolla",
+        "Tomate",
+        "Pepinillo",
+        "Encurtido de Nabo",
+        "Salsa de Ajo",
+        "Salsa de Ajonjolí"
+      ],
+      "removed_ingredients": [
+
+      ],
+      "added_extras": [
+
+      ],
+      "notes": "",
+      "quantity": 1,
+      "status": "ready",
+      "created_at": "2026-08-28T19:41:44-04:00",
+      "updated_at": "2026-08-28T19:42:02-04:00",
+      "prepared_at": "2026-08-28T19:42:02-04:00"
+    },
+    {
+      "id": "ord_1787960505069041",
+      "turn": 6,
+      "guest_name": "Comensal",
+      "table": "",
+      "protein": "Mixto",
+      "preset": "con-todo",
+      "ingredients": [
+        "Hummus",
+        "Tabule",
+        "Cebolla",
+        "Tomate",
+        "Pepinillo",
+        "Encurtido de Nabo",
+        "Salsa de Ajo",
+        "Salsa de Ajonjolí"
+      ],
+      "removed_ingredients": [
+
+      ],
+      "added_extras": [
+
+      ],
+      "notes": "",
+      "quantity": 1,
+      "status": "ready",
+      "created_at": "2026-08-28T19:41:45-04:00",
+      "updated_at": "2026-08-28T19:42:02-04:00",
+      "prepared_at": "2026-08-28T19:42:02-04:00"
+    },
+    {
+      "id": "ord_17879605053698292",
+      "turn": 7,
+      "guest_name": "Comensal",
+      "table": "",
+      "protein": "Mixto",
+      "preset": "con-todo",
+      "ingredients": [
+        "Hummus",
+        "Tabule",
+        "Cebolla",
+        "Tomate",
+        "Pepinillo",
+        "Encurtido de Nabo",
+        "Salsa de Ajo",
+        "Salsa de Ajonjolí"
+      ],
+      "removed_ingredients": [
+
+      ],
+      "added_extras": [
+
+      ],
+      "notes": "",
+      "quantity": 1,
+      "status": "ready",
+      "created_at": "2026-08-28T19:41:45-04:00",
+      "updated_at": "2026-08-28T19:43:00-04:00",
+      "prepared_at": "2026-08-28T19:43:00-04:00"
+    },
+    {
+      "id": "ord_1787960505928968",
+      "turn": 8,
+      "guest_name": "Comensal",
+      "table": "",
+      "protein": "Mixto",
+      "preset": "con-todo",
+      "ingredients": [
+        "Hummus",
+        "Tabule",
+        "Cebolla",
+        "Tomate",
+        "Pepinillo",
+        "Encurtido de Nabo",
+        "Salsa de Ajo",
+        "Salsa de Ajonjolí"
+      ],
+      "removed_ingredients": [
+
+      ],
+      "added_extras": [
+
+      ],
+      "notes": "",
+      "quantity": 1,
+      "status": "ready",
+      "created_at": "2026-08-28T19:41:45-04:00",
+      "updated_at": "2026-08-28T19:43:53-04:00",
+      "prepared_at": "2026-08-28T19:43:53-04:00"
+    },
+    {
+      "id": "ord_1787960607439148",
+      "turn": 9,
+      "guest_name": "Comensal",
+      "table": "",
+      "protein": "Pollo",
+      "preset": "con-todo",
+      "ingredients": [
+        "Hummus",
+        "Tabule",
+        "Cebolla",
+        "Tomate",
+        "Pepinillo",
+        "Encurtido de Nabo",
+        "Salsa de Ajo",
+        "Salsa de Ajonjolí"
+      ],
+      "removed_ingredients": [
+
+      ],
+      "added_extras": [
+
+      ],
+      "notes": "",
+      "quantity": 1,
+      "status": "ready",
+      "created_at": "2026-08-28T19:43:27-04:00",
+      "updated_at": "2026-08-28T19:43:53-04:00",
+      "prepared_at": "2026-08-28T19:43:53-04:00"
+    },
+    {
+      "id": "ord_1787960609085174",
+      "turn": 10,
+      "guest_name": "Comensal",
+      "table": "",
+      "protein": "Falafel",
+      "preset": "con-todo",
+      "ingredients": [
+        "Hummus",
+        "Tabule",
+        "Cebolla",
+        "Tomate",
+        "Pepinillo",
+        "Encurtido de Nabo",
+        "Salsa de Ajo",
+        "Salsa de Ajonjolí"
+      ],
+      "removed_ingredients": [
+
+      ],
+      "added_extras": [
+
+      ],
+      "notes": "",
+      "quantity": 1,
+      "status": "ready",
+      "created_at": "2026-08-28T19:43:29-04:00",
+      "updated_at": "2026-08-28T19:43:53-04:00",
+      "prepared_at": "2026-08-28T19:43:53-04:00"
+    },
+    {
+      "id": "ord_1787960609468954",
+      "turn": 11,
+      "guest_name": "Comensal",
+      "table": "",
+      "protein": "Mixto",
+      "preset": "con-todo",
+      "ingredients": [
+        "Hummus",
+        "Tabule",
+        "Cebolla",
+        "Tomate",
+        "Pepinillo",
+        "Encurtido de Nabo",
+        "Salsa de Ajo",
+        "Salsa de Ajonjolí"
+      ],
+      "removed_ingredients": [
+
+      ],
+      "added_extras": [
+
+      ],
+      "notes": "",
+      "quantity": 1,
+      "status": "ready",
+      "created_at": "2026-08-28T19:43:29-04:00",
+      "updated_at": "2026-08-28T19:43:53-04:00",
+      "prepared_at": "2026-08-28T19:43:53-04:00"
+    },
+    {
+      "id": "ord_1787960609718416",
+      "turn": 12,
+      "guest_name": "Comensal",
+      "table": "",
+      "protein": "Mixto",
+      "preset": "con-todo",
+      "ingredients": [
+        "Hummus",
+        "Tabule",
+        "Cebolla",
+        "Tomate",
+        "Pepinillo",
+        "Encurtido de Nabo",
+        "Salsa de Ajo",
+        "Salsa de Ajonjolí"
+      ],
+      "removed_ingredients": [
+
+      ],
+      "added_extras": [
+
+      ],
+      "notes": "",
+      "quantity": 1,
+      "status": "ready",
+      "created_at": "2026-08-28T19:43:29-04:00",
+      "updated_at": "2026-08-28T19:43:53-04:00",
+      "prepared_at": "2026-08-28T19:43:53-04:00"
+    },
+    {
+      "id": "ord_1787960610051723",
+      "turn": 13,
+      "guest_name": "Comensal",
+      "table": "",
+      "protein": "Mixto",
+      "preset": "con-todo",
+      "ingredients": [
+        "Hummus",
+        "Tabule",
+        "Cebolla",
+        "Tomate",
+        "Pepinillo",
+        "Encurtido de Nabo",
+        "Salsa de Ajo",
+        "Salsa de Ajonjolí"
+      ],
+      "removed_ingredients": [
+
+      ],
+      "added_extras": [
+
+      ],
+      "notes": "",
+      "quantity": 1,
+      "status": "ready",
+      "created_at": "2026-08-28T19:43:30-04:00",
+      "updated_at": "2026-08-28T19:43:53-04:00",
+      "prepared_at": "2026-08-28T19:43:53-04:00"
+    },
+    {
+      "id": "ord_17879606116009321",
+      "turn": 15,
+      "guest_name": "Comensal",
+      "table": "",
+      "protein": "Mixto",
+      "preset": "con-todo",
+      "ingredients": [
+        "Hummus",
+        "Tabule",
+        "Cebolla",
+        "Tomate",
+        "Pepinillo",
+        "Encurtido de Nabo",
+        "Salsa de Ajo",
+        "Salsa de Ajonjolí"
+      ],
+      "removed_ingredients": [
+
+      ],
+      "added_extras": [
+
+      ],
+      "notes": "",
+      "quantity": 1,
+      "status": "pending",
+      "created_at": "2026-08-28T19:43:31-04:00",
+      "updated_at": "2026-08-28T19:43:31-04:00"
+    },
+    {
+      "id": "ord_178796061178652",
+      "turn": 16,
+      "guest_name": "Comensal",
+      "table": "",
+      "protein": "Mixto",
+      "preset": "con-todo",
+      "ingredients": [
+        "Hummus",
+        "Tabule",
+        "Cebolla",
+        "Tomate",
+        "Pepinillo",
+        "Encurtido de Nabo",
+        "Salsa de Ajo",
+        "Salsa de Ajonjolí"
+      ],
+      "removed_ingredients": [
+
+      ],
+      "added_extras": [
+
+      ],
+      "notes": "",
+      "quantity": 1,
+      "status": "pending",
+      "created_at": "2026-08-28T19:43:31-04:00",
+      "updated_at": "2026-08-28T19:43:31-04:00"
+    },
+    {
+      "id": "ord_1787960618232884",
+      "turn": 17,
+      "guest_name": "Comensal",
+      "table": "",
+      "protein": "Carne",
+      "preset": "con-todo",
+      "ingredients": [
+        "Hummus",
+        "Tabule",
+        "Cebolla",
+        "Tomate",
+        "Pepinillo",
+        "Encurtido de Nabo",
+        "Salsa de Ajo",
+        "Salsa de Ajonjolí"
+      ],
+      "removed_ingredients": [
+
+      ],
+      "added_extras": [
+
+      ],
+      "notes": "",
+      "quantity": 1,
+      "status": "pending",
+      "created_at": "2026-08-28T19:43:38-04:00",
+      "updated_at": "2026-08-28T19:43:38-04:00"
+    },
+    {
+      "id": "ord_1787960618416672",
+      "turn": 18,
+      "guest_name": "Comensal",
+      "table": "",
+      "protein": "Mixto",
+      "preset": "con-todo",
+      "ingredients": [
+        "Hummus",
+        "Tabule",
+        "Cebolla",
+        "Tomate",
+        "Pepinillo",
+        "Encurtido de Nabo",
+        "Salsa de Ajo",
+        "Salsa de Ajonjolí"
+      ],
+      "removed_ingredients": [
+
+      ],
+      "added_extras": [
+
+      ],
+      "notes": "",
+      "quantity": 1,
+      "status": "pending",
+      "created_at": "2026-08-28T19:43:38-04:00",
+      "updated_at": "2026-08-28T19:43:38-04:00"
+    },
+    {
+      "id": "ord_17879799066941261",
+      "turn": 20,
+      "guest_name": "Comensal",
+      "table": "",
+      "protein": "Carne",
+      "preset": "ninos",
+      "ingredients": [
+        "Encurtido de Nabo",
+        "Salsa de Ajo",
+        "Salsa de Ajonjolí"
+      ],
+      "removed_ingredients": [
+        "Cebolla",
+        "Hummus",
+        "Pepinillo",
+        "Tabule",
+        "Tomate"
+      ],
+      "added_extras": [
+
+      ],
+      "notes": "",
+      "quantity": 1,
+      "status": "pending",
+      "created_at": "2026-08-29T01:05:06-04:00",
+      "updated_at": "2026-08-29T01:12:50-04:00",
+      "is_bowl": false
+    }
+  ]
+}

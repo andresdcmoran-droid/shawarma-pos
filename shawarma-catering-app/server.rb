@@ -47,7 +47,13 @@ def default_db_state
       'id' => "evt_#{Time.now.to_i}",
       'name' => 'Catering Evento Especial',
       'created_at' => Time.now.iso8601,
-      'turn_counter' => 0
+      'turn_counter' => 0,
+      'timer' => {
+        'started_at' => nil,
+        'elapsed_seconds' => 0,
+        'is_paused' => false,
+        'paused_at' => nil
+      }
     },
     'orders' => []
   }
@@ -171,10 +177,17 @@ server.mount_proc '/api/orders' do |req, res|
       }
 
       db['orders'] << new_order
+
+      # Iniciar cronómetro de evento automáticamente en el primer pedido
+      db['event_info']['timer'] ||= { 'started_at' => nil, 'elapsed_seconds' => 0, 'is_paused' => false, 'paused_at' => nil }
+      if db['event_info']['timer']['started_at'].nil?
+        db['event_info']['timer']['started_at'] = Time.now.iso8601
+      end
+
       save_db(db)
 
       res.status = 201
-      res.body = JSON.generate({ status: 'created', order: new_order })
+      res.body = JSON.generate({ status: 'created', order: new_order, event_info: db['event_info'] })
     rescue StandardError => e
       res.status = 400
       res.body = JSON.generate({ error: e.message })
@@ -253,6 +266,182 @@ server.mount_proc '/api/orders/ack' do |req, res|
     end
   end
 end
+
+# API: Bulk Restore / Sync Orders from Client (Anti-Data Loss)
+server.mount_proc '/api/orders/bulk_restore' do |req, res|
+  set_api_headers(res)
+
+  if req.request_method == 'OPTIONS'
+    res.status = 204
+    next
+  end
+
+  if req.request_method == 'POST'
+    begin
+      body = JSON.parse(req.body)
+      incoming_orders = body['orders'] || []
+
+      db = load_db
+      existing_ids = db['orders'].map { |o| o['id'] }
+
+      added = 0
+      incoming_orders.each do |ord|
+        unless existing_ids.include?(ord['id'])
+          db['orders'] << ord
+          existing_ids << ord['id']
+          added += 1
+        end
+      end
+
+      # Recalculate max turn counter
+      max_turn = db['orders'].map { |o| o['turn'].to_i }.max || 0
+      db['event_info']['turn_counter'] = [db['event_info']['turn_counter'].to_i, max_turn].max
+
+      save_db(db) if added > 0
+
+      res.body = JSON.generate({ status: 'ok', added: added, total: db['orders'].length, db: db })
+    rescue StandardError => e
+      res.status = 400
+      res.body = JSON.generate({ error: e.message })
+    end
+  end
+end
+
+# API: Update Existing Order (Edit comanda)
+server.mount_proc '/api/orders/update' do |req, res|
+  set_api_headers(res)
+
+  if req.request_method == 'OPTIONS'
+    res.status = 204
+    next
+  end
+
+  if req.request_method == 'POST'
+    begin
+      body = JSON.parse(req.body)
+      order_id = body['id']
+
+      db = load_db
+      order = db['orders'].find { |o| o['id'] == order_id }
+
+      if order
+        order['guest_name'] = (body['guest_name'] || order['guest_name']).strip
+        order['table'] = (body['table'] || '').strip
+        order['protein'] = body['protein'] || order['protein']
+        order['preset'] = body['preset'] || order['preset']
+        order['is_bowl'] = !!body['is_bowl']
+        order['ingredients'] = body['ingredients'] || order['ingredients']
+        order['removed_ingredients'] = body['removed_ingredients'] || []
+        order['notes'] = (body['notes'] || '').strip
+        order['updated_at'] = Time.now.iso8601
+        save_db(db)
+
+        res.body = JSON.generate({ status: 'ok', order: order })
+      else
+        res.status = 404
+        res.body = JSON.generate({ error: 'Order not found' })
+      end
+    rescue StandardError => e
+      res.status = 400
+      res.body = JSON.generate({ error: e.message })
+    end
+  end
+end
+
+# API: Delete Order (Cancel order by error)
+server.mount_proc '/api/orders/delete' do |req, res|
+  set_api_headers(res)
+
+  if req.request_method == 'OPTIONS'
+    res.status = 204
+    next
+  end
+
+  if req.request_method == 'POST'
+    begin
+      body = JSON.parse(req.body)
+      order_id = body['id']
+
+      db = load_db
+      orig_len = db['orders'].length
+      db['orders'].reject! { |o| o['id'] == order_id }
+
+      if db['orders'].length < orig_len
+        save_db(db)
+        res.body = JSON.generate({ status: 'ok', deleted_id: order_id })
+      else
+        res.status = 404
+        res.body = JSON.generate({ error: 'Order not found' })
+      end
+    rescue StandardError => e
+      res.status = 400
+      res.body = JSON.generate({ error: e.message })
+    end
+  end
+end
+
+# API: Event Timer (Play / Pause / Reset)
+server.mount_proc '/api/event/timer' do |req, res|
+  set_api_headers(res)
+
+  if req.request_method == 'OPTIONS'
+    res.status = 204
+    next
+  end
+
+  if req.request_method == 'POST'
+    begin
+      body = JSON.parse(req.body)
+      action = body['action']
+
+      db = load_db
+      db['event_info']['timer'] ||= {
+        'started_at' => nil,
+        'elapsed_seconds' => 0,
+        'is_paused' => false,
+        'paused_at' => nil
+      }
+      timer = db['event_info']['timer']
+
+      case action
+      when 'start'
+        timer['started_at'] ||= Time.now.iso8601
+        timer['is_paused'] = false
+        timer['paused_at'] = nil
+      when 'toggle_pause'
+        if timer['started_at'].nil?
+          timer['started_at'] = Time.now.iso8601
+          timer['is_paused'] = false
+          timer['paused_at'] = nil
+        elsif timer['is_paused']
+          # Resume: adjust started_at
+          timer['is_paused'] = false
+          if timer['paused_at'] && timer['started_at']
+            pause_dur = (Time.now - Time.parse(timer['paused_at'])).to_i
+            timer['started_at'] = (Time.parse(timer['started_at']) + pause_dur).iso8601 rescue timer['started_at']
+          end
+          timer['paused_at'] = nil
+        else
+          # Pause
+          timer['is_paused'] = true
+          timer['paused_at'] = Time.now.iso8601
+        end
+      when 'reset'
+        timer['started_at'] = nil
+        timer['elapsed_seconds'] = 0
+        timer['is_paused'] = false
+        timer['paused_at'] = nil
+      end
+
+      save_db(db)
+      res.body = JSON.generate({ status: 'ok', timer: timer, event_info: db['event_info'] })
+    rescue StandardError => e
+      res.status = 400
+      res.body = JSON.generate({ error: e.message })
+    end
+  end
+end
+
 server.mount_proc '/api/event/reset' do |req, res|
   set_api_headers(res)
 
@@ -289,6 +478,40 @@ server.mount_proc '/api/event/reset' do |req, res|
       res.status = 400
       res.body = JSON.generate({ error: e.message })
     end
+  end
+end
+
+# API: List all Vault Backups on Server
+server.mount_proc '/api/vault/archives' do |req, res|
+  set_api_headers(res)
+  if req.request_method == 'OPTIONS'
+    res.status = 204
+    next
+  end
+
+  begin
+    backup_files = Dir.glob(File.join(DATA_DIR, 'backup_*.json')).sort_by { |f| File.mtime(f) }.reverse
+    archives = []
+    
+    backup_files.each do |f|
+      begin
+        data = JSON.parse(File.read(f))
+        archives << {
+          'id' => data.dig('event_info', 'id') || File.basename(f, '.json'),
+          'name' => data.dig('event_info', 'name') || 'Evento Catering',
+          'date' => data.dig('event_info', 'created_at') || File.mtime(f).iso8601,
+          'total_orders' => (data['orders'] || []).length,
+          'orders' => data['orders'] || [],
+          'timer' => data.dig('event_info', 'timer')
+        }
+      rescue StandardError
+      end
+    end
+
+    res.body = JSON.generate({ status: 'ok', archives: archives })
+  rescue StandardError => e
+    res.status = 500
+    res.body = JSON.generate({ error: e.message })
   end
 end
 

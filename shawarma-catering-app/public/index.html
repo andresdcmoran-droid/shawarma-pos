@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>SHAWARMA en casa® - Kiosko & KDS</title>
+  <title>SHAWARMA en casa - Kiosko & KDS</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Shawarma">
@@ -14,7 +14,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Montserrat:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Syne:wght@500;600;700;800&display=swap" rel="stylesheet">
   <style>
     /* ==========================================================================
-       SHAWARMA EN CASA® - ULTRA MODERN LUXURY POS & KDS
+       SHAWARMA EN CASA - ULTRA MODERN LUXURY POS & KDS
        ========================================================================== */
     :root {
       --brand-pink: #ff007f;
@@ -1725,21 +1725,27 @@
       border: 1.5px solid #cbd5e1 !important;
     }
 
-    /* Barra de Batching (Igualdad de Shawarmas) */
+    /* Barra de Resumen de Pedidos (KDS) en Tema Blanco: Gris Claro con letras negras y grises */
     body.theme-day .kds-batching-bar {
-      background: #ffffff !important;
-      border: 1.5px solid #cbd5e1 !important;
-    }
-    body.theme-day .kds-batch-chip {
       background: #f8fafc !important;
       border: 1.5px solid #cbd5e1 !important;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04) !important;
+    }
+    body.theme-day .batch-pill-item {
+      background: #f1f5f9 !important;
+      border: 1.5px solid #cbd5e1 !important;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03) !important;
+    }
+    body.theme-day .batch-pill-item .count-badge {
+      background: #0f172a !important;
+      color: #ffffff !important;
     }
     body.theme-day .kds-batch-protein {
       color: #0f172a !important;
       font-weight: 900 !important;
     }
     body.theme-day .kds-batch-desc {
-      color: #334155 !important;
+      color: #475569 !important;
       font-weight: 800 !important;
     }
 
@@ -1857,16 +1863,66 @@
       body.theme-day .tab-btn.active {
         background: #fff1f2 !important;
         color: #e11d48 !important;
+      /* iPad & Mac KDS Big Buttons */
+      @media (min-width: 768px) {
+        .kds-actions-grid {
+          gap: 12px;
+        }
+        .kds-actions-grid .kds-btn-action {
+          font-size: 16px !important;
+          padding: 16px 14px !important;
+          min-height: 54px !important;
+          border-radius: 10px !important;
+          letter-spacing: 0.5px !important;
+        }
+        .kds-btn-ready, .kds-btn-deliver {
+          font-size: 18px !important;
+          padding: 18px 20px !important;
+        }
+      }
+    }
+
+    /* Print Styles for Executive Invoice */
+    @media print {
+      body * {
+        visibility: hidden !important;
+      }
+      #client-invoice-modal, #client-invoice-modal * {
+        visibility: visible !important;
+      }
+      #client-invoice-modal {
+        position: absolute !important;
+        left: 0 !important;
+        top: 0 !important;
+        width: 100% !important;
+        background: transparent !important;
+        padding: 0 !important;
+        display: block !important;
+      }
+      .no-print {
+        display: none !important;
       }
     }
   </style>
 </head>
 <body>
 
-  <!-- Top App Navigation Header - BRAND LEFT, TABS CENTER, BADGE RIGHT -->
+  <!-- Top App Navigation Header - BRAND LEFT, TIMER CENTER, BADGE RIGHT -->
   <header class="header-bar">
-    <div class="brand-section">
-      <img src="images/shawarma-logo-exact.png" alt="SHAWARMA en casa®" class="brand-logo-img">
+    <div class="brand-section" style="display: flex; align-items: center; gap: 10px;">
+      <img src="images/shawarma-logo-exact.png" alt="SHAWARMA en casa" class="brand-logo-img">
+    </div>
+
+    <!-- Live Event Stopwatch Timer (Center) -->
+    <div class="event-timer-badge" id="event-timer-container" style="display: flex; align-items: center; gap: 6px; background: var(--bg-surface-2); border: 1.5px solid var(--border-color); padding: 5px 12px; border-radius: var(--radius-full); box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
+      <span style="font-size: 14px; line-height: 1;">⏱️</span>
+      <span id="event-timer-text" style="font-family: monospace; font-size: 15px; font-weight: 900; color: var(--brand-pink); letter-spacing: 0.5px;">00:00:00</span>
+      <button type="button" id="btn-timer-toggle" style="background: transparent; border: none; font-size: 14px; cursor: pointer; padding: 2px 3px; display: flex; align-items: center; line-height: 1;" onclick="app.toggleEventTimer()" title="Pausar / Reanudar Cronómetro">
+        <span id="timer-toggle-icon">⏸️</span>
+      </button>
+      <button type="button" id="btn-timer-reset" style="background: transparent; border: none; font-size: 13px; cursor: pointer; padding: 2px 3px; display: flex; align-items: center; line-height: 1; opacity: 0.7;" onclick="app.resetEventTimer()" title="Reiniciar Cronómetro a 00:00:00">
+        <span>🔄</span>
+      </button>
     </div>
 
     <!-- Local Offline Sync Status (Right) -->
@@ -1965,8 +2021,8 @@
           <button type="button" class="preset-pill-btn preset-ninos" id="preset-ninos" onclick="app.applyPreset('ninos')">
             <span class="preset-icon">👶</span>
             <div>
-              <span class="preset-txt-main">Shawarma para Niños</span>
-              <span class="preset-txt-sub">Solo pan y carne (cero salsas)</span>
+              <span class="preset-txt-main">Para Niño</span>
+              <span class="preset-txt-sub">Porción y armado para niños</span>
             </div>
           </button>
           <button type="button" class="preset-pill-btn" id="preset-sin-salsas" onclick="app.applyPreset('sin-salsas')">
@@ -2038,9 +2094,9 @@
           
           <!-- Strict Turn Counter -->
           <div class="turn-badge-card">
-            <div class="turn-label-txt">Turno Asignado (FIFO)</div>
+            <div class="turn-label-txt" id="turn-label-display">Turno Asignado (FIFO)</div>
             <div class="turn-number-giant" id="next-turn-display">#1</div>
-            <div style="font-size: 11px; color: var(--text-dim); margin-top: 2px;">Garantía estricta de orden</div>
+            <div style="font-size: 11px; color: var(--text-dim); margin-top: 2px;" id="turn-sub-display">Garantía estricta de orden</div>
           </div>
 
           <!-- Recipe Preview -->
@@ -2058,6 +2114,11 @@
           <button type="button" class="btn-submit-pos" id="btn-submit-order" onclick="app.submitOrder()">
             <span>🚀</span>
             <span id="btn-submit-label">ENVIAR A COCINA (TURNO #1)</span>
+          </button>
+
+          <!-- Cancel Edit Button (Hidden by default) -->
+          <button type="button" id="btn-cancel-edit" onclick="app.cancelEditOrder()" style="display: none; background: var(--bg-surface-2); border: 1.5px solid var(--border-color); color: var(--text-dim); padding: 10px 16px; border-radius: var(--radius-md); font-size: 13px; font-weight: 800; cursor: pointer; width: 100%; margin-top: 8px;">
+            ❌ Cancelar Edición
           </button>
 
           <!-- Logo Ahumado Sutil (Más Claro y Visible) -->
@@ -2080,10 +2141,24 @@
   <main class="view-content" id="view-kitchen">
     
     <!-- Top Batching Bar / Intelligent Summary -->
-    <div class="kds-batching-bar desktop-only-kds-summary" style="margin-bottom: 20px; flex-direction: column; align-items: stretch; gap: 12px; background: var(--bg-surface); padding: 16px; border: 2px solid var(--border-color); border-radius: 12px;">
-      <div class="batch-label" style="font-size: 16px; font-weight: 900; color: var(--brand-pink); border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">
-        <span>🔥</span>
-        <span>Resumen Rápido (Igualdad de Shawarmas)</span>
+    <div class="kds-batching-bar desktop-only-kds-summary" style="margin-bottom: 20px; flex-direction: column; align-items: stretch; gap: 12px; background: var(--bg-surface); padding: 14px 18px; border: 1.5px solid var(--border-color); border-radius: 12px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">
+        <div class="batch-label" style="font-size: 15px; font-weight: 900; color: var(--brand-pink); display: flex; align-items: center; gap: 8px;">
+          <span>🔥</span>
+          <span>Resumen de Pedidos</span>
+        </div>
+        
+        <!-- Temporizador de Cocina Integrado al extremo derecho -->
+        <div style="display: flex; align-items: center; gap: 6px; background: var(--bg-surface-2); border: 1px solid var(--border-color); padding: 4px 12px; border-radius: var(--radius-full);">
+          <span style="font-size: 12px; font-weight: 800; color: var(--text-dim);">⏱️ Cocina:</span>
+          <span id="kds-timer-text" style="font-family: monospace; font-size: 14px; font-weight: 900; color: var(--brand-pink);">00:00:00</span>
+          <button type="button" style="background: transparent; border: none; font-size: 13px; cursor: pointer; display: flex; align-items: center; line-height: 1;" onclick="app.toggleEventTimer()" title="Pausar / Reanudar Cronómetro">
+            <span id="kds-timer-toggle-icon">⏸️</span>
+          </button>
+          <button type="button" style="background: transparent; border: none; font-size: 12px; cursor: pointer; display: flex; align-items: center; line-height: 1; opacity: 0.7;" onclick="app.resetEventTimer()" title="Reiniciar Cronómetro a 00:00:00">
+            <span>🔄</span>
+          </button>
+        </div>
       </div>
       <div class="batch-chips-wrapper" id="kds-batch-counters" style="display: flex; flex-wrap: wrap; gap: 12px;">
         <!-- Rendered by JS -->
@@ -2168,10 +2243,30 @@
         </div>
       </div>
 
+      <!-- Dispositivo & Operador Asignado -->
+      <div class="pos-card" style="display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap;">
+        <div>
+          <div style="font-size: 12px; font-weight: 800; color: #38bdf8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">
+            📱 Dispositivo & Operador Asignado
+          </div>
+          <div style="font-size: 20px; font-weight: 900; color: var(--text-white); display: flex; align-items: center; gap: 8px;">
+            <span id="admin-operator-display">Dispositivo 1</span>
+          </div>
+          <div style="font-size: 12px; color: var(--text-dim); margin-top: 2px;">
+            Este nombre identifica qué dispositivo/persona tomó cada comanda.
+          </div>
+        </div>
+        <div>
+          <button type="button" onclick="app.promptChangeOperator()" style="background: var(--bg-surface-2); border: 1.5px solid #38bdf8; color: #38bdf8; padding: 10px 18px; border-radius: var(--radius-md); font-weight: 900; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+            <span>✏️</span> <span>Cambiar Nombre</span>
+          </button>
+        </div>
+      </div>
+
       <div class="pos-card">
-        <h2 style="font-size: 18px; margin-bottom: 12px;">📶 Conexión de iPads sin Internet</h2>
+        <h2 style="font-size: 18px; margin-bottom: 12px;">📶 Conexión de Dispositivos sin Internet</h2>
         <p style="font-size: 14px; color: var(--text-dim); margin-bottom: 16px;">
-          Conecta los iPads al Wi-Fi o Hotspot y abre esta dirección en Safari:
+          Conecta los dispositivos (iPads, teléfonos o computadoras) a la red Wi-Fi o Hotspot y abre esta dirección en el navegador:
         </p>
         <div style="background: var(--bg-surface-2); padding: 14px; border-radius: var(--radius-md); font-family: monospace; font-size: 16px; color: var(--brand-pink); font-weight: 800;">
           <span id="admin-url-text">http://10.0.0.161:8080</span>
@@ -2179,7 +2274,7 @@
       </div>
 
       <div class="pos-card">
-        <h2 style="font-size: 18px; margin-bottom: 12px;">📊 Estadísticas de Consumo</h2>
+        <h2 style="font-size: 18px; margin-bottom: 12px;">📊 Resumen y Cierre del Evento</h2>
         <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; text-align: center;">
           <div style="background: var(--bg-surface-2); padding: 14px; border-radius: var(--radius-md);">
             <div style="font-size: 28px; font-weight: 900; color: var(--brand-pink);" id="stat-total">0</div>
@@ -2199,12 +2294,62 @@
           </div>
         </div>
 
-        <div style="margin-top: 20px; display: flex; gap: 12px;">
-          <button style="background: var(--bg-surface-2); color: white; border: 1px solid var(--border-color); padding: 12px 20px; border-radius: var(--radius-md); font-weight: 800; cursor: pointer;" onclick="app.exportCSV()">
-            📥 Descargar CSV (Excel)
+        <!-- Botones de Acción: Resumen Ejecutivo / Factura, Excel Crudo, Siguiente Evento -->
+        <div style="margin-top: 20px; display: flex; gap: 12px; flex-wrap: wrap;">
+          <button type="button" style="background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; padding: 14px 22px; border-radius: var(--radius-md); font-size: 14px; font-weight: 900; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 14px rgba(16,185,129,0.35);" onclick="app.showClientInvoiceModal()">
+            <span>🧾</span> <span>Resumen Ejecutivo / Factura para Cliente</span>
           </button>
-          <button style="background: var(--no-red); color: white; border: none; padding: 12px 20px; border-radius: var(--radius-md); font-weight: 800; cursor: pointer;" onclick="app.resetEventPrompt()">
-            🔄 Nuevo Evento / Limpiar
+          <button type="button" style="background: var(--bg-surface-2); color: white; border: 1px solid var(--border-color); padding: 14px 20px; border-radius: var(--radius-md); font-size: 13px; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;" onclick="app.exportRawCSV()">
+            <span>📊</span> <span>Descargar Excel Crudo (Base de Datos)</span>
+          </button>
+          <button type="button" style="background: linear-gradient(135deg, #e11d48, #be123c); color: white; border: none; padding: 14px 22px; border-radius: var(--radius-md); font-size: 14px; font-weight: 900; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 14px rgba(225,29,72,0.35);" onclick="app.closeEventAndStartNext()">
+            <span>✨</span> <span>Siguiente Evento (Cerrar, Respaldar y Limpiar)</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Bóveda de Seguridad y Respaldo Permanente (Anti-Pérdidas) -->
+      <div class="pos-card" style="border: 2px solid #0284c7; background: rgba(2, 132, 199, 0.05);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+          <h2 style="font-size: 18px; color: #0284c7; margin: 0; display: flex; align-items: center; gap: 8px;">
+            <span>🛡️</span> <span>Bóveda de Seguridad e Historial Permanente</span>
+          </h2>
+          <span style="background: #0284c7; color: white; font-size: 11px; font-weight: 900; padding: 3px 8px; border-radius: 999px;">ANTI-PÉRDIDAS</span>
+        </div>
+        <p style="font-size: 13px; color: var(--text-dim); margin-bottom: 14px; line-height: 1.5;">
+          Cada comanda y evento que cierras se almacena en la memoria física de este dispositivo, organizado por días y eventos independientes.
+        </p>
+
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 16px;">
+          <div style="background: var(--bg-surface-2); padding: 12px; border-radius: var(--radius-md); text-align: center;">
+            <div style="font-size: 24px; font-weight: 900; color: #0284c7;" id="vault-total-orders">0</div>
+            <div style="font-size: 11px; color: var(--text-dim);">Total Comandas en Bóveda</div>
+          </div>
+          <div style="background: var(--bg-surface-2); padding: 12px; border-radius: var(--radius-md); text-align: center;">
+            <div style="font-size: 24px; font-weight: 900; color: var(--yes-green);" id="vault-total-events">0</div>
+            <div style="font-size: 11px; color: var(--text-dim);">Eventos Archivados</div>
+          </div>
+        </div>
+
+        <!-- Lista de Eventos Archivados por Día -->
+        <div style="margin-bottom: 16px;">
+          <div style="font-size: 13px; font-weight: 800; color: #38bdf8; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">
+            📁 Eventos Respaldados por Día:
+          </div>
+          <div id="vault-events-list" style="display: flex; flex-direction: column; gap: 8px; max-height: 220px; overflow-y: auto;">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 10px; flex-wrap: wrap; border-top: 1px solid var(--border-color); padding-top: 14px;">
+          <button type="button" style="background: #0284c7; color: white; border: none; padding: 10px 16px; border-radius: var(--radius-md); font-weight: 900; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;" onclick="app.exportVaultCSV()">
+            <span>📥</span> <span>Descargar Historial Master (Todo)</span>
+          </button>
+          <button type="button" style="background: var(--bg-surface-2); color: var(--text-white); border: 1.5px solid #0284c7; padding: 10px 16px; border-radius: var(--radius-md); font-weight: 900; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;" onclick="app.restoreVaultToServer()">
+            <span>♻️</span> <span>Restaurar al Servidor</span>
+          </button>
+          <button type="button" style="background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1.5px solid #ef4444; padding: 10px 16px; border-radius: var(--radius-md); font-weight: 900; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;" onclick="app.clearVaultPrompt()">
+            <span>🗑️</span> <span>Limpiar / Vaciar Bóveda</span>
           </button>
         </div>
       </div>
@@ -2216,7 +2361,7 @@
   <!-- ========================================================================= -->
   <main class="view-content" id="view-guest" style="max-width: 600px; margin: 20px auto; padding: 16px;">
     <div style="text-align: center; margin-bottom: 24px;">
-      <img src="images/shawarma-logo-exact.png" id="guest-view-logo" alt="SHAWARMA en casa®" style="height: 48px; max-width: 220px; object-fit: contain;">
+      <img src="images/shawarma-logo-exact.png" id="guest-view-logo" alt="SHAWARMA en casa" style="height: 48px; max-width: 220px; object-fit: contain;">
     </div>
 
     <!-- Pager Container -->
@@ -2337,6 +2482,101 @@
     </div>
   </div>
 
+  <!-- ========================================================================= -->
+  <!-- MODAL: RESUMEN EJECUTIVO & FACTURA PARA CLIENTE (PRINTABLE / PDF / WAO)   -->
+  <!-- ========================================================================= -->
+  <div id="client-invoice-modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 9999; backdrop-filter: blur(8px); align-items: center; justify-content: center; padding: 16px; overflow-y: auto;">
+    <div style="background: #ffffff; color: #0f172a; max-width: 650px; width: 100%; border-radius: 16px; padding: 32px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; position: relative; margin: auto;">
+      
+      <!-- Top Action Bar (Print, Language & Close) - Hidden when printing -->
+      <div class="no-print" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; padding-bottom: 16px; margin-bottom: 24px; flex-wrap: wrap; gap: 10px;">
+        <!-- Selector de Idioma (Español / English) -->
+        <div style="display: flex; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 8px; padding: 3px; gap: 3px;">
+          <button type="button" id="btn-lang-es" style="background: #0f172a; color: white; border: none; padding: 6px 14px; border-radius: 6px; font-weight: 900; font-size: 12px; cursor: pointer; transition: all 0.15s ease;" onclick="app.setInvoiceLang('es')">
+            🇪🇸 Español
+          </button>
+          <button type="button" id="btn-lang-en" style="background: transparent; color: #64748b; border: none; padding: 6px 14px; border-radius: 6px; font-weight: 800; font-size: 12px; cursor: pointer; transition: all 0.15s ease;" onclick="app.setInvoiceLang('en')">
+            🇺🇸 English
+          </button>
+        </div>
+
+        <div style="display: flex; gap: 8px;">
+          <button type="button" onclick="window.print()" style="background: #0f172a; color: white; border: none; padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+            <span>🖨️</span> <span id="btn-print-label">Imprimir / PDF</span>
+          </button>
+          <button type="button" onclick="app.copyInvoiceToClipboard()" style="background: #10b981; color: white; border: none; padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+            <span>📋</span> <span id="btn-whatsapp-label">Copiar WhatsApp</span>
+          </button>
+          <button type="button" onclick="app.closeClientInvoiceModal()" style="background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 800; cursor: pointer;">
+            ✕
+          </button>
+        </div>
+      </div>
+
+      <!-- Printable Document Header (Perfect Top Alignment & Balance) -->
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; border-bottom: 2px solid #0f172a; padding-bottom: 18px;">
+        <div style="display: flex; flex-direction: column; justify-content: flex-start; padding-top: 2px;">
+          <img src="images/shawarma-logo-light.png" alt="SHAWARMA en casa" style="height: 48px; width: auto; max-width: 250px; object-fit: contain; display: block;">
+        </div>
+        <div style="text-align: right; display: flex; flex-direction: column; justify-content: flex-start;">
+          <div style="font-size: 22px; font-weight: 900; color: #0f172a; line-height: 1.1; letter-spacing: -0.5px;" id="invoice-doc-title">ESTADO DE CUENTA</div>
+          <div style="font-size: 13px; font-weight: 800; color: #e11d48; margin-top: 4px;" id="invoice-doc-number">#FAC-0001</div>
+          <div style="font-size: 12px; color: #64748b; margin-top: 2px;" id="invoice-doc-date">Fecha: 28/08/2026</div>
+        </div>
+      </div>
+
+      <!-- Event Information Strip -->
+      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; background: #f8fafc; border: 1px solid #e2e8f0; padding: 14px 16px; border-radius: 10px; margin-bottom: 24px; font-size: 12px;">
+        <div>
+          <span style="color: #64748b; font-weight: 700; display: block; text-transform: uppercase;" id="lbl-inv-event">Evento / Cliente:</span>
+          <strong style="color: #0f172a; font-size: 13px;" id="invoice-event-name">Catering Privado</strong>
+        </div>
+        <div>
+          <span style="color: #64748b; font-weight: 700; display: block; text-transform: uppercase;" id="lbl-inv-duration">Duración del Servicio:</span>
+          <strong style="color: #0f172a; font-size: 13px;" id="invoice-event-duration">01h 45m</strong>
+        </div>
+        <div>
+          <span style="color: #64748b; font-weight: 700; display: block; text-transform: uppercase;" id="lbl-inv-operator">Atendido por:</span>
+          <strong style="color: #0f172a; font-size: 13px;" id="invoice-operator-name">Dispositivo 1</strong>
+        </div>
+      </div>
+
+      <!-- Itemized Table Breakdown -->
+      <div style="margin-bottom: 24px;">
+        <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+          <thead>
+            <tr style="background: #0f172a; color: white;">
+              <th style="padding: 10px 14px; text-align: left; border-top-left-radius: 8px; font-weight: 800;" id="th-inv-desc">Descripción del Producto</th>
+              <th style="padding: 10px 14px; text-align: center; font-weight: 800;" id="th-inv-format">Formato</th>
+              <th style="padding: 10px 14px; text-align: right; border-top-right-radius: 8px; font-weight: 800;" id="th-inv-qty">Cantidad</th>
+            </tr>
+          </thead>
+          <tbody id="invoice-items-tbody">
+            <!-- Rendered dynamically by JS -->
+          </tbody>
+          <tfoot>
+            <tr style="border-top: 2px solid #0f172a; background: #f8fafc;">
+              <td colspan="2" style="padding: 14px; font-weight: 900; font-size: 14px; text-transform: uppercase;" id="td-inv-total-label">Total Shawarmas Despachados</td>
+              <td style="padding: 14px; text-align: right; font-weight: 900; font-size: 20px; color: #0f172a;" id="invoice-total-count">0</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+
+      <!-- Turn Range Details (Without FIFO Audit text) -->
+      <div style="background: #f1f5f9; padding: 12px 16px; border-radius: 8px; font-size: 12px; color: #475569; margin-bottom: 24px; text-align: center;">
+        <span id="lbl-inv-range">Rango de Comandas:</span> <strong id="invoice-turn-range">Turnos #0001 al #0025</strong>
+      </div>
+
+      <!-- Footer Note & Verse -->
+      <div style="text-align: center; border-top: 1px solid #e2e8f0; padding-top: 16px; color: #94a3b8; font-size: 11px;">
+        <div style="font-weight: 800; color: #475569; margin-bottom: 2px;">SHAWARMA EN CASA • EXPERIENCIA GASTRONÓMICA</div>
+        <div style="font-style: italic;">“Y ahora, que toda la Gloria sea para Dios...” — Efesios 3:20 NTV</div>
+      </div>
+
+    </div>
+  </div>
+
   <div class="toast-tray" id="toast-tray"></div>
 
   <!-- ========================================================================= -->
@@ -2349,9 +2589,10 @@
       { id: 'cebolla', name: 'Cebolla', icon: '🧅', isDefault: true },
       { id: 'tomate', name: 'Tomate', icon: '🍅', isDefault: true },
       { id: 'pepinillo', name: 'Pepinillo', icon: '🥒', isDefault: true },
-      { id: 'nabo', name: 'Encurtido de Nabo', icon: '🟣', isDefault: true },
+      { id: 'nabo', name: 'Nabo', icon: '🟣', isDefault: true },
       { id: 'ajo', name: 'Salsa de Ajo', icon: '🧄', isDefault: true },
       { id: 'ajonjoli', name: 'Salsa de Ajonjolí', icon: '🥣', isDefault: true },
+      { id: 'falafel', name: 'Falafel', icon: '🧆', isDefault: true },
       { id: 'picante', name: 'Picante (Opcional)', icon: '🔥', isDefault: false }
     ];
 
@@ -2422,8 +2663,11 @@
         this.selectedProtein = 'Mixto';
         this.selectedPreset = 'con-todo';
         this.ingredientPreferences = {};
+        this.editingOrderId = null;
+        this.editingOrderTurn = null;
+        this.invoiceLang = 'es';
         this.db = {
-          event_info: { name: 'Shawarma en Casa®', turn_counter: 0 },
+          event_info: { name: 'Shawarma en Casa', turn_counter: 0, timer: { started_at: null, is_paused: false } },
           orders: []
         };
         this.kdsFilter = 'active';
@@ -2433,6 +2677,9 @@
       init() {
         const savedTheme = localStorage.getItem('shawarma_theme') || 'noche';
         this.setTheme(savedTheme, false);
+
+        this.operatorName = localStorage.getItem('shawarma_operator_name') || 'Dispositivo 1';
+        this.updateOperatorDisplay();
 
         if ('serviceWorker' in navigator) {
           navigator.serviceWorker.register('/sw.js').then(reg => {
@@ -2446,10 +2693,34 @@
         this.loadLocal();
         this.fetchServer();
         this.startSSE();
+        this.fetchVaultArchives();
 
+        // Cronómetro en tiempo real
+        setInterval(() => this.updateEventTimerDisplay(), 1000);
         setInterval(() => this.updateTimers(), 10000);
         document.addEventListener('touchstart', () => soundEngine.init(), { once: true });
         document.addEventListener('click', () => soundEngine.init(), { once: true });
+      }
+
+      promptChangeOperator() {
+        soundEngine.playClick();
+        const current = this.operatorName || 'Dispositivo 1';
+        const name = prompt('Nombre o identificador de este dispositivo / operador (ej: iPad Barra 1, Caja, Andrés, Leandro):', current);
+        if (name && name.trim()) {
+          this.operatorName = name.trim();
+          localStorage.setItem('shawarma_operator_name', this.operatorName);
+          this.updateOperatorDisplay();
+          this.showToast(`📱 Operador configurado: ${this.operatorName}`, 'info');
+        }
+      }
+
+      updateOperatorDisplay() {
+        const el = document.getElementById('pos-operator-name');
+        const adminEl = document.getElementById('admin-operator-display');
+        const invEl = document.getElementById('invoice-operator-name');
+        if (el) el.textContent = this.operatorName || 'Dispositivo 1';
+        if (adminEl) adminEl.textContent = this.operatorName || 'Dispositivo 1';
+        if (invEl) invEl.textContent = this.operatorName || 'Dispositivo 1';
       }
 
       initBroadcast() {
@@ -2510,7 +2781,10 @@
 
         if (v === 'kitchen') this.renderKDS();
         if (v === 'display') this.renderDisplay();
-        if (v === 'admin') this.renderAdmin();
+        if (v === 'admin') {
+          this.fetchVaultArchives();
+          this.renderAdmin();
+        }
       }
 
       loadLocal() {
@@ -2560,9 +2834,72 @@
         } catch(e) {}
       }
 
+      recordInVault(orders) {
+        if (!orders || orders.length === 0) return;
+        try {
+          let vault = JSON.parse(localStorage.getItem('shawarma_permanent_vault_v2') || '[]');
+          const vaultIds = new Set(vault.map(o => o.id));
+          let changed = false;
+          orders.forEach(o => {
+            if (!vaultIds.has(o.id)) {
+              vault.push(o);
+              vaultIds.add(o.id);
+              changed = true;
+            } else {
+              const idx = vault.findIndex(vo => vo.id === o.id);
+              if (idx !== -1 && (vault[idx].status !== o.status || vault[idx].guest_ack !== o.guest_ack)) {
+                vault[idx] = o;
+                changed = true;
+              }
+            }
+          });
+          if (changed) {
+            localStorage.setItem('shawarma_permanent_vault_v2', JSON.stringify(vault));
+          }
+        } catch(e) {}
+      }
+
+      getVaultOrders() {
+        try {
+          return JSON.parse(localStorage.getItem('shawarma_permanent_vault_v2') || '[]');
+        } catch(e) {
+          return [];
+        }
+      }
+
+      async pushOrdersToServer(orders) {
+        if (!orders || orders.length === 0) return;
+        try {
+          await fetch('/api/orders/bulk_restore', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ orders: orders })
+          });
+        } catch(e) {}
+      }
+
       syncData(data, saveCache = true) {
         if (!data) return;
+
+        // Anti-Wipe Protection: Only restore if it is the EXACT SAME active event that wiped unexpectedly!
+        const prevEventId = this.db?.event_info?.id;
+        const newEventId = data?.event_info?.id;
+        const isSameEvent = prevEventId && newEventId && (prevEventId === newEventId);
+        
+        const localOrders = (this.db && this.db.orders && this.db.orders.length > 0) ? this.db.orders : [];
+        if (isSameEvent && (!data.orders || data.orders.length === 0) && localOrders.length > 0) {
+          data.orders = localOrders;
+          if (this.db && this.db.event_info) data.event_info = this.db.event_info;
+          this.pushOrdersToServer(localOrders);
+        }
+
         this.db = data;
+
+        // Record in permanent vault
+        if (this.db.orders && this.db.orders.length > 0) {
+          this.recordInVault(this.db.orders);
+        }
+
         if (saveCache) {
           try { localStorage.setItem('shawarma_db_v6', JSON.stringify(data)); } catch(e) {}
         }
@@ -2671,7 +3008,9 @@
       setPreference(id, wantsIt) {
         soundEngine.playClick();
         this.ingredientPreferences[id] = wantsIt;
-        this.selectedPreset = 'custom';
+        if (this.selectedPreset !== 'ninos') {
+          this.selectedPreset = 'custom';
+        }
         this.updatePresetPills();
         this.renderIngredientsMatrix();
         this.updatePreviewAndTurn();
@@ -2743,11 +3082,26 @@
       }
 
       updatePreviewAndTurn() {
-        const nextTurn = (this.db.event_info?.turn_counter || 0) + 1;
         const turnEl = document.getElementById('next-turn-display');
         const submitLabel = document.getElementById('btn-submit-label');
-        if (turnEl) turnEl.textContent = `#${nextTurn}`;
-        if (submitLabel) submitLabel.textContent = `ENVIAR A COCINA (TURNO #${nextTurn})`;
+        const turnLabel = document.getElementById('turn-label-display');
+        const cancelBtn = document.getElementById('btn-cancel-edit');
+        const submitBtn = document.getElementById('btn-submit-order');
+
+        if (this.editingOrderId && this.editingOrderTurn) {
+          if (turnEl) turnEl.textContent = `#${this.editingOrderTurn}`;
+          if (submitLabel) submitLabel.textContent = `GUARDAR CAMBIOS (TURNO #${this.editingOrderTurn})`;
+          if (turnLabel) turnLabel.textContent = 'Editando Comanda';
+          if (cancelBtn) cancelBtn.style.display = 'block';
+          if (submitBtn) submitBtn.style.background = 'linear-gradient(135deg, #0284c7, #0369a1)';
+        } else {
+          const nextTurn = (this.db.event_info?.turn_counter || 0) + 1;
+          if (turnEl) turnEl.textContent = `#${nextTurn}`;
+          if (submitLabel) submitLabel.textContent = `ENVIAR A COCINA (TURNO #${nextTurn})`;
+          if (turnLabel) turnLabel.textContent = 'Turno Asignado (FIFO)';
+          if (cancelBtn) cancelBtn.style.display = 'none';
+          if (submitBtn) submitBtn.style.background = '';
+        }
 
         const tagsContainer = document.getElementById('preview-tags-container');
         const hintEl = document.getElementById('prep-type-hint');
@@ -2770,7 +3124,9 @@
         const removed = this.getRemoved();
 
         if (this.selectedPreset === 'ninos') {
-          tags.push(`<span class="pos-tag tag-protein" style="background:#1e3a8a; color:#93c5fd; border-color:#3b82f6;">👶 PARA NIÑOS (SOLO CARNE)</span>`);
+          const active = this.getActive();
+          const ings = active.length > 0 ? active.join(', ') : 'Solo Carne';
+          tags.push(`<span class="pos-tag tag-protein" style="background:#1e3a8a; color:#93c5fd; border-color:#3b82f6;">👶 PARA NIÑOS (${ings.toUpperCase()})</span>`);
         } else if (removed.length > 0) {
           removed.forEach(r => {
             tags.push(`<span class="pos-tag tag-removed">⛔ SIN ${r.toUpperCase()}</span>`);
@@ -2802,6 +3158,45 @@
         const removed = this.getRemoved();
         const active = this.getActive();
 
+        // 1. MODO EDICIÓN: Modificar comanda existente
+        if (this.editingOrderId) {
+          const editId = this.editingOrderId;
+          const editTurn = this.editingOrderTurn;
+          const updatedPayload = {
+            id: editId,
+            guest_name: guestName,
+            table: table,
+            protein: this.selectedProtein,
+            preset: this.selectedPreset,
+            is_bowl: this.selectedPreset === 'bowl',
+            ingredients: active,
+            removed_ingredients: removed,
+            notes: notes
+          };
+
+          // Actualizar localmente
+          const target = (this.db.orders || []).find(o => o.id === editId);
+          if (target) {
+            Object.assign(target, updatedPayload, { updated_at: new Date().toISOString() });
+            this.syncData(this.db, true);
+          }
+
+          soundEngine.playClick();
+          this.showToast(`✅ Comanda Turno #${editTurn} modificada con éxito`, 'success');
+          this.cancelEditOrder();
+          this.switchView('kitchen');
+
+          try {
+            await fetch('/api/orders/update', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(updatedPayload)
+            });
+          } catch(e) {}
+          return;
+        }
+
+        // 2. MODO CREACIÓN: Nueva comanda
         const orderData = {
           guest_name: guestName,
           table: table,
@@ -2811,6 +3206,7 @@
           ingredients: active,
           removed_ingredients: removed,
           notes: notes,
+          operator: this.operatorName || 'Dispositivo 1',
           quantity: 1,
           created_at: new Date().toISOString()
         };
@@ -2835,7 +3231,7 @@
           }
         } catch(e) {
           const nextTurn = (this.db.event_info?.turn_counter || 0) + 1;
-          if (!this.db.event_info) this.db.event_info = { name: 'Shawarma en Casa®', turn_counter: 0 };
+          if (!this.db.event_info) this.db.event_info = { name: 'Shawarma en Casa', turn_counter: 0 };
           this.db.event_info.turn_counter = nextTurn;
 
           const newOrder = {
@@ -2859,6 +3255,169 @@
         }
       }
 
+      editOrder(orderId) {
+        soundEngine.playClick();
+        const order = (this.db.orders || []).find(o => o.id === orderId);
+        if (!order) return;
+
+        this.editingOrderId = order.id;
+        this.editingOrderTurn = order.turn;
+
+        this.selectedProtein = order.protein || 'Mixto';
+        this.selectedPreset = order.preset || (order.is_bowl ? 'bowl' : 'con-todo');
+
+        // Mapeo de ingredientes
+        this.ingredientPreferences = {};
+        const activeList = order.ingredients || [];
+        INGREDIENTS_CONFIG.forEach(i => {
+          this.ingredientPreferences[i.id] = activeList.some(ai => ai.toLowerCase().includes(i.name.toLowerCase()) || ai.toLowerCase() === i.id);
+        });
+
+        const nameInp = document.getElementById('guest-name');
+        const tableInp = document.getElementById('guest-table');
+        const notesInp = document.getElementById('order-notes');
+        if (nameInp) nameInp.value = order.guest_name || '';
+        if (tableInp) tableInp.value = order.table || '';
+        if (notesInp) notesInp.value = order.notes || '';
+
+        this.updateProteinCards();
+        this.updatePresetPills();
+        this.renderIngredientsMatrix();
+        this.updateQuickNoteButtons();
+
+        // Actualizar UI a modo edición
+        const submitLabel = document.getElementById('btn-submit-label');
+        if (submitLabel) submitLabel.textContent = `GUARDAR CAMBIOS (TURNO #${order.turn})`;
+        const submitBtn = document.getElementById('btn-submit-order');
+        if (submitBtn) {
+          submitBtn.style.background = 'linear-gradient(135deg, #0284c7, #0369a1)';
+        }
+        const cancelBtn = document.getElementById('btn-cancel-edit');
+        if (cancelBtn) cancelBtn.style.display = 'block';
+
+        const turnLabel = document.getElementById('turn-label-display');
+        if (turnLabel) turnLabel.textContent = 'Editando Comanda';
+        const nextTurnDisplay = document.getElementById('next-turn-display');
+        if (nextTurnDisplay) nextTurnDisplay.textContent = `#${order.turn}`;
+
+        this.updatePreviewAndTurn();
+        this.switchView('order');
+      }
+
+      cancelEditOrder() {
+        this.editingOrderId = null;
+        this.editingOrderTurn = null;
+        
+        const cancelBtn = document.getElementById('btn-cancel-edit');
+        if (cancelBtn) cancelBtn.style.display = 'none';
+
+        const submitBtn = document.getElementById('btn-submit-order');
+        if (submitBtn) {
+          submitBtn.style.background = '';
+        }
+        const turnLabel = document.getElementById('turn-label-display');
+        if (turnLabel) turnLabel.textContent = 'Turno Asignado (FIFO)';
+
+        this.resetForm();
+      }
+
+      async deleteOrderPrompt(orderId, turn) {
+        soundEngine.playClick();
+        if (!confirm(`¿Estás seguro de ELIMINAR la comanda Turno #${turn}?`)) return;
+
+        // Remover localmente
+        this.db.orders = (this.db.orders || []).filter(o => o.id !== orderId);
+        this.syncData(this.db, true);
+        this.showToast(`🗑️ Comanda Turno #${turn} eliminada`, 'info');
+
+        try {
+          await fetch('/api/orders/delete', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: orderId })
+          });
+        } catch(e) {}
+      }
+
+      async toggleEventTimer() {
+        soundEngine.playClick();
+        try {
+          const res = await fetch('/api/event/timer', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'toggle_pause' })
+          });
+          if (res.ok) {
+            const data = await res.json();
+            if (data.event_info) {
+              this.db.event_info = data.event_info;
+              this.syncData(this.db, true);
+            }
+          }
+        } catch(e) {
+          if (!this.db.event_info) this.db.event_info = {};
+          this.db.event_info.timer = this.db.event_info.timer || { started_at: new Date().toISOString(), is_paused: false };
+          this.db.event_info.timer.is_paused = !this.db.event_info.timer.is_paused;
+          this.syncData(this.db, true);
+        }
+        this.updateEventTimerDisplay();
+      }
+
+      async resetEventTimer() {
+        soundEngine.playClick();
+        if (!confirm('¿Deseas reiniciar el cronómetro a 00:00:00?')) return;
+        try {
+          const res = await fetch('/api/event/timer', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'reset' })
+          });
+          if (res.ok) {
+            const data = await res.json();
+            if (data.event_info) {
+              this.db.event_info = data.event_info;
+              this.syncData(this.db, true);
+            }
+          }
+        } catch(e) {
+          if (!this.db.event_info) this.db.event_info = {};
+          this.db.event_info.timer = { started_at: null, is_paused: false, elapsed_seconds: 0 };
+          this.syncData(this.db, true);
+        }
+        this.updateEventTimerDisplay();
+        this.showToast('⏱️ Cronómetro reiniciado a 00:00:00', 'info');
+      }
+
+      updateEventTimerDisplay() {
+        const timerEl = document.getElementById('event-timer-text');
+        const iconEl = document.getElementById('timer-toggle-icon');
+        const kdsTimerEl = document.getElementById('kds-timer-text');
+        const kdsIconEl = document.getElementById('kds-timer-toggle-icon');
+
+        const timer = this.db?.event_info?.timer;
+        if (!timer || !timer.started_at) {
+          if (timerEl) timerEl.textContent = '00:00:00';
+          if (kdsTimerEl) kdsTimerEl.textContent = '00:00:00';
+          if (iconEl) iconEl.textContent = '▶️';
+          if (kdsIconEl) kdsIconEl.textContent = '▶️';
+          return;
+        }
+
+        const start = new Date(timer.started_at).getTime();
+        const end = timer.is_paused && timer.paused_at ? new Date(timer.paused_at).getTime() : Date.now();
+        const diffSec = Math.max(0, Math.floor((end - start) / 1000));
+
+        const hrs = String(Math.floor(diffSec / 3600)).padStart(2, '0');
+        const mins = String(Math.floor((diffSec % 3600) / 60)).padStart(2, '0');
+        const secs = String(diffSec % 60).padStart(2, '0');
+        const timeFormatted = `${hrs}:${mins}:${secs}`;
+
+        if (timerEl) timerEl.textContent = timeFormatted;
+        if (kdsTimerEl) kdsTimerEl.textContent = timeFormatted;
+        if (iconEl) iconEl.textContent = timer.is_paused ? '▶️' : '⏸️';
+        if (kdsIconEl) kdsIconEl.textContent = timer.is_paused ? '▶️' : '⏸️';
+      }
+
       setKdsFilter(f) {
         this.kdsFilter = f;
         document.querySelectorAll('.kds-filter-tab').forEach(t => {
@@ -2877,57 +3436,46 @@
         const ready = orders.filter(o => o.status === 'ready');
         const delivered = orders.filter(o => o.status === 'delivered');
 
-        document.getElementById('count-active-kds').textContent = active.length;
-        document.getElementById('count-ready-kds').textContent = ready.length;
-        document.getElementById('count-delivered-kds').textContent = delivered.length;
+        const activeCountEl = document.getElementById('count-active-kds');
+        const readyCountEl = document.getElementById('count-ready-kds');
+        const deliveredCountEl = document.getElementById('count-delivered-kds');
+        if (activeCountEl) activeCountEl.textContent = active.length;
+        if (readyCountEl) readyCountEl.textContent = ready.length;
+        if (deliveredCountEl) deliveredCountEl.textContent = delivered.length;
 
-        // Smart Batching (Group identically configured shawarmas)
-        const summaryGroup = {};
-        active.forEach(o => {
-          let desc = '';
-          if (o.preset === 'con-todo') {
-             desc = '⭐ Con Todo';
-          } else if (o.preset === 'bowl' || o.is_bowl) {
-             desc = '🥗 Bowl (Sin Pan)';
-          } else if (o.preset === 'ninos') {
-             desc = '👶 Para Niños';
-          } else if (o.preset === 'sin-salsas') {
-             desc = '🚫 Sin Salsas';
-          } else if (o.preset === 'solo-carnes') {
-             desc = '🍖 Solo Carnes';
-          } else if (o.preset === 'sin-cebolla') {
-             desc = '🧅 Sin Cebolla';
-          } else if (o.preset === 'sin-pepinillo') {
-             desc = '🥒 Sin Pepinillo';
-          } else if (o.preset === 'sin-tomate') {
-             desc = '🍅 Sin Tomate';
-          } else if (o.preset === 'custom' || !o.preset) {
-             if (!o.removed_ingredients || o.removed_ingredients.length === 0) {
-               desc = '⭐ Con Todo';
-             } else {
-               desc = `🚫 Sin: ${o.removed_ingredients.map(x=>x.toUpperCase()).join(', ')}`;
-             }
-          }
-
-          const key = `${o.protein}|${desc}`;
-          if (!summaryGroup[key]) {
-            summaryGroup[key] = { protein: o.protein, desc: desc, count: 0 };
-          }
-          summaryGroup[key].count++;
-        });
-
+        // Render Intelligent Batching Summary
         if (batchEl) {
+          const summary = {};
+          active.forEach(o => {
+            const isBowl = o.preset === 'bowl' || o.is_bowl;
+            const p = o.protein || 'Mixto';
+            const removed = o.removed_ingredients || [];
+            const key = `${p}__${isBowl ? 'BOWL' : 'SHAWARMA'}__${removed.sort().join('|')}`;
+            if (!summary[key]) {
+              summary[key] = {
+                count: 0,
+                protein: p,
+                isBowl: isBowl,
+                removed: removed,
+                desc: isBowl ? `BOWL (${removed.length > 0 ? 'Sin ' + removed.join(', ') : 'Completo'})` : (removed.length === 0 ? 'Con Todo' : 'Sin ' + removed.join(', '))
+              };
+            }
+            summary[key].count++;
+          });
+
+          const groups = Object.values(summary).sort((a, b) => b.count - a.count);
           let summaryHtml = '';
-          const grps = Object.values(summaryGroup);
-          if (grps.length === 0) {
-            summaryHtml = `<div style="color:var(--text-dim); font-size:14px; font-style:italic;">No hay pedidos en preparación.</div>`;
+          if (groups.length === 0) {
+            summaryHtml = `<div style="color:var(--text-dim); font-size:13px; padding:6px 0;">No hay shawarmas en preparación actualmente.</div>`;
           } else {
-            grps.forEach(grp => {
+            groups.forEach(grp => {
+              const isMixtoConTodo = (grp.protein || '').toLowerCase().includes('mixto') && !grp.isBowl && (grp.removed || []).length === 0;
+              const proteinDisplay = isMixtoConTodo ? `⭐ ${grp.protein}` : grp.protein;
               summaryHtml += `
-                <div class="kds-batch-chip" style="background:var(--bg-surface-2); border:1.5px solid var(--border-color); border-radius:8px; padding:10px 14px; display:flex; align-items:center; gap:12px; min-width:200px;">
-                  <div style="background:var(--brand-pink); color:white; font-size:18px; font-weight:900; width:36px; height:36px; display:flex; justify-content:center; align-items:center; border-radius:50%; flex-shrink:0;">${grp.count}</div>
-                  <div style="display:flex; flex-direction:column; gap:2px;">
-                    <div class="kds-batch-protein" style="font-weight:900; color:var(--text-white); font-size:15px; text-transform:uppercase;">${grp.protein}</div>
+                <div class="batch-pill-item">
+                  <span class="count-badge">${grp.count}</span>
+                  <div>
+                    <div class="kds-batch-protein" style="font-weight:900; color:var(--text-white); font-size:15px; text-transform:uppercase;">${proteinDisplay}</div>
                     <div class="kds-batch-desc" style="font-size:12px; color:var(--text-dim); font-weight:800;">${grp.desc}</div>
                   </div>
                 </div>
@@ -2947,7 +3495,6 @@
 
         let cardListHtml = '';
         displayed.forEach((o, index) => {
-          // Línea divisora visual cada 6 shawarmas
           if (index > 0 && index % 6 === 0) {
             const batchCompleted = index / 6;
             cardListHtml += `
@@ -2979,7 +3526,8 @@
 
           let kdsContentHtml = '';
 
-          // Distinct Protein Header for BOWL vs SHAWARMA
+          const isMixtoConTodo = (o.protein || '').toLowerCase().includes('mixto') && !o.is_bowl && o.preset !== 'bowl' && o.preset !== 'ninos' && (o.removed_ingredients || []).length === 0;
+
           let productHeaderHtml = '';
           if (o.preset === 'bowl' || o.is_bowl) {
             productHeaderHtml = `
@@ -2990,15 +3538,16 @@
           } else {
             productHeaderHtml = `
               <div class="kds-protein-flag">
-                <span>🌯 SHAWARMA DE ${o.protein.toUpperCase()}</span>
+                <span>🌯 ${isMixtoConTodo ? '⭐ ' : ''}SHAWARMA DE ${o.protein.toUpperCase()}</span>
               </div>
             `;
           }
 
           if (o.preset === 'ninos') {
-            kdsContentHtml += `<div class="kds-alert-tag-danger" style="background:#1e3a8a; border-color:#3b82f6; color:#bfdbfe;">👶 PARA NIÑOS (SOLO PAN Y CARNE - SIN SALSAS NI VEGETALES)</div>`;
+            const hasIngs = o.ingredients && o.ingredients.length > 0;
+            const ingsList = hasIngs ? o.ingredients.map(i => i.toUpperCase()).join(' • ') : 'SOLO PAN Y CARNE (SIN SALSAS NI VEGETALES)';
+            kdsContentHtml += `<div class="kds-alert-tag-danger" style="background:#1e3a8a; border-color:#3b82f6; color:#bfdbfe; font-weight:900;">👶 PARA NIÑOS (${ingsList})</div>`;
           } else {
-            // 1. WHAT DOESN'T WANT (RED BOX)
             if (o.removed_ingredients && o.removed_ingredients.length > 0) {
               kdsContentHtml += `
                 <div class="kds-alert-tag-danger">
@@ -3008,7 +3557,6 @@
               `;
             }
 
-            // 2. WHAT DOES WANT (GREEN BOX)
             if (o.ingredients && o.ingredients.length > 0) {
               const allCore = (o.removed_ingredients || []).length === 0;
               kdsContentHtml += `
@@ -3053,12 +3601,47 @@
             </div>
           ` : '';
 
+          const isKids = o.preset === 'ninos';
+          const combinedText = ((o.notes || '') + ' ' + (o.guest_name || '')).toLowerCase();
+          const isBirthday = /(cumpleañero|cumpleanero|cumpleaños|cumpleanos|cumple)/i.test(combinedText);
+
+          let specialCardStyle = '';
+          if (isBirthday) {
+            specialCardStyle = 'border: 2.5px solid #f59e0b !important; box-shadow: 0 0 20px rgba(245, 158, 11, 0.35); background: linear-gradient(180deg, rgba(245, 158, 11, 0.12) 0%, var(--bg-surface) 100px);';
+          } else if (isKids) {
+            specialCardStyle = 'border: 2.5px solid #38bdf8 !important; box-shadow: 0 0 16px rgba(56, 189, 248, 0.25); background: linear-gradient(180deg, rgba(56, 189, 248, 0.08) 0%, var(--bg-surface) 100px);';
+          }
+
+          let birthdayBanner = '';
+          if (isBirthday) {
+            birthdayBanner = `
+              <div style="background: linear-gradient(135deg, #f59e0b, #ec4899); color: white; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 900; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 10px; box-shadow: 0 2px 8px rgba(245,158,11,0.3); text-transform: uppercase; letter-spacing: 0.5px;">
+                <span>🎉</span> <span>¡ATENCIÓN: CUMPLEAÑERO / PEDIDO FESTIVO!</span> <span>🎂</span>
+              </div>
+            `;
+          }
+
+          let kidsBanner = '';
+          if (isKids && !isBirthday) {
+            kidsBanner = `
+              <div style="background: linear-gradient(135deg, #0284c7, #38bdf8); color: white; padding: 5px 10px; border-radius: 6px; font-size: 11px; font-weight: 900; display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">
+                <span>👶</span> <span>MENÚ ESPECIAL PARA NIÑOS</span>
+              </div>
+            `;
+          }
+
           cardListHtml += `
-            <div class="kds-card-box status-${o.status}">
+            <div class="kds-card-box status-${o.status}" style="${specialCardStyle}">
               <div>
                 <div class="kds-card-top">
                   <div>
-                    <div class="kds-turn-title">TURNO #${o.turn}</div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                      <div class="kds-turn-title">TURNO #${o.turn}</div>
+                      <div style="display: inline-flex; gap: 4px;">
+                        <button type="button" style="background: var(--bg-surface-2); border: 1px solid var(--border-color); color: #38bdf8; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer;" onclick="app.editOrder('${o.id}')" title="Editar comanda">✏️</button>
+                        <button type="button" style="background: var(--bg-surface-2); border: 1px solid var(--border-color); color: #f87171; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer;" onclick="app.deleteOrderPrompt('${o.id}', ${o.turn})" title="Eliminar comanda">🗑️</button>
+                      </div>
+                    </div>
                     <div class="kds-time-info">${prepDurationInfo}</div>
                   </div>
                   <div style="text-align:right;">
@@ -3067,6 +3650,8 @@
                   </div>
                 </div>
 
+                ${birthdayBanner}
+                ${kidsBanner}
                 ${ackBanner}
                 ${productHeaderHtml}
                 ${kdsContentHtml}
@@ -3581,6 +4166,163 @@
         document.getElementById('stat-mixto').textContent = orders.filter(o => o.protein === 'Mixto').length;
         document.getElementById('stat-pollo').textContent = orders.filter(o => o.protein === 'Pollo').length;
         document.getElementById('stat-carne').textContent = orders.filter(o => o.protein === 'Carne').length;
+        this.updateOperatorDisplay();
+
+        // Vault stats & Events List
+        const vault = this.getVaultOrders();
+        const archives = this.getVaultArchives();
+        const vaultCountEl = document.getElementById('vault-total-orders');
+        const vaultEventsEl = document.getElementById('vault-total-events');
+        const listEl = document.getElementById('vault-events-list');
+
+        if (vaultCountEl) vaultCountEl.textContent = vault.length;
+        if (vaultEventsEl) vaultEventsEl.textContent = archives.length;
+
+        if (listEl) {
+          if (archives.length === 0) {
+            listEl.innerHTML = `<div style="font-size: 12px; color: var(--text-dim); padding: 10px; text-align: center; background: var(--bg-surface-2); border-radius: 6px;">No hay eventos archivados aún. Cada vez que pulses "Siguiente Evento", ese día/servicio se guardará aquí separado.</div>`;
+          } else {
+            listEl.innerHTML = archives.map((evt, idx) => {
+              const dateObj = new Date(evt.date || Date.now());
+              const dateStr = dateObj.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+              const count = evt.total_orders || (evt.orders ? evt.orders.length : 0);
+              return `
+                <div style="background: var(--bg-surface-2); border: 1px solid var(--border-color); padding: 10px 14px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap;">
+                  <div>
+                    <div style="font-size: 13px; font-weight: 800; color: var(--text-white);">📅 ${evt.name || 'Evento de Catering'}</div>
+                    <div style="font-size: 11px; color: var(--text-dim); margin-top: 2px;">
+                      <span>🕒 ${dateStr}</span> • <strong style="color: #38bdf8;">${count} shawarmas</strong> • <span>Operador: ${evt.operator || 'Dispositivo 1'}</span>
+                    </div>
+                  </div>
+                  <div>
+                    <button type="button" style="background: #0284c7; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;" onclick="app.exportSingleEventCSV(${idx})">
+                      <span>📥</span> <span>Excel de este Día</span>
+                    </button>
+                  </div>
+                </div>
+              `;
+            }).join('');
+          }
+        }
+      }
+
+      async fetchVaultArchives() {
+        try {
+          const res = await fetch('/api/vault/archives');
+          if (res.ok) {
+            const data = await res.json();
+            if (data.archives && Array.isArray(data.archives)) {
+              const localArchives = JSON.parse(localStorage.getItem('shawarma_event_vault_archives') || '[]');
+              const existingIds = new Set(localArchives.map(a => a.id));
+              
+              data.archives.forEach(sa => {
+                if (!existingIds.has(sa.id)) {
+                  localArchives.push(sa);
+                  existingIds.add(sa.id);
+                }
+              });
+              
+              localStorage.setItem('shawarma_event_vault_archives', JSON.stringify(localArchives));
+              if (this.currentView === 'admin') this.renderAdmin();
+            }
+          }
+        } catch(e) {}
+      }
+
+      getVaultArchives() {
+        try {
+          return JSON.parse(localStorage.getItem('shawarma_event_vault_archives') || '[]');
+        } catch(e) {
+          return [];
+        }
+      }
+
+      exportSingleEventCSV(index) {
+        soundEngine.playClick();
+        const archives = this.getVaultArchives();
+        const evt = archives[index];
+        if (!evt || !evt.orders || evt.orders.length === 0) {
+          this.showToast('Este evento no tiene pedidos registrados', 'info');
+          return;
+        }
+        const rows = evt.orders.map((o, i) => {
+          const turnFormatted = String(o.turn || (i + 1)).padStart(4, '0');
+          return [
+            `"${turnFormatted}"`,
+            `"${(o.guest_name || 'Comensal').replace(/"/g, '""')}"`,
+            `"${(o.table || '').replace(/"/g, '""')}"`,
+            `"${(o.protein || 'Mixto').replace(/"/g, '""')}"`,
+            o.is_bowl ? 'BOWL' : (o.preset === 'ninos' ? 'NIÑO' : 'SHAWARMA'),
+            `"${(o.removed_ingredients || []).join(', ')}"`,
+            `"${(o.notes || '').replace(/"/g, '""')}"`,
+            `"${(o.operator || evt.operator || 'Dispositivo 1').replace(/"/g, '""')}"`,
+            `"${o.status || 'delivered'}"`,
+            `"${o.created_at || ''}"`
+          ];
+        });
+        const headers = ['Turno', 'Comensal', 'Mesa', 'Proteina', 'Formato', 'Sin_Ingredientes', 'Notas', 'Operador', 'Estado', 'Fecha_Hora'];
+        const csv = headers.join(',') + '\n' + rows.map(r => r.join(',')).join('\n');
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        const safeName = (evt.name || 'evento').replace(/[^a-zA-Z0-9]/g, '_');
+        a.download = `shawarma_${safeName}_${Date.now()}.csv`;
+        a.click();
+        this.showToast(`📊 Descargado evento: ${evt.name} (${evt.orders.length} pedidos)`, 'success');
+      }
+
+      clearVaultPrompt() {
+        soundEngine.playClick();
+        const msg = `⚠️ ¡ADVERTENCIA DE SEGURIDAD!\n\n¿Estás seguro de ELIMINAR y VACIAR toda la Bóveda de este dispositivo?\n\nEsta acción borrará todos los eventos anteriores guardados en la memoria física de forma permanente.`;
+        if (!confirm(msg)) return;
+
+        localStorage.removeItem('shawarma_permanent_vault_v2');
+        localStorage.removeItem('shawarma_event_vault_archives');
+        this.renderAdmin();
+        this.showToast('🗑️ Bóveda vaciada completamente', 'info');
+      }
+
+      exportVaultCSV() {
+        const orders = this.getVaultOrders();
+        if (orders.length === 0) {
+          this.showToast('No hay pedidos registrados en la bóveda aún', 'info');
+          return;
+        }
+        const rows = orders.map(o => [o.turn, `"${o.guest_name || ''}"`, `"${o.protein || ''}"`, o.is_bowl ? 'BOWL' : 'SHAWARMA', `"${(o.removed_ingredients || []).join(', ')}"`, `"${o.notes || ''}"`, o.status || 'delivered', `"${o.created_at || ''}"`]);
+        const csv = 'Turno,Invitado,Proteina,Tipo,Sin_Ingredientes,Notas,Estado,Fecha\n' + rows.map(r => r.join(',')).join('\n');
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `shawarma_boveda_historica_${Date.now()}.csv`;
+        a.click();
+        this.showToast(`✅ Descargados ${orders.length} pedidos de la bóveda histórica`, 'success');
+      }
+
+      async restoreVaultToServer() {
+        const vault = this.getVaultOrders();
+        if (vault.length === 0) {
+          this.showToast('No hay pedidos en la bóveda local para restaurar', 'info');
+          return;
+        }
+        soundEngine.playClick();
+        this.showToast(`Restaurando ${vault.length} pedidos al servidor...`, 'info');
+        
+        try {
+          const res = await fetch('/api/orders/bulk_restore', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ orders: vault })
+          });
+          if (res.ok) {
+            const data = await res.json();
+            if (data.db) this.syncData(data.db, true);
+            this.showToast(`✅ ${vault.length} pedidos restaurados con éxito al servidor`, 'success');
+          }
+        } catch(e) {
+          this.db.orders = vault;
+          this.syncData(this.db, true);
+          this.showToast(`✅ Pedidos restaurados en modo local`, 'success');
+        }
       }
 
       setTheme(themeName, playSound = true) {
@@ -3604,41 +4346,314 @@
         localStorage.setItem('shawarma_theme', themeName);
       }
 
-      exportCSV() {
+      exportRawCSV() {
         const orders = this.db.orders || [];
-        const rows = orders.map(o => [o.turn, `"${o.guest_name}"`, `"${o.protein}"`, o.is_bowl ? 'BOWL' : 'SHAWARMA', `"${(o.removed_ingredients || []).join(', ')}"`, `"${o.notes || ''}"`, o.status, `"${o.created_at}"`]);
-        const csv = 'Turno,Invitado,Proteina,Tipo,Sin_Ingredientes,Notas,Estado,Fecha\n' + rows.map(r => r.join(',')).join('\n');
-        const blob = new Blob([csv], { type: 'text/csv' });
+        if (orders.length === 0) {
+          this.showToast('No hay pedidos registrados en este evento para exportar', 'info');
+          return;
+        }
+        const rows = orders.map((o, idx) => {
+          const formattedTurn = String(o.turn || (idx + 1)).padStart(4, '0');
+          const timeCreated = o.created_at ? new Date(o.created_at).toLocaleTimeString() : '';
+          const timeReady = o.prepared_at ? new Date(o.prepared_at).toLocaleTimeString() : '';
+          const timeDelivered = o.delivered_at ? new Date(o.delivered_at).toLocaleTimeString() : '';
+          return [
+            `"${formattedTurn}"`,
+            `"${(o.guest_name || 'Comensal').replace(/"/g, '""')}"`,
+            `"${(o.table || '').replace(/"/g, '""')}"`,
+            `"${(o.protein || 'Mixto').replace(/"/g, '""')}"`,
+            o.is_bowl ? 'BOWL' : (o.preset === 'ninos' ? 'NIÑO' : 'SHAWARMA'),
+            `"${(o.removed_ingredients || []).join(', ')}"`,
+            `"${(o.notes || '').replace(/"/g, '""')}"`,
+            `"${(o.operator || this.operatorName || 'Dispositivo 1').replace(/"/g, '""')}"`,
+            `"${(o.status || 'pending')}"`,
+            `"${timeCreated}"`,
+            `"${timeReady}"`,
+            `"${timeDelivered}"`
+          ];
+        });
+
+        const headers = ['Turno', 'Comensal', 'Mesa_Ref', 'Proteina', 'Formato', 'Sin_Ingredientes', 'Notas_Especiales', 'Operador', 'Estado', 'Hora_Pedido', 'Hora_Listo', 'Hora_Entregado'];
+        const csvContent = headers.join(',') + '\n' + rows.map(r => r.join(',')).join('\n');
+        
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
-        a.download = `shawarma_en_casa_${Date.now()}.csv`;
+        const dateStr = new Date().toISOString().slice(0, 10);
+        a.download = `shawarma_evento_${dateStr}_datos_crudos.csv`;
         a.click();
+        this.showToast(`📊 Descargado Excel Crudo con ${orders.length} pedidos`, 'success');
       }
 
-      async resetEventPrompt() {
-        if (confirm('¿Deseas reiniciar y limpiar TODO el evento para empezar uno nuevo desde el Turno #1? (Esto eliminará las comandas anteriores en todos los teléfonos y iPads)')) {
-          try {
-            const res = await fetch('/api/event/reset', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ name: `Evento ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}` })
-            });
-            if (res.ok) {
-              const data = await res.json();
-              localStorage.removeItem('shawarma_db_v6');
-              this.syncData(data.data, true);
-              this.resetForm();
-              this.showToast('✅ ¡Evento reiniciado con éxito! Todos los dispositivos quedaron en Turno #1', 'success');
-            } else {
-              throw new Error();
-            }
-          } catch(e) {
-            this.db = { event_info: { id: `evt_${Date.now()}`, name: 'Shawarma en Casa®', turn_counter: 0 }, orders: [] };
-            localStorage.setItem('shawarma_db_v6', JSON.stringify(this.db));
-            this.syncData(this.db, true);
-            this.resetForm();
-            this.showToast('✅ Evento reiniciado localmente', 'success');
+      setInvoiceLang(lang) {
+        soundEngine.playClick();
+        this.invoiceLang = lang;
+        const btnEs = document.getElementById('btn-lang-es');
+        const btnEn = document.getElementById('btn-lang-en');
+        if (btnEs && btnEn) {
+          if (lang === 'es') {
+            btnEs.style.background = '#0f172a';
+            btnEs.style.color = '#ffffff';
+            btnEn.style.background = 'transparent';
+            btnEn.style.color = '#64748b';
+          } else {
+            btnEn.style.background = '#0f172a';
+            btnEn.style.color = '#ffffff';
+            btnEs.style.background = 'transparent';
+            btnEs.style.color = '#64748b';
           }
+        }
+        this.renderInvoiceContent();
+      }
+
+      showClientInvoiceModal() {
+        soundEngine.playClick();
+        this.renderInvoiceContent();
+        const modal = document.getElementById('client-invoice-modal');
+        if (modal) modal.style.display = 'flex';
+      }
+
+      renderInvoiceContent() {
+        const orders = this.db.orders || [];
+        const timer = this.db?.event_info?.timer;
+        const isEn = this.invoiceLang === 'en';
+        
+        let durationText = isEn ? 'In progress' : 'En curso';
+        if (timer && timer.started_at) {
+          const start = new Date(timer.started_at).getTime();
+          const end = timer.is_paused && timer.paused_at ? new Date(timer.paused_at).getTime() : Date.now();
+          const diffMin = Math.max(1, Math.floor((end - start) / 60000));
+          const hrs = Math.floor(diffMin / 60);
+          const mins = diffMin % 60;
+          durationText = `${hrs > 0 ? hrs + 'h ' : ''}${mins} min`;
+        }
+
+        const dateStr = isEn 
+          ? new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })
+          : new Date().toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        
+        const docNum = `FAC-${new Date().getFullYear()}-${String(this.db?.event_info?.turn_counter || orders.length || 1).padStart(4, '0')}`;
+
+        // Labels
+        const docTitleEl = document.getElementById('invoice-doc-title');
+        const docNumEl = document.getElementById('invoice-doc-number');
+        const docDateEl = document.getElementById('invoice-doc-date');
+        const lblEvent = document.getElementById('lbl-inv-event');
+        const eventNameEl = document.getElementById('invoice-event-name');
+        const lblDuration = document.getElementById('lbl-inv-duration');
+        const durationEl = document.getElementById('invoice-event-duration');
+        const lblOperator = document.getElementById('lbl-inv-operator');
+        const operatorEl = document.getElementById('invoice-operator-name');
+        const thDesc = document.getElementById('th-inv-desc');
+        const thFormat = document.getElementById('th-inv-format');
+        const thQty = document.getElementById('th-inv-qty');
+        const tdTotalLabel = document.getElementById('td-inv-total-label');
+        const totalCountEl = document.getElementById('invoice-total-count');
+        const lblRange = document.getElementById('lbl-inv-range');
+        const turnRangeEl = document.getElementById('invoice-turn-range');
+        const btnPrintLabel = document.getElementById('btn-print-label');
+        const btnWaLabel = document.getElementById('btn-whatsapp-label');
+        const tbody = document.getElementById('invoice-items-tbody');
+
+        if (docTitleEl) docTitleEl.textContent = isEn ? 'STATEMENT OF ACCOUNT' : 'ESTADO DE CUENTA';
+        if (docNumEl) docNumEl.textContent = `#${docNum}`;
+        if (docDateEl) docDateEl.textContent = isEn ? `Date: ${dateStr}` : `Fecha: ${dateStr}`;
+        if (lblEvent) lblEvent.textContent = isEn ? 'EVENT / CLIENT:' : 'EVENTO / CLIENTE:';
+        if (eventNameEl) eventNameEl.textContent = this.db?.event_info?.name || (isEn ? 'Private Catering' : 'Catering Privado');
+        if (lblDuration) lblDuration.textContent = isEn ? 'SERVICE DURATION:' : 'DURACIÓN DEL SERVICIO:';
+        if (durationEl) durationEl.textContent = durationText;
+        if (lblOperator) lblOperator.textContent = isEn ? 'ATTENDED BY:' : 'ATENDIDO POR:';
+        if (operatorEl) operatorEl.textContent = this.operatorName || (isEn ? 'Main Device' : 'Dispositivo 1');
+
+        if (thDesc) thDesc.textContent = isEn ? 'Product Description' : 'Descripción del Producto';
+        if (thFormat) thFormat.textContent = isEn ? 'Format' : 'Formato';
+        if (thQty) thQty.textContent = isEn ? 'Quantity' : 'Cantidad';
+        if (tdTotalLabel) tdTotalLabel.textContent = isEn ? 'TOTAL SHAWARMAS SERVED' : 'TOTAL SHAWARMAS DESPACHADOS';
+        if (totalCountEl) totalCountEl.textContent = orders.length;
+
+        if (btnPrintLabel) btnPrintLabel.textContent = isEn ? 'Print / PDF' : 'Imprimir / PDF';
+        if (btnWaLabel) btnWaLabel.textContent = isEn ? 'Copy WhatsApp' : 'Copiar WhatsApp';
+        if (lblRange) lblRange.textContent = isEn ? 'Order Range:' : 'Rango de Comandas:';
+
+        if (orders.length > 0) {
+          const minTurn = Math.min(...orders.map(o => o.turn || 1));
+          const maxTurn = Math.max(...orders.map(o => o.turn || 1));
+          if (turnRangeEl) turnRangeEl.textContent = isEn 
+            ? `Orders #${String(minTurn).padStart(4, '0')} to #${String(maxTurn).padStart(4, '0')}`
+            : `Turnos #${String(minTurn).padStart(4, '0')} al #${String(maxTurn).padStart(4, '0')}`;
+        } else {
+          if (turnRangeEl) turnRangeEl.textContent = isEn ? 'No orders registered' : 'Sin comandas registradas';
+        }
+
+        // Product Breakdown (Nombres limpios sin Angus ni Marinado)
+        const breakdown = {
+          'Mixto': {
+            name: isEn ? 'Mixed Shawarma' : 'Shawarma Mixto',
+            type: isEn ? 'Classic Grilled Wrap' : 'Wrap Clásico Grill',
+            count: 0
+          },
+          'Carne': {
+            name: isEn ? 'Beef Shawarma' : 'Shawarma de Carne',
+            type: isEn ? 'Classic Grilled Wrap' : 'Wrap Clásico Grill',
+            count: 0
+          },
+          'Pollo': {
+            name: isEn ? 'Chicken Shawarma' : 'Shawarma de Pollo',
+            type: isEn ? 'Classic Grilled Wrap' : 'Wrap Clásico Grill',
+            count: 0
+          },
+          'Falafel': {
+            name: isEn ? 'Falafel Shawarma' : 'Shawarma Falafel',
+            type: isEn ? 'Classic Grilled Wrap' : 'Wrap Clásico Grill',
+            count: 0
+          },
+          'Bowl': {
+            name: isEn ? 'Shawarma Bowl' : 'Bowl de Shawarma',
+            type: isEn ? 'Gourmet Bowl Plate' : 'Bowl en Plato',
+            count: 0
+          },
+          'Ninos': {
+            name: isEn ? 'Kids Shawarma' : 'Shawarma para Niños',
+            type: isEn ? 'Kids Menu' : 'Menú Infantil',
+            count: 0
+          }
+        };
+
+        orders.forEach(o => {
+          if (o.preset === 'bowl' || o.is_bowl) {
+            breakdown['Bowl'].count++;
+          } else if (o.preset === 'ninos') {
+            breakdown['Ninos'].count++;
+          } else {
+            const p = o.protein || 'Mixto';
+            if (breakdown[p]) breakdown[p].count++;
+            else breakdown['Mixto'].count++;
+          }
+        });
+
+        if (tbody) {
+          const rows = Object.values(breakdown)
+            .filter(item => item.count > 0)
+            .map(item => `
+              <tr style="border-bottom: 1px solid #e2e8f0;">
+                <td style="padding: 12px 14px; font-weight: 700; color: #0f172a;">${item.name}</td>
+                <td style="padding: 12px 14px; text-align: center; color: #64748b; font-weight: 600;">${item.type}</td>
+                <td style="padding: 12px 14px; text-align: right; font-weight: 900; font-size: 16px; color: #0f172a;">${item.count}</td>
+              </tr>
+            `);
+
+          if (rows.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="3" style="text-align: center; padding: 24px; color: #94a3b8;">${isEn ? 'No shawarmas served yet in this event' : 'No se han despachado shawarmas aún en este evento'}</td></tr>`;
+          } else {
+            tbody.innerHTML = rows.join('');
+          }
+        }
+      }
+
+      closeClientInvoiceModal() {
+        soundEngine.playClick();
+        const modal = document.getElementById('client-invoice-modal');
+        if (modal) modal.style.display = 'none';
+      }
+
+      copyInvoiceToClipboard() {
+        soundEngine.playClick();
+        const orders = this.db.orders || [];
+        const isEn = this.invoiceLang === 'en';
+
+        const mixto = orders.filter(o => o.protein === 'Mixto' && !o.is_bowl && o.preset !== 'ninos').length;
+        const pollo = orders.filter(o => o.protein === 'Pollo' && !o.is_bowl && o.preset !== 'ninos').length;
+        const carne = orders.filter(o => o.protein === 'Carne' && !o.is_bowl && o.preset !== 'ninos').length;
+        const falafel = orders.filter(o => o.protein === 'Falafel' && !o.is_bowl && o.preset !== 'ninos').length;
+        const bowls = orders.filter(o => o.is_bowl || o.preset === 'bowl').length;
+        const ninos = orders.filter(o => o.preset === 'ninos').length;
+
+        const dateStr = isEn 
+          ? new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })
+          : new Date().toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        
+        let text = '';
+        if (isEn) {
+          text = `🌯 *SERVICE SUMMARY • SHAWARMA EN CASA*\n`;
+          text += `📅 *Date:* ${dateStr}\n`;
+          text += `📍 *Event:* ${this.db?.event_info?.name || 'Private Catering'}\n`;
+          text += `----------------------------------------\n`;
+          if (mixto > 0) text += `🌯 *Mixed Shawarma:* ${mixto}\n`;
+          if (carne > 0) text += `🥩 *Beef Shawarma:* ${carne}\n`;
+          if (pollo > 0) text += `🍗 *Chicken Shawarma:* ${pollo}\n`;
+          if (falafel > 0) text += `🧆 *Falafel Shawarma:* ${falafel}\n`;
+          if (bowls > 0) text += `🥗 *Shawarma Bowls:* ${bowls}\n`;
+          if (ninos > 0) text += `👶 *Kids Shawarma:* ${ninos}\n`;
+          text += `----------------------------------------\n`;
+          text += `✨ *TOTAL SERVED:* ${orders.length} Shawarmas\n\n`;
+          text += `_Thank you for choosing Shawarma en Casa! Live grill experience._`;
+        } else {
+          text = `🌯 *RESUMEN DE SERVICIO • SHAWARMA EN CASA*\n`;
+          text += `📅 *Fecha:* ${dateStr}\n`;
+          text += `📍 *Evento:* ${this.db?.event_info?.name || 'Catering Privado'}\n`;
+          text += `----------------------------------------\n`;
+          if (mixto > 0) text += `🌯 *Shawarma Mixto:* ${mixto}\n`;
+          if (carne > 0) text += `🥩 *Shawarma de Carne:* ${carne}\n`;
+          if (pollo > 0) text += `🍗 *Shawarma de Pollo:* ${pollo}\n`;
+          if (falafel > 0) text += `🧆 *Shawarma Falafel:* ${falafel}\n`;
+          if (bowls > 0) text += `🥗 *Bowls de Shawarma:* ${bowls}\n`;
+          if (ninos > 0) text += `👶 *Shawarma para Niños:* ${ninos}\n`;
+          text += `----------------------------------------\n`;
+          text += `✨ *TOTAL GENERAL:* ${orders.length} Shawarmas Servidos\n\n`;
+          text += `_¡Muchas gracias por confiar en Shawarma en Casa! Servicio 100% en vivo._`;
+        }
+
+        navigator.clipboard.writeText(text).then(() => {
+          this.showToast(isEn ? '📋 Summary copied to clipboard for WhatsApp!' : '📋 ¡Resumen copiado para WhatsApp!', 'success');
+        }).catch(() => {
+          this.showToast(isEn ? 'Summary ready' : 'Resumen preparado', 'info');
+        });
+      }
+
+      async closeEventAndStartNext() {
+        soundEngine.playClick();
+        const orders = this.db.orders || [];
+        const confirmMsg = `¿Deseas CERRAR este evento (${orders.length} shawarmas despachados), guardar el RESPALDO AUTOMÁTICO en la Bóveda y preparar el sistema para el Siguiente Evento (Turno #0001)?`;
+        
+        if (!confirm(confirmMsg)) return;
+
+        // 1. Guardar en archivo permanente de eventos
+        try {
+          const archives = JSON.parse(localStorage.getItem('shawarma_event_vault_archives') || '[]');
+          archives.push({
+            id: this.db.event_info?.id || `evt_${Date.now()}`,
+            name: this.db.event_info?.name || 'Evento Catering',
+            date: new Date().toISOString(),
+            total_orders: orders.length,
+            operator: this.operatorName,
+            orders: orders,
+            timer: this.db.event_info?.timer
+          });
+          localStorage.setItem('shawarma_event_vault_archives', JSON.stringify(archives));
+        } catch(e) {}
+
+        // 2. Limpiar en servidor y reiniciar
+        try {
+          const res = await fetch('/api/event/reset', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: `Evento ${new Date().toLocaleDateString()}` })
+          });
+          if (res.ok) {
+            const data = await res.json();
+            localStorage.removeItem('shawarma_db_v6');
+            this.syncData(data.data, true);
+            this.resetForm();
+            this.showToast('✅ ¡Evento cerrado y respaldado! Sistema listo en Turno #0001 para el nuevo evento.', 'success');
+            this.switchView('order');
+          }
+        } catch(e) {
+          this.db = { event_info: { id: `evt_${Date.now()}`, name: 'Shawarma en Casa', turn_counter: 0, timer: { started_at: null, is_paused: false } }, orders: [] };
+          localStorage.setItem('shawarma_db_v6', JSON.stringify(this.db));
+          this.syncData(this.db, true);
+          this.resetForm();
+          this.showToast('✅ ¡Evento respaldado y listo para el nuevo evento!', 'success');
+          this.switchView('order');
         }
       }
 
