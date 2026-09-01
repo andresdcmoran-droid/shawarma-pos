@@ -9,6 +9,8 @@ require 'json'
 require 'socket'
 require 'fileutils'
 require 'time'
+require 'net/http'
+require 'uri'
 
 PORT = (ENV['PORT'] || 8080).to_i
 DATA_DIR = File.expand_path('data', __dir__)
@@ -114,6 +116,30 @@ def set_api_headers(res)
   res['Access-Control-Allow-Methods'] = 'GET, POST, PATCH, PUT, DELETE, OPTIONS'
   res['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
   res['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+end
+
+# API: Health Ping & Keep-Alive Endpoint
+server.mount_proc '/api/ping' do |req, res|
+  set_api_headers(res)
+  res.body = JSON.generate({ status: 'ok', message: 'pong', time: Time.now.iso8601 })
+end
+
+# Background Keep-Alive Thread: Self-pings Render URL every 7 minutes so it never goes to sleep!
+Thread.new do
+  loop do
+    sleep 420 # 7 minutes
+    begin
+      render_url = ENV['RENDER_EXTERNAL_URL'] || ENV['APP_URL']
+      if render_url && !render_url.strip.empty?
+        target = render_url.sub(%r{/+$}, '') + '/api/ping'
+        uri = URI(target)
+        Net::HTTP.get_response(uri)
+        puts "[KEEPALIVE] Self-ping enviado exitosamente a #{target} - Servidor despierto 24/7."
+      end
+    rescue StandardError => e
+      puts "[KEEPALIVE] Aviso: #{e.message}"
+    end
+  end
 end
 
 # API: IP / Network Info

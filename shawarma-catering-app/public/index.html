@@ -3190,9 +3190,15 @@
         this.startSSE();
         this.fetchVaultArchives();
 
-        // Cronómetro en tiempo real
+        // Cronómetro en tiempo real y pulso keep-alive continuo
         setInterval(() => this.updateEventTimerDisplay(), 1000);
         setInterval(() => this.updateTimers(), 10000);
+        
+        // Pulso Keep-Alive para evitar que el servidor duerma durante el evento
+        setInterval(() => {
+          fetch('/api/ping').catch(() => {});
+        }, 120000); // Cada 2 minutos
+        
         document.addEventListener('touchstart', () => soundEngine.init(), { once: true });
         document.addEventListener('click', () => soundEngine.init(), { once: true });
       }
@@ -3376,16 +3382,37 @@
       syncData(data, saveCache = true) {
         if (!data) return;
 
-        // Anti-Wipe Protection: Only restore if it is the EXACT SAME active event that wiped unexpectedly!
-        const prevEventId = this.db?.event_info?.id;
-        const newEventId = data?.event_info?.id;
-        const isSameEvent = prevEventId && newEventId && (prevEventId === newEventId);
-        
-        const localOrders = (this.db && this.db.orders && this.db.orders.length > 0) ? this.db.orders : [];
-        if (isSameEvent && (!data.orders || data.orders.length === 0) && localOrders.length > 0) {
-          data.orders = localOrders;
-          if (this.db && this.db.event_info) data.event_info = this.db.event_info;
-          this.pushOrdersToServer(localOrders);
+        const isIntentionalReset = sessionStorage.getItem('shawarma_intentional_reset') === 'true';
+        const serverOrders = Array.isArray(data.orders) ? data.orders : [];
+        const currentMemoryOrders = (this.db && Array.isArray(this.db.orders) && this.db.orders.length > 0) ? this.db.orders : [];
+        let cachedOrders = [];
+        try {
+          const cached = JSON.parse(localStorage.getItem('shawarma_db_v6') || '{}');
+          if (Array.isArray(cached.orders)) cachedOrders = cached.orders;
+        } catch(e) {}
+        const vaultOrders = this.getVaultOrders();
+
+        // Obtener la mejor piscina local de pedidos
+        const bestLocalPool = currentMemoryOrders.length >= cachedOrders.length ? currentMemoryOrders : cachedOrders;
+
+        // Auto-Heal Protection: Si el servidor despierta vacío (0 pedidos) pero el dispositivo tiene pedidos activos,
+        // y el usuario NUNCA presionó "Limpiar Evento", RESTAURAR inmediatamente todos los pedidos al servidor!
+        if (!isIntentionalReset && serverOrders.length === 0 && (bestLocalPool.length > 0 || vaultOrders.length > 0)) {
+          const ordersToRestore = bestLocalPool.length > 0 ? bestLocalPool : vaultOrders;
+          data.orders = ordersToRestore;
+          const maxTurn = Math.max(...ordersToRestore.map(o => parseInt(o.turn) || 0), 0);
+          if (!data.event_info) data.event_info = {};
+          data.event_info.turn_counter = Math.max(parseInt(data.event_info.turn_counter) || 0, maxTurn);
+          this.pushOrdersToServer(ordersToRestore);
+          console.log(`[Auto-Heal Blindado] Restaurados ${ordersToRestore.length} pedidos locales al servidor automáticamente.`);
+        } else if (!isIntentionalReset && serverOrders.length > 0 && bestLocalPool.length > serverOrders.length) {
+          // Si el local tiene pedidos adicionales no presentes en el servidor, unirlos
+          const serverIds = new Set(serverOrders.map(o => o.id));
+          const missingLocals = bestLocalPool.filter(o => !serverIds.has(o.id));
+          if (missingLocals.length > 0) {
+            data.orders = [...serverOrders, ...missingLocals];
+            this.pushOrdersToServer(missingLocals);
+          }
         }
 
         this.db = data;
@@ -6019,6 +6046,9 @@
         } catch(e) {}
 
         // 2. Limpiar en servidor y reiniciar
+        sessionStorage.setItem('shawarma_intentional_reset', 'true');
+        setTimeout(() => sessionStorage.removeItem('shawarma_intentional_reset'), 10000);
+
         try {
           const res = await fetch('/api/event/reset', {
             method: 'POST',
@@ -6028,6 +6058,7 @@
           if (res.ok) {
             const data = await res.json();
             localStorage.removeItem('shawarma_db_v6');
+            localStorage.removeItem('shawarma_permanent_vault_v2');
             this.syncData(data.data, true);
             this.resetForm();
             this.showToast('✅ ¡Evento cerrado y respaldado! Sistema listo en Turno #0001 para el nuevo evento.', 'success');
@@ -6035,7 +6066,8 @@
           }
         } catch(e) {
           this.db = { event_info: { id: `evt_${Date.now()}`, name: 'Shawarma en Casa', turn_counter: 0, timer: { started_at: null, is_paused: false } }, orders: [] };
-          localStorage.setItem('shawarma_db_v6', JSON.stringify(this.db));
+          localStorage.removeItem('shawarma_db_v6');
+          localStorage.removeItem('shawarma_permanent_vault_v2');
           this.syncData(this.db, true);
           this.resetForm();
           this.showToast('✅ ¡Evento respaldado y listo para el nuevo evento!', 'success');
@@ -6052,6 +6084,9 @@
         
         if (!confirm(msg)) return;
 
+        sessionStorage.setItem('shawarma_intentional_reset', 'true');
+        setTimeout(() => sessionStorage.removeItem('shawarma_intentional_reset'), 10000);
+
         try {
           const res = await fetch('/api/event/reset', {
             method: 'POST',
@@ -6061,6 +6096,7 @@
           if (res.ok) {
             const data = await res.json();
             localStorage.removeItem('shawarma_db_v6');
+            localStorage.removeItem('shawarma_permanent_vault_v2');
             this.syncData(data.data, true);
             this.resetForm();
             this.showToast('🧹 Evento limpiado desde cero (sin guardar en bóveda)', 'info');
