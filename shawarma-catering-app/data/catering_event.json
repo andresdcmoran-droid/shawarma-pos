@@ -1,11 +1,11 @@
 {
   "event_info": {
-    "id": "evt_1787985374",
-    "name": "Evento 8/29/2026",
-    "created_at": "2026-08-29T02:36:14-04:00",
+    "id": "evt_1788291946",
+    "name": "Shawarma en Casa",
+    "created_at": "2026-09-01T15:45:46-04:00",
     "turn_counter": 1,
     "timer": {
-      "started_at": "2026-08-29T02:37:35-04:00",
+      "started_at": "2026-09-01T15:45:56-04:00",
       "elapsed_seconds": 0,
       "is_paused": false,
       "paused_at": null
@@ -13,12 +13,48 @@
   },
   "orders": [
     {
-      "id": "ord_1787985455898647",
+      "id": "ord_17882919563104708",
       "turn": 1,
-      "guest_name": "Comensal",
-      "table": "",
-      "protein": "Mixto",
-      "preset": "con-todo",
+      "guest_name": "Familia / Grupo",
+      "table": "Mesa 1",
+      "protein": "Mixto + Pollo + Carne + Mixto",
+      "preset": "grupo",
+      "is_group": true,
+      "items_count": 4,
+      "items": [
+        {
+          "protein": "Mixto",
+          "preset": "con-todo",
+          "is_bowl": false,
+          "ingredients": ["Hummus", "Tabule", "Cebolla", "Tomate", "Pepinillo", "Nabo", "Salsa de Ajo", "Salsa de Ajonjolí"],
+          "removed_ingredients": [],
+          "notes": "Bien tostado"
+        },
+        {
+          "protein": "Pollo",
+          "preset": "con-todo",
+          "is_bowl": false,
+          "ingredients": ["Hummus", "Tabule", "Tomate", "Pepinillo", "Nabo", "Salsa de Ajo", "Salsa de Ajonjolí"],
+          "removed_ingredients": ["Cebolla"],
+          "notes": "Sin cebolla"
+        },
+        {
+          "protein": "Carne",
+          "preset": "con-todo",
+          "is_bowl": false,
+          "ingredients": ["Hummus", "Tabule", "Cebolla", "Tomate", "Nabo", "Salsa de Ajo", "Salsa de Ajonjolí"],
+          "removed_ingredients": ["Pepinillo"],
+          "notes": "Salsa extra"
+        },
+        {
+          "protein": "Mixto",
+          "preset": "con-todo",
+          "is_bowl": false,
+          "ingredients": ["Hummus", "Tabule", "Cebolla", "Tomate", "Pepinillo", "Nabo", "Salsa de Ajo", "Salsa de Ajonjolí"],
+          "removed_ingredients": [],
+          "notes": ""
+        }
+      ],
       "ingredients": [
         "Hummus",
         "Tabule",
@@ -30,17 +66,13 @@
         "Salsa de Ajonjolí",
         "Falafel"
       ],
-      "removed_ingredients": [
-
-      ],
-      "added_extras": [
-
-      ],
-      "notes": "",
-      "quantity": 1,
+      "removed_ingredients": [],
+      "added_extras": [],
+      "notes": "Mesa 1 - Grupo de 4",
+      "quantity": 4,
       "status": "pending",
-      "created_at": "2026-08-29T02:37:35-04:00",
-      "updated_at": "2026-08-29T02:37:35-04:00"
+      "created_at": "2026-09-01T15:45:56-04:00",
+      "updated_at": "2026-09-01T15:45:56-04:00"
     }
   ]
 }

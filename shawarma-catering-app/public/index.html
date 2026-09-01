@@ -17,9 +17,10 @@
        SHAWARMA EN CASA - ULTRA MODERN LUXURY POS & KDS
        ========================================================================== */
     :root {
-      --brand-pink: #ff007f;
-      --brand-pink-dark: #d6006b;
-      --brand-pink-glow: rgba(255, 0, 127, 0.4);
+      --brand-pink: #f0258d; /* Fucsia Vivo y Radiante (Punto exacto del Isotipo) */
+      --brand-pink-dark: #c8126f;
+      --brand-pink-soft: rgba(240, 37, 141, 0.16);
+      --brand-pink-glow: rgba(240, 37, 141, 0.28); /* Brillo calibrado, nítido y elegante */
       
       --bg-dark: #0d0d11;
       --bg-surface: #17171e;
@@ -186,6 +187,12 @@
         max-width: 100vw;
       }
 
+      /* Ocultar cronómetro en teléfonos móviles (permanece activo y visible en Mac e iPad) */
+      .event-timer-badge,
+      #event-timer-container {
+        display: none !important;
+      }
+
       .brand-section {
         display: flex;
         align-items: center;
@@ -201,6 +208,31 @@
         padding: 4px 10px;
         font-size: 11px;
         flex: 0 0 auto;
+      }
+
+      /* Notas Rápidas: Cuadrícula simétrica 2x4 en teléfonos móviles */
+      .quick-notes-container {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 8px !important;
+        margin-bottom: 10px !important;
+      }
+
+      .quick-note-chip {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        text-align: center !important;
+        padding: 8px 6px !important;
+        border-radius: 10px !important;
+        font-size: 11.5px !important;
+        font-weight: 800 !important;
+        height: 42px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
       }
 
       /* Native iOS Bottom Navigation Bar */
@@ -250,10 +282,10 @@
       }
 
       .tab-btn.active {
-        background: rgba(255, 0, 127, 0.2);
-        color: #ff3399;
+        background: rgba(240, 37, 141, 0.22);
+        color: #ff5ca8;
         box-shadow: none;
-        border: 1px solid rgba(255, 0, 127, 0.4);
+        border: 1.5px solid var(--brand-pink);
       }
 
       /* View Content with padding for bottom nav */
@@ -274,15 +306,37 @@
       }
 
       .guest-inputs-row {
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 1fr 120px;
         gap: 8px;
         margin-bottom: 16px;
+        align-items: flex-start;
+      }
+
+      .guest-input-col {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        min-width: 0;
+      }
+
+      .field-label {
+        font-size: 11.5px;
+        font-weight: 800;
+        height: 18px;
+        line-height: 18px;
+        margin-bottom: 4px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: block;
       }
 
       .text-input-pos {
-        height: 48px;
+        height: 46px;
         font-size: 15px;
         padding: 0 10px;
+        box-sizing: border-box;
+        width: 100%;
       }
 
       .protein-selector-grid {
@@ -552,6 +606,14 @@
       grid-template-columns: 1fr 140px;
       gap: 14px;
       margin-bottom: 24px;
+      align-items: flex-start;
+    }
+
+    .guest-input-col {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      min-width: 0;
     }
 
     .field-label {
@@ -559,20 +621,26 @@
       font-weight: 800;
       color: var(--text-white);
       margin-bottom: 6px;
+      height: 18px;
+      line-height: 18px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
       display: block;
     }
 
     .text-input-pos {
       width: 100%;
-      height: 56px;
+      height: 54px;
       background: var(--bg-surface-2);
       border: 2px solid var(--border-color);
       border-radius: var(--radius-md);
       color: var(--text-white);
-      font-size: 18px;
+      font-size: 16px;
       font-weight: 800;
-      padding: 0 18px;
+      padding: 0 16px;
       outline: none;
+      box-sizing: border-box;
       transition: all 0.2s;
     }
 
@@ -626,8 +694,8 @@
 
     .protein-card-btn.selected {
       border-color: var(--brand-pink);
-      background: linear-gradient(135deg, rgba(255, 0, 127, 0.18), rgba(255, 0, 127, 0.06));
-      box-shadow: 0 0 20px var(--brand-pink-glow);
+      background: linear-gradient(135deg, rgba(240, 37, 141, 0.20), rgba(240, 37, 141, 0.06));
+      box-shadow: 0 4px 16px var(--brand-pink-glow);
     }
 
     .protein-card-btn.selected .protein-title {
@@ -675,7 +743,7 @@
 
     .preset-pill-btn.active {
       border: 2px solid var(--brand-pink);
-      background: rgba(255, 0, 127, 0.14);
+      background: rgba(216, 43, 120, 0.12);
     }
 
     .preset-pill-btn.preset-bowl.active {
@@ -785,25 +853,33 @@
 
     /* Quick Note Buttons for PREPARADOR */
     .quick-notes-container {
-      display: flex;
-      flex-wrap: wrap;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
       gap: 8px;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
     }
 
     .quick-note-chip {
       background: var(--bg-surface-2);
       border: 1px solid #3a3a4c;
       color: #cbd5e1;
-      padding: 9px 14px;
-      border-radius: var(--radius-full);
+      padding: 10px 8px;
+      border-radius: 10px;
       font-size: 12px;
       font-weight: 800;
       cursor: pointer;
       transition: all 0.15s ease;
       display: flex;
       align-items: center;
+      justify-content: center;
+      text-align: center;
       gap: 6px;
+      width: 100%;
+      height: 42px;
+      box-sizing: border-box;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .quick-note-chip:active {
@@ -890,9 +966,9 @@
     }
 
     .pos-tag.tag-protein {
-      background: rgba(255, 0, 127, 0.2);
+      background: rgba(240, 37, 141, 0.20);
       color: #ff66b3;
-      border: 1px solid rgba(255, 0, 127, 0.4);
+      border: 1px solid rgba(240, 37, 141, 0.45);
     }
 
     .pos-tag.tag-bowl {
@@ -920,7 +996,7 @@
     }
 
     .btn-submit-pos {
-      background: linear-gradient(135deg, #ff007f, #d6006b);
+      background: linear-gradient(135deg, #f0258d, #c8126f);
       color: white;
       border: none;
       border-radius: var(--radius-md);
@@ -932,7 +1008,7 @@
       align-items: center;
       justify-content: center;
       gap: 10px;
-      box-shadow: 0 8px 25px var(--brand-pink-glow);
+      box-shadow: 0 8px 22px var(--brand-pink-glow);
       transition: all 0.15s ease;
       touch-action: manipulation;
     }
@@ -1053,33 +1129,42 @@
       align-items: flex-start;
       justify-content: space-between;
       border-bottom: 1px solid var(--border-color);
-      padding-bottom: 12px;
+      padding-bottom: 10px;
+      gap: 12px;
+      min-width: 0;
     }
 
     .kds-turn-title {
-      font-size: 24px;
+      font-size: 22px;
       font-weight: 900;
       color: var(--brand-pink);
+      line-height: 1.1;
     }
 
     .kds-guest-name {
-      font-size: 20px;
+      font-size: 16px;
       font-weight: 900;
       color: white;
       text-transform: uppercase;
       text-align: right;
+      line-height: 1.2;
+      word-break: break-word;
+      overflow-wrap: break-word;
+      max-width: 100%;
     }
 
     .kds-table-badge {
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 800;
       color: #38bdf8;
       background: #1e293b;
-      padding: 4px 10px;
+      padding: 3px 8px;
       border-radius: 6px;
       display: inline-block;
       margin-top: 4px;
       border: 1px solid #334155;
+      word-break: break-word;
+      max-width: 100%;
     }
 
     .kds-time-info {
@@ -1087,9 +1172,9 @@
       font-weight: 700;
       color: var(--text-dim);
       margin-top: 3px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .kds-protein-flag {
@@ -1363,9 +1448,9 @@
       --text-white: #0f172a;
       --text-dim: #475569;
       
-      --brand-pink: #ff007f;
-      --brand-pink-dark: #d6006b;
-      --brand-pink-glow: rgba(255, 0, 127, 0.2);
+      --brand-pink: #d81b75;
+      --brand-pink-dark: #ad0f59;
+      --brand-pink-glow: rgba(216, 27, 117, 0.22);
       
       --yes-green: #059669;
       --yes-green-bg: rgba(5, 150, 105, 0.12);
@@ -1408,7 +1493,7 @@
     body.theme-day .tab-btn.active {
       background: var(--brand-pink) !important;
       color: #ffffff !important;
-      box-shadow: 0 2px 10px rgba(255, 0, 127, 0.35);
+      box-shadow: 0 2px 10px rgba(216, 27, 117, 0.30);
     }
     
     body.theme-day .pos-card {
@@ -1442,7 +1527,7 @@
     body.theme-day .protein-card-btn.selected {
       background: #fff1f2 !important;
       border-color: var(--brand-pink) !important;
-      box-shadow: 0 0 0 1px var(--brand-pink), 0 4px 12px rgba(255, 0, 127, 0.18) !important;
+      box-shadow: 0 0 0 1px var(--brand-pink), 0 3px 8px rgba(194, 24, 91, 0.12) !important;
     }
     
     body.theme-day .protein-card-btn.selected .protein-title {
@@ -1558,14 +1643,14 @@
     body.theme-day .text-input-pos:focus,
     body.theme-day textarea:focus {
       border-color: var(--brand-pink) !important;
-      box-shadow: 0 0 0 3px rgba(255, 0, 127, 0.15) !important;
+      box-shadow: 0 0 0 3px rgba(194, 24, 91, 0.12) !important;
     }
 
     /* Tarjeta de Turno Asignado en Gris con Borde Fucsia y Letras en Negro */
     body.theme-day .turn-badge-card {
       background: #f1f5f9 !important;
       border: 2.5px solid var(--brand-pink) !important;
-      box-shadow: 0 4px 14px rgba(255, 0, 127, 0.15) !important;
+      box-shadow: 0 4px 12px rgba(194, 24, 91, 0.12) !important;
     }
     body.theme-day .turn-label-txt {
       color: #334155 !important;
@@ -1621,16 +1706,16 @@
       font-weight: 800 !important;
     }
     
-    /* Botón Derecho "Enviar a Cocina": Fucsia Sólido Idéntico al Modo Oscuro */
+    /* Botón Derecho "Enviar a Cocina": Fucsia Radiante */
     body.theme-day .btn-submit-pos {
-      background: linear-gradient(135deg, #ff007f, #d6006b) !important;
+      background: linear-gradient(135deg, #f0258d, #c8126f) !important;
       color: #ffffff !important;
       border: none !important;
-      box-shadow: 0 4px 16px rgba(255, 0, 127, 0.35) !important;
+      box-shadow: 0 4px 16px rgba(240, 37, 141, 0.28) !important;
       font-weight: 900 !important;
     }
     body.theme-day .btn-submit-pos:hover {
-      background: linear-gradient(135deg, #e60073, #be005f) !important;
+      background: linear-gradient(135deg, #e0167f, #b30e62) !important;
     }
     
     /* Logo Marca de Agua y Versículo en Modo Día */
@@ -1747,6 +1832,20 @@
     body.theme-day .kds-batch-desc {
       color: #475569 !important;
       font-weight: 800 !important;
+    }
+    body.theme-day .kds-batch-divider-line {
+      background: linear-gradient(90deg, transparent, #475569, transparent) !important;
+      opacity: 0.8 !important;
+    }
+    body.theme-day .kds-batch-divider-badge {
+      background: #f1f5f9 !important;
+      border: 1.5px solid #475569 !important;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+    }
+    body.theme-day .kds-batch-divider-badge span,
+    body.theme-day .kds-batch-divider-text {
+      color: #1e293b !important;
+      font-weight: 900 !important;
     }
 
     /* Monitor de Turnos: Cajas Claras con Tonos Lavados */
@@ -1964,12 +2063,12 @@
         
         <!-- Guest Name & Table -->
         <div class="guest-inputs-row">
-          <div>
+          <div class="guest-input-col">
             <label class="field-label" for="guest-name">👤 Nombre del Comensal</label>
             <input type="text" id="guest-name" class="text-input-pos" placeholder="Ej: María / Carlos" autocomplete="off" autocorrect="off">
           </div>
-          <div>
-            <label class="field-label" for="guest-table">📍 Mesa / Referencia</label>
+          <div class="guest-input-col">
+            <label class="field-label" for="guest-table">📍 Mesa / Ref</label>
             <input type="text" id="guest-table" class="text-input-pos" placeholder="Ej: Mesa 2" autocomplete="off">
           </div>
         </div>
@@ -2079,9 +2178,10 @@
             <button type="button" class="quick-note-chip" onclick="app.toggleQuickNote('Salsa Aparte')">🥣 Salsa Aparte</button>
             <button type="button" class="quick-note-chip" onclick="app.toggleQuickNote('Tabule Aparte')">🥗 Tabule Aparte</button>
             <button type="button" class="quick-note-chip" onclick="app.toggleQuickNote('Salsa de Tahini')">🥣 Salsa de Tahini</button>
-            <button type="button" class="quick-note-chip" onclick="app.toggleQuickNote('Cortado por la mitad')">🔪 Cortado por la mitad</button>
+            <button type="button" class="quick-note-chip" onclick="app.toggleQuickNote('Cortado por la mitad')">🔪 Cortado Mitad</button>
             <button type="button" class="quick-note-chip" onclick="app.toggleQuickNote('Bien Tostado')">🔥 Bien Tostado</button>
             <button type="button" class="quick-note-chip" onclick="app.toggleQuickNote('Sin Falafel')">🧆 Sin Falafel</button>
+            <button type="button" class="quick-note-chip" onclick="app.toggleQuickNote('Para Llevar')">📦 Para Llevar</button>
           </div>
           <input type="text" id="order-notes" class="text-input-pos" style="height: 48px; font-size: 14px;" placeholder="O escribe una nota personalizada aquí..." oninput="app.updateQuickNoteButtons()">
         </div>
@@ -2109,6 +2209,26 @@
               <span>🔥</span> <span>Envuelto y tostado en plancha grill</span>
             </div>
           </div>
+
+          <!-- Group Tray (Bandeja Grupal para Parejas y Familias) -->
+          <div id="group-tray-box" style="display: none; background: var(--bg-surface-2); border: 1.5px solid #7c3aed; border-radius: var(--radius-md); padding: 12px; margin-bottom: 4px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <span style="font-size: 12px; font-weight: 900; color: #a78bfa; display: flex; align-items: center; gap: 4px;">
+                <span>👥</span> <span id="group-tray-title">Bandeja Grupal (0)</span>
+              </span>
+              <button type="button" onclick="app.clearCurrentGroup()" style="background: transparent; border: none; color: #f87171; font-size: 11px; font-weight: 800; cursor: pointer;">
+                Descartar Grupo
+              </button>
+            </div>
+            <div id="group-tray-items-list" style="display: flex; flex-direction: column; gap: 6px;">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+
+          <!-- Add to Group Button -->
+          <button type="button" id="btn-add-to-group" onclick="app.addCurrentToGroup()" style="background: var(--bg-surface-2); border: 1.5px dashed var(--brand-pink); color: var(--brand-pink); padding: 12px 14px; border-radius: var(--radius-md); font-size: 13px; font-weight: 900; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s ease;">
+            <span>➕</span> <span>Agregar otro Shawarma a este Grupo (Pareja / Familia)</span>
+          </button>
 
           <!-- Submit Button -->
           <button type="button" class="btn-submit-pos" id="btn-submit-order" onclick="app.submitOrder()">
@@ -2294,17 +2414,148 @@
           </div>
         </div>
 
-        <!-- Botones de Acción: Resumen Ejecutivo / Factura, Excel Crudo, Siguiente Evento -->
+        <!-- Botones de Acción: Resumen Ejecutivo / Factura, Excel Crudo, Siguiente Evento, Solo Limpiar -->
         <div style="margin-top: 20px; display: flex; gap: 12px; flex-wrap: wrap;">
-          <button type="button" style="background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; padding: 14px 22px; border-radius: var(--radius-md); font-size: 14px; font-weight: 900; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 14px rgba(16,185,129,0.35);" onclick="app.showClientInvoiceModal()">
-            <span>🧾</span> <span>Resumen Ejecutivo / Factura para Cliente</span>
+          <button type="button" style="background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; padding: 14px 20px; border-radius: var(--radius-md); font-size: 13px; font-weight: 900; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 14px rgba(16,185,129,0.35);" onclick="app.showClientInvoiceModal()">
+            <span>🧾</span> <span>Resumen Ejecutivo / Factura</span>
           </button>
-          <button type="button" style="background: var(--bg-surface-2); color: white; border: 1px solid var(--border-color); padding: 14px 20px; border-radius: var(--radius-md); font-size: 13px; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;" onclick="app.exportRawCSV()">
-            <span>📊</span> <span>Descargar Excel Crudo (Base de Datos)</span>
+          <button type="button" style="background: var(--bg-surface-2); color: white; border: 1px solid var(--border-color); padding: 14px 18px; border-radius: var(--radius-md); font-size: 13px; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;" onclick="app.exportRawCSV()">
+            <span>📊</span> <span>Excel Crudo</span>
           </button>
-          <button type="button" style="background: linear-gradient(135deg, #e11d48, #be123c); color: white; border: none; padding: 14px 22px; border-radius: var(--radius-md); font-size: 14px; font-weight: 900; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 14px rgba(225,29,72,0.35);" onclick="app.closeEventAndStartNext()">
-            <span>✨</span> <span>Siguiente Evento (Cerrar, Respaldar y Limpiar)</span>
+          <button type="button" style="background: linear-gradient(135deg, #0284c7, #0369a1); color: white; border: none; padding: 14px 20px; border-radius: var(--radius-md); font-size: 13px; font-weight: 900; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 14px rgba(2,132,199,0.35);" onclick="app.closeEventAndStartNext()">
+            <span>💾</span> <span>Siguiente Evento (Guardar en Bóveda)</span>
           </button>
+          <button type="button" style="background: rgba(239, 68, 68, 0.12); color: #f87171; border: 1.5px solid #ef4444; padding: 14px 20px; border-radius: var(--radius-md); font-size: 13px; font-weight: 900; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;" onclick="app.clearEventWithoutSaving()">
+            <span>🗑️</span> <span>Solo Limpiar este Evento (Sin Guardar)</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- ========================================================================= -->
+      <!-- MODULO FINANCIERO PROTEGIDO CON PIN DE 4 DÍGITOS (PRIVADO PARA DUEÑO)     -->
+      <!-- ========================================================================= -->
+      <!-- Estado Bloqueado: Tarjeta Privada -->
+      <div id="finance-locked-card" class="pos-card" style="border: 2px solid #10b981; background: rgba(16, 185, 129, 0.04); display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div style="width: 44px; height: 44px; background: rgba(16, 185, 129, 0.15); border: 1.5px solid #10b981; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px;">
+            🔒
+          </div>
+          <div>
+            <h2 style="font-size: 17px; color: #10b981; margin: 0; font-weight: 900;">
+              Módulo Financiero & Rentabilidad (Privado)
+            </h2>
+            <div style="font-size: 12px; color: var(--text-dim); margin-top: 2px;">
+              Protegido con clave de 4 dígitos para resguardar tus precios, costos brutos y ganancia neta.
+            </div>
+          </div>
+        </div>
+        <div>
+          <button type="button" onclick="app.promptUnlockFinance()" style="background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; padding: 12px 22px; border-radius: var(--radius-md); font-weight: 900; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 14px rgba(16,185,129,0.35);">
+            <span>🔑</span> <span>Desbloquear con PIN</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Estado Desbloqueado: Dashboard Completo -->
+      <div id="finance-unlocked-card" class="pos-card" style="display: none; border: 2px solid #10b981; background: rgba(16, 185, 129, 0.04);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
+          <div>
+            <h2 style="font-size: 18px; color: #10b981; margin: 0; display: flex; align-items: center; gap: 8px;">
+              <span>💰</span> <span>Costos, Insumos & Ganancia Real</span>
+            </h2>
+            <div style="font-size: 12px; color: var(--text-dim); margin-top: 2px;">
+              Cálculo automático de costos brutos por plato y rentabilidad neta del evento.
+            </div>
+          </div>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <button type="button" onclick="app.toggleCostSettingsModal(true)" style="background: var(--bg-surface-2); border: 1.5px solid #10b981; color: #10b981; padding: 8px 14px; border-radius: var(--radius-md); font-weight: 800; font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+              <span>⚙️</span> <span>Configurar Cajas & Precios</span>
+            </button>
+            <button type="button" onclick="app.exportFinancialCSV()" style="background: #10b981; color: white; border: none; padding: 8px 14px; border-radius: var(--radius-md); font-weight: 800; font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+              <span>📥</span> <span>Excel Financiero</span>
+            </button>
+            <button type="button" onclick="app.changeFinancePinPrompt()" style="background: var(--bg-surface-2); border: 1px solid var(--border-color); color: var(--text-dim); padding: 8px 12px; border-radius: var(--radius-md); font-weight: 800; font-size: 12px; cursor: pointer;" title="Cambiar clave de 4 dígitos">
+              <span>🔑 Cambiar PIN</span>
+            </button>
+            <button type="button" onclick="app.lockFinance()" style="background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid #ef4444; padding: 8px 12px; border-radius: var(--radius-md); font-weight: 800; font-size: 12px; cursor: pointer;">
+              <span>🔒 Bloquear</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Presupuesto / Ingreso Cobrado y Logística Inputs -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 16px; background: var(--bg-surface-2); padding: 14px; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+          <div>
+            <label style="display: block; font-size: 11px; font-weight: 800; color: #38bdf8; text-transform: uppercase; margin-bottom: 6px;">
+              💵 Total Cobrado al Cliente ($)
+            </label>
+            <input type="number" id="cost-input-revenue" placeholder="Ej: 500" style="width: 100%; background: var(--bg-dark); border: 1.5px solid var(--border-color); color: #10b981; padding: 10px 12px; border-radius: 8px; font-size: 18px; font-weight: 900;" oninput="app.recalculateCosts()">
+          </div>
+          <div>
+            <label style="display: block; font-size: 11px; font-weight: 800; color: #fbbf24; text-transform: uppercase; margin-bottom: 6px;">
+              🚚 Otros Gastos (Gas, Transporte, Ayudante) ($)
+            </label>
+            <input type="number" id="cost-input-logistics" placeholder="Ej: 40" style="width: 100%; background: var(--bg-dark); border: 1.5px solid var(--border-color); color: #fbbf24; padding: 10px 12px; border-radius: 8px; font-size: 18px; font-weight: 900;" oninput="app.recalculateCosts()">
+          </div>
+        </div>
+
+        <!-- Dashboard KPIs -->
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; text-align: center;">
+          <div style="background: var(--bg-surface-2); border: 1px solid var(--border-color); padding: 14px; border-radius: var(--radius-md);">
+            <div style="font-size: 11px; font-weight: 800; color: var(--text-dim); text-transform: uppercase;">Costo Total Insumos</div>
+            <div style="font-size: 22px; font-weight: 900; color: #f87171; margin-top: 4px;" id="kpi-cost-total">$0.00</div>
+          </div>
+          <div style="background: var(--bg-surface-2); border: 1.5px solid #10b981; padding: 14px; border-radius: var(--radius-md); box-shadow: 0 4px 16px rgba(16,185,129,0.15);">
+            <div style="font-size: 11px; font-weight: 800; color: #10b981; text-transform: uppercase;">Ganancia Neta Real</div>
+            <div style="font-size: 24px; font-weight: 900; color: #10b981; margin-top: 4px;" id="kpi-profit-net">$0.00</div>
+          </div>
+          <div style="background: var(--bg-surface-2); border: 1px solid var(--border-color); padding: 14px; border-radius: var(--radius-md);">
+            <div style="font-size: 11px; font-weight: 800; color: var(--text-dim); text-transform: uppercase;">Margen Operativo</div>
+            <div style="font-size: 22px; font-weight: 900; color: #38bdf8; margin-top: 4px;" id="kpi-margin-pct">0%</div>
+          </div>
+          <div style="background: var(--bg-surface-2); border: 1px solid var(--border-color); padding: 14px; border-radius: var(--radius-md);">
+            <div style="font-size: 11px; font-weight: 800; color: var(--text-dim); text-transform: uppercase;">Costo Promedio / U</div>
+            <div style="font-size: 22px; font-weight: 900; color: #fbbf24; margin-top: 4px;" id="kpi-cost-per-unit">$0.00</div>
+          </div>
+        </div>
+
+        <!-- Tarjeta Visual: Costo de 1 Plato Servido Completo -->
+        <div style="background: linear-gradient(135deg, rgba(16,185,129,0.10), rgba(2,132,199,0.08)); border: 1.5px solid #10b981; border-radius: var(--radius-md); padding: 14px 20px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
+          <div>
+            <div style="font-size: 11px; font-weight: 900; color: #10b981; text-transform: uppercase; letter-spacing: 0.5px;">
+              🍽️ Escandallo Unitario
+            </div>
+            <div style="font-size: 16px; font-weight: 900; color: var(--text-white); margin-top: 2px;">
+              Costo Real de 1 Plato Servido
+            </div>
+          </div>
+          <div style="text-align: right; background: var(--bg-surface-2); padding: 10px 22px; border-radius: 12px; border: 1.5px solid #10b981; box-shadow: 0 4px 14px rgba(16,185,129,0.15);">
+            <div style="font-size: 28px; font-weight: 900; color: #10b981;" id="kpi-single-plate-cost">$0.00</div>
+          </div>
+        </div>
+
+        <!-- Desglose de Insumos Utilizados en Vivo -->
+        <div style="background: var(--bg-surface-2); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 16px;">
+          <div style="font-size: 13px; font-weight: 900; color: var(--text-white); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+            <span>📋 Insumos y Empaques Gastados en este Evento</span>
+            <span style="font-size: 11px; color: var(--text-dim); font-weight: 700;">Calculado en tiempo real</span>
+          </div>
+          <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+              <thead>
+                <tr style="border-bottom: 1.5px solid var(--border-color); color: var(--text-dim); text-align: left;">
+                  <th style="padding: 8px 10px;">Insumo / Concepto</th>
+                  <th style="padding: 8px 10px; text-align: center;">Fórmula / Uso</th>
+                  <th style="padding: 8px 10px; text-align: center;">Cantidad</th>
+                  <th style="padding: 8px 10px; text-align: right;">Costo Unit.</th>
+                  <th style="padding: 8px 10px; text-align: right;">Subtotal</th>
+                </tr>
+              </thead>
+              <tbody id="cost-breakdown-tbody">
+                <!-- Rendered dynamically by JS -->
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 
@@ -2395,7 +2646,7 @@
         </div>
 
         <div>
-          <button type="button" style="background: var(--bg-surface-2); border: 1.5px solid var(--brand-pink); color: var(--brand-pink); font-size: 13px; font-weight: 900; padding: 10px 18px; border-radius: var(--radius-full); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(255, 0, 127, 0.15);" onclick="app.simulateGuestReady()">
+          <button type="button" style="background: var(--bg-surface-2); border: 1.5px solid var(--brand-pink); color: var(--brand-pink); font-size: 13px; font-weight: 900; padding: 10px 18px; border-radius: var(--radius-full); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px var(--brand-pink-glow);" onclick="app.simulateGuestReady()">
             ⚡ Probar animación y aviso de "¡Listo!"
           </button>
         </div>
@@ -2577,6 +2828,69 @@
     </div>
   </div>
 
+  <!-- ========================================================================= -->
+  <!-- MODAL: PIN DE SEGURIDAD PARA MODULO FINANCIERO                           -->
+  <!-- ========================================================================= -->
+  <div id="finance-pin-modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 9999; backdrop-filter: blur(8px); align-items: center; justify-content: center; padding: 16px;">
+    <div style="background: var(--bg-surface); color: var(--text-white); max-width: 360px; width: 100%; border-radius: 16px; border: 1.5px solid #10b981; padding: 28px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); text-align: center; margin: auto;">
+      <div style="font-size: 32px; margin-bottom: 8px;">🔒</div>
+      <h3 style="font-size: 18px; font-weight: 900; color: #10b981; margin: 0 0 6px 0;">Acceso Financiero Privado</h3>
+      <p style="font-size: 12px; color: var(--text-dim); margin-bottom: 20px;">
+        Ingresa tu clave de 4 dígitos para ver costos y rentabilidad. (Clave por defecto: <strong style="color: #38bdf8;">1234</strong>)
+      </p>
+      
+      <div style="margin-bottom: 20px;">
+        <input type="password" id="input-finance-pin" maxlength="4" placeholder="••••" style="width: 160px; text-align: center; font-size: 32px; letter-spacing: 8px; background: var(--bg-dark); border: 2px solid #10b981; color: #10b981; padding: 10px; border-radius: 12px; font-weight: 900;" onkeydown="if(event.key==='Enter') app.submitFinancePin()">
+      </div>
+
+      <div style="display: flex; gap: 10px; justify-content: center;">
+        <button type="button" onclick="app.closeFinancePinModal()" style="background: var(--bg-surface-2); color: var(--text-dim); border: 1px solid var(--border-color); padding: 10px 18px; border-radius: 8px; font-weight: 800; font-size: 13px; cursor: pointer;">
+          Cancelar
+        </button>
+        <button type="button" onclick="app.submitFinancePin()" style="background: #10b981; color: white; border: none; padding: 10px 24px; border-radius: 8px; font-weight: 900; font-size: 13px; cursor: pointer;">
+          Entrar 🔓
+        </button>
+      </div>
+
+      <div style="margin-top: 16px; font-size: 11px;">
+        <a href="javascript:void(0)" onclick="app.resetFinancePinPrompt()" style="color: #64748b; text-decoration: underline;">¿Olvidaste o deseas restablecer el PIN?</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL: CONFIGURADOR DE PRECIOS POR CAJA/PAQUETE (ESCANDALLO)             -->
+  <!-- ========================================================================= -->
+  <div id="cost-settings-modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 9999; backdrop-filter: blur(8px); align-items: center; justify-content: center; padding: 16px; overflow-y: auto;">
+    <div style="background: var(--bg-surface); color: var(--text-white); max-width: 720px; width: 100%; border-radius: 16px; border: 1.5px solid var(--border-color); padding: 28px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); position: relative; margin: auto;">
+      
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px;">
+        <div style="font-size: 18px; font-weight: 900; color: #10b981; display: flex; align-items: center; gap: 8px;">
+          <span>⚙️</span> <span>Configurar Precios de Compra por Caja / Paquete</span>
+        </div>
+        <button type="button" onclick="app.toggleCostSettingsModal(false)" style="background: var(--bg-surface-2); color: var(--text-dim); border: 1px solid var(--border-color); width: 32px; height: 32px; border-radius: 8px; font-weight: 900; cursor: pointer;">✕</button>
+      </div>
+
+      <p style="font-size: 12px; color: var(--text-dim); margin-bottom: 16px; line-height: 1.4;">
+        Escribe lo que te costó la caja o paquete y cuántas unidades trae. La aplicación calculará automáticamente el <strong>costo unitario exacto</strong> de cada insumo.
+      </p>
+
+      <div style="max-height: 440px; overflow-y: auto; padding-right: 6px; display: flex; flex-direction: column; gap: 8px;" id="cost-settings-inputs-list">
+        <!-- Rendered dynamically by JS -->
+      </div>
+
+      <div style="margin-top: 20px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-color); padding-top: 16px; flex-wrap: wrap; gap: 10px;">
+        <button type="button" onclick="app.resetCostConfigToDefault()" style="background: var(--bg-surface-2); color: var(--text-dim); border: 1px solid var(--border-color); padding: 10px 16px; border-radius: 8px; font-size: 12px; font-weight: 800; cursor: pointer;">
+          Restablecer Valores Reales
+        </button>
+        <button type="button" onclick="app.saveCostSettingsFromModal()" style="background: #10b981; color: white; border: none; padding: 10px 24px; border-radius: 8px; font-size: 13px; font-weight: 900; cursor: pointer;">
+          💾 Guardar y Recalcular
+        </button>
+      </div>
+
+    </div>
+  </div>
+
   <div class="toast-tray" id="toast-tray"></div>
 
   <!-- ========================================================================= -->
@@ -2595,6 +2909,149 @@
       { id: 'falafel', name: 'Falafel', icon: '🧆', isDefault: true },
       { id: 'picante', name: 'Picante (Opcional)', icon: '🔥', isDefault: false }
     ];
+
+    const DEFAULT_COST_CONFIG = {
+      waxed_paper: { 
+        name: '📄 Hojas de Papel Encerado', 
+        pack_price: 5.65, 
+        pack_qty: 500, 
+        unit_cost: 5.65 / 500, 
+        qty_formula: '3 hojas por shawarma en pan' 
+      },
+      plate_premium: { 
+        name: '🍽️ Platos Plásticos Premium', 
+        pack_price: 13.49, 
+        pack_qty: 25, 
+        unit_cost: 13.49 / 25, 
+        qty_formula: '1 por cada plato servido' 
+      },
+      cup_black: { 
+        name: '🥣 Tacitas Negras (2 oz)', 
+        pack_price: 4.69, 
+        pack_qty: 250, 
+        unit_cost: 4.69 / 250, 
+        qty_formula: '1 para salsa + 1 si piden picante' 
+      },
+      lid_black: { 
+        name: '🔘 Tapas para Tacitas Negras (2 oz)', 
+        pack_price: 4.50, 
+        pack_qty: 250, 
+        unit_cost: 4.50 / 250, 
+        qty_formula: '1 por cada tacita servida' 
+      },
+      spoons: { 
+        name: '🥄 Cucharitas Plásticas', 
+        pack_price: 1.50, 
+        pack_qty: 45, 
+        unit_cost: 1.50 / 45, 
+        qty_formula: '1 por comanda/plato' 
+      },
+      black_napkin: { 
+        name: '⬛ Servilletas Negras de Fondo', 
+        pack_price: 2.50, 
+        pack_qty: 20, 
+        unit_cost: 2.50 / 20, 
+        qty_formula: '1 de fondo elegante por plato' 
+      },
+      sticker_logo: { 
+        name: '🏷️ Stickers con Logo', 
+        pack_price: 80.00, 
+        pack_qty: 400, 
+        unit_cost: 80.00 / 400, 
+        qty_formula: '1 por shawarma en pan' 
+      },
+      pita_bread: { 
+        name: '🥖 Pan Árabe Pita', 
+        pack_price: 1.75, 
+        pack_qty: 6, 
+        unit_cost: 1.75 / 6, 
+        qty_formula: '1 por shawarma en pan' 
+      },
+      falafel: { 
+        name: '🧆 Falafeles (Bolsa de 70)', 
+        pack_price: 18.75, 
+        pack_qty: 70, 
+        unit_cost: 18.75 / 70, 
+        qty_formula: '1 por shawarma regular + 4 por shawarma de Falafel' 
+      },
+      protein_carne: { 
+        name: '🥩 Carne Sazonada (3 lbs = $75 para 20-24 mixtos)', 
+        pack_price: 75.00, 
+        pack_qty: 22, 
+        unit_cost: 75.00 / 22, 
+        qty_formula: 'Porción en shawarma mixto (rinde 20-24)' 
+      },
+      protein_pollo: { 
+        name: '🍗 Pollo Sazonado (4 lbs @ $5/lb = $20 para 20-24 mixtos)', 
+        pack_price: 20.00, 
+        pack_qty: 22, 
+        unit_cost: 20.00 / 22, 
+        qty_formula: 'Porción en shawarma mixto (rinde 20-24)' 
+      },
+      ing_tomate: { 
+        name: '🍅 Tomate Fresco (Libra $0.98)', 
+        pack_price: 0.98, 
+        pack_qty: 5.333, 
+        unit_cost: 0.98 / 5.333, 
+        qty_formula: 'Porción ~3 oz de tomate' 
+      },
+      ing_cebolla: { 
+        name: '🧅 Cebolla Fresca (Libra $1.50)', 
+        pack_price: 1.50, 
+        pack_qty: 8, 
+        unit_cost: 1.50 / 8, 
+        qty_formula: 'Porción ~2 oz de cebolla' 
+      },
+      ing_pepinillo: { 
+        name: '🥒 Pepinillos Encurtidos (Lata $11.00)', 
+        pack_price: 11.00, 
+        pack_qty: 55, 
+        unit_cost: 11.00 / 55, 
+        qty_formula: 'Porción de pepinillo agridulce' 
+      },
+      ing_tabule: { 
+        name: '🥗 Tabule Fresco Casero', 
+        pack_price: 5.00, 
+        pack_qty: 25, 
+        unit_cost: 0.20, 
+        qty_formula: 'Porción de tabule fresco' 
+      },
+      ing_nabo: { 
+        name: '🟣 Nabo Encurtido Rosa', 
+        pack_price: 4.50, 
+        pack_qty: 30, 
+        unit_cost: 0.15, 
+        qty_formula: 'Porción de nabo libanés' 
+      },
+      ing_hummus: { 
+        name: '🫘 Hummus Crema de Garbanzo', 
+        pack_price: 6.00, 
+        pack_qty: 25, 
+        unit_cost: 0.24, 
+        qty_formula: 'Porción base de hummus' 
+      },
+      ing_salsa_ajo: { 
+        name: '🧄 Salsa de Ajo Casera (Toum)', 
+        pack_price: 4.50, 
+        pack_qty: 17, 
+        unit_cost: 4.50 / 17, 
+        qty_formula: '1 tacita (2 oz) de crema de ajo' 
+      },
+      ing_salsa_tahini: { 
+        name: '🥣 Salsa de Ajonjolí (Tarator/Tahini)', 
+        pack_price: 4.50, 
+        pack_qty: 17, 
+        unit_cost: 4.50 / 17, 
+        qty_formula: '1 tacita (2 oz) de salsa de sésamo' 
+      },
+      ing_picante: { 
+        name: '🔥 Picante Especial Casero', 
+        pack_price: 4.00, 
+        pack_qty: 25, 
+        unit_cost: 0.16, 
+        qty_formula: 'Porción de salsa picante artesanal' 
+      }
+    };
 
     class SoundEngine {
       constructor() { this.ctx = null; }
@@ -2653,6 +3110,40 @@
           });
         } catch(e) {}
       }
+      playBell() {
+        this.init();
+        if (!this.ctx) return;
+        try {
+          const now = this.ctx.currentTime;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(1200, now);
+          osc.frequency.exponentialRampToValueAtTime(400, now + 0.8);
+          gain.gain.setValueAtTime(0.4, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.8);
+          osc.connect(gain); gain.connect(this.ctx.destination);
+          osc.start(now); osc.stop(now + 0.8);
+        } catch(e) {}
+      }
+      playFestiveFanfare() {
+        this.init();
+        if (!this.ctx) return;
+        try {
+          const now = this.ctx.currentTime;
+          const notes = [523.25, 659.25, 783.99, 1046.50];
+          notes.forEach((freq, idx) => {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(freq, now + idx * 0.12);
+            gain.gain.setValueAtTime(0.3, now + idx * 0.12);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.12 + 0.6);
+            osc.connect(gain); gain.connect(this.ctx.destination);
+            osc.start(now + idx * 0.12); osc.stop(now + idx * 0.12 + 0.6);
+          });
+        } catch(e) {}
+      }
     }
 
     const soundEngine = new SoundEngine();
@@ -2663,9 +3154,13 @@
         this.selectedProtein = 'Mixto';
         this.selectedPreset = 'con-todo';
         this.ingredientPreferences = {};
+        this.currentGroupItems = [];
         this.editingOrderId = null;
         this.editingOrderTurn = null;
         this.invoiceLang = 'es';
+        this.isFinanceUnlocked = false;
+        this.financePin = localStorage.getItem('shawarma_finance_pin') || '1234';
+        this.costConfig = JSON.parse(localStorage.getItem('shawarma_cost_config_v2') || 'null') || JSON.parse(JSON.stringify(DEFAULT_COST_CONFIG));
         this.db = {
           event_info: { name: 'Shawarma en Casa', turn_counter: 0, timer: { started_at: null, is_paused: false } },
           orders: []
@@ -2931,6 +3426,8 @@
         if (tableInp) tableInp.value = '';
         if (notesInp) notesInp.value = '';
 
+        this.currentGroupItems = [];
+        this.updateGroupTrayUI();
         this.updateProteinCards();
         this.updatePresetPills();
         this.renderIngredientsMatrix();
@@ -3081,6 +3578,105 @@
           .map(i => i.name);
       }
 
+      addCurrentToGroup() {
+        soundEngine.playClick();
+        const removed = this.getRemoved();
+        const active = this.getActive();
+        const notes = document.getElementById('order-notes')?.value.trim() || '';
+        
+        const itemObj = {
+          protein: this.selectedProtein,
+          preset: this.selectedPreset,
+          is_bowl: this.selectedPreset === 'bowl',
+          ingredients: active,
+          removed_ingredients: removed,
+          notes: notes
+        };
+
+        this.currentGroupItems.push(itemObj);
+
+        // Reset builder back to default ("Con Todo" and clear notes) for the next group member
+        this.selectedProtein = 'Mixto';
+        this.selectedPreset = 'con-todo';
+        this.ingredientPreferences = {};
+        INGREDIENTS_CONFIG.forEach(i => {
+          this.ingredientPreferences[i.id] = !!i.isDefault;
+        });
+        const notesInp = document.getElementById('order-notes');
+        if (notesInp) notesInp.value = '';
+        this.renderIngredientsMatrix();
+        this.updatePresetPills();
+        this.updateProteinCards();
+        this.updateQuickNoteButtons();
+        this.updateGroupTrayUI();
+        this.updatePreviewAndTurn();
+
+        const count = this.currentGroupItems.length;
+        this.showToast(`➕ Shawarma #${count} agregado al grupo. Configura el siguiente...`, 'info');
+      }
+
+      removeGroupItem(index) {
+        soundEngine.playClick();
+        if (index >= 0 && index < this.currentGroupItems.length) {
+          this.currentGroupItems.splice(index, 1);
+          this.updateGroupTrayUI();
+          this.updatePreviewAndTurn();
+        }
+      }
+
+      clearCurrentGroup() {
+        soundEngine.playClick();
+        this.currentGroupItems = [];
+        this.updateGroupTrayUI();
+        this.updatePreviewAndTurn();
+        this.showToast('🧹 Grupo descartado. Modo individual activo.', 'info');
+      }
+
+      updateGroupTrayUI() {
+        const trayBox = document.getElementById('group-tray-box');
+        const trayTitle = document.getElementById('group-tray-title');
+        const listEl = document.getElementById('group-tray-items-list');
+        const addBtn = document.getElementById('btn-add-to-group');
+
+        if (!trayBox || !listEl) return;
+
+        const count = this.currentGroupItems.length;
+        if (count === 0) {
+          trayBox.style.display = 'none';
+          listEl.innerHTML = '';
+          if (addBtn) {
+            addBtn.innerHTML = `<span>➕</span> <span>Agregar otro Shawarma a este Grupo (Pareja / Familia)</span>`;
+          }
+          return;
+        }
+
+        trayBox.style.display = 'block';
+        if (trayTitle) {
+          trayTitle.textContent = count === 1 ? 'Bandeja de Pareja / Grupo (1 shawarma guardado)' : `Bandeja de Grupo (${count} shawarmas guardados)`;
+        }
+        if (addBtn) {
+          addBtn.innerHTML = `<span>➕</span> <span>Agregar Shawarma #${count + 2} al Grupo</span>`;
+        }
+
+        let html = '';
+        this.currentGroupItems.forEach((item, idx) => {
+          const removedText = item.removed_ingredients && item.removed_ingredients.length > 0 
+            ? `<span style="color:#f87171; font-weight:800; font-size:11px;">⛔ Sin ${item.removed_ingredients.join(', ')}</span>`
+            : `<span style="color:#10b981; font-weight:800; font-size:11px;">⭐ Con Todo</span>`;
+          const notesText = item.notes ? `<span style="color:#fcd34d; font-size:10px; margin-left:4px;">📝 ${item.notes}</span>` : '';
+
+          html += `
+            <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(167, 139, 250, 0.3); border-radius: 6px; padding: 6px 10px; display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+              <div style="font-size: 12px; font-weight: 800; color: #ffffff;">
+                <span style="color: #c084fc;">#${idx + 1}</span> ${item.is_bowl ? '🥗 BOWL' : '🌯'} ${item.protein.toUpperCase()} • ${removedText} ${notesText}
+              </div>
+              <button type="button" onclick="app.removeGroupItem(${idx})" style="background: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444; color: #fca5a5; border-radius: 4px; padding: 2px 6px; font-size: 11px; cursor: pointer; font-weight: 900;" title="Quitar de este grupo">✕</button>
+            </div>
+          `;
+        });
+        listEl.innerHTML = html;
+      }
+
       updatePreviewAndTurn() {
         const turnEl = document.getElementById('next-turn-display');
         const submitLabel = document.getElementById('btn-submit-label');
@@ -3097,10 +3693,18 @@
         } else {
           const nextTurn = (this.db.event_info?.turn_counter || 0) + 1;
           if (turnEl) turnEl.textContent = `#${nextTurn}`;
-          if (submitLabel) submitLabel.textContent = `ENVIAR A COCINA (TURNO #${nextTurn})`;
-          if (turnLabel) turnLabel.textContent = 'Turno Asignado (FIFO)';
+          const groupCount = this.currentGroupItems.length;
+          if (groupCount > 0) {
+            const totalInGroup = groupCount + 1;
+            if (submitLabel) submitLabel.textContent = `ENVIAR GRUPO (${totalInGroup} SHAWARMAS) A COCINA`;
+            if (turnLabel) turnLabel.textContent = totalInGroup === 2 ? 'Turno Pareja (2 Shawarmas)' : `Turno Grupo (${totalInGroup} Shawarmas)`;
+            if (submitBtn) submitBtn.style.background = 'linear-gradient(135deg, #7c3aed, #4f46e5)';
+          } else {
+            if (submitLabel) submitLabel.textContent = `ENVIAR A COCINA (TURNO #${nextTurn})`;
+            if (turnLabel) turnLabel.textContent = 'Turno Asignado (FIFO)';
+            if (submitBtn) submitBtn.style.background = '';
+          }
           if (cancelBtn) cancelBtn.style.display = 'none';
-          if (submitBtn) submitBtn.style.background = '';
         }
 
         const tagsContainer = document.getElementById('preview-tags-container');
@@ -3115,6 +3719,10 @@
         }
 
         const tags = [];
+        if (this.currentGroupItems.length > 0) {
+          tags.push(`<span class="pos-tag tag-protein" style="background:rgba(124, 58, 237, 0.25); color:#c4b5fd; border-color:#8b5cf6;">👥 GRUPO EN CURSO: EDITANDO SHAWARMA #${this.currentGroupItems.length + 1}</span>`);
+        }
+
         if (isBowl) {
           tags.push(`<span class="pos-tag tag-bowl">🥗 BOWL DE ${this.selectedProtein.toUpperCase()}</span>`);
         } else {
@@ -3196,18 +3804,42 @@
           return;
         }
 
-        // 2. MODO CREACIÓN: Nueva comanda
-        const orderData = {
-          guest_name: guestName,
-          table: table,
+        // 2. MODO CREACIÓN: Nueva comanda (Individual o Grupal)
+        let isGroupOrder = false;
+        let finalItems = [];
+
+        const currentConfiguredItem = {
           protein: this.selectedProtein,
           preset: this.selectedPreset,
           is_bowl: this.selectedPreset === 'bowl',
           ingredients: active,
           removed_ingredients: removed,
+          notes: notes
+        };
+
+        if (this.currentGroupItems.length > 0) {
+          isGroupOrder = true;
+          finalItems = [...this.currentGroupItems, currentConfiguredItem];
+        } else {
+          finalItems = [currentConfiguredItem];
+        }
+
+        const summaryProteins = finalItems.map(i => i.protein).join(' + ');
+
+        const orderData = {
+          guest_name: guestName,
+          table: table,
+          protein: isGroupOrder ? summaryProteins : this.selectedProtein,
+          preset: isGroupOrder ? 'grupo' : this.selectedPreset,
+          is_bowl: finalItems.some(i => i.is_bowl),
+          ingredients: active,
+          removed_ingredients: removed,
           notes: notes,
+          is_group: isGroupOrder,
+          items_count: finalItems.length,
+          items: finalItems,
           operator: this.operatorName || 'Dispositivo 1',
-          quantity: 1,
+          quantity: finalItems.length,
           created_at: new Date().toISOString()
         };
 
@@ -3224,7 +3856,9 @@
           if (res.ok) {
             const data = await res.json();
             soundEngine.playClick();
-            this.showToast(`¡Turno #${data.order.turn} creado para ${guestName}!`, 'success');
+            this.currentGroupItems = [];
+            this.updateGroupTrayUI();
+            this.showToast(isGroupOrder ? `¡Turno #${data.order.turn} (Grupo de ${finalItems.length} Shawarmas) enviado!` : `¡Turno #${data.order.turn} creado para ${guestName}!`, 'success');
             this.resetForm();
           } else {
             throw new Error();
@@ -3247,9 +3881,10 @@
           this.syncData(this.db, true);
 
           soundEngine.playClick();
-          this.showToast(`¡Turno #${nextTurn} registrado para ${guestName}!`, 'success');
+          this.currentGroupItems = [];
+          this.updateGroupTrayUI();
+          this.showToast(isGroupOrder ? `¡Turno #${nextTurn} (Grupo de ${finalItems.length}) creado!` : `¡Turno #${nextTurn} creado para ${guestName}!`, 'success');
           this.resetForm();
-          this.showOrderQRModal(newOrder);
         } finally {
           if (btn) btn.disabled = false;
         }
@@ -3499,11 +4134,11 @@
             const batchCompleted = index / 6;
             cardListHtml += `
               <div class="kds-batch-divider" style="grid-column: 1 / -1; display: flex; align-items: center; justify-content: center; gap: 14px; margin: 24px 0 12px 0;">
-                <div style="flex: 1; height: 2px; background: linear-gradient(90deg, transparent, var(--brand-pink), transparent); opacity: 0.6;"></div>
-                <div style="background: var(--bg-surface-2); border: 1.5px solid var(--brand-pink); color: var(--brand-pink); font-size: 12px; font-weight: 900; padding: 6px 18px; border-radius: var(--radius-full); text-transform: uppercase; letter-spacing: 0.5px; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(255, 0, 127, 0.15);">
-                  <span>🌯</span> <span>Fin de Tanda de 6 Shawarmas (Tanda #${batchCompleted + 1})</span>
+                <div class="kds-batch-divider-line" style="flex: 1; height: 2px; background: linear-gradient(90deg, transparent, var(--brand-pink), transparent); opacity: 0.6;"></div>
+                <div class="kds-batch-divider-badge" style="background: var(--bg-surface-2); border: 1.5px solid var(--brand-pink); font-size: 13px; font-weight: 900; padding: 6px 18px; border-radius: var(--radius-full); text-transform: uppercase; letter-spacing: 0.5px; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px var(--brand-pink-glow);">
+                  <span>🌯</span> <span class="kds-batch-divider-text" style="color: #ffffff;">Fin de Tanda de 6 Shawarmas (Tanda #${batchCompleted + 1})</span>
                 </div>
-                <div style="flex: 1; height: 2px; background: linear-gradient(90deg, transparent, var(--brand-pink), transparent); opacity: 0.6;"></div>
+                <div class="kds-batch-divider-line" style="flex: 1; height: 2px; background: linear-gradient(90deg, transparent, var(--brand-pink), transparent); opacity: 0.6;"></div>
               </div>
             `;
           }
@@ -3517,19 +4152,65 @@
             const readyAt = new Date(o.prepared_at);
             const readyTimeStr = readyAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             const totalMins = Math.max(1, Math.round((readyAt.getTime() - createdAt.getTime()) / 60000));
-            prepDurationInfo = `<div style="color:#6ee7b7; font-weight:800;">⏱️ Listo para entregar a las ${readyTimeStr} (Tardó ${totalMins} min)</div>`;
+            prepDurationInfo = `<span style="color:#6ee7b7; font-weight:800;">⏱️ Listo ${readyTimeStr} (${totalMins} min)</span>`;
           } else if (o.status === 'delivered') {
-            prepDurationInfo = `<div style="color:#10b981; font-weight:800;">✓ Entregado</div>`;
+            prepDurationInfo = `<span style="color:#10b981; font-weight:800;">✓ Entregado</span>`;
           } else {
-            prepDurationInfo = `<div>📥 Pedido: ${timeStr} • ⏱️ En preparación hace ${elapsedMins === 0 ? 'un momento' : `${elapsedMins} min`}</div>`;
+            prepDurationInfo = `<span>📥 ${timeStr} • ⏱️ Hace ${elapsedMins === 0 ? '1 min' : `${elapsedMins} min`}</span>`;
           }
 
           let kdsContentHtml = '';
 
           const isMixtoConTodo = (o.protein || '').toLowerCase().includes('mixto') && !o.is_bowl && o.preset !== 'bowl' && o.preset !== 'ninos' && (o.removed_ingredients || []).length === 0;
+          const isGroup = !!(o.is_group && o.items && o.items.length > 1);
+          const isDay = document.body.classList.contains('theme-day');
 
           let productHeaderHtml = '';
-          if (o.preset === 'bowl' || o.is_bowl) {
+          if (isGroup) {
+            const groupTypeLabel = o.items.length === 2 ? '👫 PAREJA' : '👥 GRUPO';
+            productHeaderHtml = `
+              <div class="kds-group-flag" onclick="app.openModal('${o.id}')" style="background: linear-gradient(135deg, #7c3aed, #4f46e5); color: white; padding: 7px 12px; border-radius: 8px; font-weight: 900; font-size: 13px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; box-shadow: 0 2px 10px rgba(124, 58, 237, 0.35); cursor: pointer;" title="Toca para ver ventana emergente con detalle ampliado">
+                <span>${groupTypeLabel} (${o.items.length} SHAWARMAS)</span>
+                <span style="font-size: 11px; background: rgba(0,0,0,0.35); padding: 2px 8px; border-radius: 9999px;">🔍 Ver Detalle ↗</span>
+              </div>
+            `;
+
+            kdsContentHtml = `
+              <div style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px;">
+                ${o.items.map((item, idx) => {
+                  const isItemBowl = item.is_bowl || item.preset === 'bowl';
+                  const isItemKids = item.preset === 'ninos';
+                  const removed = item.removed_ingredients || [];
+                  
+                  let customBadge = '';
+                  if (isItemKids) {
+                    customBadge = `<span style="background: rgba(59, 130, 246, 0.2); color: ${isDay ? '#1d4ed8' : '#93c5fd'}; padding: 1px 6px; border-radius: 4px; font-size: 10px; font-weight: 900;">👶 NIÑOS</span>`;
+                  } else if (removed.length > 0) {
+                    customBadge = `<span style="background: rgba(239, 68, 68, 0.2); color: ${isDay ? '#b91c1c' : '#fca5a5'}; padding: 1px 6px; border-radius: 4px; font-size: 10px; font-weight: 800;">⛔ Sin: ${removed.join(', ')}</span>`;
+                  } else {
+                    customBadge = `<span style="background: rgba(16, 185, 129, 0.2); color: ${isDay ? '#047857' : '#6ee7b7'}; padding: 1px 6px; border-radius: 4px; font-size: 10px; font-weight: 800;">⭐ CON TODO</span>`;
+                  }
+
+                  const noteBadge = item.notes ? `<div style="font-size: 10px; color: ${isDay ? '#b45309' : '#fcd34d'}; font-weight: 700; margin-top: 2px;">📝 ${item.notes}</div>` : '';
+
+                  const itemBg = isDay ? '#f1f5f9' : 'rgba(139, 92, 246, 0.08)';
+                  const itemBorder = isDay ? '1px solid #cbd5e1' : '1px solid rgba(139, 92, 246, 0.35)';
+                  const itemTextColor = isDay ? '#0f172a' : '#ffffff';
+                  const itemNumberColor = isDay ? '#7c3aed' : '#c084fc';
+
+                  return `
+                    <div onclick="app.openModal('${o.id}')" style="background: ${itemBg}; border: ${itemBorder}; border-radius: 6px; padding: 6px 9px; cursor: pointer;">
+                      <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-size: 12px; font-weight: 900; color: ${itemTextColor};"><strong style="color: ${itemNumberColor};">#${idx + 1}</strong> ${isItemBowl ? '🥗 BOWL' : '🌯'} ${item.protein.toUpperCase()}</span>
+                        ${customBadge}
+                      </div>
+                      ${noteBadge}
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+            `;
+          } else if (o.preset === 'bowl' || o.is_bowl) {
             productHeaderHtml = `
               <div class="kds-bowl-flag-header">
                 <span>🥗 BOWL DE ${o.protein.toUpperCase()} (EN PLATO - SIN PAN)</span>
@@ -3543,33 +4224,60 @@
             `;
           }
 
-          if (o.preset === 'ninos') {
-            const hasIngs = o.ingredients && o.ingredients.length > 0;
-            const ingsList = hasIngs ? o.ingredients.map(i => i.toUpperCase()).join(' • ') : 'SOLO PAN Y CARNE (SIN SALSAS NI VEGETALES)';
-            kdsContentHtml += `<div class="kds-alert-tag-danger" style="background:#1e3a8a; border-color:#3b82f6; color:#bfdbfe; font-weight:900;">👶 PARA NIÑOS (${ingsList})</div>`;
-          } else {
-            if (o.removed_ingredients && o.removed_ingredients.length > 0) {
-              kdsContentHtml += `
-                <div class="kds-alert-tag-danger">
-                  <div style="font-size:11px; text-transform:uppercase; color:#fca5a5; margin-bottom:2px; font-weight:900;">⛔ NO QUIERE:</div>
-                  <div>${o.removed_ingredients.map(r => r.toUpperCase()).join(' • ')}</div>
-                </div>
-              `;
-            }
+          if (!isGroup) {
+            if (o.preset === 'ninos') {
+              const hasIngs = o.ingredients && o.ingredients.length > 0;
+              const ingsList = hasIngs ? o.ingredients.map(i => i.toUpperCase()).join(' • ') : 'SOLO PAN Y CARNE (SIN SALSAS NI VEGETALES)';
+              kdsContentHtml += `<div class="kds-alert-tag-danger" style="background:#1e3a8a; border-color:#3b82f6; color:#bfdbfe; font-weight:900;">👶 PARA NIÑOS (${ingsList})</div>`;
+            } else {
+              if (o.removed_ingredients && o.removed_ingredients.length > 0) {
+                kdsContentHtml += `
+                  <div class="kds-alert-tag-danger">
+                    <div style="font-size:11px; text-transform:uppercase; color:#fca5a5; margin-bottom:2px; font-weight:900;">⛔ NO QUIERE:</div>
+                    <div>${o.removed_ingredients.map(r => r.toUpperCase()).join(' • ')}</div>
+                  </div>
+                `;
+              }
 
-            if (o.ingredients && o.ingredients.length > 0) {
-              const allCore = (o.removed_ingredients || []).length === 0;
-              kdsContentHtml += `
-                <div class="kds-alert-tag-success">
-                  <div style="font-size:11px; text-transform:uppercase; color:#a7f3d0; margin-bottom:2px; font-weight:900;">✅ SÍ LLEVA:</div>
-                  <div>${allCore ? '⭐ CON TODO (LOS 8 INGREDIENTES COMPLETOS)' : o.ingredients.map(i => i.toUpperCase()).join(' • ')}</div>
-                </div>
-              `;
+              if (o.ingredients && o.ingredients.length > 0) {
+                const allCore = (o.removed_ingredients || []).length === 0;
+                kdsContentHtml += `
+                  <div class="kds-alert-tag-success">
+                    <div style="font-size:11px; text-transform:uppercase; color:#a7f3d0; margin-bottom:2px; font-weight:900;">✅ SÍ LLEVA:</div>
+                    <div>${allCore ? '⭐ CON TODO (LOS 8 INGREDIENTES COMPLETOS)' : o.ingredients.map(i => i.toUpperCase()).join(' • ')}</div>
+                  </div>
+                `;
+              }
             }
           }
 
           let actBtns = '';
-          if (o.status === 'pending') {
+          if (isGroup) {
+            if (o.status === 'pending') {
+              actBtns = `
+                <button class="kds-btn-action" style="background: linear-gradient(135deg, #7c3aed, #4f46e5); color: white; border: none; font-weight: 900;" onclick="app.updateStatus('${o.id}', 'preparing')">🔥 Preparar Grupo</button>
+                <button class="kds-btn-action kds-btn-prep" onclick="app.showOrderQRModalById('${o.id}')">📱 Código QR</button>
+                <button class="kds-btn-action kds-btn-ready" onclick="app.updateStatus('${o.id}', 'ready')">✅ Listo Grupo (${o.items.length})</button>
+              `;
+            } else if (o.status === 'preparing') {
+              actBtns = `
+                <button class="kds-btn-action kds-btn-prep" style="grid-column: span 1;" onclick="app.showOrderQRModalById('${o.id}')">📱 Código QR</button>
+                <button class="kds-btn-action kds-btn-ready" style="grid-column: span 1; background: linear-gradient(135deg, #10b981, #059669);" onclick="app.updateStatus('${o.id}', 'ready')">✅ Listo Todo el Grupo</button>
+              `;
+            } else if (o.status === 'ready') {
+              actBtns = `
+                <button class="kds-btn-action kds-btn-deliver" style="grid-column: span 2; font-size: 15px; font-weight: 900; padding: 12px 18px;" onclick="app.updateStatus('${o.id}', 'delivered')">
+                  📦 Confirmar Entrega de Grupo
+                </button>
+              `;
+            } else {
+              actBtns = `
+                <div style="grid-column: span 2; text-align: center; color: #10b981; font-weight: 900; padding: 10px; background: rgba(16,185,129,0.1); border-radius: 8px;">
+                  ✓ Grupo Entregado
+                </div>
+              `;
+            }
+          } else if (o.status === 'pending') {
             actBtns = `
               <button class="kds-btn-action kds-btn-prep" onclick="app.updateStatus('${o.id}', 'preparing')">🔥 En Preparación</button>
               <button class="kds-btn-action kds-btn-prep" onclick="app.showOrderQRModalById('${o.id}')">📱 Código QR</button>
@@ -3608,6 +4316,8 @@
           let specialCardStyle = '';
           if (isBirthday) {
             specialCardStyle = 'border: 2.5px solid #f59e0b !important; box-shadow: 0 0 20px rgba(245, 158, 11, 0.35); background: linear-gradient(180deg, rgba(245, 158, 11, 0.12) 0%, var(--bg-surface) 100px);';
+          } else if (isGroup) {
+            specialCardStyle = 'border: 2.5px solid #8b5cf6 !important; box-shadow: 0 0 18px rgba(139, 92, 246, 0.30); background: linear-gradient(180deg, rgba(139, 92, 246, 0.10) 0%, var(--bg-surface) 100px);';
           } else if (isKids) {
             specialCardStyle = 'border: 2.5px solid #38bdf8 !important; box-shadow: 0 0 16px rgba(56, 189, 248, 0.25); background: linear-gradient(180deg, rgba(56, 189, 248, 0.08) 0%, var(--bg-surface) 100px);';
           }
@@ -3634,19 +4344,19 @@
             <div class="kds-card-box status-${o.status}" style="${specialCardStyle}">
               <div>
                 <div class="kds-card-top">
-                  <div>
+                  <div style="min-width: 0; flex: 1;">
                     <div style="display: flex; align-items: center; gap: 8px;">
                       <div class="kds-turn-title">TURNO #${o.turn}</div>
-                      <div style="display: inline-flex; gap: 4px;">
+                      <div style="display: inline-flex; gap: 4px; flex-shrink: 0;">
                         <button type="button" style="background: var(--bg-surface-2); border: 1px solid var(--border-color); color: #38bdf8; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer;" onclick="app.editOrder('${o.id}')" title="Editar comanda">✏️</button>
                         <button type="button" style="background: var(--bg-surface-2); border: 1px solid var(--border-color); color: #f87171; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer;" onclick="app.deleteOrderPrompt('${o.id}', ${o.turn})" title="Eliminar comanda">🗑️</button>
                       </div>
                     </div>
                     <div class="kds-time-info">${prepDurationInfo}</div>
                   </div>
-                  <div style="text-align:right;">
+                  <div style="text-align: right; min-width: 0; max-width: 48%; flex-shrink: 0;">
                     <div class="kds-guest-name">${o.guest_name}</div>
-                    ${o.table ? `<div class="kds-table-badge">📍 MESA / REF: ${o.table}</div>` : ''}
+                    ${o.table ? `<div class="kds-table-badge">📍 ${o.table}</div>` : ''}
                   </div>
                 </div>
 
@@ -3787,67 +4497,127 @@
         document.getElementById('modal-table-name').textContent = o.table ? `📍 MESA / REFERENCIA: ${o.table}` : '📍 Sin mesa asignada';
 
         const isDay = document.body.classList.contains('theme-day');
+        const isGroup = !!(o.is_group && o.items && o.items.length > 1);
 
         const bannerEl = document.getElementById('modal-product-banner');
-        if (o.is_bowl || o.preset === 'bowl') {
-          bannerEl.innerHTML = isDay 
-            ? `<div style="background:#e0f2fe; border:1.5px solid #0284c7; color:#0369a1; padding:10px 14px; border-radius:8px; font-weight:900; font-size:16px;">🥗 BOWL DE ${o.protein.toUpperCase()} (EN PLATO - SIN PAN)</div>`
-            : `<div style="background:rgba(6,182,212,0.2); border:2px solid var(--cyan-blue); color:#67e8f9; padding:10px 14px; border-radius:8px; font-weight:900; font-size:16px;">🥗 BOWL DE ${o.protein.toUpperCase()} (EN PLATO - SIN PAN)</div>`;
-        } else {
-          bannerEl.innerHTML = isDay
-            ? `<div style="background:#f1f5f9; border:1.5px solid #cbd5e1; border-left:5px solid var(--brand-pink); color:#0f172a; padding:10px 14px; border-radius:8px; font-weight:900; font-size:16px;">🌯 SHAWARMA DE ${o.protein.toUpperCase()}</div>`
-            : `<div style="background:rgba(255,0,127,0.2); border:2px solid var(--brand-pink); color:#ff66b3; padding:10px 14px; border-radius:8px; font-weight:900; font-size:16px;">🌯 SHAWARMA DE ${o.protein.toUpperCase()}</div>`;
-        }
-
         const bodyEl = document.getElementById('modal-ingredients-body');
-        let bodyHtml = '';
-
-        if (o.preset === 'ninos') {
-          bodyHtml += isDay
-            ? `<div style="background:#eff6ff; border:1.5px solid #3b82f6; color:#1d4ed8; padding:10px 14px; border-radius:8px; font-weight:900; font-size:14px;">👶 PARA NIÑOS: Solo pan y carne (Sin salsas ni vegetales)</div>`
-            : `<div style="background:#1e3a8a; border:2px solid #3b82f6; color:#bfdbfe; padding:10px 14px; border-radius:8px; font-weight:900; font-size:14px;">👶 PARA NIÑOS: Solo pan y carne (Sin salsas ni vegetales)</div>`;
-        } else {
-          if (o.removed_ingredients && o.removed_ingredients.length > 0) {
-            bodyHtml += isDay
-              ? `
-                <div style="background:#fef2f2; border:1.5px solid #ef4444; color:#b91c1c; padding:10px 12px; border-radius:8px; font-size:13px; font-weight:900;">
-                  <div style="color:#b91c1c; font-size:11px; text-transform:uppercase;">⛔ NO QUIERE:</div>
-                  <div>${o.removed_ingredients.map(r => r.toUpperCase()).join(' • ')}</div>
-                </div>
-              `
-              : `
-                <div style="background:#3b0d0d; border:2px solid #ef4444; color:#fecaca; padding:10px 12px; border-radius:8px; font-size:13px; font-weight:900;">
-                  <div style="color:#fca5a5; font-size:11px; text-transform:uppercase;">⛔ NO QUIERE:</div>
-                  <div>${o.removed_ingredients.map(r => r.toUpperCase()).join(' • ')}</div>
-                </div>
-              `;
-          }
-          if (o.ingredients && o.ingredients.length > 0) {
-            const allCore = (o.removed_ingredients || []).length === 0;
-            bodyHtml += isDay
-              ? `
-                <div style="background:#ecfdf5; border:1.5px solid #10b981; color:#047857; padding:10px 12px; border-radius:8px; font-size:13px; font-weight:800;">
-                  <div style="color:#047857; font-size:11px; text-transform:uppercase; font-weight:900;">✅ SÍ LLEVA:</div>
-                  <div>${allCore ? '⭐ CON TODO (LOS 8 INGREDIENTES COMPLETOS)' : o.ingredients.map(i => i.toUpperCase()).join(' • ')}</div>
-                </div>
-              `
-              : `
-                <div style="background:#062b1e; border:1.5px solid #10b981; color:#a7f3d0; padding:10px 12px; border-radius:8px; font-size:13px; font-weight:800;">
-                  <div style="color:#a7f3d0; font-size:11px; text-transform:uppercase;">✅ SÍ LLEVA:</div>
-                  <div>${allCore ? '⭐ CON TODO (LOS 8 INGREDIENTES COMPLETOS)' : o.ingredients.map(i => i.toUpperCase()).join(' • ')}</div>
-                </div>
-              `;
-          }
-        }
-        bodyEl.innerHTML = bodyHtml;
-
         const notesBox = document.getElementById('modal-notes-box');
-        if (o.notes) {
-          notesBox.innerHTML = isDay
-            ? `<div style="background:#fffbeb; border:1.5px solid #f59e0b; color:#92400e; padding:8px 12px; border-radius:6px; font-size:13px; font-weight:900;">📝 NOTA: ${o.notes.toUpperCase()}</div>`
-            : `<div style="background:#261f0d; border:1px solid #78350f; color:#fbbf24; padding:8px 12px; border-radius:6px; font-size:13px; font-weight:900;">📝 NOTA: ${o.notes.toUpperCase()}</div>`;
-        } else {
+
+        if (isGroup) {
+          const groupTypeLabel = o.items.length === 2 ? '👫 PAREJA' : '👥 GRUPO';
+          bannerEl.innerHTML = `
+            <div style="background: linear-gradient(135deg, #7c3aed, #4f46e5); color: white; padding: 12px 16px; border-radius: 10px; font-weight: 900; font-size: 16px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 4px 14px rgba(124, 58, 237, 0.4);">
+              <span>${groupTypeLabel} (${o.items.length} SHAWARMAS)</span>
+              <span style="font-size: 11px; background: rgba(0,0,0,0.3); padding: 3px 10px; border-radius: 9999px;">Servir Juntos</span>
+            </div>
+          `;
+
+          let itemsHtml = `
+            <div style="display: flex; flex-direction: column; gap: 10px; max-height: 380px; overflow-y: auto; padding-right: 4px;">
+              ${o.items.map((item, idx) => {
+                const isItemBowl = item.is_bowl || item.preset === 'bowl';
+                const isItemKids = item.preset === 'ninos';
+                const removed = item.removed_ingredients || [];
+
+                let itemIngsHtml = '';
+                if (isItemKids) {
+                  itemIngsHtml = isDay
+                    ? `<div style="background:#eff6ff; border:1px solid #3b82f6; color:#1d4ed8; padding:6px 10px; border-radius:6px; font-weight:800; font-size:12px; margin-top:4px;">👶 PARA NIÑOS (Solo Carne y Pan)</div>`
+                    : `<div style="background:rgba(59,130,246,0.15); border:1px solid #3b82f6; color:#93c5fd; padding:6px 10px; border-radius:6px; font-weight:800; font-size:12px; margin-top:4px;">👶 PARA NIÑOS (Solo Carne y Pan)</div>`;
+                } else if (removed.length > 0) {
+                  itemIngsHtml = isDay
+                    ? `<div style="background:#fef2f2; border:1px solid #ef4444; color:#b91c1c; padding:6px 10px; border-radius:6px; font-weight:800; font-size:12px; margin-top:4px;">⛔ NO QUIERE: ${removed.join(', ').toUpperCase()}</div>`
+                    : `<div style="background:rgba(239,68,68,0.15); border:1px solid #ef4444; color:#fca5a5; padding:6px 10px; border-radius:6px; font-weight:800; font-size:12px; margin-top:4px;">⛔ NO QUIERE: ${removed.join(', ').toUpperCase()}</div>`;
+                } else {
+                  itemIngsHtml = isDay
+                    ? `<div style="background:#ecfdf5; border:1px solid #10b981; color:#047857; padding:6px 10px; border-radius:6px; font-weight:800; font-size:12px; margin-top:4px;">⭐ CON TODO (8 INGREDIENTES)</div>`
+                    : `<div style="background:rgba(16,185,129,0.15); border:1px solid #10b981; color:#6ee7b7; padding:6px 10px; border-radius:6px; font-weight:800; font-size:12px; margin-top:4px;">⭐ CON TODO (8 INGREDIENTES)</div>`;
+                }
+
+                let itemNotesHtml = '';
+                if (item.notes) {
+                  itemNotesHtml = isDay
+                    ? `<div style="background:#fffbeb; border:1px solid #f59e0b; color:#92400e; padding:6px 10px; border-radius:6px; font-weight:800; font-size:12px; margin-top:4px;">📝 ${item.notes.toUpperCase()}</div>`
+                    : `<div style="background:rgba(245,158,11,0.15); border:1px solid #f59e0b; color:#fcd34d; padding:6px 10px; border-radius:6px; font-weight:800; font-size:12px; margin-top:4px;">📝 ${item.notes.toUpperCase()}</div>`;
+                }
+
+                const cardBg = isDay ? '#f8fafc' : 'var(--bg-surface-2)';
+                const cardBorder = isDay ? '1.5px solid #cbd5e1' : '1.5px solid rgba(139,92,246,0.4)';
+                const titleColor = isDay ? '#0f172a' : '#ffffff';
+                const numberColor = isDay ? '#7c3aed' : '#c084fc';
+
+                return `
+                  <div style="background: ${cardBg}; border: ${cardBorder}; border-radius: 10px; padding: 12px 14px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; font-size: 15px; font-weight: 900; color: ${titleColor};">
+                      <span><span style="color: ${numberColor};">#${idx + 1}</span> ${isItemBowl ? '🥗 BOWL' : '🌯 SHAWARMA'} DE ${item.protein.toUpperCase()}</span>
+                    </div>
+                    ${itemIngsHtml}
+                    ${itemNotesHtml}
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          `;
+          bodyEl.innerHTML = itemsHtml;
           notesBox.innerHTML = '';
+        } else {
+          if (o.is_bowl || o.preset === 'bowl') {
+            bannerEl.innerHTML = isDay 
+              ? `<div style="background:#e0f2fe; border:1.5px solid #0284c7; color:#0369a1; padding:10px 14px; border-radius:8px; font-weight:900; font-size:16px;">🥗 BOWL DE ${o.protein.toUpperCase()} (EN PLATO - SIN PAN)</div>`
+              : `<div style="background:rgba(6,182,212,0.2); border:2px solid var(--cyan-blue); color:#67e8f9; padding:10px 14px; border-radius:8px; font-weight:900; font-size:16px;">🥗 BOWL DE ${o.protein.toUpperCase()} (EN PLATO - SIN PAN)</div>`;
+          } else {
+            bannerEl.innerHTML = isDay
+              ? `<div style="background:#f1f5f9; border:1.5px solid #cbd5e1; border-left:5px solid var(--brand-pink); color:#0f172a; padding:10px 14px; border-radius:8px; font-weight:900; font-size:16px;">🌯 SHAWARMA DE ${o.protein.toUpperCase()}</div>`
+              : `<div style="background:rgba(255,0,127,0.2); border:2px solid var(--brand-pink); color:#ff66b3; padding:10px 14px; border-radius:8px; font-weight:900; font-size:16px;">🌯 SHAWARMA DE ${o.protein.toUpperCase()}</div>`;
+          }
+
+          let bodyHtml = '';
+          if (o.preset === 'ninos') {
+            bodyHtml += isDay
+              ? `<div style="background:#eff6ff; border:1.5px solid #3b82f6; color:#1d4ed8; padding:10px 14px; border-radius:8px; font-weight:900; font-size:14px;">👶 PARA NIÑOS: Solo pan y carne (Sin salsas ni vegetales)</div>`
+              : `<div style="background:#1e3a8a; border:2px solid #3b82f6; color:#bfdbfe; padding:10px 14px; border-radius:8px; font-weight:900; font-size:14px;">👶 PARA NIÑOS: Solo pan y carne (Sin salsas ni vegetales)</div>`;
+          } else {
+            if (o.removed_ingredients && o.removed_ingredients.length > 0) {
+              bodyHtml += isDay
+                ? `
+                  <div style="background:#fef2f2; border:1.5px solid #ef4444; color:#b91c1c; padding:10px 12px; border-radius:8px; font-size:13px; font-weight:900;">
+                    <div style="color:#b91c1c; font-size:11px; text-transform:uppercase;">⛔ NO QUIERE:</div>
+                    <div>${o.removed_ingredients.map(r => r.toUpperCase()).join(' • ')}</div>
+                  </div>
+                `
+                : `
+                  <div style="background:#3b0d0d; border:2px solid #ef4444; color:#fecaca; padding:10px 12px; border-radius:8px; font-size:13px; font-weight:900;">
+                    <div style="color:#fca5a5; font-size:11px; text-transform:uppercase;">⛔ NO QUIERE:</div>
+                    <div>${o.removed_ingredients.map(r => r.toUpperCase()).join(' • ')}</div>
+                  </div>
+                `;
+            }
+            if (o.ingredients && o.ingredients.length > 0) {
+              const allCore = (o.removed_ingredients || []).length === 0;
+              bodyHtml += isDay
+                ? `
+                  <div style="background:#ecfdf5; border:1.5px solid #10b981; color:#047857; padding:10px 12px; border-radius:8px; font-size:13px; font-weight:800;">
+                    <div style="color:#047857; font-size:11px; text-transform:uppercase; font-weight:900;">✅ SÍ LLEVA:</div>
+                    <div>${allCore ? '⭐ CON TODO (LOS 8 INGREDIENTES COMPLETOS)' : o.ingredients.map(i => i.toUpperCase()).join(' • ')}</div>
+                  </div>
+                `
+                : `
+                  <div style="background:#062b1e; border:1.5px solid #10b981; color:#a7f3d0; padding:10px 12px; border-radius:8px; font-size:13px; font-weight:800;">
+                    <div style="color:#a7f3d0; font-size:11px; text-transform:uppercase;">✅ SÍ LLEVA:</div>
+                    <div>${allCore ? '⭐ CON TODO (LOS 8 INGREDIENTES COMPLETOS)' : o.ingredients.map(i => i.toUpperCase()).join(' • ')}</div>
+                  </div>
+                `;
+            }
+          }
+          bodyEl.innerHTML = bodyHtml;
+
+          if (o.notes) {
+            notesBox.innerHTML = isDay
+              ? `<div style="background:#fffbeb; border:1.5px solid #f59e0b; color:#92400e; padding:8px 12px; border-radius:6px; font-size:13px; font-weight:900;">📝 NOTA: ${o.notes.toUpperCase()}</div>`
+              : `<div style="background:#261f0d; border:1px solid #78350f; color:#fbbf24; padding:8px 12px; border-radius:6px; font-size:13px; font-weight:900;">📝 NOTA: ${o.notes.toUpperCase()}</div>`;
+          } else {
+            notesBox.innerHTML = '';
+          }
         }
 
         modal.classList.add('active');
@@ -3954,11 +4724,18 @@
           };
         }
 
-        document.getElementById('guest-view-turn').textContent = `#${order.turn}`;
-        document.getElementById('guest-view-name').textContent = `${order.guest_name}`;
-        
-        const removedTxt = order.removed_ingredients && order.removed_ingredients.length > 0 ? ` (Sin: ${order.removed_ingredients.join(', ')})` : ' (Con Todo)';
-        document.getElementById('guest-view-detail').textContent = `${order.is_bowl ? '🥗 Bowl' : '🌯 Shawarma'} de ${order.protein}${removedTxt}`;
+        if (order.is_group && order.items && order.items.length > 1) {
+          const count = order.items.length;
+          document.getElementById('guest-view-turn').textContent = `#${order.turn}`;
+          document.getElementById('guest-view-name').textContent = `${order.guest_name} (${count === 2 ? 'Pareja' : 'Grupo de ' + count})`;
+          const itemsSummary = order.items.map((it, i) => `#${i+1}: ${it.is_bowl ? '🥗 Bowl' : '🌯'} ${it.protein}`).join(' • ');
+          document.getElementById('guest-view-detail').textContent = `${count} Shawarmas: ${itemsSummary}`;
+        } else {
+          document.getElementById('guest-view-turn').textContent = `#${order.turn}`;
+          document.getElementById('guest-view-name').textContent = `${order.guest_name}`;
+          const removedTxt = order.removed_ingredients && order.removed_ingredients.length > 0 ? ` (Sin: ${order.removed_ingredients.join(', ')})` : ' (Con Todo)';
+          document.getElementById('guest-view-detail').textContent = `${order.is_bowl ? '🥗 Bowl' : '🌯 Shawarma'} de ${order.protein}${removedTxt}`;
+        }
 
         const prepState = document.getElementById('guest-state-prep');
         const readyState = document.getElementById('guest-state-ready');
@@ -4168,6 +4945,18 @@
         document.getElementById('stat-carne').textContent = orders.filter(o => o.protein === 'Carne').length;
         this.updateOperatorDisplay();
 
+        // Control de Visibilidad del Módulo Financiero con PIN
+        const lockedCard = document.getElementById('finance-locked-card');
+        const unlockedCard = document.getElementById('finance-unlocked-card');
+        if (this.isFinanceUnlocked) {
+          if (lockedCard) lockedCard.style.display = 'none';
+          if (unlockedCard) unlockedCard.style.display = 'block';
+          this.recalculateCosts();
+        } else {
+          if (lockedCard) lockedCard.style.display = 'flex';
+          if (unlockedCard) unlockedCard.style.display = 'none';
+        }
+
         // Vault stats & Events List
         const vault = this.getVaultOrders();
         const archives = this.getVaultArchives();
@@ -4203,6 +4992,80 @@
               `;
             }).join('');
           }
+        }
+      }
+
+      promptUnlockFinance() {
+        soundEngine.playClick();
+        const modal = document.getElementById('finance-pin-modal');
+        const input = document.getElementById('input-finance-pin');
+        if (input) input.value = '';
+        if (modal) modal.style.display = 'flex';
+        setTimeout(() => { if (input) input.focus(); }, 150);
+      }
+
+      closeFinancePinModal() {
+        soundEngine.playClick();
+        const modal = document.getElementById('finance-pin-modal');
+        if (modal) modal.style.display = 'none';
+      }
+
+      submitFinancePin() {
+        soundEngine.playClick();
+        const input = document.getElementById('input-finance-pin');
+        const entered = (input ? input.value : '').trim();
+        const correctPin = this.financePin || '1234';
+
+        if (entered === correctPin) {
+          this.isFinanceUnlocked = true;
+          this.closeFinancePinModal();
+          this.renderAdmin();
+          this.showToast('🔓 Módulo Financiero Desbloqueado', 'success');
+        } else {
+          this.showToast('❌ Clave incorrecta. Intenta de nuevo.', 'error');
+          if (input) {
+            input.value = '';
+            input.focus();
+          }
+        }
+      }
+
+      lockFinance() {
+        soundEngine.playClick();
+        this.isFinanceUnlocked = false;
+        this.renderAdmin();
+        this.showToast('🔒 Módulo Financiero Bloqueado', 'info');
+      }
+
+      changeFinancePinPrompt() {
+        soundEngine.playClick();
+        const current = prompt('Ingresa tu clave actual de 4 dígitos:', '');
+        if (current === null) return;
+        if (current !== (this.financePin || '1234') && current !== '1234') {
+          this.showToast('❌ Clave actual incorrecta', 'error');
+          return;
+        }
+        const newPin = prompt('Ingresa tu NUEVA clave de 4 dígitos (ej: 5678):', '');
+        if (!newPin || newPin.trim().length !== 4 || isNaN(newPin)) {
+          this.showToast('❌ La clave debe ser exactamente de 4 números', 'error');
+          return;
+        }
+        this.financePin = newPin.trim();
+        localStorage.setItem('shawarma_finance_pin', this.financePin);
+        this.showToast('✅ Clave PIN actualizada con éxito', 'success');
+      }
+
+      resetFinancePinPrompt() {
+        soundEngine.playClick();
+        const answer = prompt('Para restablecer el PIN a "1234", escribe la palabra "SHAWARMA":');
+        if (answer && answer.trim().toUpperCase() === 'SHAWARMA') {
+          this.financePin = '1234';
+          localStorage.setItem('shawarma_finance_pin', '1234');
+          this.showToast('✅ Clave restablecida al valor por defecto: 1234', 'info');
+          const input = document.getElementById('input-finance-pin');
+          if (input) input.value = '1234';
+        } else if (answer !== null) {
+          this.showToast('❌ Palabra de seguridad incorrecta', 'error');
         }
       }
 
@@ -4323,6 +5186,529 @@
           this.syncData(this.db, true);
           this.showToast(`✅ Pedidos restaurados en modo local`, 'success');
         }
+      }
+
+      recalculateCosts() {
+        const orders = this.db.orders || [];
+        const cfg = this.costConfig || DEFAULT_COST_CONFIG;
+
+        const allItems = [];
+        orders.forEach(o => {
+          if (o.is_group && o.items && o.items.length > 0) {
+            o.items.forEach(it => allItems.push(it));
+          } else {
+            allItems.push(o);
+          }
+        });
+
+        let totalShawarmasInBread = 0;
+        let totalBowls = 0;
+        let totalPlates = allItems.length;
+        let totalSpicy = 0;
+        let countCarne = 0;
+        let countPollo = 0;
+        let countFalafelShawarmas = 0;
+        let countRegularWithFalafel = 0;
+
+        let countTomate = 0;
+        let countCebolla = 0;
+        let countPepinillo = 0;
+        let countTabule = 0;
+        let countNabo = 0;
+        let countHummus = 0;
+        let countAjo = 0;
+        let countTahini = 0;
+
+        allItems.forEach(o => {
+          if (o.is_bowl || o.preset === 'bowl') {
+            totalBowls++;
+          } else {
+            totalShawarmasInBread++;
+          }
+
+          const rem = o.removed_ingredients || [];
+          const notes = (o.notes || '').toLowerCase();
+          
+          // Ingredientes individuales
+          if (!rem.includes('Tomate') && !rem.includes('tomate')) countTomate++;
+          if (!rem.includes('Cebolla') && !rem.includes('cebolla')) countCebolla++;
+          if (!rem.includes('Pepinillo') && !rem.includes('pepinillo')) countPepinillo++;
+          if (!rem.includes('Tabule') && !rem.includes('tabule')) countTabule++;
+          if (!rem.includes('Nabo') && !rem.includes('nabo')) countNabo++;
+          if (!rem.includes('Hummus') && !rem.includes('hummus')) countHummus++;
+          if (!rem.includes('Salsa de Ajo') && !rem.includes('ajo')) countAjo++;
+          if (!rem.includes('Salsa de Ajonjolí') && !rem.includes('ajonjoli') && !rem.includes('tahini')) countTahini++;
+
+          // Spicy check (1 tacita 2oz extra con tapa si piden picante)
+          const hasSpicy = (!rem.includes('Picante (Opcional)') && !rem.includes('picante') && !rem.includes('Picante') && o.preset !== 'ninos') || notes.includes('picante');
+          if (hasSpicy) totalSpicy++;
+
+          // Protein check & Falafel counts
+          const p = (o.protein || 'Mixto').toLowerCase();
+          const isFalafelProduct = p.includes('falafel') || o.preset === 'falafel';
+
+          if (isFalafelProduct) {
+            countFalafelShawarmas++;
+          } else {
+            const hasFalafelIng = !rem.includes('Falafel') && !rem.includes('falafel');
+            if (hasFalafelIng) countRegularWithFalafel++;
+
+            if (p.includes('mixto')) {
+              countCarne += 1.0;
+              countPollo += 1.0;
+            } else if (p.includes('carne')) {
+              countCarne += 2.0;
+            } else if (p.includes('pollo')) {
+              countPollo += 2.0;
+            } else {
+              countCarne += 1.0;
+              countPollo += 1.0;
+            }
+          }
+        });
+
+        // 1 falafel por shawarma regular + 4 falafeles si es plato de Falafel
+        const totalFalafelUnits = (countRegularWithFalafel * 1) + (countFalafelShawarmas * 4);
+        const totalSauceCups = totalPlates + totalSpicy; // 1 tacita de salsa + 1 si pidió picante
+
+        const getUnitCost = (key, def) => {
+          const item = cfg[key];
+          if (!item) return def;
+          if (item.unit_cost !== undefined) return parseFloat(item.unit_cost);
+          if (item.pack_price && item.pack_qty) return parseFloat(item.pack_price) / parseInt(item.pack_qty, 10);
+          return def;
+        };
+
+        const breakdown = [
+          {
+            key: 'waxed_paper',
+            name: cfg.waxed_paper?.name || '📄 Hojas de Papel Encerado',
+            formula: '3 hojas por shawarma en pan',
+            qty: totalShawarmasInBread * 3,
+            unitCost: getUnitCost('waxed_paper', 5.65 / 500)
+          },
+          {
+            key: 'plate_premium',
+            name: cfg.plate_premium?.name || '🍽️ Platos Plásticos Premium',
+            formula: '1 por plato servido',
+            qty: totalPlates,
+            unitCost: getUnitCost('plate_premium', 13.49 / 25)
+          },
+          {
+            key: 'black_napkin',
+            name: cfg.black_napkin?.name || '⬛ Servilletas Negras de Fondo',
+            formula: '1 de base elegante por plato',
+            qty: totalPlates,
+            unitCost: getUnitCost('black_napkin', 2.50 / 20)
+          },
+          {
+            key: 'sticker_logo',
+            name: cfg.sticker_logo?.name || '🏷️ Stickers con Logo',
+            formula: '1 por shawarma en pan',
+            qty: totalShawarmasInBread,
+            unitCost: getUnitCost('sticker_logo', 80.00 / 400)
+          },
+          {
+            key: 'cup_black',
+            name: cfg.cup_black?.name || '🥣 Tacitas Negras (2 oz)',
+            formula: '1 para salsa + 1 si piden picante',
+            qty: totalSauceCups,
+            unitCost: getUnitCost('cup_black', 4.69 / 250)
+          },
+          {
+            key: 'lid_black',
+            name: cfg.lid_black?.name || '🔘 Tapas para Tacitas Negras (2 oz)',
+            formula: '1 por cada tacita servida',
+            qty: totalSauceCups,
+            unitCost: getUnitCost('lid_black', 4.50 / 250)
+          },
+          {
+            key: 'spoons',
+            name: cfg.spoons?.name || '🥄 Cucharitas Plásticas',
+            formula: '1 por comanda/plato',
+            qty: totalPlates,
+            unitCost: getUnitCost('spoons', 1.50 / 45)
+          },
+          {
+            key: 'pita_bread',
+            name: cfg.pita_bread?.name || '🥖 Pan Árabe Pita',
+            formula: '1 por shawarma en pan',
+            qty: totalShawarmasInBread,
+            unitCost: getUnitCost('pita_bread', 1.75 / 6)
+          },
+          {
+            key: 'falafel',
+            name: cfg.falafel?.name || '🧆 Falafeles (Bolsa de 70)',
+            formula: `${countRegularWithFalafel} uds (1 en con-todo) + ${countFalafelShawarmas * 4} uds (4 en veg)`,
+            qty: totalFalafelUnits,
+            unitCost: getUnitCost('falafel', 18.75 / 70)
+          },
+          {
+            key: 'protein_carne',
+            name: cfg.protein_carne?.name || '🥩 Carne Sazonada (3 lbs = $75 para 20-24 mixtos)',
+            formula: `${countCarne} porciones servidas`,
+            qty: countCarne,
+            unitCost: getUnitCost('protein_carne', 75.00 / 22)
+          },
+          {
+            key: 'protein_pollo',
+            name: cfg.protein_pollo?.name || '🍗 Pollo Sazonado (4 lbs @ $5/lb = $20 para 20-24 mixtos)',
+            formula: `${countPollo} porciones servidas`,
+            qty: countPollo,
+            unitCost: getUnitCost('protein_pollo', 20.00 / 22)
+          },
+          {
+            key: 'ing_tomate',
+            name: cfg.ing_tomate?.name || '🍅 Tomate Fresco (Libra $0.98)',
+            formula: `${countTomate} porciones servidas (~3 oz)`,
+            qty: countTomate,
+            unitCost: getUnitCost('ing_tomate', 0.98 / 5.333)
+          },
+          {
+            key: 'ing_cebolla',
+            name: cfg.ing_cebolla?.name || '🧅 Cebolla Fresca (Libra $1.50)',
+            formula: `${countCebolla} porciones servidas (~2 oz)`,
+            qty: countCebolla,
+            unitCost: getUnitCost('ing_cebolla', 1.50 / 8)
+          },
+          {
+            key: 'ing_pepinillo',
+            name: cfg.ing_pepinillo?.name || '🥒 Pepinillos Encurtidos (Lata $11.00)',
+            formula: `${countPepinillo} porciones servidas`,
+            qty: countPepinillo,
+            unitCost: getUnitCost('ing_pepinillo', 11.00 / 55)
+          },
+          {
+            key: 'ing_tabule',
+            name: cfg.ing_tabule?.name || '🥗 Tabule Fresco Casero',
+            formula: `${countTabule} porciones servidas`,
+            qty: countTabule,
+            unitCost: getUnitCost('ing_tabule', 0.20)
+          },
+          {
+            key: 'ing_nabo',
+            name: cfg.ing_nabo?.name || '🟣 Nabo Encurtido Rosa',
+            formula: `${countNabo} porciones servidas`,
+            qty: countNabo,
+            unitCost: getUnitCost('ing_nabo', 0.15)
+          },
+          {
+            key: 'ing_hummus',
+            name: cfg.ing_hummus?.name || '🫘 Hummus Crema de Garbanzo',
+            formula: `${countHummus} porciones servidas`,
+            qty: countHummus,
+            unitCost: getUnitCost('ing_hummus', 0.24)
+          },
+          {
+            key: 'ing_salsa_ajo',
+            name: cfg.ing_salsa_ajo?.name || '🧄 Salsa de Ajo Casera (Toum)',
+            formula: `${countAjo} tacitas (2 oz) servidas`,
+            qty: countAjo,
+            unitCost: getUnitCost('ing_salsa_ajo', 4.50 / 17)
+          },
+          {
+            key: 'ing_salsa_tahini',
+            name: cfg.ing_salsa_tahini?.name || '🥣 Salsa de Ajonjolí (Tarator/Tahini)',
+            formula: `${countTahini} tacitas (2 oz) servidas`,
+            qty: countTahini,
+            unitCost: getUnitCost('ing_salsa_tahini', 4.50 / 17)
+          },
+          {
+            key: 'ing_picante',
+            name: cfg.ing_picante?.name || '🔥 Picante Especial Casero',
+            formula: `${totalSpicy} porciones servidas`,
+            qty: totalSpicy,
+            unitCost: getUnitCost('ing_picante', 0.16)
+          }
+        ];
+
+        let totalCost = 0;
+        const tbody = document.getElementById('cost-breakdown-tbody');
+        if (tbody) {
+          tbody.innerHTML = breakdown.map(item => {
+            const subtotal = item.qty * item.unitCost;
+            totalCost += subtotal;
+            return `
+              <tr style="border-bottom: 1px solid var(--border-color);">
+                <td style="padding: 10px; font-weight: 800; color: var(--text-white);">${item.name}</td>
+                <td style="padding: 10px; text-align: center; color: var(--text-dim); font-size: 12px;">${item.formula}</td>
+                <td style="padding: 10px; text-align: center; font-weight: 900; color: var(--text-white);">${item.qty}</td>
+                <td style="padding: 10px; text-align: right; color: var(--text-dim);">$${item.unitCost.toFixed(3)}</td>
+                <td style="padding: 10px; text-align: right; font-weight: 900; color: #f87171;">$${subtotal.toFixed(2)}</td>
+              </tr>
+            `;
+          }).join('');
+        }
+
+        const revInput = document.getElementById('cost-input-revenue');
+        const logInput = document.getElementById('cost-input-logistics');
+
+        const revenue = parseFloat(revInput ? revInput.value : 0) || 0;
+        const logistics = parseFloat(logInput ? logInput.value : 0) || 0;
+
+        const netProfit = revenue - totalCost - logistics;
+        const marginPct = revenue > 0 ? ((netProfit / revenue) * 100).toFixed(1) : 0;
+        const costPerUnit = totalPlates > 0 ? (totalCost / totalPlates).toFixed(2) : 0;
+
+        // Cálculo exacto de 1 Plato Servido Estándar Mixto (Escandallo Unitario Completo)
+        const singlePlateCost = 
+          (getUnitCost('waxed_paper', 5.65/500) * 3) +
+          getUnitCost('plate_premium', 13.49/25) +
+          getUnitCost('black_napkin', 2.50/20) +
+          getUnitCost('sticker_logo', 80.00/400) +
+          getUnitCost('cup_black', 4.69/250) +
+          getUnitCost('lid_black', 4.50/250) +
+          getUnitCost('spoons', 1.50/45) +
+          getUnitCost('pita_bread', 1.75/6) +
+          getUnitCost('falafel', 18.75/70) +
+          getUnitCost('protein_carne', 75.00/22) +
+          getUnitCost('protein_pollo', 20.00/22) +
+          getUnitCost('ing_tomate', 0.98/5.333) +
+          getUnitCost('ing_cebolla', 1.50/8) +
+          getUnitCost('ing_pepinillo', 11.00/55) +
+          getUnitCost('ing_tabule', 0.20) +
+          getUnitCost('ing_nabo', 0.15) +
+          getUnitCost('ing_hummus', 0.24) +
+          getUnitCost('ing_salsa_ajo', 4.50/17) +
+          getUnitCost('ing_salsa_tahini', 4.50/17);
+
+        const kpiCost = document.getElementById('kpi-cost-total');
+        const kpiProfit = document.getElementById('kpi-profit-net');
+        const kpiMargin = document.getElementById('kpi-margin-pct');
+        const kpiUnit = document.getElementById('kpi-cost-per-unit');
+        const kpiSinglePlate = document.getElementById('kpi-single-plate-cost');
+
+        if (kpiCost) kpiCost.textContent = `$${totalCost.toFixed(2)}`;
+        if (kpiProfit) {
+          kpiProfit.textContent = `$${netProfit.toFixed(2)}`;
+          kpiProfit.style.color = netProfit >= 0 ? '#10b981' : '#ef4444';
+        }
+        if (kpiMargin) kpiMargin.textContent = `${marginPct}%`;
+        if (kpiUnit) kpiUnit.textContent = `$${costPerUnit}`;
+        if (kpiSinglePlate) kpiSinglePlate.textContent = `$${singlePlateCost.toFixed(2)}`;
+      }
+
+      toggleCostSettingsModal(show) {
+        soundEngine.playClick();
+        const modal = document.getElementById('cost-settings-modal');
+        if (!modal) return;
+        if (show) {
+          this.renderCostSettingsInputs();
+          modal.style.display = 'flex';
+        } else {
+          modal.style.display = 'none';
+        }
+      }
+
+      renderCostSettingsInputs() {
+        const listEl = document.getElementById('cost-settings-inputs-list');
+        if (!listEl) return;
+        const cfg = this.costConfig || DEFAULT_COST_CONFIG;
+        listEl.innerHTML = Object.entries(cfg).map(([key, item]) => {
+          const packPrice = parseFloat(item.pack_price || item.unit_cost || 0).toFixed(2);
+          const packQty = parseFloat(item.pack_qty || 1);
+          const unitCost = (packPrice / (packQty > 0 ? packQty : 1)).toFixed(4);
+
+          return `
+            <div style="display: grid; grid-template-columns: 1fr 110px 100px 100px; align-items: center; background: var(--bg-surface-2); padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border-color); gap: 10px;">
+              <div>
+                <div style="font-weight: 800; font-size: 13px; color: var(--text-white);">${item.name}</div>
+                <div style="font-size: 11px; color: var(--text-dim);">${item.qty_formula || ''}</div>
+              </div>
+              <div>
+                <span style="font-size: 10px; color: #38bdf8; font-weight: 800; display: block; text-transform: uppercase;">Precio Compra ($)</span>
+                <input type="number" step="0.01" min="0" id="cfg-price-${key}" value="${packPrice}" oninput="app.updateLiveUnitCost('${key}')" style="width: 100%; background: var(--bg-dark); border: 1.5px solid var(--border-color); color: var(--text-white); padding: 6px 8px; border-radius: 6px; font-weight: 900; text-align: right;">
+              </div>
+              <div>
+                <span style="font-size: 10px; color: #fbbf24; font-weight: 800; display: block; text-transform: uppercase;">Rinde (Uds/Porc)</span>
+                <input type="number" step="0.01" min="0.1" id="cfg-qty-${key}" value="${packQty}" oninput="app.updateLiveUnitCost('${key}')" style="width: 100%; background: var(--bg-dark); border: 1.5px solid var(--border-color); color: var(--text-white); padding: 6px 8px; border-radius: 6px; font-weight: 900; text-align: center;">
+              </div>
+              <div style="text-align: right;">
+                <span style="font-size: 10px; color: var(--text-dim); font-weight: 800; display: block; text-transform: uppercase;">Porción Unit.</span>
+                <div id="live-unit-cost-${key}" style="font-size: 12px; font-weight: 900; color: #10b981;">$${unitCost}</div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      updateLiveUnitCost(key) {
+        const priceInput = document.getElementById(`cfg-price-${key}`);
+        const qtyInput = document.getElementById(`cfg-qty-${key}`);
+        const display = document.getElementById(`live-unit-cost-${key}`);
+        if (priceInput && qtyInput && display) {
+          const price = parseFloat(priceInput.value) || 0;
+          const qty = parseFloat(qtyInput.value) || 1;
+          const unit = price / (qty > 0 ? qty : 1);
+          display.textContent = `$${unit.toFixed(4)}`;
+        }
+      }
+
+      saveCostSettingsFromModal() {
+        soundEngine.playClick();
+        const cfg = this.costConfig || JSON.parse(JSON.stringify(DEFAULT_COST_CONFIG));
+        Object.keys(cfg).forEach(key => {
+          const priceInput = document.getElementById(`cfg-price-${key}`);
+          const qtyInput = document.getElementById(`cfg-qty-${key}`);
+          if (priceInput && qtyInput) {
+            const p = parseFloat(priceInput.value) || 0;
+            const q = parseFloat(qtyInput.value) || 1;
+            cfg[key].pack_price = p;
+            cfg[key].pack_qty = q;
+            cfg[key].unit_cost = p / (q > 0 ? q : 1);
+          }
+        });
+        this.costConfig = cfg;
+        localStorage.setItem('shawarma_cost_config_v2', JSON.stringify(cfg));
+        this.recalculateCosts();
+        this.showToast('✅ Precios y rendimientos guardados con éxito', 'success');
+        this.toggleCostSettingsModal(false);
+      }
+
+      resetCostConfigToDefault() {
+        soundEngine.playClick();
+        if (confirm('¿Restablecer todos los precios de compra a los valores predeterminados?')) {
+          this.costConfig = JSON.parse(JSON.stringify(DEFAULT_COST_CONFIG));
+          localStorage.setItem('shawarma_cost_config_v2', JSON.stringify(this.costConfig));
+          this.renderCostSettingsInputs();
+          this.recalculateCosts();
+          this.showToast('Precios restablecidos', 'info');
+        }
+      }
+
+      exportFinancialCSV() {
+        soundEngine.playClick();
+        const orders = this.db.orders || [];
+        const cfg = this.costConfig || DEFAULT_COST_CONFIG;
+        
+        let totalShawarmasInBread = 0;
+        let totalBowls = 0;
+        let totalPlates = orders.length;
+        let totalSpicy = 0;
+        let countCarne = 0;
+        let countPollo = 0;
+        let countFalafelShawarmas = 0;
+        let countRegularWithFalafel = 0;
+
+        let countTomate = 0;
+        let countCebolla = 0;
+        let countPepinillo = 0;
+        let countTabule = 0;
+        let countNabo = 0;
+        let countHummus = 0;
+        let countAjo = 0;
+        let countTahini = 0;
+
+        orders.forEach(o => {
+          if (o.is_bowl || o.preset === 'bowl') totalBowls++;
+          else totalShawarmasInBread++;
+          const rem = o.removed_ingredients || [];
+          const notes = (o.notes || '').toLowerCase();
+          
+          if (!rem.includes('Tomate') && !rem.includes('tomate')) countTomate++;
+          if (!rem.includes('Cebolla') && !rem.includes('cebolla')) countCebolla++;
+          if (!rem.includes('Pepinillo') && !rem.includes('pepinillo')) countPepinillo++;
+          if (!rem.includes('Tabule') && !rem.includes('tabule')) countTabule++;
+          if (!rem.includes('Nabo') && !rem.includes('nabo')) countNabo++;
+          if (!rem.includes('Hummus') && !rem.includes('hummus')) countHummus++;
+          if (!rem.includes('Salsa de Ajo') && !rem.includes('ajo')) countAjo++;
+          if (!rem.includes('Salsa de Ajonjolí') && !rem.includes('ajonjoli') && !rem.includes('tahini')) countTahini++;
+
+          if ((!rem.includes('Picante (Opcional)') && !rem.includes('picante') && o.preset !== 'ninos') || notes.includes('picante')) totalSpicy++;
+          const p = (o.protein || 'Mixto').toLowerCase();
+          const isFalafelProduct = p.includes('falafel') || o.preset === 'falafel';
+
+          if (isFalafelProduct) {
+            countFalafelShawarmas++;
+          } else {
+            const hasFalafelIng = !rem.includes('Falafel') && !rem.includes('falafel');
+            if (hasFalafelIng) countRegularWithFalafel++;
+            if (p.includes('mixto')) { countCarne += 1.0; countPollo += 1.0; }
+            else if (p.includes('carne')) countCarne += 2.0;
+            else if (p.includes('pollo')) countPollo += 2.0;
+            else { countCarne += 1.0; countPollo += 1.0; }
+          }
+        });
+
+        const totalFalafelUnits = (countRegularWithFalafel * 1) + (countFalafelShawarmas * 4);
+        const totalSauceCups = totalPlates + totalSpicy;
+
+        const getUnitCost = (key, def) => {
+          const item = cfg[key];
+          if (!item) return def;
+          if (item.unit_cost !== undefined) return parseFloat(item.unit_cost);
+          if (item.pack_price && item.pack_qty) return parseFloat(item.pack_price) / parseInt(item.pack_qty, 10);
+          return def;
+        };
+
+        const rows = [
+          ['Concepto', 'Formula', 'Cantidad', 'Costo_Unitario_USD', 'Subtotal_USD'],
+          ['Hojas de Papel Encerado', '3 por shawarma en pan', totalShawarmasInBread * 3, getUnitCost('waxed_paper', 5.65/500), (totalShawarmasInBread * 3 * getUnitCost('waxed_paper', 5.65/500)).toFixed(2)],
+          ['Platos Plasticos Premium', '1 por plato', totalPlates, getUnitCost('plate_premium', 13.49/25), (totalPlates * getUnitCost('plate_premium', 13.49/25)).toFixed(2)],
+          ['Servilletas Negras de Fondo', '1 de fondo por plato', totalPlates, getUnitCost('black_napkin', 2.50/20), (totalPlates * getUnitCost('black_napkin', 2.50/20)).toFixed(2)],
+          ['Stickers con Logo', '1 por shawarma en pan', totalShawarmasInBread, getUnitCost('sticker_logo', 80/400), (totalShawarmasInBread * getUnitCost('sticker_logo', 80/400)).toFixed(2)],
+          ['Tacitas Negras (2 oz)', '1 para salsa + 1 picante', totalSauceCups, getUnitCost('cup_black', 4.69/250), (totalSauceCups * getUnitCost('cup_black', 4.69/250)).toFixed(2)],
+          ['Tapas para Tacitas Negras (2 oz)', '1 por tacita servida', totalSauceCups, getUnitCost('lid_black', 4.50/250), (totalSauceCups * getUnitCost('lid_black', 4.50/250)).toFixed(2)],
+          ['Cucharitas Plasticas', '1 por comanda/plato', totalPlates, getUnitCost('spoons', 1.50/45), (totalPlates * getUnitCost('spoons', 1.50/45)).toFixed(2)],
+          ['Pan Arabe Pita', '1 por shawarma en pan', totalShawarmasInBread, getUnitCost('pita_bread', 1.75/6), (totalShawarmasInBread * getUnitCost('pita_bread', 1.75/6)).toFixed(2)],
+          ['Falafeles (Bolsa de 70)', '1 en regular + 4 en plato falafel', totalFalafelUnits, getUnitCost('falafel', 18.75/70), (totalFalafelUnits * getUnitCost('falafel', 18.75/70)).toFixed(2)],
+          ['Carne Sazonada (3 lbs = $75)', 'Carne servida en mixtos', countCarne, getUnitCost('protein_carne', 75.00/22), (countCarne * getUnitCost('protein_carne', 75.00/22)).toFixed(2)],
+          ['Pollo Sazonado (4 lbs = $20)', 'Pollo servido en mixtos', countPollo, getUnitCost('protein_pollo', 20.00/22), (countPollo * getUnitCost('protein_pollo', 20.00/22)).toFixed(2)],
+          ['Tomate Fresco (Libra $0.98)', 'Porcion ~3 oz', countTomate, getUnitCost('ing_tomate', 0.98/5.333), (countTomate * getUnitCost('ing_tomate', 0.98/5.333)).toFixed(2)],
+          ['Cebolla Fresca (Libra $1.50)', 'Porcion ~2 oz', countCebolla, getUnitCost('ing_cebolla', 1.50/8), (countCebolla * getUnitCost('ing_cebolla', 1.50/8)).toFixed(2)],
+          ['Pepinillos Encurtidos (Lata $11.00)', 'Porcion pepinillo agridulce', countPepinillo, getUnitCost('ing_pepinillo', 11.00/55), (countPepinillo * getUnitCost('ing_pepinillo', 11.00/55)).toFixed(2)],
+          ['Tabule Fresco Casero', 'Porcion tabule', countTabule, getUnitCost('ing_tabule', 0.20), (countTabule * getUnitCost('ing_tabule', 0.20)).toFixed(2)],
+          ['Nabo Encurtido Rosa', 'Porcion nabo', countNabo, getUnitCost('ing_nabo', 0.15), (countNabo * getUnitCost('ing_nabo', 0.15)).toFixed(2)],
+          ['Hummus Crema de Garbanzo', 'Porcion hummus', countHummus, getUnitCost('ing_hummus', 0.24), (countHummus * getUnitCost('ing_hummus', 0.24)).toFixed(2)],
+          ['Salsa de Ajo Casera (Toum)', 'Tacita 2 oz ajo', countAjo, getUnitCost('ing_salsa_ajo', 4.50/17), (countAjo * getUnitCost('ing_salsa_ajo', 4.50/17)).toFixed(2)],
+          ['Salsa de Ajonjoli (Tahini)', 'Tacita 2 oz tahini', countTahini, getUnitCost('ing_salsa_tahini', 4.50/17), (countTahini * getUnitCost('ing_salsa_tahini', 4.50/17)).toFixed(2)],
+          ['Picante Especial Casero', 'Porcion picante', totalSpicy, getUnitCost('ing_picante', 0.16), (totalSpicy * getUnitCost('ing_picante', 0.16)).toFixed(2)]
+        ];
+
+        const rev = parseFloat(document.getElementById('cost-input-revenue')?.value || 0) || 0;
+        const log = parseFloat(document.getElementById('cost-input-logistics')?.value || 0) || 0;
+        const totalCost = rows.slice(1).reduce((acc, r) => acc + parseFloat(r[4]), 0);
+        const netProfit = rev - totalCost - log;
+
+        const singlePlateCost = 
+          (getUnitCost('waxed_paper', 5.65/500) * 3) +
+          getUnitCost('plate_premium', 13.49/25) +
+          getUnitCost('black_napkin', 2.50/20) +
+          getUnitCost('sticker_logo', 80.00/400) +
+          getUnitCost('cup_black', 4.69/250) +
+          getUnitCost('lid_black', 4.50/250) +
+          getUnitCost('spoons', 1.50/45) +
+          getUnitCost('pita_bread', 1.75/6) +
+          getUnitCost('falafel', 18.75/70) +
+          getUnitCost('protein_carne', 75.00/22) +
+          getUnitCost('protein_pollo', 20.00/22) +
+          getUnitCost('ing_tomate', 0.98/5.333) +
+          getUnitCost('ing_cebolla', 1.50/8) +
+          getUnitCost('ing_pepinillo', 11.00/55) +
+          getUnitCost('ing_tabule', 0.20) +
+          getUnitCost('ing_nabo', 0.15) +
+          getUnitCost('ing_hummus', 0.24) +
+          getUnitCost('ing_salsa_ajo', 4.50/17) +
+          getUnitCost('ing_salsa_tahini', 4.50/17);
+
+        rows.push(['', '', '', '', '']);
+        rows.push(['RESUMEN FINANCIERO', '', '', '', '']);
+        rows.push(['Costo Escandallo 1 Plato Servido Completo', '', '', '', singlePlateCost.toFixed(2)]);
+        rows.push(['Total Cobrado al Cliente', '', '', '', rev.toFixed(2)]);
+        rows.push(['Costo Total Insumos (COGS)', '', '', '', totalCost.toFixed(2)]);
+        rows.push(['Otros Gastos (Logistica)', '', '', '', log.toFixed(2)]);
+        rows.push(['GANANCIA NETA REAL (PROFIT)', '', '', '', netProfit.toFixed(2)]);
+        rows.push(['Margen de Ganancia %', '', '', '', rev > 0 ? ((netProfit / rev) * 100).toFixed(1) + '%' : '0%']);
+        rows.push(['Costo Promedio por Shawarma', '', '', '', totalPlates > 0 ? (totalCost / totalPlates).toFixed(2) : '0.00']);
+
+        const csvContent = rows.map(r => r.map(c => `"${c}"`).join(',')).join('\n');
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        const dateStr = new Date().toISOString().slice(0, 10);
+        a.download = `shawarma_reporte_financiero_${dateStr}.csv`;
+        a.click();
+        this.showToast('💰 Reporte financiero descargado en Excel', 'success');
       }
 
       setTheme(themeName, playSound = true) {
@@ -4655,6 +6041,40 @@
           this.showToast('✅ ¡Evento respaldado y listo para el nuevo evento!', 'success');
           this.switchView('order');
         }
+      }
+
+      async clearEventWithoutSaving() {
+        soundEngine.playClick();
+        const ordersCount = this.db?.orders?.length || 0;
+        const msg = ordersCount > 0 
+          ? `¿Estás seguro de LIMPIAR este evento sin guardarlo?\n\nSe descartarán los ${ordersCount} pedidos actuales y el sistema se reiniciará en Turno #0001 para empezar de cero.`
+          : '¿Reiniciar el sistema a cero en Turno #0001?';
+        
+        if (!confirm(msg)) return;
+
+        try {
+          const res = await fetch('/api/event/reset', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: 'Shawarma en Casa' })
+          });
+          if (res.ok) {
+            const data = await res.json();
+            localStorage.removeItem('shawarma_db_v6');
+            this.syncData(data.data, true);
+            this.resetForm();
+            this.showToast('🧹 Evento limpiado desde cero (sin guardar en bóveda)', 'info');
+            this.switchView('order');
+            return;
+          }
+        } catch(e) {}
+
+        this.db = { event_info: { id: `evt_${Date.now()}`, name: 'Shawarma en Casa', turn_counter: 0, timer: { started_at: null, is_paused: false } }, orders: [] };
+        localStorage.setItem('shawarma_db_v6', JSON.stringify(this.db));
+        this.syncData(this.db, true);
+        this.resetForm();
+        this.showToast('🧹 Evento limpiado desde cero (sin guardar en bóveda)', 'info');
+        this.switchView('order');
       }
 
       updateTimers() {

@@ -166,10 +166,15 @@ server.mount_proc '/api/orders' do |req, res|
         'table' => (body['table'] || '').strip,
         'protein' => body['protein'] || 'Pollo',
         'preset' => body['preset'] || 'Personalizado',
+        'is_bowl' => !!body['is_bowl'],
+        'is_group' => !!body['is_group'],
+        'items_count' => (body['items_count'] || 1).to_i,
+        'items' => body['items'] || [],
         'ingredients' => body['ingredients'] || [],
         'removed_ingredients' => body['removed_ingredients'] || [],
         'added_extras' => body['added_extras'] || [],
         'notes' => (body['notes'] || '').strip,
+        'operator' => body['operator'] || 'Dispositivo 1',
         'quantity' => (body['quantity'] || 1).to_i,
         'status' => 'pending', # pending -> preparing -> ready -> delivered -> cancelled
         'created_at' => Time.now.iso8601,
@@ -563,12 +568,19 @@ server.mount_proc '/' do |req, res|
       '.ico' => 'image/x-icon'
     }
     res['Content-Type'] = mime_types[ext] || 'application/octet-stream'
-    res['Cache-Control'] = 'public, max-age=3600'
+    if ['.html', '.css', '.js', '.json'].include?(ext)
+      res['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+      res['Pragma'] = 'no-cache'
+      res['Expires'] = '0'
+    else
+      res['Cache-Control'] = 'public, max-age=3600'
+    end
     res.body = File.binread(target_file)
   else
     # Fallback to index.html for SPA routes
     res.status = 200
     res['Content-Type'] = 'text/html; charset=utf-8'
+    res['Cache-Control'] = 'no-cache, no-store, must-revalidate'
     res.body = File.read(File.join(PUBLIC_DIR, 'index.html'))
   end
 end

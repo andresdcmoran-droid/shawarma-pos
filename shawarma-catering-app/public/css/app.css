@@ -3,11 +3,11 @@
    ========================================================================== */
 
 :root {
-  /* Official Brand Colors: Shawarma en casa® Magenta & Sleek Dark */
-  --brand-pink: #e11d8e;
-  --brand-pink-hover: #c01375;
-  --brand-pink-light: #fdf2f8;
-  --brand-pink-glow: rgba(225, 29, 142, 0.25);
+  /* Official Brand Colors: Shawarma en casa® Fucsia Radiante & Sleek Dark */
+  --brand-pink: #f0258d;
+  --brand-pink-hover: #c8126f;
+  --brand-pink-light: rgba(240, 37, 141, 0.16);
+  --brand-pink-glow: rgba(240, 37, 141, 0.28);
   
   --primary: var(--brand-pink);
   --primary-hover: var(--brand-pink-hover);
@@ -207,6 +207,13 @@ input, textarea {
   display: grid;
   grid-template-columns: 1fr 360px;
   gap: 20px;
+}
+
+@media (max-width: 768px) {
+  .event-timer-badge,
+  #event-timer-container {
+    display: none !important;
+  }
 }
 
 @media (max-width: 950px) {
