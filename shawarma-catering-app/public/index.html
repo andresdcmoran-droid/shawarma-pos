@@ -3985,10 +3985,39 @@
           if (res.ok) {
             const data = await res.json();
             soundEngine.playClick();
+
+            // Incorporar el pedido a la memoria local inmediatamente
+            if (!this.db) this.db = { event_info: {}, orders: [] };
+            if (!Array.isArray(this.db.orders)) this.db.orders = [];
+            if (data.order) {
+              const existingIdx = this.db.orders.findIndex(o => String(o.id) === String(data.order.id));
+              if (existingIdx >= 0) {
+                this.db.orders[existingIdx] = data.order;
+              } else {
+                this.db.orders.push(data.order);
+              }
+            }
+            if (data.event_info) {
+              this.db.event_info = data.event_info;
+            } else if (data.order?.turn) {
+              if (!this.db.event_info) this.db.event_info = {};
+              this.db.event_info.turn_counter = Math.max(Number(this.db.event_info.turn_counter) || 0, Number(data.order.turn));
+            }
+
+            // Iniciar el reloj de evento automáticamente con el primer pedido
+            if (data.order && this.db.event_info?.timer && !this.db.event_info.timer.started_at) {
+              this.db.event_info.timer.started_at = data.order.created_at || new Date().toISOString();
+              this.db.event_info.timer.is_paused = false;
+            }
+
+            // Sincronizar UI local (Cocina KDS, badge de cocina, turnos)
+            this.syncData(this.db, true);
+
             this.currentGroupItems = [];
             this.updateGroupTrayUI();
             this.showToast(isGroupOrder ? `¡Turno #${data.order.turn} (Grupo de ${finalItems.length} Shawarmas) enviado!` : `¡Turno #${data.order.turn} creado para ${guestName}!`, 'success');
             this.resetForm();
+            this.updatePreviewAndTurn();
             this.fetchServer();
           } else {
             throw new Error();

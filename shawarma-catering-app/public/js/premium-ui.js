@@ -223,10 +223,8 @@
   };
   proto.updatePreviewAndTurn = function() {
     syncSpecialMotion();
-    const activeOrders = this.db?.orders || [];
     const turnCounter = Number(this.db?.event_info?.turn_counter) || 0;
-    // Si la cocina está en 0 (evento nuevo o reiniciado), el próximo turno es SIEMPRE el #1
-    const next = editing ? this.editingOrderTurn : (activeOrders.length === 0 ? 1 : turnCounter + 1);
+    const next = editing ? this.editingOrderTurn : (turnCounter + 1);
     const count = this.currentGroupItems.length + 1;
     text('next-turn-display', `#${next}`);
     text('turn-label-display', editing ? 'Editando pedido' : 'Próximo turno');

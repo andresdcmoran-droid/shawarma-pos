@@ -524,7 +524,13 @@ server.mount_proc '/api/event/reset' do |req, res|
           'id' => "evt_#{Time.now.to_i}",
           'name' => event_name,
           'created_at' => Time.now.iso8601,
-          'turn_counter' => 0
+          'turn_counter' => 0,
+          'timer' => {
+            'started_at' => nil,
+            'elapsed_seconds' => 0,
+            'is_paused' => false,
+            'paused_at' => nil
+          }
         },
         'orders' => []
       }
