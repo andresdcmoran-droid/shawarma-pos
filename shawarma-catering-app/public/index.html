@@ -2080,13 +2080,13 @@
 
     <!-- Live Event Stopwatch Timer (Center) -->
     <div class="event-timer-badge" id="event-timer-container" style="display: flex; align-items: center; gap: 6px; background: var(--bg-surface-2); border: 1.5px solid var(--border-color); padding: 5px 12px; border-radius: var(--radius-full); box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
-      <span style="font-size: 14px; line-height: 1;">⏱️</span>
+      <svg class="ui-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--brand-pink);"><circle cx="12" cy="13" r="8"/><path d="M12 9v5l3 2M9 2h6M12 2v3"/></svg>
       <span id="event-timer-text" style="font-family: monospace; font-size: 15px; font-weight: 900; color: var(--brand-pink); letter-spacing: 0.5px;">00:00:00</span>
-      <button type="button" id="btn-timer-toggle" style="background: transparent; border: none; font-size: 14px; cursor: pointer; padding: 2px 3px; display: flex; align-items: center; line-height: 1;" onclick="app.toggleEventTimer()" title="Pausar / Reanudar Cronómetro">
-        <span id="timer-toggle-icon">⏸️</span>
+      <button type="button" id="btn-timer-toggle" style="background: transparent; border: none; cursor: pointer; padding: 2px 4px; display: inline-flex; align-items: center; justify-content: center; color: var(--text-white);" onclick="app.toggleEventTimer()" title="Pausar / Reanudar Cronómetro">
+        <span id="timer-toggle-icon" style="display: inline-flex; align-items: center; justify-content: center;"><svg class="ui-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 5v14M16 5v14"/></svg></span>
       </button>
-      <button type="button" id="btn-timer-reset" style="background: transparent; border: none; font-size: 13px; cursor: pointer; padding: 2px 3px; display: flex; align-items: center; line-height: 1; opacity: 0.7;" onclick="app.resetEventTimer()" title="Reiniciar Cronómetro a 00:00:00">
-        <span>🔄</span>
+      <button type="button" id="btn-timer-reset" style="background: transparent; border: none; cursor: pointer; padding: 2px 4px; display: inline-flex; align-items: center; justify-content: center; opacity: 0.75; color: var(--text-white);" onclick="app.resetEventTimer()" title="Reiniciar Cronómetro a 00:00:00">
+        <span id="timer-reset-icon" style="display: inline-flex; align-items: center; justify-content: center;"><svg class="ui-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10a9 9 0 1 1 1 8M3 4v6h6"/></svg></span>
       </button>
     </div>
 
@@ -3237,6 +3237,11 @@
         }
 
         this.operatorName = localStorage.getItem('shawarma_operator_name') || 'Dispositivo 1';
+        try {
+          localStorage.removeItem('shawarma_unconfirmed_submission_v1');
+          if (this) this.safetyUnconfirmed = null;
+        } catch(e) {}
+
         this.updateOperatorDisplay();
 
         if ('serviceWorker' in navigator) {
@@ -4166,11 +4171,14 @@
         const kdsIconEl = document.getElementById('kds-timer-toggle-icon');
 
         const timer = this.db?.event_info?.timer;
+        const playSvg = '<svg class="ui-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m8 4 12 8-12 8Z"/></svg>';
+        const pauseSvg = '<svg class="ui-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 5v14M16 5v14"/></svg>';
+
         if (!timer || !timer.started_at) {
           if (timerEl) timerEl.textContent = '00:00:00';
           if (kdsTimerEl) kdsTimerEl.textContent = '00:00:00';
-          if (iconEl) iconEl.textContent = '▶️';
-          if (kdsIconEl) kdsIconEl.textContent = '▶️';
+          if (iconEl) iconEl.innerHTML = playSvg;
+          if (kdsIconEl) kdsIconEl.innerHTML = playSvg;
           return;
         }
 
@@ -4185,8 +4193,8 @@
 
         if (timerEl) timerEl.textContent = timeFormatted;
         if (kdsTimerEl) kdsTimerEl.textContent = timeFormatted;
-        if (iconEl) iconEl.textContent = timer.is_paused ? '▶️' : '⏸️';
-        if (kdsIconEl) kdsIconEl.textContent = timer.is_paused ? '▶️' : '⏸️';
+        if (iconEl) iconEl.innerHTML = timer.is_paused ? playSvg : pauseSvg;
+        if (kdsIconEl) kdsIconEl.innerHTML = timer.is_paused ? playSvg : pauseSvg;
       }
 
       setKdsFilter(f) {

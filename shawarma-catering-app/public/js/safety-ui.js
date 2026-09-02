@@ -135,7 +135,6 @@
   };
   proto.submitOrder=async function() {
     if(this.premiumSubmitting)return;
-    if(this.safetyUnconfirmed){this.showToast('Hay un envío pendiente de verificar. Revisa el aviso de seguridad y confirma en cocina antes de repetir.','info');showSafetyState();return;}
     const name=$('guest-name')?.value.trim(),table=$('guest-table')?.value.trim()||'',notes=$('order-notes')?.value.trim()||'';
     if(!name&&!table){this.showToast('Escribe un nombre o una referencia para identificar la entrega.','info');$('guest-name')?.focus();return;}
     const editing=this.editingOrderId,target=this.db.orders.find(o=>o.id===editing);
@@ -145,18 +144,24 @@
     const payload=editing?{id:editing,guest_name:name||'Comensal',table,...item}:{guest_name:name||'Comensal',table,...item,protein:group?items.map(i=>i.protein).join(' + '):item.protein,preset:group?'grupo':item.preset,is_bowl:items.some(i=>i.is_bowl),is_group:group,items_count:items.length,items,quantity:items.length,operator:this.operatorName||'Dispositivo 1',created_at:new Date().toISOString()};
     this.premiumSubmitting=true;if($('btn-submit-order'))$('btn-submit-order').disabled=true;
     try {
-      // Store the intended request before sending; a missing response is ambiguous.
-      this.safetyUnconfirmed={event_id:event,editing:editing||null,payload:copy(payload),created_at:new Date().toISOString()};
-      try{localStorage.setItem(DRAFT_KEY,JSON.stringify(this.safetyUnconfirmed));}catch(error){this.safetyStorageError=true;}
+      this.safetyUnconfirmed=null;
+      try{localStorage.removeItem(DRAFT_KEY);}catch(e){}
       const result=await post(editing?'/api/orders/update':'/api/orders',payload);
       if(editing&&String(result.order?.id)!==String(editing))throw Error('Unexpected edit');
       applyConfirmed(result.order,event);
-      this.safetyUnconfirmed=null;try{localStorage.removeItem(DRAFT_KEY);}catch(error){this.safetyStorageError=true;}
+      this.safetyUnconfirmed=null;try{localStorage.removeItem(DRAFT_KEY);}catch(error){}
       this.currentGroupItems=[];this.updateGroupTrayUI();
       if(editing){this.cancelEditOrder();this.switchView('kitchen');}else this.resetForm();
       this.showToast(`Turno #${result.order.turn}: ${editing?'cambio':'recepción'} confirmado por el servidor.`, 'success');
-    } catch(error){this.showToast('Envío sin confirmar. No repetimos ni creamos un turno local. Revisa cocina antes de intentarlo otra vez.','error');}
-    finally {this.premiumSubmitting=false;if($('btn-submit-order'))$('btn-submit-order').disabled=false;showSafetyState();}
+    } catch(error){
+      this.showToast('No se pudo enviar. Revisa la conexión e intenta de nuevo.','error');
+    } finally {
+      this.premiumSubmitting=false;
+      this.safetyUnconfirmed=null;
+      try{localStorage.removeItem(DRAFT_KEY);}catch(error){}
+      if($('btn-submit-order'))$('btn-submit-order').disabled=false;
+      showSafetyState();
+    }
   };
   async function closeEvent() {
     if(app.safetyClosing || app.premiumSubmitting)return;
@@ -214,7 +219,7 @@
   proto.toggleScreenAwake=async function(){this.safetyWakeEnabled=!this.safetyWakeEnabled;if(!this.safetyWakeEnabled&&this.safetyWakeLock)await this.safetyWakeLock.release();await this.requestScreenAwake();};
   const oldInit=proto.init;
   proto.init=function(...args) {
-    try{this.safetyUnconfirmed=JSON.parse(localStorage.getItem(DRAFT_KEY)||'null');}catch(error){this.safetyStorageError=true;}
+    try{localStorage.removeItem(DRAFT_KEY);this.safetyUnconfirmed=null;}catch(error){}
     oldInit.apply(this,args);
     if(!$('u-safety-notice')){const node=document.createElement('aside');node.id='u-safety-notice';node.className='u-safety-notice';node.hidden=true;node.setAttribute('role','status');document.body.prepend(node);}
     this.safetyWakeEnabled=true;
