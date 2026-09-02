@@ -93,11 +93,14 @@
     }
 
     .brand-logo-img {
-      height: 48px;
-      max-height: 1.5in;
+      height: 40px;
+      max-height: 40px;
       width: auto;
+      max-width: 175px;
       object-fit: contain;
+      aspect-ratio: auto;
       display: block;
+      flex-shrink: 0;
     }
 
     /* Role Tabs - STRICTLY 100% CENTERED IN THE MIDDLE OF THE SCREEN (Fixed over header) */
@@ -200,8 +203,14 @@
       }
 
       .brand-logo-img {
-        height: 34px;
-        max-height: 34px;
+        height: 34px !important;
+        max-height: 34px !important;
+        width: auto !important;
+        max-width: 145px !important;
+        object-fit: contain !important;
+        aspect-ratio: auto !important;
+        display: block !important;
+        flex-shrink: 0 !important;
       }
 
       .connection-badge {
@@ -1473,10 +1482,14 @@
     }
 
     body.theme-day .brand-logo-img {
-      height: 64px !important;
-      max-height: 64px !important;
+      height: 40px !important;
+      max-height: 40px !important;
       width: auto !important;
+      max-width: 175px !important;
       object-fit: contain !important;
+      aspect-ratio: auto !important;
+      display: block !important;
+      flex-shrink: 0 !important;
     }
     
     body.theme-day .tabs-nav {
@@ -2353,12 +2366,15 @@
         <p style="font-size: 14px; color: var(--text-dim); margin-bottom: 16px;">
           Alterna entre el Modo Noche / Fiesta (fondo oscuro) y el Modo Día / Exterior (fondo blanco de alto contraste para luz solar directa).
         </p>
-        <div style="display: flex; gap: 12px;">
-          <button id="btn-theme-noche" style="background: var(--bg-surface-2); color: white; border: 1px solid var(--border-color); padding: 14px 20px; border-radius: var(--radius-md); font-weight: 800; cursor: pointer; flex: 1;" onclick="app.setTheme('noche')">
-            🌙 Modo Noche / Fiesta
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+          <button type="button" id="btn-theme-noche" style="background: var(--bg-surface-2); color: white; border: 1px solid var(--border-color); padding: 12px 16px; border-radius: var(--radius-md); font-weight: 800; cursor: pointer; flex: 1; min-width: 140px;" onclick="app.setTheme('noche')">
+            🌙 Modo Noche
           </button>
-          <button id="btn-theme-dia" style="background: #ffffff; color: #0f172a; border: 2px solid #cbd5e1; padding: 14px 20px; border-radius: var(--radius-md); font-weight: 900; cursor: pointer; letter-spacing: 0.5px; flex: 1;" onclick="app.setTheme('dia')">
-            ☀️ Modo Día / Exterior
+          <button type="button" id="btn-theme-dia" style="background: #ffffff; color: #0f172a; border: 2px solid #cbd5e1; padding: 12px 16px; border-radius: var(--radius-md); font-weight: 900; cursor: pointer; letter-spacing: 0.5px; flex: 1; min-width: 140px;" onclick="app.setTheme('dia')">
+            ☀️ Modo Día
+          </button>
+          <button type="button" id="btn-theme-auto" style="background: var(--bg-surface-2); color: #38bdf8; border: 1.5px dashed #38bdf8; padding: 12px 16px; border-radius: var(--radius-md); font-weight: 900; cursor: pointer; flex: 1; min-width: 140px;" onclick="app.setTheme('auto')">
+            📱 Auto (Según Teléfono / SO)
           </button>
         </div>
       </div>
@@ -3170,8 +3186,18 @@
       }
 
       init() {
-        const savedTheme = localStorage.getItem('shawarma_theme') || 'noche';
+        const savedTheme = localStorage.getItem('shawarma_theme') || 'auto';
         this.setTheme(savedTheme, false);
+
+        // Escuchar cambios de Modo Oscuro / Claro en el Sistema Operativo (iOS / Android / Mac)
+        if (window.matchMedia) {
+          window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+            const currentPref = localStorage.getItem('shawarma_theme') || 'auto';
+            if (currentPref === 'auto') {
+              this.setTheme('auto', false);
+            }
+          });
+        }
 
         this.operatorName = localStorage.getItem('shawarma_operator_name') || 'Dispositivo 1';
         this.updateOperatorDisplay();
@@ -3460,6 +3486,24 @@
         this.renderIngredientsMatrix();
         this.updateQuickNoteButtons();
         this.updatePreviewAndTurn();
+      }
+
+      formatHumanDuration(minutes) {
+        const m = Math.max(1, Math.round(minutes));
+        if (m < 60) {
+          return `${m} min`;
+        }
+        const hours = Math.floor(m / 60);
+        const remainingMins = m % 60;
+        if (hours < 24) {
+          if (remainingMins === 0) return `${hours} ${hours === 1 ? 'hora' : 'horas'}`;
+          return `${hours} ${hours === 1 ? 'hora' : 'horas'} ${remainingMins} min`;
+        }
+        const days = Math.floor(hours / 24);
+        const remainingHours = hours % 24;
+        const dayLabel = days === 1 ? '1 día' : `${days} días`;
+        if (remainingHours === 0) return dayLabel;
+        return `${dayLabel} ${remainingHours} ${remainingHours === 1 ? 'hora' : 'horas'}`;
       }
 
       selectProtein(protein) {
@@ -4172,18 +4216,22 @@
 
           const createdAt = new Date(o.created_at || Date.now());
           const timeStr = createdAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-          const elapsedMins = Math.floor((Date.now() - createdAt.getTime()) / 60000);
+          const elapsedMins = Math.max(0, Math.floor((Date.now() - createdAt.getTime()) / 60000));
           
           let prepDurationInfo = '';
-          if (o.status === 'ready' && o.prepared_at) {
-            const readyAt = new Date(o.prepared_at);
+          if (o.status === 'ready') {
+            const readyAt = o.prepared_at ? new Date(o.prepared_at) : (o.updated_at ? new Date(o.updated_at) : new Date());
             const readyTimeStr = readyAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             const totalMins = Math.max(1, Math.round((readyAt.getTime() - createdAt.getTime()) / 60000));
-            prepDurationInfo = `<span style="color:#6ee7b7; font-weight:800;">⏱️ Listo ${readyTimeStr} (${totalMins} min)</span>`;
+            prepDurationInfo = `<span style="color:#6ee7b7; font-weight:800;">⏱️ Listo ${readyTimeStr} (tardó ${this.formatHumanDuration(totalMins)})</span>`;
           } else if (o.status === 'delivered') {
-            prepDurationInfo = `<span style="color:#10b981; font-weight:800;">✓ Entregado</span>`;
+            const endAt = o.delivered_at ? new Date(o.delivered_at) : (o.updated_at ? new Date(o.updated_at) : (o.prepared_at ? new Date(o.prepared_at) : new Date()));
+            const endTimeStr = endAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const totalMins = Math.max(1, Math.round((endAt.getTime() - createdAt.getTime()) / 60000));
+            prepDurationInfo = `<span style="color:#10b981; font-weight:800;">✓ Entregado ${endTimeStr} (tardó ${this.formatHumanDuration(totalMins)})</span>`;
           } else {
-            prepDurationInfo = `<span>📥 ${timeStr} • ⏱️ Hace ${elapsedMins === 0 ? '1 min' : `${elapsedMins} min`}</span>`;
+            const elapsedFormatted = elapsedMins === 0 ? '1 min' : this.formatHumanDuration(elapsedMins);
+            prepDurationInfo = `<span>📥 ${timeStr} • ⏱️ Hace ${elapsedFormatted}</span>`;
           }
 
           let kdsContentHtml = '';
@@ -5740,13 +5788,20 @@
 
       setTheme(themeName, playSound = true) {
         if (playSound) soundEngine.playClick();
+        
+        let effectiveTheme = themeName;
+        if (themeName === 'auto') {
+          const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+          effectiveTheme = prefersDark ? 'noche' : 'dia';
+        }
+
         document.body.classList.remove('theme-elegant', 'theme-day');
-        const isDay = themeName === 'dia';
+        const isDay = effectiveTheme === 'dia';
         if (isDay) {
           document.body.classList.add('theme-day');
         }
 
-        // Swap Logos dynamically for Day (black text logo) vs Night (white text logo)
+        // Swap Logos dinámico preservando proporciones originales
         const headerLogo = document.querySelector('.brand-logo-img');
         const guestLogo = document.getElementById('guest-view-logo');
         const watermarkLogo = document.getElementById('sidebar-watermark-logo');
@@ -5757,6 +5812,14 @@
         if (watermarkLogo) watermarkLogo.src = 'images/brand-icon.png';
 
         localStorage.setItem('shawarma_theme', themeName);
+
+        // Resaltar botón activo en Admin
+        const btnNoche = document.getElementById('btn-theme-noche');
+        const btnDia = document.getElementById('btn-theme-dia');
+        const btnAuto = document.getElementById('btn-theme-auto');
+        if (btnNoche) btnNoche.style.outline = (themeName === 'noche') ? '2.5px solid var(--brand-pink)' : 'none';
+        if (btnDia) btnDia.style.outline = (themeName === 'dia') ? '2.5px solid var(--brand-pink)' : 'none';
+        if (btnAuto) btnAuto.style.outline = (themeName === 'auto') ? '2.5px solid var(--brand-pink)' : 'none';
       }
 
       exportRawCSV() {
