@@ -478,6 +478,8 @@ server.mount_proc '/api/event/timer' do |req, res|
       res.body = JSON.generate({ error: e.message })
     end
   end
+end
+
 server.mount_proc '/api/event/reset_turns' do |req, res|
   set_api_headers(res)
   if req.request_method == 'OPTIONS'
