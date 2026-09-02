@@ -3298,6 +3298,14 @@
 
       checkParams() {
         const p = new URLSearchParams(window.location.search);
+        if (p.has('reset_vault') || p.has('clear_vault')) {
+          localStorage.removeItem('shawarma_permanent_vault_v2');
+          localStorage.setItem('shawarma_event_vault_archives', '[]');
+          localStorage.setItem('shawarma_deleted_vault_ids', JSON.stringify(['ALL']));
+          fetch('/api/vault/archives/clear', { method: 'POST' }).catch(() => {});
+          window.location.href = window.location.pathname + '?view=admin';
+          return;
+        }
         const v = p.get('view');
         if (v === 'guest') {
           this.guestOrderId = p.get('order_id') || p.get('id');

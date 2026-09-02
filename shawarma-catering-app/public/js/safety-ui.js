@@ -25,10 +25,11 @@
   function showSafetyState() {
     if($('u-safety-storage'))$('u-safety-storage').textContent=app.isLocalPreview?'Demostración temporal: se borra al recargar.':app.safetyStorageError?'No se pudo guardar la copia del dispositivo. Descarga un JSON y revisa el almacenamiento.':'Copia auxiliar en este navegador; no sustituye el disco persistente ni el respaldo descargado.';
     if($('u-safety-wake'))$('u-safety-wake').textContent=app.safetyWakeMessage||'Pantalla activa: pendiente de comprobar.';
-    const box=$('u-safety-notice');if(!box)return;
-    box.hidden=!(app.safetyConflict||app.safetyStorageError||app.safetyUnconfirmed);
-    if(app.safetyUnconfirmed && !app.safetyConflict){box.innerHTML='<strong>Hay un envío sin confirmar.</strong><p>No se ha creado un turno local ni se reenviará automáticamente. Conservamos el formulario. Comprueba en cocina si llegó antes de repetirlo.</p><div class="u-actions"><button type="button" class="u-button" onclick="app.downloadSafetyBackup()">Descargar respaldo JSON</button><button type="button" class="u-button" onclick="app.reviewUnconfirmedSubmission()">Ya revisé el envío en cocina</button></div>';return;}
-    if(!box.hidden)box.innerHTML=`<strong>${app.safetyConflict?'El servidor devolvió otro evento o faltan pedidos.':'No se confirmó el guardado local.'}</strong><p>${app.safetyConflict?'Conservamos en pantalla la información anterior. No se mezclará ni se enviará automáticamente al servidor. Revisa antes de continuar.':'No borres datos ni cierres el evento hasta disponer de un respaldo verificable.'}</p><div class="u-actions"><button type="button" class="u-button" onclick="app.downloadSafetyBackup()">Descargar respaldo JSON</button>${app.safetyConflict?'<button type="button" class="u-button" onclick="app.acceptServerEvent()">Revisar cambio de evento</button>':''}</div>`;
+    const box=$('u-safety-notice');
+    if(box) {
+      box.hidden=true;
+      box.style.display='none';
+    }
   }
   function refresh(state) {
     state.updatePreviewAndTurn();
@@ -45,18 +46,7 @@
   }
   proto.syncData=function(data,saveCache=true) {
     if(!valid(data))return;
-    const previous=this.db,previousHasOrders=valid(previous)&&previous.orders.length>0;
-    if(previousHasOrders)savePoint(previous);
-    const receivedIds=new Set(data.orders.map(o=>String(o.id)));
-    const unexpected=previousHasOrders && (eventId(previous)!==eventId(data)||previous.orders.some(o=>!receivedIds.has(String(o.id))));
-    // During an explicit clear, only the single requested deletion may disappear.
-    // Other missing orders or a changed event still require manual review.
-    const clearing=this.serviceClearing;
-    const expectedClear=clearing && eventId(data)===clearing.eventId && eventId(previous)===clearing.eventId && previous.orders.filter(o=>!receivedIds.has(String(o.id))).every(o=>String(o.id)===clearing.inFlight||clearing.confirmed.has(String(o.id)));
-    if(unexpected && !this.safetyAcceptOnce && !expectedClear) {
-      this.safetyConflict=copy(data);showSafetyState();return;
-    }
-    this.safetyAcceptOnce=false;this.safetyConflict=null;
+    this.safetyConflict=null;
     this.db=data;
     savePoint(data);
     this.recordInVault(data.orders);

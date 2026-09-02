@@ -20,6 +20,10 @@
   let isSummaryVisible = false;
   function updateMobileActionButton(visible){
     isSummaryVisible = !!visible;
+    const reviewTray = document.querySelector('.p-mobile-review');
+    if(reviewTray) {
+      reviewTray.classList.toggle('is-hidden', isSummaryVisible);
+    }
     const button=$('p-review-order'),label=$('p-mobile-action-text');if(!button||!label)return;
     const tr=text=>window.ShawarmaI18n?.translate(text)||text;
     const editing=!!app.editingOrderId;
