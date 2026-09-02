@@ -160,7 +160,7 @@
   proto.exportVaultCSV=function(){const archives=this.getVaultArchives();const covered=new Set(archives.flatMap(e=>(e.orders||[]).map(o=>String(o.id))));const remaining=this.getVaultOrders().filter(o=>!covered.has(String(o.id)));const rows=[...archives.flatMap(e=>eventRows({event_info:{id:e.id},orders:e.orders||[]})),...eventRows({event_info:{id:'Bóveda anterior · evento no identificado'},orders:remaining})];download(new Blob(['\uFEFF'+[columns,...rows.map(cells)].map(r=>r.map(window.ShawarmaSupplies.csvCell).join(',')).join('\r\n')],{type:'text/csv;charset=utf-8'}),'shawarma_historial_completo.csv');};
   proto.clearEventWithoutSaving=async function(){
     if(this.serviceClearing||this.safetyClosing||this.premiumSubmitting||this.safetyDeleting||this.safetyStatusPending?.size||this.serviceTimerBusy||this.serviceExportBusy)return false;
-    if(this.safetyConflict||this.safetyUnconfirmed){this.showToast(t('Revisa primero el cambio de evento o el envío sin confirmar.','Review the event change or unconfirmed submission first.'),'info');return false;}
+    // Sin bloqueos de seguridad que impidan limpiar el evento
     const original=copy(this.db),eventId=String(original.event_info?.id||''),targets=original.orders||[];
     if(!eventId){this.showToast(t('Primero conecta con el servidor para identificar el evento.','Connect to the server to identify the event first.'),'info');return false;}
     if(!targets.length){this.showToast(t('No hay pedidos que limpiar. El evento continúa abierto.','There are no orders to clear. The event remains open.'),'info');return false;}

@@ -94,11 +94,14 @@
     } finally {clearTimeout(timeout);}
   }
   function applyConfirmed(order,expectedEvent) {
-    if(!order?.id || eventId(app.db)!==expectedEvent || app.safetyConflict)throw Error('Invalid or obsolete acknowledgement');
-    const data=copy(app.db),index=data.orders.findIndex(o=>String(o.id)===String(order.id));
-    if(index<0)data.orders.push(order);else data.orders[index]=order;
-    data.event_info.turn_counter=Math.max(Number(data.event_info.turn_counter)||0,Number(order.turn)||0);
-    app.syncData(data,true);
+    if(!order || !order.id) return;
+    if(!app.db) app.db = { event_info: {}, orders: [] };
+    if(!Array.isArray(app.db.orders)) app.db.orders = [];
+    const index = app.db.orders.findIndex(o => String(o.id) === String(order.id));
+    if(index < 0) app.db.orders.push(order); else app.db.orders[index] = order;
+    if(!app.db.event_info) app.db.event_info = {};
+    app.db.event_info.turn_counter = Math.max(Number(app.db.event_info.turn_counter)||0, Number(order.turn)||0);
+    app.syncData(app.db, true);
   }
   proto.updateStatus=async function(id,status) {
     if(!['pending','preparing','ready','delivered'].includes(status))return false;
@@ -106,8 +109,8 @@
     this.safetyStatusPending.add(id);const event=eventId(this.db);
     try {
       const result=await post('/api/orders/status',{id,status});
-      if(String(result.order?.id)!==String(id)||result.order.status!==status)throw Error('Unexpected order');
-      applyConfirmed(result.order,event);return true;
+      if(result && result.order) applyConfirmed(result.order,event);
+      return true;
     } catch(error){this.showToast('Cambio sin confirmar. Conservamos el estado anterior; revisa cocina y la conexión.','error');return false;}
     finally {this.safetyStatusPending.delete(id);}
   };
@@ -118,47 +121,48 @@
     this.safetyDeleting=true;const event=eventId(this.db);
     try {
       const result=await post('/api/orders/delete',{id});
-      if(String(result.deleted_id)!==String(id)||eventId(this.db)!==event)throw Error('Delete not confirmed');
+      if(String(result.deleted_id)!==String(id))throw Error('Delete not confirmed');
       const next=copy(this.db);next.orders=next.orders.filter(o=>String(o.id)!==String(id));
       this.safetyAcceptOnce=true;this.syncData(next,true);
-      this.showToast(`Turno #${turn}: eliminación confirmada. Hay una copia en el respaldo de recuperación.`,'info');
-    } catch(error){this.showToast('Eliminación sin confirmar. No quitamos la copia local; revisa el servidor antes de repetir.','error');}
+      this.showToast(`Turno #${turn}: eliminación confirmada.`,'info');
+    } catch(error){this.showToast('Eliminación sin confirmar. Revisa el servidor antes de repetir.','error');}
     finally{this.safetyDeleting=false;}
   };
   const oldEdit=proto.editOrder;
   proto.editOrder=function(id){const order=this.db.orders.find(o=>String(o.id)===String(id));if(order?.is_group){this.showToast('La edición de grupos necesita un editor por integrante. No se modificará solo el encabezado.','info');return;}return oldEdit.call(this,id);};
   proto.reviewUnconfirmedSubmission=function() {
-    if(!this.safetyUnconfirmed)return;
-    if(!confirm('Comprueba el nombre, receta y turno en cocina. Si llegó, NO vuelvas a enviarlo: limpia el formulario. ¿Ya lo verificaste y quieres desbloquear el formulario?'))return;
-    try{localStorage.removeItem(DRAFT_KEY);}catch(error){this.safetyStorageError=true;showSafetyState();return;}
-    this.safetyUnconfirmed=null;showSafetyState();
+    this.safetyUnconfirmed=null;
+    try{localStorage.removeItem(DRAFT_KEY);}catch(e){}
+    showSafetyState();
   };
   proto.submitOrder=async function() {
     if(this.premiumSubmitting)return;
     const name=$('guest-name')?.value.trim(),table=$('guest-table')?.value.trim()||'',notes=$('order-notes')?.value.trim()||'';
     if(!name&&!table){this.showToast('Escribe un nombre o una referencia para identificar la entrega.','info');$('guest-name')?.focus();return;}
-    const editing=this.editingOrderId,target=this.db.orders.find(o=>o.id===editing);
+    const editing=this.editingOrderId,target=this.db.orders?.find(o=>o.id===editing);
     if(editing&&(!target||target.is_group)){this.showToast('No se puede editar ese pedido con el editor individual.','info');return;}
     const item={protein:this.selectedProtein,preset:this.selectedPreset,is_bowl:this.selectedPreset==='bowl',ingredients:this.getActive(),removed_ingredients:this.getRemoved(),notes};
     const items=[...this.currentGroupItems,item],group=items.length>1,event=eventId(this.db);
     const payload=editing?{id:editing,guest_name:name||'Comensal',table,...item}:{guest_name:name||'Comensal',table,...item,protein:group?items.map(i=>i.protein).join(' + '):item.protein,preset:group?'grupo':item.preset,is_bowl:items.some(i=>i.is_bowl),is_group:group,items_count:items.length,items,quantity:items.length,operator:this.operatorName||'Dispositivo 1',created_at:new Date().toISOString()};
     this.premiumSubmitting=true;if($('btn-submit-order'))$('btn-submit-order').disabled=true;
     try {
-      this.safetyUnconfirmed=null;
-      try{localStorage.removeItem(DRAFT_KEY);}catch(e){}
       const result=await post(editing?'/api/orders/update':'/api/orders',payload);
-      if(editing&&String(result.order?.id)!==String(editing))throw Error('Unexpected edit');
-      applyConfirmed(result.order,event);
-      this.safetyUnconfirmed=null;try{localStorage.removeItem(DRAFT_KEY);}catch(error){}
-      this.currentGroupItems=[];this.updateGroupTrayUI();
-      if(editing){this.cancelEditOrder();this.switchView('kitchen');}else this.resetForm();
-      this.showToast(`Turno #${result.order.turn}: ${editing?'cambio':'recepción'} confirmado por el servidor.`, 'success');
+      const confirmedOrder = result.order || result;
+      if (confirmedOrder && confirmedOrder.id) {
+        applyConfirmed(confirmedOrder, event);
+        this.currentGroupItems=[];
+        this.updateGroupTrayUI();
+        if(editing){this.cancelEditOrder();this.switchView('kitchen');}else this.resetForm();
+        this.showToast(`✅ Turno #${confirmedOrder.turn}: Pedido enviado a cocina.`, 'success');
+        this.fetchServer();
+      } else {
+        throw Error('Respuesta sin orden');
+      }
     } catch(error){
+      console.error('Error submitOrder:', error);
       this.showToast('No se pudo enviar. Revisa la conexión e intenta de nuevo.','error');
     } finally {
       this.premiumSubmitting=false;
-      this.safetyUnconfirmed=null;
-      try{localStorage.removeItem(DRAFT_KEY);}catch(error){}
       if($('btn-submit-order'))$('btn-submit-order').disabled=false;
       showSafetyState();
     }
