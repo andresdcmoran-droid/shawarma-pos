@@ -9,6 +9,56 @@
   const suggest=query=>{const q=normalize(query);return q?names.filter(n=>normalize(n).startsWith(q)).slice(0,5):[];};
   const en=()=>app.invoiceLang==='en'||document.documentElement?.lang==='en';
   const t=(es,english)=>en()?english:es;
+  function measureMobileChrome(){
+    if(!window.matchMedia?.('(max-width:767px)').matches)return;
+    const style=document.body?.style;if(typeof style?.setProperty!=='function')return;
+    for(const [selector,property] of [['.tabs-nav','--s-nav-height'],['.p-mobile-review','--s-review-height'],['.header-bar','--s-header-height']]){
+      const node=document.querySelector(selector);const height=node?.getBoundingClientRect?.().height;
+      if(Number.isFinite(height)&&height>0){const value=Math.ceil(height)+'px';if(style.getPropertyValue(property)!==value)style.setProperty(property,value);}
+    }
+  }
+  function refreshMobileReview(){
+    const button=$('p-review-order'),label=$('p-mobile-action-text');if(!button||!label)return false;
+    const tr=text=>window.ShawarmaI18n?.translate(text)||text;
+    const phone=window.matchMedia?.('(max-width:767px)').matches;
+    const summary=document.querySelector('.summary-card-pos')?.getBoundingClientRect?.();
+    const header=document.querySelector('.header-bar')?.getBoundingClientRect?.();
+    const nav=document.querySelector('.tabs-nav')?.getBoundingClientRect?.();
+    const review=document.querySelector('.p-mobile-review')?.getBoundingClientRect?.();
+    const viewport=window.visualViewport,top=Math.max(viewport?.offsetTop||0,header?.bottom||0);
+    const bottom=(viewport?.offsetTop||0)+(viewport?.height||window.innerHeight||0)-(nav?.height||0)-(review?.height||0);
+    const visible=!!(phone&&summary&&summary.top<bottom-48&&summary.bottom>top+48);
+    const editing=!!app.editingOrderId;
+    const text=tr(visible?(editing?'Guardar cambios':'Enviar a cocina'):(editing?'Revisar cambios':'Revisar pedido'));
+    if(label.textContent!==text)label.textContent=text;
+    button.dataset.mobileAction=visible?'submit':'review';
+    button.disabled=visible&&!!($('btn-submit-order')?.disabled||app.premiumSubmitting||app.safetyClosing);
+    const accessible=visible?tr(editing?'Guardar cambios':'Confirmar y enviar a cocina'):text;
+    if(button.getAttribute('aria-label')!==accessible)button.setAttribute('aria-label',accessible);
+    return visible;
+  }
+  function confirmMobileReview(){
+    if(!refreshMobileReview())return false;
+    const submit=$('btn-submit-order');if(!submit)return false;
+    // Reuse the original protected submission, including validation and duplicate guards.
+    if(!$('p-review-order').disabled)submit.click();
+    return true;
+  }
+  function setupMobileChrome(){
+    if(app.mobileChromeInstalled)return;app.mobileChromeInstalled=true;
+    let scheduled=false;
+    const schedule=()=>{if(scheduled)return;scheduled=true;const run=()=>{scheduled=false;measureMobileChrome();refreshMobileReview();};if(window.requestAnimationFrame)window.requestAnimationFrame(run);else run();};
+    if(typeof window.ResizeObserver==='function'){
+      app.mobileChromeObserver=new ResizeObserver(schedule);
+      for(const selector of ['.tabs-nav','.p-mobile-review','.header-bar','.summary-card-pos']){const node=document.querySelector(selector);if(node)app.mobileChromeObserver.observe(node);}
+    }
+    window.addEventListener('resize',schedule);window.addEventListener('orientationchange',schedule);window.addEventListener('scroll',schedule,{passive:true});window.visualViewport?.addEventListener('resize',schedule);schedule();
+  }
+  const sendOrder=proto.submitOrder;
+  proto.submitOrder=async function(...args){
+    try{const pending=sendOrder.apply(this,args);refreshMobileReview();return await pending;}
+    finally{refreshMobileReview();}
+  };
   function setupNames() {
     const input=$('guest-name');if(!input||$('guest-suggestions'))return;
     const list=document.createElement('div');list.id='guest-suggestions';list.className='s-name-list';list.hidden=true;
@@ -92,12 +142,49 @@
   proto.exportRawCSV=function(){exportCSV(this.db,'shawarma_pedidos_completos.csv');};
   proto.exportSingleEventCSV=function(index){const e=this.getVaultArchives()[index];if(e)exportCSV({event_info:{id:e.id},orders:e.orders||[]},'shawarma_historial.csv');};
   proto.exportVaultCSV=function(){const archives=this.getVaultArchives();const covered=new Set(archives.flatMap(e=>(e.orders||[]).map(o=>String(o.id))));const remaining=this.getVaultOrders().filter(o=>!covered.has(String(o.id)));const rows=[...archives.flatMap(e=>eventRows({event_info:{id:e.id},orders:e.orders||[]})),...eventRows({event_info:{id:'Bóveda anterior · evento no identificado'},orders:remaining})];download(new Blob(['\uFEFF'+[columns,...rows.map(cells)].map(r=>r.map(window.ShawarmaSupplies.csvCell).join(',')).join('\r\n')],{type:'text/csv;charset=utf-8'}),'shawarma_historial_completo.csv');};
-  proto.clearEventWithoutSaving=function(){return this.closeEventAndStartNext();};
+  proto.clearEventWithoutSaving=async function(){
+    if(this.serviceClearing||this.safetyClosing||this.premiumSubmitting||this.safetyDeleting||this.safetyStatusPending?.size||this.serviceTimerBusy||this.serviceExportBusy)return false;
+    if(this.safetyConflict||this.safetyUnconfirmed){this.showToast(t('Revisa primero el cambio de evento o el envío sin confirmar.','Review the event change or unconfirmed submission first.'),'info');return false;}
+    const original=copy(this.db),eventId=String(original.event_info?.id||''),targets=original.orders||[];
+    if(!eventId){this.showToast(t('Primero conecta con el servidor para identificar el evento.','Connect to the server to identify the event first.'),'info');return false;}
+    if(!targets.length){this.showToast(t('No hay pedidos que limpiar. El evento continúa abierto.','There are no orders to clear. The event remains open.'),'info');return false;}
+    const count=targets.reduce((n,o)=>n+orderUnits(o).reduce((a,x)=>a+x.quantity,0),0);
+    if(!confirm(t(`¿Limpiar sin guardar ${targets.length} pedidos (${count} unidades) del evento actual? Incluye todos sus estados y descarta el formulario. No descarga Excel/JSON ni archiva el evento. Mantiene el reloj, la numeración de turnos y el historial anterior. Las copias de recuperación existentes se conservan. Detén la toma de pedidos en los otros equipos mientras se limpia.`,`Clear ${targets.length} orders (${count} units) from the current event without saving? Includes all statuses and discards the form. No Excel/JSON download or event archive. The timer, order numbering, previous history and existing recovery copies remain. Stop taking orders on other devices while clearing.`)))return false;
+    // Retain auxiliary recovery already used by normal deletion; no download/archive.
+    if(!window.ShawarmaSafety.savePoint(this.db)){this.showToast(t('No se pudo comprobar la protección local. No se limpiaron pedidos.','Local protection could not be verified. No orders were cleared.'),'error');return false;}
+    const context={eventId,inFlight:null,confirmed:new Set()};this.serviceClearing=context;this.safetyClosing=true;this.renderAdmin();
+    const currentEvent=()=>String(this.db.event_info?.id||'')===eventId&&!this.safetyConflict;
+    async function request(path,options={}){const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),15000);try{const res=await fetch(path,{...options,cache:'no-store',signal:controller.signal});if(!res.ok)throw Error('Unconfirmed request');return await res.json();}finally{clearTimeout(timer);}}
+    async function readCurrent(){const data=await request('/api/orders');if(!data||String(data.event_info?.id||'')!==eventId||!Array.isArray(data.orders)||!currentEvent())throw Error('Event changed');return data;}
+    try {
+      this.showToast(t('Limpiando pedidos. No tomes pedidos en otros equipos hasta terminar.','Clearing orders. Do not take orders on other devices until finished.'),'info');
+      for(const target of targets){
+        // Recheck each exact target. Never delete an order added after confirmation.
+        const current=await readCurrent(),found=current.orders.find(o=>String(o.id)===String(target.id));
+        if(!found||JSON.stringify(found)!==JSON.stringify(target))throw Error('Order changed; confirm again');
+        context.inFlight=String(target.id);
+        const result=await request('/api/orders/delete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:target.id})});
+        if(String(result.deleted_id)!==String(target.id)||!currentEvent())throw Error('Deletion unconfirmed');
+        context.confirmed.add(String(target.id));
+        const next=copy(this.db);next.orders=next.orders.filter(o=>String(o.id)!==String(target.id));this.syncData(next,true);context.inFlight=null;
+        if(!currentEvent())throw Error('Unexpected update');
+      }
+      const latest=await readCurrent();
+      if(latest.orders.some(o=>context.confirmed.has(String(o.id))))throw Error('Deletion not reflected by server');
+      this.syncData(latest,true);if(!currentEvent())throw Error('Unexpected update');
+      this.resetForm();
+      this.showToast(latest.orders.length?t('Se limpiaron los pedidos confirmados. Los pedidos nuevos se conservaron. El evento sigue abierto.','Confirmed orders cleared. New orders were kept. The event remains open.'):t('Pedidos limpiados sin descargar ni archivar. El mismo evento continúa abierto.','Orders cleared without downloading or archiving. The same event remains open.'),'success');return true;
+    } catch {
+      this.showToast(t('Limpieza incompleta o sin confirmar. Se detuvo; no se cerró el evento. Algunos pedidos pueden haberse eliminado. Revisa cocina y la conexión antes de repetir.','Clearing was incomplete or unconfirmed and has stopped. The event was not closed. Some orders may have been deleted. Check the kitchen and connection before retrying.'),'error');return false;
+    } finally {this.serviceClearing=null;this.safetyClosing=false;this.renderAdmin();}
+  };
+  const renderAdmin=proto.renderAdmin;
+  proto.renderAdmin=function(...args){renderAdmin.apply(this,args);const button=document.querySelector('.s-clear-button');if(button)button.disabled=!!this.serviceClearing;};
   const openReport=proto.showClientInvoiceModal,closeReport=proto.closeClientInvoiceModal;
   proto.showClientInvoiceModal=function(){this.serviceReportReturnFocus=document.activeElement;openReport.call(this);};
   proto.closeClientInvoiceModal=function(){closeReport.call(this);if($('client-invoice-modal').style.display==='none')this.serviceReportReturnFocus?.focus?.();};
   document.addEventListener('keydown',event=>{const modal=$('client-invoice-modal');if(modal?.style.display!=='flex')return;if(event.key==='Escape'){event.preventDefault();app.closeClientInvoiceModal();}if(event.key==='Tab'){const nodes=[...modal.querySelectorAll('button,input,textarea,summary')].filter(n=>!n.disabled&&n.getClientRects?.().length);if(!nodes.length)return;const first=nodes[0],last=nodes[nodes.length-1];if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus();}else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus();}}});
   const start=proto.init;
-  proto.init=function(...args){start.apply(this,args);setupNames();for(const key of ['solo-carnes','sin-cebolla','sin-pepinillo','sin-tomate'])if($('preset-'+key))$('preset-'+key).hidden=true;$('preset-bowl')?.setAttribute('title','Toca de nuevo para volver a shawarma');this.updatePresetPills();};
-  window.ShawarmaService={suggest,normalize,eventRows,summarize,reportMarkup,timerSeconds,columns,cells,download,META,t};
+  proto.init=function(...args){start.apply(this,args);setupNames();setupMobileChrome();for(const key of ['solo-carnes','sin-cebolla','sin-pepinillo','sin-tomate'])if($('preset-'+key))$('preset-'+key).hidden=true;$('preset-bowl')?.setAttribute('title','Toca de nuevo para volver a shawarma');this.updatePresetPills();};
+  window.ShawarmaService={suggest,normalize,eventRows,summarize,reportMarkup,timerSeconds,columns,cells,download,META,t,measureMobileChrome,refreshMobileReview,confirmMobileReview};
 })();

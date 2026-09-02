@@ -7,6 +7,9 @@
   const app=window.app,proto=Object.getPrototypeOf(app),KEY='shawarma_ui_language_v1';
   let locale='es';try{if(localStorage.getItem(KEY)==='en')locale='en';}catch{}
   const dictionary={
+    'Limpiar sin guardar':'Clear without saving',
+    'Cierra con respaldo o limpia los pedidos de prueba para continuar en el mismo evento.':'Close with a backup or clear test orders to continue in the same event.',
+    'Limpiar sin guardar no descarga archivos ni archiva el evento. Conserva el historial anterior y continúa la numeración de turnos.':'Clear without saving does not download files or archive the event. Previous history and order numbering are preserved.',
     '¿Cerrar este evento y comenzar otro? Primero se generará un respaldo. El evento no se vaciará localmente si el servidor no confirma.':'Close this event and start another? A backup will be generated first. Local event data will not be cleared without server confirmation.',
     'Abre Descargas y comprueba que puedes abrir el respaldo y que contiene tus pedidos. ¿Confirmas que ya lo guardaste y deseas cerrar el evento?':'Open Downloads and check that the backup opens and contains your orders. Is it saved, and do you want to close the event?',
     'El evento cambió mientras se generaba el respaldo. Descárgalo de nuevo antes de cerrar.':'The event changed while creating the backup. Download it again before closing.',
@@ -41,7 +44,7 @@
     'Verificar ingredientes del pedido':'Check order ingredients','Ver ingredientes incluidos':'View included ingredients',
     'Sin ingredientes adicionales':'No extra ingredients','Servido en plato, sin pan':'Served in a bowl, no bread',
     'Envuelto y tostado en plancha':'Wrapped & toasted on the grill',
-    'Pedido actual':'Current order','Revisar pedido':'Review order','Revisar cambios':'Review changes',
+    'Pedido actual':'Current order','Revisar pedido':'Review order','Revisar cambios':'Review changes','Enviar a cocina':'Send to kitchen',
     'Cumpleañero':'Birthday guest','Infantil':'Kids meal','Incluye infantil':'Includes kids meal','Incluye bowls':'Includes bowls',
     'Evento':'Event','Pausar / Reanudar Cronómetro':'Pause / resume timer','Reiniciar Cronómetro a 00:00:00':'Reset timer to 00:00:00',
     'Preparaciones iguales':'Matching recipes','No hay pedidos pendientes.':'No pending orders.',
@@ -269,7 +272,7 @@
     // This prevents built-in browser translation from rewriting order/customer data.
     document.documentElement?.setAttribute('translate','no');
     for(const value of ['es','en'])document.getElementById('u-language-'+value)?.setAttribute('aria-pressed',String(value===locale));
-    apply();updateAccessibleOrders();
+    apply();updateAccessibleOrders();window.ShawarmaService?.refreshMobileReview();
   }
   proto.setLanguage=function(value) {
     if(!['es','en'].includes(value))return false;

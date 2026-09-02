@@ -49,7 +49,11 @@
     if(previousHasOrders)savePoint(previous);
     const receivedIds=new Set(data.orders.map(o=>String(o.id)));
     const unexpected=previousHasOrders && (eventId(previous)!==eventId(data)||previous.orders.some(o=>!receivedIds.has(String(o.id))));
-    if(unexpected && !this.safetyAcceptOnce) {
+    // During an explicit clear, only the single requested deletion may disappear.
+    // Other missing orders or a changed event still require manual review.
+    const clearing=this.serviceClearing;
+    const expectedClear=clearing && eventId(data)===clearing.eventId && eventId(previous)===clearing.eventId && previous.orders.filter(o=>!receivedIds.has(String(o.id))).every(o=>String(o.id)===clearing.inFlight||clearing.confirmed.has(String(o.id)));
+    if(unexpected && !this.safetyAcceptOnce && !expectedClear) {
       this.safetyConflict=copy(data);showSafetyState();return;
     }
     this.safetyAcceptOnce=false;this.safetyConflict=null;

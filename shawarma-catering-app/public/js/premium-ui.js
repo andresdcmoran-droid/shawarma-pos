@@ -240,6 +240,7 @@
     html('prep-type-hint', `${icon(item.is_bowl ? 'bowl' : 'wrap')}<span>${item.is_bowl ? 'Servido en plato, sin pan' : 'Envuelto y tostado en plancha'}</span>`);
     text('p-mobile-summary', `${count > 1 ? count + ' shawarmas' : item.protein} · #${next}`);
     text('p-mobile-action-text', editing ? 'Revisar cambios' : 'Revisar pedido');
+    window.ShawarmaService?.refreshMobileReview();
   };
   proto.updateGroupTrayUI = function() {
     const n = this.currentGroupItems.length;
@@ -481,7 +482,7 @@
     document.querySelectorAll('#view-display .turn-column-header').forEach((el,i)=>{el.innerHTML=`${icon(i ? 'check' : 'kitchen')}<span>${i?'Listos para entregar':'En preparación'}</span>`;});
     $('toast-tray')?.setAttribute('aria-live','polite');
     document.body.insertAdjacentHTML('beforeend',`<div class="p-mobile-review"><div><span>Pedido actual</span><strong id="p-mobile-summary"></strong></div><button type="button" id="p-review-order">${icon('order')}<span id="p-mobile-action-text">Revisar pedido</span></button></div>`);
-    $('p-review-order').addEventListener('click',()=>{const summary=document.querySelector('.summary-card-pos');summary.setAttribute('tabindex','-1');summary.scrollIntoView({behavior:'smooth',block:'start'});summary.focus({preventScroll:true});});
+    $('p-review-order').addEventListener('click',()=>{if(window.ShawarmaService?.confirmMobileReview())return;document.activeElement?.blur?.();const summary=document.querySelector('.summary-card-pos');summary.setAttribute('tabindex','-1');summary.scrollIntoView({behavior:'smooth',block:'start'});summary.focus({preventScroll:true});});
     document.addEventListener('click',handleActionClick);
     connection(false);
     window.addEventListener('online',checkConnection);window.addEventListener('offline',()=>connection(false));
