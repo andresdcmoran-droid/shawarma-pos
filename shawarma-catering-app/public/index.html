@@ -4280,18 +4280,26 @@
           }
 
           const createdAt = new Date(o.created_at || Date.now());
-          const timeStr = createdAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+          const formatTime12 = (d) => {
+            if (!d || !Number.isFinite(d.getTime())) return '—';
+            let h = d.getHours();
+            const m = String(d.getMinutes()).padStart(2, '0');
+            const ampm = h >= 12 ? 'pm' : 'am';
+            h = h % 12 || 12;
+            return `${h}:${m} ${ampm}`;
+          };
+          const timeStr = formatTime12(createdAt);
           const elapsedMins = Math.max(0, Math.floor((Date.now() - createdAt.getTime()) / 60000));
           
           let prepDurationInfo = '';
           if (o.status === 'ready') {
             const readyAt = o.prepared_at ? new Date(o.prepared_at) : (o.updated_at ? new Date(o.updated_at) : new Date());
-            const readyTimeStr = readyAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const readyTimeStr = formatTime12(readyAt);
             const totalMins = Math.max(1, Math.round((readyAt.getTime() - createdAt.getTime()) / 60000));
             prepDurationInfo = `<span style="color:#6ee7b7; font-weight:800;">⏱️ Listo ${readyTimeStr} (tardó ${this.formatHumanDuration(totalMins)})</span>`;
           } else if (o.status === 'delivered') {
             const endAt = o.delivered_at ? new Date(o.delivered_at) : (o.updated_at ? new Date(o.updated_at) : (o.prepared_at ? new Date(o.prepared_at) : new Date()));
-            const endTimeStr = endAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const endTimeStr = formatTime12(endAt);
             const totalMins = Math.max(1, Math.round((endAt.getTime() - createdAt.getTime()) / 60000));
             prepDurationInfo = `<span style="color:#10b981; font-weight:800;">✓ Entregado ${endTimeStr} (tardó ${this.formatHumanDuration(totalMins)})</span>`;
           } else {
@@ -4632,7 +4640,8 @@
         document.getElementById('modal-turn-title').textContent = `TURNO #${o.turn}`;
         
         const createdAt = new Date(o.created_at || Date.now());
-        document.getElementById('modal-time-detail').textContent = `Hora pedido: ${createdAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+        const format12 = (d) => { if (!d || !Number.isFinite(d.getTime())) return '—'; let h = d.getHours(); const m = String(d.getMinutes()).padStart(2, '0'); const ampm = h >= 12 ? 'pm' : 'am'; h = h % 12 || 12; return `${h}:${m} ${ampm}`; };
+        document.getElementById('modal-time-detail').textContent = `Hora pedido: ${format12(createdAt)}`;
         document.getElementById('modal-guest-name').textContent = o.guest_name.toUpperCase();
         document.getElementById('modal-table-name').textContent = o.table ? `📍 MESA / REFERENCIA: ${o.table}` : '📍 Sin mesa asignada';
 
@@ -5962,10 +5971,10 @@
           return;
         }
         const rows = orders.map((o, idx) => {
-          const formattedTurn = String(o.turn || (idx + 1)).padStart(4, '0');
-          const timeCreated = o.created_at ? new Date(o.created_at).toLocaleTimeString() : '';
-          const timeReady = o.prepared_at ? new Date(o.prepared_at).toLocaleTimeString() : '';
-          const timeDelivered = o.delivered_at ? new Date(o.delivered_at).toLocaleTimeString() : '';
+          const fmt12 = (val) => { if (!val) return ''; const d = new Date(val); if (!Number.isFinite(d.getTime())) return ''; let h = d.getHours(); const m = String(d.getMinutes()).padStart(2, '0'); const ampm = h >= 12 ? 'pm' : 'am'; h = h % 12 || 12; return `${h}:${m} ${ampm}`; };
+          const timeCreated = fmt12(o.created_at);
+          const timeReady = fmt12(o.prepared_at);
+          const timeDelivered = fmt12(o.delivered_at);
           return [
             `"${formattedTurn}"`,
             `"${(o.guest_name || 'Comensal').replace(/"/g, '""')}"`,
@@ -6327,15 +6336,15 @@
     window.app = new AppState();
     window.addEventListener('DOMContentLoaded', () => window.app.init());
   </script>
-  <script src="js/premium-ui.js?v=20260902-mobile-fit"></script>
-  <script src="js/unified-ui.js?v=20260902-mobile-fit"></script>
-  <script src="js/supplies-ui.js?v=20260902-audit"></script>
-  <script src="js/safety-ui.js?v=20260902-mobile-fit"></script>
-  <script src="js/i18n-ui.js?v=20260902-mobile-fit"></script>
-  <link rel="stylesheet" href="css/service.css?v=20260902-mobile-fit">
-  <script src="js/service-ui.js?v=20260902-mobile-fit"></script>
+  <script src="js/premium-ui.js?v=20260902-12h-v2"></script>
+  <script src="js/unified-ui.js?v=20260902-12h-v2"></script>
+  <script src="js/supplies-ui.js?v=20260902-12h-v2"></script>
+  <script src="js/safety-ui.js?v=20260902-12h-v2"></script>
+  <script src="js/i18n-ui.js?v=20260902-12h-v2"></script>
+  <link rel="stylesheet" href="css/service.css?v=20260902-12h-v2">
+  <script src="js/service-ui.js?v=20260902-12h-v2"></script>
   <script src="vendor/jszip.min.js"></script>
-  <script src="js/report-template.js?v=20260902-final"></script>
-  <script src="js/reports-ui.js?v=20260902-final"></script>
+  <script src="js/report-template.js?v=20260902-12h-v2"></script>
+  <script src="js/reports-ui.js?v=20260902-12h-v2"></script>
 </body>
 </html>

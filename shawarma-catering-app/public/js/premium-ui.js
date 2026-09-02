@@ -400,28 +400,50 @@
     node.innerHTML = `${icon(type === 'success' ? 'check' : 'alert')}<span>${esc(stripEmoji(msg))}</span>`;
     tray.appendChild(node);setTimeout(()=>node.remove(),5500);
   };
+  let failCount = 0;
   function connection(ok) {
     const badge = $('conn-badge');if (!badge) return;
-    badge.dataset.connection = ok ? 'online' : 'offline';
-    text('conn-text',ok ? 'Servidor conectado' : 'Sin confirmar conexión');
-    if (ok) app.lastConfirmedSync = Date.now();
-    badge.title = ok ? `Última respuesta: ${new Date().toLocaleTimeString()}` : 'Los pedidos guardados solo en este dispositivo no están confirmados en cocina.';
+    if (ok) {
+      failCount = 0;
+      badge.dataset.connection = 'online';
+      text('conn-text','Servidor conectado');
+      app.lastConfirmedSync = Date.now();
+      badge.title = `Conectado · Última respuesta: ${new Date().toLocaleTimeString()}`;
+    } else {
+      failCount++;
+      if (failCount >= 3) {
+        badge.dataset.connection = 'offline';
+        text('conn-text','Reconectando...');
+      } else {
+        badge.dataset.connection = 'online';
+        text('conn-text','Servidor conectado');
+      }
+    }
   }
   wrap('fetchServer', async function() {
-    // Keep the same endpoint and sync logic, while reporting actual connectivity.
     try {
-      const res = await fetch('/api/orders');if (!res.ok) throw new Error('No response');
-      const data = await res.json();this.syncData(data,true);connection(true);
-    } catch { connection(false); }
+      const res = await fetch('/api/orders', { cache: 'no-store' });
+      if (!res.ok) throw new Error('No response');
+      const data = await res.json();
+      this.syncData(data, true);
+      connection(true);
+    } catch {
+      connection(false);
+    }
   });
-  // Add connection events to the original SSE without changing its payload logic.
-  // A periodic health check is read-only and never creates or updates orders.
   async function checkConnection() {
     try {
-      const controller = new AbortController();const timeout = setTimeout(()=>controller.abort(),5000);
-      try { const res = await fetch('/api/ping',{signal:controller.signal,cache:'no-store'});connection(res.ok); }
-      finally { clearTimeout(timeout); }
-    } catch { connection(false); }
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 6000);
+      try {
+        const res = await fetch('/api/ping', { signal: controller.signal, cache: 'no-store' });
+        connection(res.ok);
+      } finally {
+        clearTimeout(timeout);
+      }
+    } catch {
+      connection(false);
+    }
   }
   async function handleActionClick(event) {
     const b=event.target.closest('[data-p-action]');
