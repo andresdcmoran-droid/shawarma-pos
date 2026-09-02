@@ -3989,6 +3989,7 @@
             this.updateGroupTrayUI();
             this.showToast(isGroupOrder ? `¡Turno #${data.order.turn} (Grupo de ${finalItems.length} Shawarmas) enviado!` : `¡Turno #${data.order.turn} creado para ${guestName}!`, 'success');
             this.resetForm();
+            this.fetchServer();
           } else {
             throw new Error();
           }
