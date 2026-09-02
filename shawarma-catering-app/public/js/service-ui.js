@@ -17,42 +17,54 @@
       if(Number.isFinite(height)&&height>0){const value=Math.ceil(height)+'px';if(style.getPropertyValue(property)!==value)style.setProperty(property,value);}
     }
   }
-  function refreshMobileReview(){
-    const button=$('p-review-order'),label=$('p-mobile-action-text');if(!button||!label)return false;
+  let isSummaryVisible = false;
+  function updateMobileActionButton(visible){
+    isSummaryVisible = !!visible;
+    const button=$('p-review-order'),label=$('p-mobile-action-text');if(!button||!label)return;
     const tr=text=>window.ShawarmaI18n?.translate(text)||text;
-    const phone=window.matchMedia?.('(max-width:767px)').matches;
-    const summary=document.querySelector('.summary-card-pos')?.getBoundingClientRect?.();
-    const header=document.querySelector('.header-bar')?.getBoundingClientRect?.();
-    const nav=document.querySelector('.tabs-nav')?.getBoundingClientRect?.();
-    const review=document.querySelector('.p-mobile-review')?.getBoundingClientRect?.();
-    const viewport=window.visualViewport,top=Math.max(viewport?.offsetTop||0,header?.bottom||0);
-    const bottom=(viewport?.offsetTop||0)+(viewport?.height||window.innerHeight||0)-(nav?.height||0)-(review?.height||0);
-    const visible=!!(phone&&summary&&summary.top<bottom-48&&summary.bottom>top+48);
     const editing=!!app.editingOrderId;
-    const text=tr(visible?(editing?'Guardar cambios':'Enviar a cocina'):(editing?'Revisar cambios':'Revisar pedido'));
+    const text=tr(isSummaryVisible?(editing?'Guardar cambios':'Enviar a cocina'):(editing?'Revisar cambios':'Revisar pedido'));
     if(label.textContent!==text)label.textContent=text;
-    button.dataset.mobileAction=visible?'submit':'review';
-    button.disabled=visible&&!!($('btn-submit-order')?.disabled||app.premiumSubmitting||app.safetyClosing);
-    const accessible=visible?tr(editing?'Guardar cambios':'Confirmar y enviar a cocina'):text;
+    button.dataset.mobileAction=isSummaryVisible?'submit':'review';
+    button.disabled=isSummaryVisible&&!!($('btn-submit-order')?.disabled||app.premiumSubmitting||app.safetyClosing);
+    const accessible=isSummaryVisible?tr(editing?'Guardar cambios':'Confirmar y enviar a cocina'):text;
     if(button.getAttribute('aria-label')!==accessible)button.setAttribute('aria-label',accessible);
-    return visible;
+  }
+  function refreshMobileReview(){
+    updateMobileActionButton(isSummaryVisible);
+    return isSummaryVisible;
   }
   function confirmMobileReview(){
-    if(!refreshMobileReview())return false;
+    if(!isSummaryVisible)return false;
     const submit=$('btn-submit-order');if(!submit)return false;
-    // Reuse the original protected submission, including validation and duplicate guards.
     if(!$('p-review-order').disabled)submit.click();
     return true;
   }
   function setupMobileChrome(){
     if(app.mobileChromeInstalled)return;app.mobileChromeInstalled=true;
-    let scheduled=false;
-    const schedule=()=>{if(scheduled)return;scheduled=true;const run=()=>{scheduled=false;measureMobileChrome();refreshMobileReview();};if(window.requestAnimationFrame)window.requestAnimationFrame(run);else run();};
+    const schedule=()=>{measureMobileChrome();refreshMobileReview();};
     if(typeof window.ResizeObserver==='function'){
       app.mobileChromeObserver=new ResizeObserver(schedule);
-      for(const selector of ['.tabs-nav','.p-mobile-review','.header-bar','.summary-card-pos']){const node=document.querySelector(selector);if(node)app.mobileChromeObserver.observe(node);}
+      for(const selector of ['.tabs-nav','.p-mobile-review','.header-bar']){const node=document.querySelector(selector);if(node)app.mobileChromeObserver.observe(node);}
     }
-    window.addEventListener('resize',schedule);window.addEventListener('orientationchange',schedule);window.addEventListener('scroll',schedule,{passive:true});window.visualViewport?.addEventListener('resize',schedule);schedule();
+    window.addEventListener('resize',schedule);
+    window.addEventListener('orientationchange',schedule);
+    window.visualViewport?.addEventListener('resize',schedule);
+    
+    // IntersectionObserver fluido para detectar el resumen sin recalcular en scroll
+    if(typeof window.IntersectionObserver==='function'){
+      const summaryNode=document.querySelector('.summary-card-pos');
+      if(summaryNode){
+        const obs=new IntersectionObserver((entries)=>{
+          for(const entry of entries){
+            updateMobileActionButton(entry.isIntersecting);
+          }
+        },{threshold:0.15});
+        obs.observe(summaryNode);
+        app.mobileSummaryObserver=obs;
+      }
+    }
+    schedule();
   }
   const sendOrder=proto.submitOrder;
   proto.submitOrder=async function(...args){

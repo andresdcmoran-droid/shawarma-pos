@@ -3449,27 +3449,32 @@
         const serverOrders = Array.isArray(data.orders) ? data.orders : [];
         const currentMemoryOrders = (this.db && Array.isArray(this.db.orders) && this.db.orders.length > 0) ? this.db.orders : [];
         let cachedOrders = [];
+        let cachedObj = {};
         try {
-          const cached = JSON.parse(localStorage.getItem('shawarma_db_v6') || '{}');
-          if (Array.isArray(cached.orders)) cachedOrders = cached.orders;
+          cachedObj = JSON.parse(localStorage.getItem('shawarma_db_v6') || '{}');
+          if (Array.isArray(cachedObj.orders)) cachedOrders = cachedObj.orders;
         } catch(e) {}
-        const vaultOrders = this.getVaultOrders();
 
-        // Obtener la mejor piscina local de pedidos
+        const serverEventId = String(data.event_info?.id || '');
+        const cachedEventId = String(cachedObj.event_info?.id || '');
+        const isSameEvent = serverEventId && cachedEventId && serverEventId === cachedEventId;
+
+        const vaultOrders = this.getVaultOrders();
         const bestLocalPool = currentMemoryOrders.length >= cachedOrders.length ? currentMemoryOrders : cachedOrders;
 
-        // Auto-Heal Protection: Si el servidor despierta vacío (0 pedidos) pero el dispositivo tiene pedidos activos,
-        // y el usuario NUNCA presionó "Limpiar Evento", RESTAURAR inmediatamente todos los pedidos al servidor!
-        if (!isIntentionalReset && serverOrders.length === 0 && (bestLocalPool.length > 0 || vaultOrders.length > 0)) {
+        // Auto-Heal Protection: Solo para el MISMO evento activo.
+        // Si el servidor reinicia durante el evento actual (mismo event_info.id), restaurar los pedidos al servidor.
+        // Si el ID de evento es distinto, es un evento nuevo o reiniciado y NO debe resucitar pedidos antiguos.
+        if (isSameEvent && !isIntentionalReset && serverOrders.length === 0 && (bestLocalPool.length > 0 || vaultOrders.length > 0)) {
           const ordersToRestore = bestLocalPool.length > 0 ? bestLocalPool : vaultOrders;
           data.orders = ordersToRestore;
           const maxTurn = Math.max(...ordersToRestore.map(o => parseInt(o.turn) || 0), 0);
           if (!data.event_info) data.event_info = {};
           data.event_info.turn_counter = Math.max(parseInt(data.event_info.turn_counter) || 0, maxTurn);
           this.pushOrdersToServer(ordersToRestore);
-          console.log(`[Auto-Heal Blindado] Restaurados ${ordersToRestore.length} pedidos locales al servidor automáticamente.`);
-        } else if (!isIntentionalReset && serverOrders.length > 0 && bestLocalPool.length > serverOrders.length) {
-          // Si el local tiene pedidos adicionales no presentes en el servidor, unirlos
+          console.log(`[Auto-Heal Blindado] Restaurados ${ordersToRestore.length} pedidos locales al servidor (mismo evento ${serverEventId}).`);
+        } else if (isSameEvent && !isIntentionalReset && serverOrders.length > 0 && bestLocalPool.length > serverOrders.length) {
+          // Si el local tiene pedidos adicionales no presentes en el servidor dentro del mismo evento, unirlos
           const serverIds = new Set(serverOrders.map(o => o.id));
           const missingLocals = bestLocalPool.filter(o => !serverIds.has(o.id));
           if (missingLocals.length > 0) {
@@ -5194,17 +5199,21 @@
           if (res.ok) {
             const data = await res.json();
             if (data.archives && Array.isArray(data.archives)) {
-              const localArchives = JSON.parse(localStorage.getItem('shawarma_event_vault_archives') || '[]');
-              const existingIds = new Set(localArchives.map(a => a.id));
-              
-              data.archives.forEach(sa => {
-                if (!existingIds.has(sa.id)) {
-                  localArchives.push(sa);
-                  existingIds.add(sa.id);
-                }
+              const deletedIds = new Set(JSON.parse(localStorage.getItem('shawarma_deleted_vault_ids') || '[]'));
+              if (deletedIds.has('ALL')) {
+                localStorage.setItem('shawarma_event_vault_archives', '[]');
+                if (this.currentView === 'admin') this.renderAdmin();
+                return;
+              }
+
+              // Los respaldos del servidor son la fuente real, filtrando cualquier ID que el usuario haya borrado
+              const validArchives = data.archives.filter(sa => {
+                const id = String(sa.id || '');
+                const raw = id.replace(/^backup_/, '');
+                return !deletedIds.has(id) && !deletedIds.has(`backup_${raw}`) && !deletedIds.has(raw);
               });
               
-              localStorage.setItem('shawarma_event_vault_archives', JSON.stringify(localArchives));
+              localStorage.setItem('shawarma_event_vault_archives', JSON.stringify(validArchives));
               if (this.currentView === 'admin') this.renderAdmin();
             }
           }
@@ -5213,7 +5222,14 @@
 
       getVaultArchives() {
         try {
-          return JSON.parse(localStorage.getItem('shawarma_event_vault_archives') || '[]');
+          const deletedIds = new Set(JSON.parse(localStorage.getItem('shawarma_deleted_vault_ids') || '[]'));
+          if (deletedIds.has('ALL')) return [];
+          const list = JSON.parse(localStorage.getItem('shawarma_event_vault_archives') || '[]');
+          return list.filter(item => {
+            const id = String(item.id || '');
+            const raw = id.replace(/^backup_/, '');
+            return !deletedIds.has(id) && !deletedIds.has(`backup_${raw}`) && !deletedIds.has(raw);
+          });
         } catch(e) {
           return [];
         }
@@ -5262,14 +5278,27 @@
         const date = new Date(target.date || Date.now()).toLocaleDateString();
         const count = target.total_orders || (target.orders ? target.orders.length : 0);
         
-        if (!confirm(`¿Estás seguro de eliminar el respaldo de:\n"${name}" (${date}) con ${count} pedidos?\n\nEsta acción eliminará únicamente este evento archivado del historial.`)) {
+        if (!confirm(`¿Estás seguro de eliminar el respaldo de:\n"${name}" (${date}) con ${count} pedidos?\n\nEsta acción eliminará este evento archivado definitivamente tanto de este dispositivo como del servidor.`)) {
           return;
         }
 
-        const deletedId = target.id;
+        const deletedId = String(target.id || '');
+        const rawId = deletedId.replace(/^backup_/, '');
+
+        // 1. Quitar de la lista local
         archives.splice(index, 1);
         localStorage.setItem('shawarma_event_vault_archives', JSON.stringify(archives));
 
+        // 2. Registrar en la lista negra de borrados para que NUNCA vuelva a resucitar
+        const deletedIds = JSON.parse(localStorage.getItem('shawarma_deleted_vault_ids') || '[]');
+        if (!deletedIds.includes(deletedId)) deletedIds.push(deletedId);
+        if (!deletedIds.includes(`backup_${rawId}`)) deletedIds.push(`backup_${rawId}`);
+        if (!deletedIds.includes(rawId)) deletedIds.push(rawId);
+        localStorage.setItem('shawarma_deleted_vault_ids', JSON.stringify(deletedIds));
+
+        this.renderAdmin();
+
+        // 3. Eliminar el archivo físico en el servidor
         try {
           await fetch('/api/vault/archives/delete', {
             method: 'POST',
@@ -5278,19 +5307,25 @@
           });
         } catch(e) {}
 
-        this.showToast(`🗑️ Respaldo de "${name}" eliminado con éxito`, 'info');
-        this.renderAdmin();
+        this.showToast(`🗑️ Respaldo de "${name}" eliminado definitivamente`, 'info');
       }
 
-      clearVaultPrompt() {
+      async clearVaultPrompt() {
         soundEngine.playClick();
-        const msg = `⚠️ ¡ADVERTENCIA DE SEGURIDAD!\n\n¿Estás seguro de ELIMINAR y VACIAR toda la Bóveda de este dispositivo?\n\nEsta acción borrará todos los eventos anteriores guardados en la memoria física de forma permanente.`;
+        const msg = `⚠️ ¡ADVERTENCIA DE SEGURIDAD!\n\n¿Estás seguro de ELIMINAR y VACIAR toda la Bóveda de respaldos?\n\nEsta acción borrará todos los eventos anteriores guardados tanto en este dispositivo como en el servidor de forma definitiva.`;
         if (!confirm(msg)) return;
 
         localStorage.removeItem('shawarma_permanent_vault_v2');
-        localStorage.removeItem('shawarma_event_vault_archives');
+        localStorage.setItem('shawarma_event_vault_archives', '[]');
+        localStorage.setItem('shawarma_deleted_vault_ids', JSON.stringify(['ALL']));
+        
         this.renderAdmin();
-        this.showToast('🗑️ Bóveda vaciada completamente', 'info');
+
+        try {
+          await fetch('/api/vault/archives/clear', { method: 'POST' });
+        } catch(e) {}
+
+        this.showToast('🗑️ Bóveda vaciada completamente en el dispositivo y en el servidor', 'info');
       }
 
       exportVaultCSV() {

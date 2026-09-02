@@ -228,7 +228,13 @@
     oldInit.apply(this,args);
     if(!$('u-safety-notice')){const node=document.createElement('aside');node.id='u-safety-notice';node.className='u-safety-notice';node.hidden=true;node.setAttribute('role','status');document.body.prepend(node);}
     this.safetyWakeEnabled=true;
-    document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')this.requestScreenAwake();});
+    document.addEventListener('visibilitychange',()=>{
+      if(document.visibilityState==='visible'){
+        this.requestScreenAwake();
+        if(typeof this.fetchServer==='function')this.fetchServer();
+      }
+    });
+    window.addEventListener('pageshow',()=>{if(typeof this.fetchServer==='function')this.fetchServer();});
     document.addEventListener('click',()=>this.requestScreenAwake());
     this.requestScreenAwake();showSafetyState();
   };

@@ -546,6 +546,82 @@ server.mount_proc '/api/vault/archives' do |req, res|
   end
 end
 
+# API: Delete a Single Vault Backup on Server
+server.mount_proc '/api/vault/archives/delete' do |req, res|
+  set_api_headers(res)
+  if req.request_method == 'OPTIONS'
+    res.status = 204
+    next
+  end
+
+  if req.request_method == 'POST'
+    begin
+      payload = JSON.parse(req.body || '{}')
+      target_id = payload['id'].to_s.strip
+      deleted_files = []
+
+      if !target_id.empty?
+        clean_id = target_id.gsub(/[^a-zA-Z0-9_-]/, '')
+        raw_id = clean_id.sub(/^backup_/, '')
+
+        # 1. Comprobar archivos directos por coincidencia de nombre
+        [
+          File.join(DATA_DIR, "backup_#{clean_id}.json"),
+          File.join(DATA_DIR, "#{clean_id}.json"),
+          File.join(DATA_DIR, "backup_#{raw_id}.json"),
+          File.join(DATA_DIR, "#{raw_id}.json")
+        ].uniq.each do |f|
+          if File.exist?(f)
+            File.delete(f) rescue nil
+            deleted_files << File.basename(f)
+          end
+        end
+
+        # 2. Comprobar el ID interno dentro de los archivos de backup restantes
+        Dir.glob(File.join(DATA_DIR, 'backup_*.json')).each do |f|
+          begin
+            d = JSON.parse(File.read(f))
+            evt_id = d.dig('event_info', 'id').to_s
+            if evt_id == target_id || evt_id == clean_id || evt_id == raw_id || File.basename(f, '.json') == clean_id
+              File.delete(f) rescue nil
+              deleted_files << File.basename(f)
+            end
+          rescue StandardError
+          end
+        end
+      end
+
+      res.body = JSON.generate({ status: 'ok', deleted_id: target_id, deleted_files: deleted_files })
+    rescue StandardError => e
+      res.status = 400
+      res.body = JSON.generate({ error: e.message })
+    end
+  end
+end
+
+# API: Clear all Vault Backups on Server
+server.mount_proc '/api/vault/archives/clear' do |req, res|
+  set_api_headers(res)
+  if req.request_method == 'OPTIONS'
+    res.status = 204
+    next
+  end
+
+  if req.request_method == 'POST'
+    begin
+      cleared = []
+      Dir.glob(File.join(DATA_DIR, 'backup_*.json')).each do |f|
+        File.delete(f) rescue nil
+        cleared << File.basename(f)
+      end
+      res.body = JSON.generate({ status: 'ok', cleared_count: cleared.length, files: cleared })
+    rescue StandardError => e
+      res.status = 400
+      res.body = JSON.generate({ error: e.message })
+    end
+  end
+end
+
 # API: Server-Sent Events (SSE) for Real-Time Sync without external internet
 server.mount_proc '/api/stream' do |req, res|
   res['Content-Type'] = 'text/event-stream'
