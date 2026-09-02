@@ -135,7 +135,7 @@
     for(const r of delivered){const key=r.protein+' · '+r.format;breakdown.set(key,(breakdown.get(key)||0)+r.quantity);}
     return {rows,delivered:sum(delivered),pending:sum(rows.filter(r=>['pending','preparing','ready'].includes(r.status))),cancelled:sum(rows.filter(r=>r.status==='cancelled')),total:sum(rows),breakdown:[...breakdown]};
   }
-  function time(value){const d=new Date(value);return Number.isFinite(d.getTime())?d.toLocaleTimeString(en()?'en':'es',{hour:'2-digit',minute:'2-digit'}):'—';}
+  function time(value){const d=new Date(value);if(!Number.isFinite(d.getTime()))return '—';let h=d.getHours();const m=String(d.getMinutes()).padStart(2,'0');const ampm=h>=12?'pm':'am';h=h%12||12;return `${h}:${m} ${ampm}`;}
   function date(value){const d=new Date(value);return Number.isFinite(d.getTime())?d.toLocaleDateString(en()?'en':'es',{year:'numeric',month:'long',day:'numeric'}):'—';}
   function timerSeconds(db){const timer=db.event_info?.timer;if(!timer?.started_at)return 0;return Math.max(0,Math.floor(((timer.is_paused?Date.parse(timer.paused_at):Date.now())-Date.parse(timer.started_at))/1000))||0;}
   function reportMarkup(db,meta) {

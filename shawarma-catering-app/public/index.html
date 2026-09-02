@@ -3812,7 +3812,10 @@
           if (cancelBtn) cancelBtn.style.display = 'block';
           if (submitBtn) submitBtn.style.background = 'linear-gradient(135deg, #0284c7, #0369a1)';
         } else {
-          const nextTurn = (this.db.event_info?.turn_counter || 0) + 1;
+          const activeOrders = this.db?.orders || [];
+          const turnCounter = Number(this.db?.event_info?.turn_counter) || 0;
+          // Si la cocina está en 0 (evento nuevo o reiniciado), el próximo turno es SIEMPRE el #1
+          const nextTurn = activeOrders.length === 0 ? 1 : turnCounter + 1;
           if (turnEl) turnEl.textContent = `#${nextTurn}`;
           const groupCount = this.currentGroupItems.length;
           if (groupCount > 0) {

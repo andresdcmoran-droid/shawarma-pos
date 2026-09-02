@@ -89,8 +89,9 @@
     html('modal-table-name',order.table?`${icon('pin')}${esc(order.table)}`:'');
     text('u-detail-status',statusText[order.status]||'Revisar estado');
     $('u-detail-status').className=`p-status p-status-${order.status}`;
-    const date=new Date(order.created_at);
-    text('modal-time-detail',`Recibido ${Number.isFinite(date.getTime())?date.toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit'}):'—'} · ${units(order)} ${units(order)===1?'shawarma':'shawarmas'}`);
+    let timeStr='—';
+    if(Number.isFinite(date.getTime())){let h=date.getHours();const m=String(date.getMinutes()).padStart(2,'0');const ampm=h>=12?'pm':'am';h=h%12||12;timeStr=`${h}:${m} ${ampm}`;}
+    text('modal-time-detail',`Recibido ${timeStr} · ${units(order)} ${units(order)===1?'shawarma':'shawarmas'}`);
     const recipeMarkup=orderUnits(order).map(({item,quantity},i)=>`<section class="p-ticket-item"><h3>${icon(proteinIcon(item.protein))}${order.is_group?`<span class="p-item-number">${i+1}</span>`:''}${quantity>1?`${quantity} × `:''}${esc(title(item))}</h3>${recipeHTML(item,true)}${item.notes?`<p class="p-note">${icon('edit')}${esc(item.notes)}</p>`:''}<p class="u-preparation">${icon(item.is_bowl||item.preset==='bowl'?'bowl':'wrap')}${item.is_bowl||item.preset==='bowl'?'Servido en plato, sin pan':'Envuelto y tostado en plancha'}</p></section>`).join('');
     const body=$('modal-ingredients-body'),recipeKey=String(order.id)+'|'+recipeMarkup;
     if(body.dataset.recipeKey!==recipeKey){body.innerHTML=recipeMarkup;body.dataset.recipeKey=recipeKey;}

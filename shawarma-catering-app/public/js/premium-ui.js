@@ -223,8 +223,10 @@
   };
   proto.updatePreviewAndTurn = function() {
     syncSpecialMotion();
-    const editing = !!this.editingOrderId;
-    const next = editing ? this.editingOrderTurn : (Number(this.db.event_info?.turn_counter) || 0) + 1;
+    const activeOrders = this.db?.orders || [];
+    const turnCounter = Number(this.db?.event_info?.turn_counter) || 0;
+    // Si la cocina está en 0 (evento nuevo o reiniciado), el próximo turno es SIEMPRE el #1
+    const next = editing ? this.editingOrderTurn : (activeOrders.length === 0 ? 1 : turnCounter + 1);
     const count = this.currentGroupItems.length + 1;
     text('next-turn-display', `#${next}`);
     text('turn-label-display', editing ? 'Editando pedido' : 'Próximo turno');
@@ -290,7 +292,14 @@
       const status = {pending:'Por preparar',preparing:'En preparación',ready:'Listo para entregar',delivered:'Entregado',cancelled:'Cancelado'}[o.status] || 'Revisar estado';
       const next = {pending:['preparing','Comenzar preparación','kitchen'],preparing:['ready',count > 1 ? 'Marcar grupo completo listo' : 'Marcar como listo','check'],ready:['delivered',count > 1 ? 'Confirmar entrega del grupo' : 'Confirmar entrega','box']}[o.status];
       const date = new Date(o.created_at);
-      const time = Number.isFinite(date.getTime()) ? date.toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit'}) : '—';
+      let time = '—';
+      if (Number.isFinite(date.getTime())) {
+        let h = date.getHours();
+        const m = String(date.getMinutes()).padStart(2, '0');
+        const ampm = h >= 12 ? 'pm' : 'am';
+        h = h % 12 || 12;
+        time = `${h}:${m} ${ampm}`;
+      }
       const visualOrder=portion?{...o,is_group:true,items}:o;
       return `<article class="p-ticket status-${esc(o.status)} ${overdue ? 'p-overdue' : ''} ${specialClasses(visualOrder)}" data-order-id="${esc(o.id)}" aria-label="Turno ${esc(o.turn)}, ${esc(o.guest_name)}, ${status}">
         <header class="p-ticket-head"><div><span class="p-eyebrow">Turno</span><h2>#${esc(o.turn)}</h2></div><div class="p-ticket-meta"><span class="p-status p-status-${esc(o.status)}">${icon(waiting ? 'kitchen' : 'check')}${status}</span><span class="p-age-label">${waiting ? 'Desde el pedido' : 'Tiempo total'}</span><strong class="p-age" data-age-id="${esc(o.id)}">${duration(sec)}</strong><span class="p-received">Pedido · ${time}</span><small class="p-wait-warning" ${overdue ? '' : 'hidden'}>Espera prolongada</small></div></header>

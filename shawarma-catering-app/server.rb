@@ -181,7 +181,10 @@ server.mount_proc '/api/orders' do |req, res|
     begin
       body = JSON.parse(req.body)
       
-      # Increment turn counter
+      # Increment turn counter (siempre reinicia a 0 si la lista de pedidos está vacía)
+      if db['orders'].empty?
+        db['event_info']['turn_counter'] = 0
+      end
       turn_num = (db['event_info']['turn_counter'] || 0) + 1
       db['event_info']['turn_counter'] = turn_num
 
@@ -398,6 +401,10 @@ server.mount_proc '/api/orders/delete' do |req, res|
       db['orders'].reject! { |o| o['id'] == order_id }
 
       if db['orders'].length < orig_len
+        # Si la lista de pedidos quedó vacía tras borrar, reiniciar el contador de turnos a 0
+        if db['orders'].empty?
+          db['event_info']['turn_counter'] = 0
+        end
         save_db(db)
         res.body = JSON.generate({ status: 'ok', deleted_id: order_id })
       else
