@@ -187,9 +187,15 @@
       }
       const latest=await readCurrent();
       if(latest.orders.some(o=>context.confirmed.has(String(o.id))))throw Error('Deletion not reflected by server');
+      if(latest.orders.length===0){
+        if(!latest.event_info)latest.event_info={};
+        latest.event_info.turn_counter=0;
+        try{await request('/api/event/reset_turns',{method:'POST'});}catch(e){}
+      }
       this.syncData(latest,true);if(!currentEvent())throw Error('Unexpected update');
       this.resetForm();
-      this.showToast(latest.orders.length?t('Se limpiaron los pedidos confirmados. Los pedidos nuevos se conservaron. El evento sigue abierto.','Confirmed orders cleared. New orders were kept. The event remains open.'):t('Pedidos limpiados sin descargar ni archivar. El mismo evento continúa abierto.','Orders cleared without downloading or archiving. The same event remains open.'),'success');return true;
+      this.updatePreviewAndTurn();
+      this.showToast(latest.orders.length?t('Se limpiaron los pedidos confirmados. Los pedidos nuevos se conservaron. El evento sigue abierto.','Confirmed orders cleared. New orders were kept. The event remains open.'):t('Pedidos limpiados y contador reiniciado al Turno #1.','Orders cleared and counter reset to Turn #1.'),'success');return true;
     } catch {
       this.showToast(t('Limpieza incompleta o sin confirmar. Se detuvo; no se cerró el evento. Algunos pedidos pueden haberse eliminado. Revisa cocina y la conexión antes de repetir.','Clearing was incomplete or unconfirmed and has stopped. The event was not closed. Some orders may have been deleted. Check the kitchen and connection before retrying.'),'error');return false;
     } finally {this.serviceClearing=null;this.safetyClosing=false;this.renderAdmin();}

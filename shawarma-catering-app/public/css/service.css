@@ -42,12 +42,12 @@
  .premium-ui #event-timer-container {display:none!important;}
  /* iOS standalone: keep the original logo below the system status area. */
  body.premium-ui {min-height:100vh;min-height:100dvh;}
- .premium-ui .header-bar {
-  height:auto!important;min-height:calc(56px + env(safe-area-inset-top,0px))!important;
-  padding:calc(12px + env(safe-area-inset-top,0px)) calc(12px + env(safe-area-inset-right,0px)) 10px calc(12px + env(safe-area-inset-left,0px))!important;
-  align-items:center!important;gap:10px!important;box-sizing:border-box;isolation:isolate;
- }
- .premium-ui .brand-section {display:flex!important;align-items:center;flex:0 1 142px!important;min-width:0;max-width:46%;}
+  .premium-ui .header-bar {
+   height:auto!important;min-height:calc(56px + max(26px, env(safe-area-inset-top,0px)))!important;
+   padding:calc(max(26px, env(safe-area-inset-top,0px))) calc(12px + env(safe-area-inset-right,0px)) 10px calc(12px + env(safe-area-inset-left,0px))!important;
+   align-items:center!important;gap:10px!important;box-sizing:border-box;isolation:isolate;
+  }
+  .premium-ui .brand-section {display:flex!important;align-items:center;flex:0 1 142px!important;min-width:0;max-width:46%;}
  .premium-ui .brand-section .brand-logo-img {display:block!important;width:100%!important;max-width:142px!important;min-width:0;height:32px!important;max-height:32px!important;object-fit:contain!important;object-position:left center;}
  .premium-ui .connection-badge {flex:0 1 auto;min-width:0;max-width:54%;white-space:nowrap;}
  .premium-ui #conn-text {min-width:0;overflow:hidden;text-overflow:ellipsis;}
@@ -205,6 +205,18 @@
   .premium-ui .s-report-dialog {max-height:calc(100dvh - 16px);}.premium-ui #client-invoice-modal {padding:8px!important;}
   .premium-ui .s-report-fields {grid-template-columns:1fr;}.s-client-report {padding:20px;}.s-client-report h1 {font-size:24px;}
   .s-client-report header img {width:125px;}.s-report-reference {grid-template-columns:1fr;}
+}
+@media screen and (min-width: 768px) {
+  .premium-ui .header-bar {
+    display: grid !important;
+    grid-template-columns: 1fr auto 1fr !important;
+    padding-top: calc(max(28px, env(safe-area-inset-top, 0px))) !important;
+    padding-bottom: 12px !important;
+    padding-left: calc(24px + env(safe-area-inset-left, 0px)) !important;
+    padding-right: calc(24px + env(safe-area-inset-right, 0px)) !important;
+    min-height: calc(58px + max(28px, env(safe-area-inset-top, 0px))) !important;
+    align-items: center !important;
+  }
 }
 @media print {
  #client-invoice-modal {display:block!important;position:absolute!important;inset:0!important;padding:0!important;background:white!important;overflow:visible!important;}

@@ -471,6 +471,23 @@ server.mount_proc '/api/event/timer' do |req, res|
       res.body = JSON.generate({ error: e.message })
     end
   end
+server.mount_proc '/api/event/reset_turns' do |req, res|
+  set_api_headers(res)
+  if req.request_method == 'OPTIONS'
+    res.status = 204
+    next
+  end
+  if req.request_method == 'POST'
+    begin
+      db = load_db
+      db['event_info']['turn_counter'] = 0
+      save_db(db)
+      res.body = JSON.generate({ status: 'ok', event_info: db['event_info'] })
+    rescue StandardError => e
+      res.status = 400
+      res.body = JSON.generate({ error: e.message })
+    end
+  end
 end
 
 server.mount_proc '/api/event/reset' do |req, res|

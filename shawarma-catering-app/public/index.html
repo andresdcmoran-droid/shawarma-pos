@@ -2243,10 +2243,10 @@
         <div class="summary-card-pos">
           
           <!-- Strict Turn Counter -->
-          <div class="turn-badge-card">
-            <div class="turn-label-txt" id="turn-label-display">Turno Asignado (FIFO)</div>
+          <div class="turn-badge-card" style="cursor: pointer;" onclick="app.promptResetTurnCounter()" title="Toca para reiniciar turno a #1">
+            <div class="turn-label-txt" id="turn-label-display">Próximo Turno</div>
             <div class="turn-number-giant" id="next-turn-display">#1</div>
-            <div style="font-size: 11px; color: var(--text-dim); margin-top: 2px;" id="turn-sub-display">Garantía estricta de orden</div>
+            <div style="font-size: 11px; color: var(--text-dim); margin-top: 2px;" id="turn-sub-display">Toca para reiniciar si es necesario</div>
           </div>
 
           <!-- Recipe Preview -->
@@ -4142,6 +4142,18 @@
         }
         this.updateEventTimerDisplay();
         this.showToast('⏱️ Cronómetro reiniciado a 00:00:00', 'info');
+      }
+
+      async promptResetTurnCounter() {
+        soundEngine.playClick();
+        if (!confirm('¿Deseas reiniciar el contador de turnos para que el próximo sea el Turno #1?')) return;
+        if (!this.db.event_info) this.db.event_info = {};
+        this.db.event_info.turn_counter = 0;
+        this.updatePreviewAndTurn();
+        try {
+          await fetch('/api/event/reset_turns', { method: 'POST' });
+        } catch(e) {}
+        this.showToast('✅ Contador reiniciado al Turno #1', 'success');
       }
 
       updateEventTimerDisplay() {
