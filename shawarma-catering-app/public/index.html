@@ -2114,8 +2114,8 @@
       }
     }
   </style>
-  <link rel="stylesheet" href="css/premium.css?v=20260904-v5">
-  <link rel="stylesheet" href="css/unified.css?v=20260904-v5">
+  <link rel="stylesheet" href="css/premium.css?v=20260904-v6">
+  <link rel="stylesheet" href="css/unified.css?v=20260904-v6">
 </head>
 <body class="premium-ui" data-view="order">
 
@@ -2724,8 +2724,13 @@
     </div>
 
     <!-- Pager Container -->
-    <div id="guest-buzzer-card" style="background: var(--bg-surface); border: 1px solid var(--border-color); border-top: 3px solid var(--brand-pink); border-radius: 20px; padding: 32px 24px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.55); backdrop-filter: blur(12px); transition: all 0.35s ease;">
+    <div id="guest-buzzer-card" style="background: var(--bg-surface); border: 1px solid var(--border-color); border-top: 3px solid var(--brand-pink); border-radius: 20px; padding: 32px 24px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.55); backdrop-filter: blur(12px); transition: all 0.35s ease; position: relative;">
       
+      <!-- Close Button (X) -->
+      <button type="button" id="btn-close-guest-view" onclick="app.exitGuestView()" aria-label="Cerrar vista y volver a pedidos" style="position: absolute; top: 16px; right: 16px; background: var(--bg-surface-2); border: 1.5px solid var(--border-color); color: var(--text-white); width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10; transition: all 0.2s ease; box-shadow: 0 2px 10px rgba(0,0,0,0.3);">
+        <svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width: 18px; height: 18px;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+
       <!-- Order Turn & Name -->
       <div class="p-eyebrow" style="font-size: 12px; letter-spacing: 0.14em; margin-bottom: 4px;">TU TURNO ASIGNADO</div>
       <div id="guest-view-turn" style="font-size: 64px; font-weight: 850; line-height: 1; letter-spacing: -1.5px; color: #ffffff; text-shadow: 0 0 24px rgba(225, 29, 72, 0.45); margin: 8px 0; font-variant-numeric: tabular-nums;">#0</div>
@@ -2786,6 +2791,14 @@
         </div>
         <button type="button" style="background: transparent; color: var(--text-dim); border: none; font-size: 12px; font-weight: 700; cursor: pointer; padding: 6px;" onclick="app.resetGuestSimulation()">
           ↺ Volver a estado de preparación
+        </button>
+      </div>
+
+      <!-- Exit Button -->
+      <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border-color);">
+        <button type="button" class="u-button" onclick="app.exitGuestView()" style="width: 100%; justify-content: center; font-size: 13px; font-weight: 750; min-height: 42px; border-color: var(--border-color); color: var(--text-dim); gap: 6px;">
+          <span>✕</span>
+          <span>Cerrar / Volver al Sistema de Pedidos</span>
         </button>
       </div>
 
@@ -3496,6 +3509,9 @@
           const nav = document.querySelector('.tabs-nav');
           if (header) header.style.display = '';
           if (nav) nav.style.display = '';
+          if (window.history && window.history.replaceState && window.location.search.includes('view=guest')) {
+            window.history.replaceState(null, '', window.location.pathname);
+          }
         }
 
         if (v === 'kitchen') this.renderKDS();
@@ -5154,6 +5170,15 @@
           modal.classList.remove('active');
           modal.style.display = 'none';
         }
+      }
+
+      exitGuestView() {
+        soundEngine.playClick();
+        if (window.history && window.history.replaceState) {
+          window.history.replaceState(null, '', window.location.pathname);
+        }
+        this.guestOrderId = null;
+        this.switchView('order');
       }
 
       async renderGuestView() {
@@ -6817,15 +6842,15 @@
     window.app = new AppState();
     window.addEventListener('DOMContentLoaded', () => window.app.init());
   </script>
-  <script src="js/premium-ui.js?v=20260904-v5"></script>
-  <script src="js/unified-ui.js?v=20260904-v5"></script>
-  <script src="js/supplies-ui.js?v=20260904-v5"></script>
-  <script src="js/safety-ui.js?v=20260904-v5"></script>
-  <script src="js/i18n-ui.js?v=20260904-v5"></script>
-  <link rel="stylesheet" href="css/service.css?v=20260904-v5">
-  <script src="js/service-ui.js?v=20260904-v5"></script>
+  <script src="js/premium-ui.js?v=20260904-v6"></script>
+  <script src="js/unified-ui.js?v=20260904-v6"></script>
+  <script src="js/supplies-ui.js?v=20260904-v6"></script>
+  <script src="js/safety-ui.js?v=20260904-v6"></script>
+  <script src="js/i18n-ui.js?v=20260904-v6"></script>
+  <link rel="stylesheet" href="css/service.css?v=20260904-v6">
+  <script src="js/service-ui.js?v=20260904-v6"></script>
   <script src="vendor/jszip.min.js"></script>
-  <script src="js/report-template.js?v=20260904-v5"></script>
-  <script src="js/reports-ui.js?v=20260904-v5"></script>
+  <script src="js/report-template.js?v=20260904-v6"></script>
+  <script src="js/reports-ui.js?v=20260904-v6"></script>
 </body>
 </html>
