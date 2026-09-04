@@ -212,7 +212,9 @@ input, textarea {
 @media (max-width: 768px) {
   .event-timer-badge,
   #event-timer-container {
-    display: none !important;
+    display: flex !important;
+    padding: 3px 8px;
+    font-size: 13px;
   }
 }
 

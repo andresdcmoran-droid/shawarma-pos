@@ -196,10 +196,12 @@
         max-width: 100vw;
       }
 
-      /* Ocultar cronómetro en teléfonos móviles (permanece activo y visible en Mac e iPad) */
+      /* Cronómetro visible en teléfonos móviles, Mac e iPad */
       .event-timer-badge,
       #event-timer-container {
-        display: none !important;
+        display: flex !important;
+        padding: 3px 8px;
+        font-size: 13px;
       }
 
       .brand-section {
@@ -1358,9 +1360,15 @@
     }
 
     .turn-tile.tile-ready {
-      border-color: var(--yes-green);
+      border-color: var(--yes-green) !important;
       background: #062b1e;
       animation: pulse-ready 2s infinite;
+    }
+    .turn-tile.tile-ready:hover,
+    .turn-tile.tile-ready:active,
+    .turn-tile.tile-ready:focus {
+      border-color: var(--yes-green) !important;
+      outline: 2px solid var(--yes-green) !important;
     }
 
     @keyframes pulse-ready {
@@ -1447,31 +1455,70 @@
     /* Toast */
     .toast-tray {
       position: fixed;
-      bottom: 24px;
-      right: 24px;
-      z-index: 1000;
+      top: calc(16px + env(safe-area-inset-top, 0px));
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 99999;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      align-items: center;
+      gap: 8px;
       pointer-events: none;
+      width: auto;
+      max-width: min(92vw, 440px);
     }
 
     .toast-msg {
-      background: #1e1e28;
-      border-left: 5px solid var(--brand-pink);
-      color: white;
-      padding: 14px 20px;
-      border-radius: var(--radius-md);
-      font-size: 14px;
+      background: rgba(22, 27, 34, 0.96);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1.5px solid rgba(255, 255, 255, 0.14);
+      color: #ffffff;
+      padding: 9px 20px;
+      border-radius: var(--radius-full);
+      font-size: 13.5px;
       font-weight: 800;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
-      display: flex;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 2px 8px rgba(0,0,0,0.3);
+      display: inline-flex;
       align-items: center;
       gap: 10px;
+      pointer-events: auto;
+      cursor: pointer;
+      animation: toastPillDrop 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
 
-    .toast-msg.toast-success { border-left-color: var(--yes-green); }
-    .toast-msg.toast-danger { border-left-color: var(--no-red); }
+    @keyframes toastPillDrop {
+      from { opacity: 0; transform: translateY(-16px) scale(0.96); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .toast-msg.toast-success {
+      border-color: rgba(16, 185, 129, 0.5);
+      background: rgba(8, 32, 22, 0.96);
+      color: #6ee7b7;
+    }
+    .toast-msg.toast-warning {
+      border-color: rgba(245, 158, 11, 0.5);
+      background: rgba(38, 26, 10, 0.96);
+      color: #fcd34d;
+    }
+    .toast-msg.toast-danger, .toast-msg.toast-error {
+      border-color: rgba(239, 68, 68, 0.5);
+      background: rgba(38, 12, 12, 0.96);
+      color: #fca5a5;
+    }
+    .toast-msg.toast-info {
+      border-color: rgba(56, 189, 248, 0.5);
+      background: rgba(12, 28, 44, 0.96);
+      color: #7dd3fc;
+    }
+
+    .btn-submit-success-stamp {
+      background: linear-gradient(135deg, #10b981, #059669) !important;
+      box-shadow: 0 4px 20px rgba(16, 185, 129, 0.45) !important;
+      transform: scale(0.98) !important;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    }
     /* ==========================================================================
        MODO DÍA / EXTERIOR (HIGH CONTRAST SUNLIGHT VISIBILITY)
        Diseñado específicamente para eventos diurnos al aire libre bajo la luz solar.
@@ -2067,8 +2114,8 @@
       }
     }
   </style>
-  <link rel="stylesheet" href="css/premium.css?v=20260902-idioma-bowls">
-  <link rel="stylesheet" href="css/unified.css?v=20260902-idioma-bowls">
+  <link rel="stylesheet" href="css/premium.css?v=20260904-v4">
+  <link rel="stylesheet" href="css/unified.css?v=20260904-v4">
 </head>
 <body>
 
@@ -2079,15 +2126,17 @@
     </div>
 
     <!-- Live Event Stopwatch Timer (Center) -->
-    <div class="event-timer-badge" id="event-timer-container" style="display: flex; align-items: center; gap: 6px; background: var(--bg-surface-2); border: 1.5px solid var(--border-color); padding: 5px 12px; border-radius: var(--radius-full); box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
-      <svg class="ui-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--brand-pink);"><circle cx="12" cy="13" r="8"/><path d="M12 9v5l3 2M9 2h6M12 2v3"/></svg>
-      <span id="event-timer-text" style="font-family: monospace; font-size: 15px; font-weight: 900; color: var(--brand-pink); letter-spacing: 0.5px;">00:00:00</span>
-      <button type="button" id="btn-timer-toggle" style="background: transparent; border: none; cursor: pointer; padding: 2px 4px; display: inline-flex; align-items: center; justify-content: center; color: var(--text-white);" onclick="app.toggleEventTimer()" title="Pausar / Reanudar Cronómetro">
-        <span id="timer-toggle-icon" style="display: inline-flex; align-items: center; justify-content: center;"><svg class="ui-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 5v14M16 5v14"/></svg></span>
-      </button>
-      <button type="button" id="btn-timer-reset" style="background: transparent; border: none; cursor: pointer; padding: 2px 4px; display: inline-flex; align-items: center; justify-content: center; opacity: 0.75; color: var(--text-white);" onclick="app.resetEventTimer()" title="Reiniciar Cronómetro a 00:00:00">
-        <span id="timer-reset-icon" style="display: inline-flex; align-items: center; justify-content: center;"><svg class="ui-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10a9 9 0 1 1 1 8M3 4v6h6"/></svg></span>
-      </button>
+    <div class="event-timer-badge" id="event-timer-container">
+      <svg class="ui-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #ffffff;"><circle cx="12" cy="13" r="8"/><path d="M12 9v5l3 2M9 2h6M12 2v3"/></svg>
+      <span id="event-timer-text">00:00:00</span>
+      <div class="timer-btn-group" id="timer-btn-group">
+        <button type="button" id="btn-timer-toggle" class="timer-control-btn" onclick="app.toggleEventTimer()" title="Pausar / Reanudar Cronómetro">
+          <span id="timer-toggle-icon" style="display: inline-flex; align-items: center; justify-content: center;"><svg class="ui-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="7 4.5 19 12 7 19.5 7 4.5"/></svg></span>
+        </button>
+        <button type="button" id="btn-timer-reset" class="timer-control-btn" onclick="app.resetEventTimer()" title="Reiniciar Cronómetro a 00:00:00">
+          <span id="timer-reset-icon" style="display: inline-flex; align-items: center; justify-content: center;"><svg class="ui-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12a7 7 0 1 0 7-7 7 7 0 0 0-5.2 2.3L4 10"/><path d="M4 5v5h5"/></svg></span>
+        </button>
+      </div>
     </div>
 
     <!-- Local Offline Sync Status (Right) -->
@@ -2108,7 +2157,7 @@
     <button class="tab-btn" id="tab-kitchen" onclick="app.switchView('kitchen')">
       <span class="tab-icon-wrap">
         <span class="tab-icon">👨‍🍳</span>
-        <span class="badge-count" id="badge-kds-count">0</span>
+        <span class="badge-count" id="badge-kds-count" style="display:none;">0</span>
       </span>
       <span class="tab-text">Cocina KDS</span>
     </button>
@@ -2154,19 +2203,19 @@
         </div>
         <div class="protein-selector-grid">
           <button type="button" class="protein-card-btn selected" data-protein="Mixto" onclick="app.selectProtein('Mixto')">
-            <span class="protein-emoji">🌯</span>
+            <span class="protein-emoji"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m5 7 4 14h6l4-14M6 10l11 4M8 16l8 3"/><ellipse cx="12" cy="6" rx="7" ry="4"/><path d="m8 6 2-2 3 3 3-2"/></svg></span>
             <span class="protein-title">Shawarma Mixto</span>
           </button>
           <button type="button" class="protein-card-btn" data-protein="Pollo" onclick="app.selectProtein('Pollo')">
-            <span class="protein-emoji">🍗</span>
+            <span class="protein-emoji"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M7.1 13.1C5.8 10.5 7.5 5.5 12 3.2c4.8-1.7 9.5 1.3 9.5 6.8 0 3.8-3.3 6.2-7.3 6.8-1.4.2-2.2.6-2.9.5M7.1 13.1l4.2 4.2M8 14l-2.4 2.4c-1.1-1.1-3.1-.4-3.6 1.2-.5 1.6.8 3.2 2.4 3.2.8 0 1.4-.6 1.8-1.4.4.8 1 1.4 1.8 1.4 1.6 0 2.9-1.6 2.4-3.2-.5-1.6-2.5-2.3-3.6-1.2L10.4 16.4"/><circle cx="17" cy="7.8" r=".9" fill="currentColor" stroke="none"/><circle cx="15.2" cy="10.2" r=".9" fill="currentColor" stroke="none"/><circle cx="18.2" cy="10.2" r=".9" fill="currentColor" stroke="none"/></svg></span>
             <span class="protein-title">Shawarma de Pollo</span>
           </button>
           <button type="button" class="protein-card-btn" data-protein="Carne" onclick="app.selectProtein('Carne')">
-            <span class="protein-emoji">🥩</span>
+            <span class="protein-emoji"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 7.2C6.5 4.5 12.2 3.2 17 4.5c3.5 1 5.2 4 5.2 7.5 0 4-2.7 7.5-7.2 9-2.5.8-5.2-.5-7-3-1.2-1.8-.8-4.5-2.8-6.8C2.8 8.8 2.2 8 4 7.2Z"/><path d="M5.8 8.5C7.8 6.2 12 5 16.2 6c2.8.8 4.3 3.2 4.3 6.2 0 3.3-2.5 6-6.3 7.3-2.2.7-4.4-.3-6-2.5-.7-1-1.4-2-2.2-3.2"/><circle cx="9.8" cy="8.2" r="1.6"/><path d="m8.2 8.2-3.4-.4M10.8 9.5c1.4 1.7 2.7 4.3 4.4 7.3m-3-5.3c2-1.7 4.6-2.7 7.6-2.7M6.8 11.2l1.7 1"/></svg></span>
             <span class="protein-title">Shawarma de Carne</span>
           </button>
           <button type="button" class="protein-card-btn" data-protein="Falafel" onclick="app.selectProtein('Falafel')">
-            <span class="protein-emoji">🧆</span>
+            <span class="protein-emoji"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="8" cy="15" r="5"/><circle cx="16" cy="15" r="5"/><circle cx="12" cy="6" r="4"/><path d="M10 5h.01M13 7h.01M6 15h.01M9 17h.01M16 13h.01M18 16h.01"/></svg></span>
             <span class="protein-title">Shawarma Falafel</span>
           </button>
         </div>
@@ -2243,20 +2292,22 @@
         <div class="summary-card-pos">
           
           <!-- Strict Turn Counter -->
-          <div class="turn-badge-card" style="cursor: pointer;" onclick="app.promptResetTurnCounter()" title="Toca para reiniciar turno a #1">
+          <div class="turn-badge-card">
             <div class="turn-label-txt" id="turn-label-display">Próximo Turno</div>
             <div class="turn-number-giant" id="next-turn-display">#1</div>
-            <div style="font-size: 11px; color: var(--text-dim); margin-top: 2px;" id="turn-sub-display">Toca para reiniciar si es necesario</div>
+            <div style="font-size: 11px; color: var(--text-dim); margin-top: 2px;" id="turn-sub-display">Se confirma al recibirlo el servidor</div>
           </div>
 
           <!-- Recipe Preview -->
           <div class="live-preview-box">
             <h4>Resumen del Pedido</h4>
             <div class="tags-flow-container" id="preview-tags-container">
-              <!-- Rendered by JS -->
+              <h3 class="p-preview-title">🍗 Shawarma Mixto</h3>
+              <div class="p-signature">✨ Receta de autor · Shawarma en Casa</div>
+              <div class="p-standard"><span>Ingredientes completos (Con todo)</span></div>
             </div>
             <div style="margin-top: 12px; font-size: 11px; color: var(--text-dim); display: flex; align-items: center; gap: 4px;" id="prep-type-hint">
-              <span>🔥</span> <span>Envuelto y tostado en plancha grill</span>
+              <span>Envuelto y tostado en plancha</span>
             </div>
           </div>
 
@@ -2319,15 +2370,17 @@
         </div>
         
         <!-- Temporizador de Cocina Integrado al extremo derecho -->
-        <div style="display: flex; align-items: center; gap: 6px; background: var(--bg-surface-2); border: 1px solid var(--border-color); padding: 4px 12px; border-radius: var(--radius-full);">
+        <div style="display: flex; align-items: center; gap: 8px; background: var(--bg-surface-2); border: 1px solid var(--border-color); padding: 4px 8px 4px 12px; border-radius: var(--radius-full);">
           <span style="font-size: 12px; font-weight: 800; color: var(--text-dim);">⏱️ Cocina:</span>
-          <span id="kds-timer-text" style="font-family: monospace; font-size: 14px; font-weight: 900; color: var(--brand-pink);">00:00:00</span>
-          <button type="button" style="background: transparent; border: none; font-size: 13px; cursor: pointer; display: flex; align-items: center; line-height: 1;" onclick="app.toggleEventTimer()" title="Pausar / Reanudar Cronómetro">
-            <span id="kds-timer-toggle-icon">⏸️</span>
-          </button>
-          <button type="button" style="background: transparent; border: none; font-size: 12px; cursor: pointer; display: flex; align-items: center; line-height: 1; opacity: 0.7;" onclick="app.resetEventTimer()" title="Reiniciar Cronómetro a 00:00:00">
-            <span>🔄</span>
-          </button>
+          <span id="kds-timer-text" style="font-family: monospace; font-size: 14px; font-weight: 900; color: #ffffff;">00:00:00</span>
+          <div class="timer-btn-group" style="display: inline-flex; align-items: center; gap: 4px; margin-left: 2px;">
+            <button type="button" id="kds-btn-timer-toggle" class="timer-control-btn" onclick="app.toggleEventTimer()" title="Pausar / Reanudar Cronómetro">
+              <span id="kds-timer-toggle-icon" style="display: inline-flex; align-items: center; justify-content: center;"><svg class="ui-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="7 4.5 19 12 7 19.5 7 4.5"/></svg></span>
+            </button>
+            <button type="button" id="kds-btn-timer-reset" class="timer-control-btn" onclick="app.resetEventTimer()" title="Reiniciar Cronómetro a 00:00:00">
+              <span id="kds-timer-reset-icon" style="display: inline-flex; align-items: center; justify-content: center;"><svg class="ui-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12a7 7 0 1 0 7-7 7 7 0 0 0-5.2 2.3L4 10"/><path d="M4 5v5h5"/></svg></span>
+            </button>
+          </div>
         </div>
       </div>
       <div class="batch-chips-wrapper" id="kds-batch-counters" style="display: flex; flex-wrap: wrap; gap: 12px;">
@@ -2475,11 +2528,11 @@
           <button type="button" style="background: var(--bg-surface-2); color: white; border: 1px solid var(--border-color); padding: 14px 18px; border-radius: var(--radius-md); font-size: 13px; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;" onclick="app.exportRawCSV()">
             <span>📊</span> <span>Excel Crudo</span>
           </button>
-          <button type="button" style="background: linear-gradient(135deg, #0284c7, #0369a1); color: white; border: none; padding: 14px 20px; border-radius: var(--radius-md); font-size: 13px; font-weight: 900; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 14px rgba(2,132,199,0.35);" onclick="app.closeEventAndStartNext()">
-            <span>💾</span> <span>Siguiente Evento (Guardar en Bóveda)</span>
+          <button type="button" style="background: linear-gradient(135deg, #0284c7, #0369a1); color: white; border: none; padding: 14px 20px; border-radius: var(--radius-md); font-size: 13px; font-weight: 900; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 14px rgba(2,132,199,0.35);" onclick="app.closeEventBackupAndStartNext()">
+            <span>💾</span> <span>Cerrar este evento, respaldar y próximo evento</span>
           </button>
-          <button type="button" style="background: rgba(239, 68, 68, 0.12); color: #f87171; border: 1.5px solid #ef4444; padding: 14px 20px; border-radius: var(--radius-md); font-size: 13px; font-weight: 900; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;" onclick="app.clearEventWithoutSaving()">
-            <span>🗑️</span> <span>Solo Limpiar este Evento (Sin Guardar)</span>
+          <button type="button" style="background: rgba(239, 68, 68, 0.12); color: #f87171; border: 1.5px solid #ef4444; padding: 14px 20px; border-radius: var(--radius-md); font-size: 13px; font-weight: 900; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;" onclick="app.closeEventWithoutSaving()">
+            <span>🗑️</span> <span>Cerrar evento sin guardar</span>
           </button>
         </div>
       </div>
@@ -2661,63 +2714,76 @@
   </main>
 
   <!-- ========================================================================= -->
+  <!-- ========================================================================= -->
   <!-- VIEW 5: NOTIFICADOR VIRTUAL DEL COMENSAL / BUZZER MÓVIL                    -->
   <!-- ========================================================================= -->
-  <main class="view-content" id="view-guest" style="max-width: 600px; margin: 20px auto; padding: 16px;">
-    <div style="text-align: center; margin-bottom: 24px;">
-      <img src="images/shawarma-logo-exact.png" id="guest-view-logo" alt="SHAWARMA en casa" style="height: 48px; max-width: 220px; object-fit: contain;">
+  <main class="view-content" id="view-guest" style="max-width: 460px; margin: 24px auto; padding: 16px;">
+    <div style="text-align: center; margin-bottom: 22px;">
+      <img src="images/shawarma-logo-exact.png" id="guest-view-logo" alt="SHAWARMA en casa" style="height: 48px; max-width: 220px; object-fit: contain; filter: drop-shadow(0 4px 16px rgba(0,0,0,0.5));">
     </div>
 
     <!-- Pager Container -->
-    <div id="guest-buzzer-card" style="background: var(--bg-surface); border: 2px solid var(--border-color); border-radius: var(--radius-lg); padding: 32px 24px; text-align: center; box-shadow: 0 12px 32px rgba(0,0,0,0.4); transition: all 0.3s ease;">
+    <div id="guest-buzzer-card" style="background: var(--bg-surface); border: 1px solid var(--border-color); border-top: 3px solid var(--brand-pink); border-radius: 20px; padding: 32px 24px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.55); backdrop-filter: blur(12px); transition: all 0.35s ease;">
       
       <!-- Order Turn & Name -->
-      <div style="font-size: 13px; font-weight: 800; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px;">Tu Turno Asignado</div>
-      <div style="font-size: 54px; font-weight: 900; color: var(--brand-pink); line-height: 1.1; margin: 8px 0;" id="guest-view-turn">#0</div>
-      <div style="font-size: 22px; font-weight: 900; color: var(--text-white);" id="guest-view-name">Comensal</div>
-      <div style="font-size: 14px; color: var(--text-dim); margin-top: 4px;" id="guest-view-detail">Shawarma Mixto</div>
+      <div class="p-eyebrow" style="font-size: 12px; letter-spacing: 0.14em; margin-bottom: 4px;">TU TURNO ASIGNADO</div>
+      <div id="guest-view-turn" style="font-size: 64px; font-weight: 850; line-height: 1; letter-spacing: -1.5px; color: #ffffff; text-shadow: 0 0 24px rgba(225, 29, 72, 0.45); margin: 8px 0; font-variant-numeric: tabular-nums;">#0</div>
+      <div id="guest-view-name" style="font-size: 22px; font-weight: 750; color: var(--text-white); margin-bottom: 6px;">Comensal</div>
+      <div>
+        <div id="guest-view-detail" style="display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 14px; border-radius: 20px; background: var(--bg-surface-2); border: 1px solid var(--border-color); font-size: 13px; font-weight: 600; color: var(--text-dim); margin-top: 4px;">Shawarma Mixto</div>
+      </div>
 
       <!-- Divider -->
-      <div style="height: 1px; background: var(--border-color); margin: 24px 0;"></div>
+      <div style="height: 1px; background: linear-gradient(90deg, transparent, var(--border-color), transparent); margin: 24px 0;"></div>
 
       <!-- State In Preparation -->
       <div id="guest-state-prep">
-        <div style="font-size: 48px; margin-bottom: 12px; animation: pulse 1.8s infinite;">⏳ 🔥</div>
-        <div style="font-size: 20px; font-weight: 900; color: var(--amber-gold); margin-bottom: 8px;">En Preparación</div>
-        <p style="font-size: 14px; color: var(--text-dim); line-height: 1.5; max-width: 380px; margin: 0 auto 16px;">
-          Tu pedido está en fila y se preparará fresco al momento. Tiempo estimado: <strong>~10 - 15 min</strong>.
+        <div class="guest-prep-badge" style="display: inline-flex; align-items: center; justify-content: center; width: 64px; height: 64px; border-radius: 50%; background: rgba(245, 158, 11, 0.12); border: 1.5px solid rgba(245, 158, 11, 0.35); box-shadow: 0 0 24px rgba(245, 158, 11, 0.2); margin-bottom: 14px; animation: pulse 2s infinite;">
+          <svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 30px; height: 30px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+        </div>
+        <div style="font-size: 20px; font-weight: 800; color: #f59e0b; margin-bottom: 4px; letter-spacing: 0.5px;">En Preparación</div>
+        <p style="font-size: 14px; color: var(--text-dim); line-height: 1.5; max-width: 360px; margin: 0 auto 10px;">
+          Tu pedido está en fila y se preparará fresco al momento.
         </p>
-        <div style="background: var(--bg-surface-2); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 12px 16px; font-size: 13px; color: var(--text-white); display: inline-flex; align-items: center; gap: 8px; margin-bottom: 18px;">
-          <span>📳</span>
-          <span>Recibirás una alerta por vibración en tu teléfono cuando tu shawarma esté listo para retirar.</span>
+        <div style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 12px; background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.2); color: #f59e0b; font-size: 12.5px; font-weight: 700; margin-bottom: 18px;">
+          <span>⏱️ Tiempo estimado: ~10 - 15 min</span>
         </div>
 
-        <div id="guest-perm-box" style="margin-bottom: 14px;">
-          <button type="button" id="btn-request-perm" style="background: var(--bg-surface-2); border: 1.5px solid var(--yes-green); color: var(--yes-green); font-size: 13px; font-weight: 800; padding: 9px 18px; border-radius: var(--radius-full); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15);" onclick="app.requestNotificationPermission()">
-            🔔 Toca aquí para activar aviso en pantalla bloqueada
+        <div style="background: var(--bg-surface-2); border: 1px solid var(--border-color); border-radius: 12px; padding: 12px 16px; font-size: 13px; line-height: 1.45; color: var(--text-dim); display: flex; align-items: center; gap: 10px; margin-bottom: 18px; text-align: left;">
+          <svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="var(--brand-pink)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 20px; height: 20px; flex-shrink: 0;"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+          <span>Mantén esta pantalla abierta. Recibirás una <strong>alerta por sonido y vibración</strong> en tu teléfono cuando esté listo.</span>
+        </div>
+
+        <div id="guest-perm-box" style="margin-bottom: 12px;">
+          <button type="button" id="btn-request-perm" class="u-button" style="width: 100%; justify-content: center; border-color: rgba(16, 185, 129, 0.4); color: var(--yes-green); font-size: 13px; font-weight: 700; min-height: 42px; gap: 8px;" onclick="app.requestNotificationPermission()">
+            <svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px;"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+            <span>Activar avisos en pantalla bloqueada</span>
           </button>
         </div>
 
         <div>
-          <button type="button" style="background: var(--bg-surface-2); border: 1.5px solid var(--brand-pink); color: var(--brand-pink); font-size: 13px; font-weight: 900; padding: 10px 18px; border-radius: var(--radius-full); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px var(--brand-pink-glow);" onclick="app.simulateGuestReady()">
-            ⚡ Probar animación y aviso de "¡Listo!"
+          <button type="button" class="u-button" style="width: 100%; justify-content: center; font-size: 12.5px; font-weight: 700; min-height: 40px; border-color: var(--border-color); color: var(--text-dim); gap: 6px;" onclick="app.simulateGuestReady()">
+            <span>⚡</span>
+            <span>Probar animación y aviso de "¡Listo!"</span>
           </button>
         </div>
       </div>
 
       <!-- State Ready (Buzzer Alarm) -->
       <div id="guest-state-ready" style="display: none;">
-        <div style="font-size: 56px; margin-bottom: 12px; animation: bounce 1s infinite;">🎉 🌯</div>
-        <div style="font-size: 26px; font-weight: 900; color: var(--yes-green); margin-bottom: 8px;">¡TU SHAWARMA ESTÁ LISTO!</div>
-        <p style="font-size: 16px; color: var(--text-white); font-weight: 700; line-height: 1.4; margin-bottom: 20px;">
-          Su orden está lista. Le invitamos a pasar a retirarla.
+        <div class="guest-ready-badge" style="display: inline-flex; align-items: center; justify-content: center; width: 72px; height: 72px; border-radius: 50%; background: rgba(16, 185, 129, 0.15); border: 2px solid var(--yes-green); box-shadow: 0 0 32px rgba(16, 185, 129, 0.4); margin-bottom: 14px; animation: bounce 1.2s infinite;">
+          <svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="var(--yes-green)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="width: 36px; height: 36px;"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        </div>
+        <div style="font-size: 26px; font-weight: 900; color: var(--yes-green); margin-bottom: 6px; letter-spacing: -0.5px;">¡TU SHAWARMA ESTÁ LISTO!</div>
+        <p style="font-size: 15px; color: var(--text-white); font-weight: 600; line-height: 1.45; margin-bottom: 22px;">
+          Tu orden está lista en el puesto de servicio. Por favor, acércate a retirarla.
         </p>
-        <div id="guest-ack-btn-container">
-          <button type="button" style="background: var(--yes-green); color: white; border: none; padding: 16px 32px; border-radius: var(--radius-full); font-size: 16px; font-weight: 900; cursor: pointer; width: 100%; box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4); margin-bottom: 12px;" onclick="app.ackGuestReady()">
+        <div id="guest-ack-btn-container" style="margin-bottom: 14px;">
+          <button type="button" class="u-button u-primary" style="background: var(--yes-green) !important; border-color: var(--yes-green) !important; color: #ffffff !important; min-height: 52px; font-size: 16px; font-weight: 850; box-shadow: 0 6px 20px rgba(16, 185, 129, 0.45); width: 100%; justify-content: center;" onclick="app.ackGuestReady()">
             ✅ ¡Entendido! Voy a recogerlo
           </button>
         </div>
-        <button type="button" style="background: transparent; color: var(--text-dim); border: none; font-size: 12px; font-weight: 800; cursor: pointer;" onclick="app.resetGuestSimulation()">
+        <button type="button" style="background: transparent; color: var(--text-dim); border: none; font-size: 12px; font-weight: 700; cursor: pointer; padding: 6px;" onclick="app.resetGuestSimulation()">
           ↺ Volver a estado de preparación
         </button>
       </div>
@@ -2728,32 +2794,52 @@
   <!-- ========================================================================= -->
   <!-- MODAL DE CÓDIGO QR PARA EL INVITADO (BUZZER VIRTUAL)                      -->
   <!-- ========================================================================= -->
-  <div class="modal-overlay" id="order-qr-modal" style="z-index: 2500;" onclick="app.closeQRModal(event)">
-    <div class="modal-card" onclick="event.stopPropagation()" style="max-width: 420px; text-align: center;">
-      <div style="font-size: 13px; font-weight: 800; color: var(--text-dim); text-transform: uppercase;">Aviso al Celular del Invitado</div>
-      <div style="font-size: 32px; font-weight: 900; color: var(--brand-pink); margin: 6px 0;" id="qr-modal-turn">TURNO #0</div>
-      <div style="font-size: 16px; font-weight: 800; color: var(--text-white); margin-bottom: 16px;" id="qr-modal-name">Comensal</div>
+  <div class="modal-overlay u-overlay" id="order-qr-modal" style="z-index: 10000;" onclick="app.closeQRModal(event)">
+    <section class="u-dialog u-qr-dialog" onclick="event.stopPropagation()" role="dialog" aria-modal="true" aria-labelledby="qr-modal-turn" style="max-width: 430px; text-align: center; border-radius: 18px; padding: 26px 22px;">
+      <header class="u-dialog-heading" style="margin-bottom: 10px; padding-bottom: 12px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between;">
+        <div style="text-align: left;">
+          <span class="p-eyebrow" style="font-size: 11px; letter-spacing: 0.12em;">AVISO AL CELULAR DEL INVITADO</span>
+          <h2 id="qr-modal-turn" style="font-size: 28px; font-weight: 850; color: var(--text-white); margin: 2px 0 0; letter-spacing: -0.5px;">TURNO #0</h2>
+        </div>
+        <button type="button" class="p-icon-button" onclick="app.closeQRModal()" aria-label="Cerrar modal" style="background: var(--bg-surface-2); border: 1px solid var(--border-color); color: var(--text-white); width: 34px; height: 34px; border-radius: 8px; cursor: pointer; display: grid; place-items: center;">
+          <svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </header>
 
-      <div style="background: white; padding: 16px; border-radius: 16px; display: inline-block; box-shadow: 0 8px 24px rgba(0,0,0,0.2); margin-bottom: 12px;">
-        <div id="qr-code-canvas-container"></div>
+      <div class="p-guest-line" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; border: none; padding: 0 0 14px 0; margin-bottom: 14px; border-bottom: 1px solid var(--border-color);">
+        <div style="display: inline-flex; align-items: center; justify-content: center; gap: 8px;">
+          <svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" style="width: 22px; height: 22px; color: var(--brand-pink);"><path d="m5 7 4 14h6l4-14M6 10l11 4M8 16l8 3"/><ellipse cx="12" cy="6" rx="7" ry="4"/><path d="m8 6 2-2 3 3 3-2"/></svg>
+          <strong id="qr-modal-name" style="font-size: 16px; font-weight: 800; color: var(--text-white); text-transform: uppercase; letter-spacing: 0.5px;">SHAWARMA MIXTO</strong>
+        </div>
+        <div id="qr-modal-guest-sub" style="font-size: 13px; color: var(--text-dim); font-weight: 600;"></div>
+      </div>
+
+      <div style="text-align: center; margin-bottom: 16px;">
+        <div class="qr-canvas-wrapper" style="background: #ffffff; padding: 16px; border-radius: 16px; display: inline-block; box-shadow: 0 10px 32px rgba(0,0,0,0.35);">
+          <div id="qr-code-canvas-container" style="display: flex; justify-content: center; align-items: center; min-width: 220px; min-height: 220px;"></div>
+        </div>
       </div>
 
       <div style="margin-bottom: 14px;">
-        <a id="qr-modal-test-link" href="#" target="_blank" style="display: inline-block; background: var(--bg-surface-2); border: 1px solid var(--border-color); color: var(--brand-pink); padding: 8px 14px; border-radius: var(--radius-full); font-size: 12px; font-weight: 800; text-decoration: none;">
-          📱 Toca aquí para abrir la pantalla del celular y probar
+        <a id="qr-modal-test-link" href="#" target="_blank" class="u-button" style="width: 100%; justify-content: center; text-decoration: none; font-weight: 700; gap: 8px; min-height: 42px; font-size: 13px;">
+          <svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px;"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
+          <span>Abrir pantalla del celular y probar</span>
         </a>
       </div>
 
-      <p style="font-size: 13px; color: var(--text-dim); line-height: 1.4; margin-bottom: 20px;">
-        📸 Pídele al comensal que <strong>escanee este código con la cámara de su teléfono</strong> para recibir la vibración y alerta en su bolsillo cuando su shawarma esté listo.
-      </p>
-
-      <div style="display: flex; gap: 8px;">
-        <button type="button" style="background: var(--brand-pink); color: white; border: none; padding: 14px 20px; border-radius: var(--radius-md); font-weight: 900; font-size: 15px; cursor: pointer; flex: 1;" onclick="app.closeQRModal()">
-          Cerrar Ventana
-        </button>
+      <div style="background: var(--bg-surface-2); border: 1px solid var(--border-color); border-radius: 10px; padding: 11px 14px; display: flex; align-items: flex-start; gap: 10px; text-align: left; margin-bottom: 18px;">
+        <svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="var(--brand-pink)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 18px; height: 18px; flex-shrink: 0; margin-top: 2px;"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+        <p style="font-size: 12.5px; color: var(--text-dim); line-height: 1.45; margin: 0;">
+          Pídele al comensal que <strong>escanee este código con la cámara de su teléfono</strong> para recibir la vibración y alerta cuando su shawarma esté listo.
+        </p>
       </div>
-    </div>
+
+      <footer class="u-dialog-footer" style="padding-top: 0; border: none; margin-top: 0;">
+        <button type="button" class="u-button u-primary" style="width: 100%; justify-content: center; min-height: 46px; font-weight: 750; font-size: 14px;" onclick="app.closeQRModal()">
+          Entendido / Cerrar
+        </button>
+      </footer>
+    </section>
   </div>
 
   <!-- ========================================================================= -->
@@ -3220,6 +3306,13 @@
         };
         this.kdsFilter = 'active';
         this.broadcast = null;
+
+        // Cola de salida garantizada (Outbox) y gestor de conectividad
+        this.outboxQueue = JSON.parse(localStorage.getItem('shawarma_outbox_queue_v1') || '[]');
+        this.isProcessingOutbox = false;
+        this.sse = null;
+        this.lastHeartbeat = Date.now();
+        this.isOnline = navigator.onLine !== false;
       }
 
       init() {
@@ -3250,6 +3343,29 @@
           }).catch(() => {});
         }
 
+        // Listeners de Conectividad Automática (Reconexión inmediata sin recargar página)
+        window.addEventListener('online', () => {
+          this.isOnline = true;
+          this.updateConnectionBadge();
+          this.fetchServer();
+          this.processOutboxQueue();
+          this.startSSE();
+        });
+
+        window.addEventListener('offline', () => {
+          this.isOnline = false;
+          this.updateConnectionBadge();
+        });
+
+        // Recuperación instantánea cuando el iPad o teléfono despierta de pantalla bloqueada (iOS Safari)
+        document.addEventListener('visibilitychange', () => {
+          if (document.visibilityState === 'visible') {
+            this.fetchServer();
+            this.processOutboxQueue();
+            this.checkSSEWatchdog();
+          }
+        });
+
         this.initBroadcast();
         this.resetForm();
         this.checkParams();
@@ -3257,15 +3373,36 @@
         this.fetchServer();
         this.startSSE();
         this.fetchVaultArchives();
+        this.processOutboxQueue();
+        this.updateKDSBadge();
 
         // Cronómetro en tiempo real y pulso keep-alive continuo
         setInterval(() => this.updateEventTimerDisplay(), 1000);
         setInterval(() => this.updateTimers(), 10000);
+
+        // Watchdog de salud SSE cada 5 segundos (detecta sockets congelados)
+        setInterval(() => this.checkSSEWatchdog(), 5000);
+
+        // Procesar cola de salida cada 2.5 segundos si hay comandas pendientes
+        setInterval(() => this.processOutboxQueue(), 2500);
+
+        // Sondeo de seguridad dual (Dual-Sync): Cocina y monitor sondean cada 3 segundos
+        setInterval(() => {
+          if (this.currentView === 'kitchen' || this.currentView === 'display') {
+            this.fetchServer();
+          }
+        }, 3000);
         
         // Pulso Keep-Alive para evitar que el servidor duerma durante el evento
         setInterval(() => {
-          fetch('/api/ping').catch(() => {});
-        }, 120000); // Cada 2 minutos
+          fetch('/api/ping').then(() => {
+            this.isOnline = true;
+            this.updateConnectionBadge();
+          }).catch(() => {
+            this.isOnline = false;
+            this.updateConnectionBadge();
+          });
+        }, 60000); // Cada 60 segundos
         
         document.addEventListener('touchstart', () => soundEngine.init(), { once: true });
         document.addEventListener('click', () => soundEngine.init(), { once: true });
@@ -3296,7 +3433,11 @@
         if ('BroadcastChannel' in window) {
           this.broadcast = new BroadcastChannel('shawarma_channel');
           this.broadcast.onmessage = (e) => {
-            if (e.data && e.data.db) this.syncData(e.data.db, false);
+            if (e.data && e.data.type === 'EVENT_RESET') {
+              this.handleCleanEventReset(e.data.data);
+            } else if (e.data && e.data.db) {
+              this.syncData(e.data.db, false);
+            }
           };
         }
       }
@@ -3371,44 +3512,232 @@
         } catch(e) {}
       }
 
+      updateConnectionBadge() {
+        const badge = document.getElementById('conn-badge');
+        const text = document.getElementById('conn-text');
+        const dot = badge ? badge.querySelector('.connection-dot') : null;
+        if (!badge || !text) return;
+
+        const queueCount = (this.outboxQueue || []).length;
+
+        if (queueCount > 0) {
+          badge.style.color = '#f59e0b';
+          badge.style.borderColor = 'rgba(245, 158, 11, 0.4)';
+          badge.style.background = 'rgba(245, 158, 11, 0.12)';
+          if (dot) {
+            dot.style.background = '#f59e0b';
+            dot.style.boxShadow = '0 0 8px #f59e0b';
+          }
+          text.textContent = `${queueCount} en cola (enviando...)`;
+        } else if (this.isOnline && this.sse && this.sse.readyState === 1) {
+          badge.style.color = '#10b981';
+          badge.style.borderColor = 'rgba(16, 185, 129, 0.3)';
+          badge.style.background = 'rgba(16, 185, 129, 0.1)';
+          if (dot) {
+            dot.style.background = '#10b981';
+            dot.style.boxShadow = '0 0 6px #10b981';
+          }
+          text.textContent = 'En línea (Cocina OK)';
+        } else {
+          badge.style.color = '#ef4444';
+          badge.style.borderColor = 'rgba(239, 68, 68, 0.4)';
+          badge.style.background = 'rgba(239, 68, 68, 0.12)';
+          if (dot) {
+            dot.style.background = '#ef4444';
+            dot.style.boxShadow = '0 0 8px #ef4444';
+          }
+          text.textContent = 'Reconectando...';
+        }
+      }
+
+      saveOutboxQueue() {
+        try {
+          localStorage.setItem('shawarma_outbox_queue_v1', JSON.stringify(this.outboxQueue || []));
+        } catch(e) {}
+      }
+
+      enqueueOutbox(orderData) {
+        if (!Array.isArray(this.outboxQueue)) this.outboxQueue = [];
+        if (!this.outboxQueue.some(item => item.id === orderData.id)) {
+          this.outboxQueue.push({
+            id: orderData.id,
+            data: orderData,
+            createdAt: Date.now(),
+            attempts: 0
+          });
+          this.saveOutboxQueue();
+          this.updateConnectionBadge();
+        }
+      }
+
+      async processOutboxQueue() {
+        if (this.isProcessingOutbox || !this.outboxQueue || this.outboxQueue.length === 0) {
+          this.updateConnectionBadge();
+          return;
+        }
+
+        this.isProcessingOutbox = true;
+        const remaining = [];
+
+        for (const item of this.outboxQueue) {
+          try {
+            item.attempts = (item.attempts || 0) + 1;
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 6000);
+
+            const res = await fetch('/api/orders', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(item.data),
+              signal: controller.signal
+            });
+            clearTimeout(timeoutId);
+
+            if (res.ok) {
+              const result = await res.json();
+              if (result.order) {
+                if (!this.db) this.db = { event_info: {}, orders: [] };
+                if (!Array.isArray(this.db.orders)) this.db.orders = [];
+                const idx = this.db.orders.findIndex(o => o.id === result.order.id);
+                if (idx >= 0) {
+                  this.db.orders[idx] = result.order;
+                } else {
+                  this.db.orders.push(result.order);
+                }
+                if (result.event_info) {
+                  this.db.event_info = result.event_info;
+                }
+                this.syncData(this.db, true);
+                this.showToast(`Turno #${result.order.turn} confirmado (${result.order.guest_name})`, 'success');
+
+                // Sello de confirmación en el botón
+                const submitBtn = document.getElementById('btn-submit-order');
+                const submitLabel = document.getElementById('btn-submit-label');
+                if (submitBtn && submitLabel) {
+                  submitBtn.classList.add('btn-submit-success-stamp');
+                  const currentTurn = result.order.turn;
+                  submitLabel.textContent = `✓ ¡ENVIADO A COCINA (TURNO #${currentTurn})!`;
+                  setTimeout(() => {
+                    submitBtn.classList.remove('btn-submit-success-stamp');
+                    this.updatePreviewAndTurn();
+                  }, 1200);
+                }
+              }
+              this.isOnline = true;
+            } else {
+              remaining.push(item);
+            }
+          } catch(err) {
+            this.isOnline = false;
+            remaining.push(item);
+          }
+        }
+
+        this.outboxQueue = remaining;
+        this.saveOutboxQueue();
+        this.isProcessingOutbox = false;
+        this.updateConnectionBadge();
+      }
+
       async fetchServer() {
         try {
-          const res = await fetch('/api/orders');
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 4000);
+          const res = await fetch('/api/orders', { signal: controller.signal });
+          clearTimeout(timeoutId);
           if (res.ok) {
             const data = await res.json();
+            this.isOnline = true;
             this.syncData(data, true);
+            this.updateConnectionBadge();
           }
         } catch(e) {
-          console.warn('Modo local activo:', e);
+          console.warn('Modo red inestable / local activo:', e);
+          this.updateConnectionBadge();
         }
       }
 
       startSSE() {
         try {
-          const sse = new EventSource('/api/stream');
-          sse.addEventListener('init', (e) => this.syncData(JSON.parse(e.data), true));
-          sse.addEventListener('sync', (e) => {
-            const oldOrders = this.db.orders || [];
-            const fresh = JSON.parse(e.data);
-            const freshOrders = fresh.orders || [];
+          if (this.sse) {
+            try { this.sse.close(); } catch(e) {}
+            this.sse = null;
+          }
 
-            // Alert kitchen/monitor when a guest confirms they are coming
-            freshOrders.forEach(fo => {
-              const prev = oldOrders.find(oo => oo.id === fo.id);
-              if (fo.guest_ack && (!prev || !prev.guest_ack)) {
-                soundEngine.playChime();
-                this.showToast(`🏃 ¡Turno #${fo.turn} (${fo.guest_name}) viene en camino a retirar!`, 'info');
-              }
-            });
+          this.sse = new EventSource('/api/stream');
+          this.lastHeartbeat = Date.now();
 
-            if (freshOrders.length > oldOrders.length) {
-              soundEngine.playChime();
-              this.showToast('¡Nueva comanda recibida en cocina!', 'success');
-            }
+          this.sse.onopen = () => {
+            this.isOnline = true;
+            this.lastHeartbeat = Date.now();
+            this.updateConnectionBadge();
+          };
 
-            this.syncData(fresh, true);
+          this.sse.addEventListener('init', (e) => {
+            this.isOnline = true;
+            this.lastHeartbeat = Date.now();
+            try {
+              this.syncData(JSON.parse(e.data), true);
+            } catch(err) {}
+            this.updateConnectionBadge();
           });
-        } catch(e) {}
+
+          this.sse.addEventListener('sync', (e) => {
+            this.isOnline = true;
+            this.lastHeartbeat = Date.now();
+            try {
+              const oldOrders = this.db.orders || [];
+              const fresh = JSON.parse(e.data);
+              const freshOrders = fresh.orders || [];
+
+              // Alert kitchen/monitor when a guest confirms they are coming
+              freshOrders.forEach(fo => {
+                const prev = oldOrders.find(oo => oo.id === fo.id);
+                if (fo.guest_ack && (!prev || !prev.guest_ack)) {
+                  soundEngine.playChime();
+                  this.showToast(`🏃 ¡Turno #${fo.turn} (${fo.guest_name}) viene en camino a retirar!`, 'info');
+                }
+              });
+
+              if (freshOrders.length > oldOrders.length) {
+                soundEngine.playChime();
+                if (this.currentView === 'kitchen') {
+                  const lastTurn = freshOrders[freshOrders.length - 1]?.turn || '';
+                  this.showToast(`👨‍🍳 ¡Nueva comanda en cocina! (Turno #${lastTurn})`, 'success');
+                }
+              }
+
+              this.syncData(fresh, true);
+            } catch(err) {}
+            this.updateConnectionBadge();
+          });
+
+          this.sse.addEventListener('event_reset', (e) => {
+            this.isOnline = true;
+            this.lastHeartbeat = Date.now();
+            try {
+              const fresh = JSON.parse(e.data);
+              this.handleCleanEventReset(fresh);
+              this.showToast('✨ Evento nuevo listo en Turno #1', 'info');
+            } catch(err) {}
+            this.updateConnectionBadge();
+          });
+
+          this.sse.onerror = () => {
+            this.updateConnectionBadge();
+          };
+        } catch(e) {
+          console.warn('Error al iniciar SSE:', e);
+        }
+      }
+
+      checkSSEWatchdog() {
+        const now = Date.now();
+        // Si el stream está cerrado o no ha recibido latido en más de 25s
+        if (!this.sse || this.sse.readyState === 2 || (now - this.lastHeartbeat > 25000)) {
+          this.startSSE();
+          this.fetchServer();
+        }
       }
 
       recordInVault(orders) {
@@ -3455,48 +3784,69 @@
         } catch(e) {}
       }
 
+      handleCleanEventReset(data) {
+        const newEventId = String(data?.event_info?.id || `evt_${Date.now()}`);
+        this.activeEventId = newEventId;
+        try {
+          localStorage.setItem('shawarma_active_event_id', newEventId);
+          localStorage.removeItem('shawarma_db_v6');
+          localStorage.removeItem('shawarma_permanent_vault_v2');
+        } catch(e) {}
+        this.db = data || {
+          event_info: {
+            id: newEventId,
+            name: 'Shawarma en Casa',
+            created_at: new Date().toISOString(),
+            turn_counter: 0,
+            timer: { started_at: null, elapsed_seconds: 0, is_paused: false }
+          },
+          orders: []
+        };
+        this.currentGroupItems = [];
+        this.editingOrderId = null;
+        this.editingOrderTurn = null;
+        this.outboxQueue = [];
+        this.resetForm();
+        this.updatePreviewAndTurn();
+        if (this.currentView === 'kitchen') this.renderKDS();
+        if (this.currentView === 'display') this.renderDisplay();
+        if (this.currentView === 'admin') this.renderAdmin();
+        this.updateKDSBadge();
+      }
+
       syncData(data, saveCache = true) {
         if (!data) return;
 
-        const isIntentionalReset = sessionStorage.getItem('shawarma_intentional_reset') === 'true';
         const serverOrders = Array.isArray(data.orders) ? data.orders : [];
-        const currentMemoryOrders = (this.db && Array.isArray(this.db.orders) && this.db.orders.length > 0) ? this.db.orders : [];
-        let cachedOrders = [];
-        let cachedObj = {};
-        try {
-          cachedObj = JSON.parse(localStorage.getItem('shawarma_db_v6') || '{}');
-          if (Array.isArray(cachedObj.orders)) cachedOrders = cachedObj.orders;
-        } catch(e) {}
-
         const serverEventId = String(data.event_info?.id || '');
-        const cachedEventId = String(cachedObj.event_info?.id || '');
-        const isSameEvent = serverEventId && cachedEventId && serverEventId === cachedEventId;
+        const activeLocalEventId = localStorage.getItem('shawarma_active_event_id') || (this.activeEventId || (this.db?.event_info?.id ? String(this.db.event_info.id) : ''));
 
-        const vaultOrders = this.getVaultOrders();
-        const bestLocalPool = currentMemoryOrders.length >= cachedOrders.length ? currentMemoryOrders : cachedOrders;
+        // Si el ID del evento cambió respecto al local, es un evento nuevo / reseteado
+        if (serverEventId && activeLocalEventId && serverEventId !== activeLocalEventId) {
+          this.handleCleanEventReset(data);
+          return;
+        }
 
-        // Auto-Heal Protection: Solo para el MISMO evento activo.
-        // Si el servidor reinicia durante el evento actual (mismo event_info.id), restaurar los pedidos al servidor.
-        // Si el ID de evento es distinto, es un evento nuevo o reiniciado y NO debe resucitar pedidos antiguos.
-        if (isSameEvent && !isIntentionalReset && serverOrders.length === 0 && (bestLocalPool.length > 0 || vaultOrders.length > 0)) {
-          const ordersToRestore = bestLocalPool.length > 0 ? bestLocalPool : vaultOrders;
-          data.orders = ordersToRestore;
-          const maxTurn = Math.max(...ordersToRestore.map(o => parseInt(o.turn) || 0), 0);
-          if (!data.event_info) data.event_info = {};
-          data.event_info.turn_counter = Math.max(parseInt(data.event_info.turn_counter) || 0, maxTurn);
-          this.pushOrdersToServer(ordersToRestore);
-          console.log(`[Auto-Heal Blindado] Restaurados ${ordersToRestore.length} pedidos locales al servidor (mismo evento ${serverEventId}).`);
-        } else if (isSameEvent && !isIntentionalReset && serverOrders.length > 0 && bestLocalPool.length > serverOrders.length) {
-          // Si el local tiene pedidos adicionales no presentes en el servidor dentro del mismo evento, unirlos
-          const serverIds = new Set(serverOrders.map(o => o.id));
-          const missingLocals = bestLocalPool.filter(o => !serverIds.has(o.id));
-          if (missingLocals.length > 0) {
-            data.orders = [...serverOrders, ...missingLocals];
-            this.pushOrdersToServer(missingLocals);
+        // Si el evento está fresco (turn_counter 0 y 0 pedidos), no resucitar nada
+        const isFreshEvent = (parseInt(data.event_info?.turn_counter) || 0) === 0 && serverOrders.length === 0;
+        if (isFreshEvent) {
+          this.handleCleanEventReset(data);
+          return;
+        }
+
+        const isIntentionalReset = sessionStorage.getItem('shawarma_intentional_reset') === 'true' || localStorage.getItem('shawarma_reset_in_progress') === 'true';
+
+        // Auto-Heal Protection: SOLO dentro del mismo evento activo con pedidos legítimos
+        if (!isFreshEvent && !isIntentionalReset && serverOrders.length === 0 && (parseInt(data.event_info?.turn_counter) || 0) > 0) {
+          const memoryOrders = (this.db && Array.isArray(this.db.orders)) ? this.db.orders : [];
+          if (memoryOrders.length > 0) {
+            data.orders = memoryOrders;
+            this.pushOrdersToServer(memoryOrders);
           }
         }
 
         this.db = data;
+        this.activeEventId = serverEventId;
 
         // Record in permanent vault
         if (this.db.orders && this.db.orders.length > 0) {
@@ -3515,10 +3865,7 @@
         if (this.currentView === 'display') this.renderDisplay();
         if (this.currentView === 'admin') this.renderAdmin();
         if (this.currentView === 'guest') this.renderGuestView();
-
-        const pending = (this.db.orders || []).filter(o => o.status === 'pending' || o.status === 'preparing').length;
-        const badge = document.getElementById('badge-kds-count');
-        if (badge) badge.textContent = pending;
+        this.updateKDSBadge();
       }
 
       resetForm() {
@@ -3843,45 +4190,19 @@
         const isBowl = this.selectedPreset === 'bowl';
         if (hintEl) {
           hintEl.innerHTML = isBowl 
-            ? `<span>🥗</span> <span>Servido en Bowl / Plato (Sin pan)</span>`
-            : `<span>🔥</span> <span>Envuelto y tostado en plancha grill</span>`;
+            ? `<span>Servido en plato, sin pan</span>`
+            : `<span>Envuelto y tostado en plancha</span>`;
         }
 
-        const tags = [];
-        if (this.currentGroupItems.length > 0) {
-          tags.push(`<span class="pos-tag tag-protein" style="background:rgba(124, 58, 237, 0.25); color:#c4b5fd; border-color:#8b5cf6;">👥 GRUPO EN CURSO: EDITANDO SHAWARMA #${this.currentGroupItems.length + 1}</span>`);
-        }
+        if (window.ShawarmaPremium?.recipeHTML) return;
 
-        if (isBowl) {
-          tags.push(`<span class="pos-tag tag-bowl">🥗 BOWL DE ${this.selectedProtein.toUpperCase()}</span>`);
-        } else {
-          tags.push(`<span class="pos-tag tag-protein">🌯 SHAWARMA ${this.selectedProtein.toUpperCase()}</span>`);
-        }
-
+        const p = this.selectedProtein || 'Mixto';
+        const title = isBowl ? `Bowl ${p}` : `Shawarma ${p}`;
         const removed = this.getRemoved();
-
-        if (this.selectedPreset === 'ninos') {
-          const active = this.getActive();
-          const ings = active.length > 0 ? ` + ${active.join(', ')}` : '';
-          tags.push(`<span class="pos-tag tag-protein" style="background:#1e3a8a; color:#93c5fd; border-color:#3b82f6;">👶 PARA NIÑOS (SOLO ${this.selectedProtein.toUpperCase()}${ings.toUpperCase()})</span>`);
-        } else if (removed.length > 0) {
-          removed.forEach(r => {
-            tags.push(`<span class="pos-tag tag-removed">⛔ SIN ${r.toUpperCase()}</span>`);
-          });
-        } else {
-          tags.push(`<span class="pos-tag tag-all">⭐ CON TODO (8 INGREDIENTES)</span>`);
-        }
-
-        if (this.ingredientPreferences['picante'] === true) {
-          tags.push(`<span class="pos-tag tag-note">🔥 CON PICANTE</span>`);
-        }
-
-        const notesVal = document.getElementById('order-notes')?.value.trim();
-        if (notesVal) {
-          tags.push(`<span class="pos-tag tag-note">📝 ${notesVal.toUpperCase()}</span>`);
-        }
-
-        tagsContainer.innerHTML = tags.join('');
+        let desc = 'Con todo (ingredientes completos)';
+        if (this.selectedPreset === 'ninos') desc = 'Menú infantil';
+        else if (removed.length > 0) desc = `Sin ${removed.join(', ')}`;
+        tagsContainer.innerHTML = `<h3 class="p-preview-title">${title}</h3><p class="p-recipe-line">${desc}</p>`;
       }
 
       async submitOrder() {
@@ -3889,7 +4210,21 @@
         const tableInput = document.getElementById('guest-table');
         const notesInput = document.getElementById('order-notes');
 
-        const guestName = nameInput?.value.trim() || 'Comensal';
+        const guestName = nameInput ? nameInput.value.trim() : '';
+        if (!guestName) {
+          soundEngine.playNotification();
+          this.showToast('⚠️ Por favor, ingresa el nombre del invitado para enviar la comanda.', 'warning');
+          if (nameInput) {
+            nameInput.focus();
+            nameInput.style.borderColor = '#ef4444';
+            nameInput.style.boxShadow = '0 0 0 3px rgba(239, 68, 68, 0.35)';
+            setTimeout(() => {
+              nameInput.style.borderColor = '';
+              nameInput.style.boxShadow = '';
+            }, 2500);
+          }
+          return;
+        }
         const table = tableInput?.value.trim() || '';
         const notes = notesInput?.value.trim() || '';
         const removed = this.getRemoved();
@@ -3955,7 +4290,10 @@
 
         const summaryProteins = finalItems.map(i => i.protein).join(' + ');
 
+        const clientOrderId = 'ord_' + Date.now() + '_' + Math.random().toString(36).substring(2, 8);
+
         const orderData = {
+          id: clientOrderId,
           guest_name: guestName,
           table: table,
           protein: isGroupOrder ? summaryProteins : this.selectedProtein,
@@ -3975,75 +4313,18 @@
         const btn = document.getElementById('btn-submit-order');
         if (btn) btn.disabled = true;
 
+        soundEngine.playClick();
+        this.currentGroupItems = [];
+        this.updateGroupTrayUI();
+        this.resetForm();
+        this.updatePreviewAndTurn();
+
+        // 1. Guardar de inmediato en la cola de salida permanente
+        this.enqueueOutbox(orderData);
+
+        // 2. Procesar la cola (si hay red, se confirma en milisegundos con número oficial)
         try {
-          const res = await fetch('/api/orders', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(orderData)
-          });
-
-          if (res.ok) {
-            const data = await res.json();
-            soundEngine.playClick();
-
-            // Incorporar el pedido a la memoria local inmediatamente
-            if (!this.db) this.db = { event_info: {}, orders: [] };
-            if (!Array.isArray(this.db.orders)) this.db.orders = [];
-            if (data.order) {
-              const existingIdx = this.db.orders.findIndex(o => String(o.id) === String(data.order.id));
-              if (existingIdx >= 0) {
-                this.db.orders[existingIdx] = data.order;
-              } else {
-                this.db.orders.push(data.order);
-              }
-            }
-            if (data.event_info) {
-              this.db.event_info = data.event_info;
-            } else if (data.order?.turn) {
-              if (!this.db.event_info) this.db.event_info = {};
-              this.db.event_info.turn_counter = Math.max(Number(this.db.event_info.turn_counter) || 0, Number(data.order.turn));
-            }
-
-            // Iniciar el reloj de evento automáticamente con el primer pedido
-            if (data.order && this.db.event_info?.timer && !this.db.event_info.timer.started_at) {
-              this.db.event_info.timer.started_at = data.order.created_at || new Date().toISOString();
-              this.db.event_info.timer.is_paused = false;
-            }
-
-            // Sincronizar UI local (Cocina KDS, badge de cocina, turnos)
-            this.syncData(this.db, true);
-
-            this.currentGroupItems = [];
-            this.updateGroupTrayUI();
-            this.showToast(isGroupOrder ? `¡Turno #${data.order.turn} (Grupo de ${finalItems.length} Shawarmas) enviado!` : `¡Turno #${data.order.turn} creado para ${guestName}!`, 'success');
-            this.resetForm();
-            this.updatePreviewAndTurn();
-            this.fetchServer();
-          } else {
-            throw new Error();
-          }
-        } catch(e) {
-          const nextTurn = (this.db.event_info?.turn_counter || 0) + 1;
-          if (!this.db.event_info) this.db.event_info = { name: 'Shawarma en Casa', turn_counter: 0 };
-          this.db.event_info.turn_counter = nextTurn;
-
-          const newOrder = {
-            id: `ord_${Date.now()}`,
-            turn: nextTurn,
-            ...orderData,
-            status: 'pending',
-            created_at: new Date().toISOString()
-          };
-
-          if (!this.db.orders) this.db.orders = [];
-          this.db.orders.push(newOrder);
-          this.syncData(this.db, true);
-
-          soundEngine.playClick();
-          this.currentGroupItems = [];
-          this.updateGroupTrayUI();
-          this.showToast(`Pedido guardado en este dispositivo. Cocina todavía no ha confirmado la recepción. Revisa la conexión antes de repetirlo.`, 'info');
-          this.resetForm();
+          await this.processOutboxQueue();
         } finally {
           if (btn) btn.disabled = false;
         }
@@ -4183,15 +4464,7 @@
       }
 
       async promptResetTurnCounter() {
-        soundEngine.playClick();
-        if (!confirm('¿Deseas reiniciar el contador de turnos para que el próximo sea el Turno #1?')) return;
-        if (!this.db.event_info) this.db.event_info = {};
-        this.db.event_info.turn_counter = 0;
-        this.updatePreviewAndTurn();
-        try {
-          await fetch('/api/event/reset_turns', { method: 'POST' });
-        } catch(e) {}
-        this.showToast('✅ Contador reiniciado al Turno #1', 'success');
+        // Obsoletado: La numeración de turnos es estrictamente secuencial y gestionada por el servidor.
       }
 
       updateEventTimerDisplay() {
@@ -4201,8 +4474,8 @@
         const kdsIconEl = document.getElementById('kds-timer-toggle-icon');
 
         const timer = this.db?.event_info?.timer;
-        const playSvg = '<svg class="ui-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m8 4 12 8-12 8Z"/></svg>';
-        const pauseSvg = '<svg class="ui-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 5v14M16 5v14"/></svg>';
+        const playSvg = '<svg class="ui-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="7 4.5 19 12 7 19.5 7 4.5"/></svg>';
+        const pauseSvg = '<svg class="ui-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4.5v15M15 4.5v15"/></svg>';
 
         if (!timer || !timer.started_at) {
           if (timerEl) timerEl.textContent = '00:00:00';
@@ -4439,16 +4712,9 @@
 
           let actBtns = '';
           if (isGroup) {
-            if (o.status === 'pending') {
+            if (o.status === 'pending' || o.status === 'preparing') {
               actBtns = `
-                <button class="kds-btn-action" style="background: linear-gradient(135deg, #7c3aed, #4f46e5); color: white; border: none; font-weight: 900;" onclick="app.updateStatus('${o.id}', 'preparing')">🔥 Preparar Grupo</button>
-                <button class="kds-btn-action kds-btn-prep" onclick="app.showOrderQRModalById('${o.id}')">📱 Código QR</button>
-                <button class="kds-btn-action kds-btn-ready" onclick="app.updateStatus('${o.id}', 'ready')">✅ Listo Grupo (${o.items.length})</button>
-              `;
-            } else if (o.status === 'preparing') {
-              actBtns = `
-                <button class="kds-btn-action kds-btn-prep" style="grid-column: span 1;" onclick="app.showOrderQRModalById('${o.id}')">📱 Código QR</button>
-                <button class="kds-btn-action kds-btn-ready" style="grid-column: span 1; background: linear-gradient(135deg, #10b981, #059669);" onclick="app.updateStatus('${o.id}', 'ready')">✅ Listo Todo el Grupo</button>
+                <button class="kds-btn-action kds-btn-ready" style="grid-column: span 2; background: linear-gradient(135deg, #10b981, #059669);" onclick="app.updateStatus('${o.id}', 'ready')">✅ Marcar Grupo como Listo (${o.items.length})</button>
               `;
             } else if (o.status === 'ready') {
               actBtns = `
@@ -4463,16 +4729,9 @@
                 </div>
               `;
             }
-          } else if (o.status === 'pending') {
+          } else if (o.status === 'pending' || o.status === 'preparing') {
             actBtns = `
-              <button class="kds-btn-action kds-btn-prep" onclick="app.updateStatus('${o.id}', 'preparing')">🔥 En Preparación</button>
-              <button class="kds-btn-action kds-btn-prep" onclick="app.showOrderQRModalById('${o.id}')">📱 Código QR</button>
-              <button class="kds-btn-action kds-btn-ready" onclick="app.updateStatus('${o.id}', 'ready')">✅ Listo para Entregar</button>
-            `;
-          } else if (o.status === 'preparing') {
-            actBtns = `
-              <button class="kds-btn-action kds-btn-prep" style="grid-column: span 1;" onclick="app.showOrderQRModalById('${o.id}')">📱 Código QR</button>
-              <button class="kds-btn-action kds-btn-ready" style="grid-column: span 1;" onclick="app.updateStatus('${o.id}', 'ready')">✅ Listo para Entregar</button>
+              <button class="kds-btn-action kds-btn-ready" style="grid-column: span 2; background: linear-gradient(135deg, #10b981, #059669);" onclick="app.updateStatus('${o.id}', 'ready')">✅ Marcar como Listo</button>
             `;
           } else if (o.status === 'ready') {
             actBtns = `
@@ -4509,13 +4768,6 @@
           }
 
           let birthdayBanner = '';
-          if (isBirthday) {
-            birthdayBanner = `
-              <div style="background: linear-gradient(135deg, #f59e0b, #ec4899); color: white; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 900; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 10px; box-shadow: 0 2px 8px rgba(245,158,11,0.3); text-transform: uppercase; letter-spacing: 0.5px;">
-                <span>🎉</span> <span>¡ATENCIÓN: CUMPLEAÑERO / PEDIDO FESTIVO!</span> <span>🎂</span>
-              </div>
-            `;
-          }
 
           let kidsBanner = '';
           if (isKids && !isBirthday) {
@@ -4540,8 +4792,8 @@
                     </div>
                     <div class="kds-time-info">${prepDurationInfo}</div>
                   </div>
-                  <div style="text-align: right; min-width: 0; max-width: 48%; flex-shrink: 0;">
-                    <div class="kds-guest-name">${o.guest_name}</div>
+                  <div style="text-align: right; min-width: 0; max-width: 55%; flex-shrink: 0;">
+                    <div class="kds-guest-name">${isBirthday ? `⭐ ${(isFemale ? 'Cumpleañera' : 'Cumpleañero')} ${(o.guest_name || '').replace(/^(cumpleañero|cumpleañera|cumpleanero|cumpleanera|cumple)\s*[:\-–]?\s*/i, '').trim()}`.trim() : (o.guest_name || 'Sin nombre')}</div>
                     ${o.table ? `<div class="kds-table-badge">📍 ${o.table}</div>` : ''}
                   </div>
                 </div>
@@ -4836,11 +5088,36 @@
         if (!modal) return;
         
         document.getElementById('qr-modal-turn').textContent = `TURNO #${order.turn}`;
-        document.getElementById('qr-modal-name').textContent = `${order.guest_name} • ${order.protein}`;
+        const formatProductTitle = (o) => {
+          if (!o) return 'SHAWARMA MIXTO';
+          const isBowl = o.is_bowl || o.preset === 'bowl';
+          const isKids = o.preset === 'ninos';
+          const p = (o.protein || 'Mixto').toLowerCase();
+          if (isKids) return 'SHAWARMA DE NIÑOS';
+          if (isBowl) {
+            if (p.includes('pollo')) return 'BOWL DE POLLO';
+            if (p.includes('carne')) return 'BOWL DE CARNE';
+            if (p.includes('falafel')) return 'BOWL DE FALAFEL';
+            return 'BOWL';
+          }
+          if (p.includes('pollo')) return 'SHAWARMA DE POLLO';
+          if (p.includes('carne')) return 'SHAWARMA DE CARNE';
+          if (p.includes('falafel')) return 'SHAWARMA DE FALAFEL';
+          return 'SHAWARMA MIXTO';
+        };
+        const nameEl = document.getElementById('qr-modal-name');
+        if (nameEl) nameEl.textContent = formatProductTitle(order);
+        const subEl = document.getElementById('qr-modal-guest-sub');
+        if (subEl) {
+          subEl.textContent = order.guest_name ? `Invitado: ${order.guest_name}` : '';
+          subEl.style.display = order.guest_name ? 'block' : 'none';
+        }
         
-        const origin = window.location.origin.includes('localhost') || window.location.origin.includes('127.0.0.1')
-          ? `http://10.0.0.161:8080`
-          : window.location.origin;
+        const origin = (this.localNetworkUrl && this.localNetworkUrl.startsWith('http'))
+          ? this.localNetworkUrl
+          : ((window.location.origin.includes('localhost') || window.location.origin.includes('127.0.0.1'))
+            ? (this.localNetworkUrl || window.location.origin)
+            : window.location.origin);
         const guestUrl = `${origin}/?view=guest&order_id=${order.id || order.turn}`;
         
         const testLink = document.getElementById('qr-modal-test-link');
@@ -4850,7 +5127,11 @@
 
         const qrContainer = document.getElementById('qr-code-canvas-container');
         if (qrContainer) {
-          qrContainer.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(guestUrl)}" alt="QR Code" style="display:block; width:220px; height:220px; border-radius:8px; margin:0 auto;">`;
+          if (typeof window.generateQRCodeSVG === 'function') {
+            qrContainer.innerHTML = window.generateQRCodeSVG(guestUrl, 220);
+          } else {
+            qrContainer.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(guestUrl)}" alt="QR Code" style="display:block; width:220px; height:220px; border-radius:8px; margin:0 auto;">`;
+          }
         }
         modal.classList.add('active');
         modal.style.display = 'flex';
@@ -4915,17 +5196,38 @@
           };
         }
 
+        const formatGuestProduct = (o) => {
+          if (!o) return 'Shawarma Mixto';
+          const isBowl = o.is_bowl || o.preset === 'bowl';
+          const isKids = o.preset === 'ninos';
+          const p = (o.protein || 'Mixto').toLowerCase();
+          if (isKids) return 'Shawarma de Niños';
+          if (isBowl) {
+            if (p.includes('pollo')) return 'Bowl de Pollo';
+            if (p.includes('carne')) return 'Bowl de Carne';
+            if (p.includes('falafel')) return 'Bowl de Falafel';
+            return 'Bowl';
+          }
+          if (p.includes('pollo')) return 'Shawarma de Pollo';
+          if (p.includes('carne')) return 'Shawarma de Carne';
+          if (p.includes('falafel')) return 'Shawarma de Falafel';
+          return 'Shawarma Mixto';
+        };
+        const wrapSvg = `<svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;color:var(--brand-pink);display:inline-block;vertical-align:-2px;"><path d="m5 7 4 14h6l4-14M6 10l11 4M8 16l8 3"/><ellipse cx="12" cy="6" rx="7" ry="4"/><path d="m8 6 2-2 3 3 3-2"/></svg>`;
+
         if (order.is_group && order.items && order.items.length > 1) {
           const count = order.items.length;
           document.getElementById('guest-view-turn').textContent = `#${order.turn}`;
-          document.getElementById('guest-view-name').textContent = `${order.guest_name} (${count === 2 ? 'Pareja' : 'Grupo de ' + count})`;
-          const itemsSummary = order.items.map((it, i) => `#${i+1}: ${it.is_bowl ? '🥗 Bowl' : '🌯'} ${it.protein}`).join(' • ');
-          document.getElementById('guest-view-detail').textContent = `${count} Shawarmas: ${itemsSummary}`;
+          document.getElementById('guest-view-name').textContent = `${order.guest_name}`;
+          const itemsSummary = order.items.map((it, i) => `#${i+1}: ${formatGuestProduct(it)}`).join(' • ');
+          const detailEl = document.getElementById('guest-view-detail');
+          if (detailEl) detailEl.innerHTML = `${wrapSvg} <span>${count} Shawarmas: ${itemsSummary}</span>`;
         } else {
           document.getElementById('guest-view-turn').textContent = `#${order.turn}`;
           document.getElementById('guest-view-name').textContent = `${order.guest_name}`;
           const removedTxt = order.removed_ingredients && order.removed_ingredients.length > 0 ? ` (Sin: ${order.removed_ingredients.join(', ')})` : ' (Con Todo)';
-          document.getElementById('guest-view-detail').textContent = `${order.is_bowl ? '🥗 Bowl' : '🌯 Shawarma'} de ${order.protein}${removedTxt}`;
+          const detailEl = document.getElementById('guest-view-detail');
+          if (detailEl) detailEl.innerHTML = `${wrapSvg} <span>${formatGuestProduct(order)}${removedTxt}</span>`;
         }
 
         const prepState = document.getElementById('guest-state-prep');
@@ -6266,123 +6568,263 @@
         });
       }
 
-      async closeEventAndStartNext() {
+      async closeEventBackupAndStartNext() {
         soundEngine.playClick();
-        const orders = this.db.orders || [];
-        const confirmMsg = `¿Deseas CERRAR este evento (${orders.length} shawarmas despachados), guardar el RESPALDO AUTOMÁTICO en la Bóveda y preparar el sistema para el Siguiente Evento (Turno #0001)?`;
-        
+        const orders = this.db?.orders || [];
+        const count = orders.length;
+        const confirmMsg = count > 0
+          ? `¿Deseas CERRAR este evento (${count} pedidos despachados), guardar el respaldo completo y comenzar el PRÓXIMO EVENTO desde el Turno #1?`
+          : '¿Deseas cerrar este evento y comenzar el PRÓXIMO EVENTO desde el Turno #1?';
+
         if (!confirm(confirmMsg)) return;
 
-        // 1. Guardar en archivo permanente de eventos
+        // 1. Snapshot del evento que acaba de finalizar
+        const closedEventSnapshot = JSON.parse(JSON.stringify(this.db || {}));
+
+        // 2. Archivar en la Bóveda del navegador
         try {
           const archives = JSON.parse(localStorage.getItem('shawarma_event_vault_archives') || '[]');
           archives.push({
-            id: this.db.event_info?.id || `evt_${Date.now()}`,
-            name: this.db.event_info?.name || 'Evento Catering',
+            id: closedEventSnapshot.event_info?.id || `evt_${Date.now()}`,
+            name: closedEventSnapshot.event_info?.name || 'Evento Catering',
             date: new Date().toISOString(),
-            total_orders: orders.length,
+            total_orders: count,
             operator: this.operatorName,
             orders: orders,
-            timer: this.db.event_info?.timer
+            timer: closedEventSnapshot.event_info?.timer
           });
           localStorage.setItem('shawarma_event_vault_archives', JSON.stringify(archives));
         } catch(e) {}
 
-        // 2. Limpiar en servidor y reiniciar
-        sessionStorage.setItem('shawarma_intentional_reset', 'true');
-        setTimeout(() => sessionStorage.removeItem('shawarma_intentional_reset'), 10000);
-
+        // 3. Descarga automática del respaldo de seguridad
         try {
-          const res = await fetch('/api/event/reset', {
+          if (count > 0 && typeof this.downloadEventBundle === 'function') {
+            this.downloadEventBundle();
+          }
+        } catch(e) {
+          console.warn('Descarga de respaldo:', e);
+        }
+
+        // 4. Marcar reseteo intencional para evitar re-inyecciones
+        sessionStorage.setItem('shawarma_intentional_reset', 'true');
+        localStorage.setItem('shawarma_reset_in_progress', 'true');
+        setTimeout(() => {
+          sessionStorage.removeItem('shawarma_intentional_reset');
+          localStorage.removeItem('shawarma_reset_in_progress');
+        }, 10000);
+
+        // 5. Llamar al servidor para crear el nuevo evento limpio
+        try {
+          const res = await fetch('/api/event/close_and_start_next', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ name: `Evento ${new Date().toLocaleDateString()}` })
           });
           if (res.ok) {
             const data = await res.json();
-            localStorage.removeItem('shawarma_db_v6');
-            localStorage.removeItem('shawarma_permanent_vault_v2');
-            this.syncData(data.data, true);
-            this.resetForm();
-            this.showToast('✅ ¡Evento cerrado y respaldado! Sistema listo en Turno #0001 para el nuevo evento.', 'success');
-            this.switchView('order');
+            const freshDb = data.new_event || data.data;
+            this.handleCleanEventReset(freshDb);
+            this.showToast('✅ ¡Evento respaldado y cerrado! Sistema listo en Turno #1.', 'success');
+            if (count > 0) {
+              this.showFinishedEventSummary(closedEventSnapshot);
+            } else {
+              this.switchView('order');
+            }
+            return;
           }
-        } catch(e) {
-          this.db = { event_info: { id: `evt_${Date.now()}`, name: 'Shawarma en Casa', turn_counter: 0, timer: { started_at: null, is_paused: false } }, orders: [] };
-          localStorage.removeItem('shawarma_db_v6');
-          localStorage.removeItem('shawarma_permanent_vault_v2');
-          this.syncData(this.db, true);
-          this.resetForm();
-          this.showToast('✅ ¡Evento respaldado y listo para el nuevo evento!', 'success');
+        } catch(e) {}
+
+        // Fallback local si el servidor no responde
+        const fallbackDb = {
+          event_info: {
+            id: `evt_${Date.now()}`,
+            name: 'Shawarma en Casa',
+            created_at: new Date().toISOString(),
+            turn_counter: 0,
+            reset_at: Math.floor(Date.now() / 1000),
+            timer: { started_at: null, elapsed_seconds: 0, is_paused: false }
+          },
+          orders: []
+        };
+        this.handleCleanEventReset(fallbackDb);
+        this.showToast('✅ ¡Evento respaldado y cerrado! Sistema listo en Turno #1.', 'success');
+        if (count > 0) {
+          this.showFinishedEventSummary(closedEventSnapshot);
+        } else {
           this.switchView('order');
         }
       }
 
-      async clearEventWithoutSaving() {
+      async closeEventAndStartNext() {
+        return this.closeEventBackupAndStartNext();
+      }
+
+      showFinishedEventSummary(closedDb) {
+        const orders = closedDb?.orders || [];
+        const units = orders.reduce((acc, o) => {
+          if (o.is_group && Array.isArray(o.items)) return acc + o.items.length;
+          return acc + (o.quantity || 1);
+        }, 0);
+
+        let mixtos = 0, pollos = 0, carnes = 0, bowls = 0, falafel = 0;
+        orders.forEach(o => {
+          const items = (o.is_group && Array.isArray(o.items)) ? o.items : [o];
+          items.forEach(it => {
+            const p = (it.protein || '').toLowerCase();
+            const isBowl = it.is_bowl || it.preset === 'bowl';
+            if (isBowl) bowls++;
+            if (p.includes('mixto')) mixtos++;
+            else if (p.includes('pollo')) pollos++;
+            else if (p.includes('carne')) carnes++;
+            else if (p.includes('falafel')) falafel++;
+          });
+        });
+
+        const eventName = closedDb.event_info?.name || 'Evento Catering';
+        const dateStr = new Date(closedDb.event_info?.created_at || Date.now()).toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        const timerSecs = closedDb.event_info?.timer?.elapsed_seconds || 0;
+        const durationStr = timerSecs > 0 ? `${Math.floor(timerSecs / 60)} min ${timerSecs % 60} seg` : 'Servicio en vivo';
+
+        let modal = document.getElementById('finished-event-modal');
+        if (!modal) {
+          modal = document.createElement('div');
+          modal.id = 'finished-event-modal';
+          modal.className = 'modal-backdrop-pos';
+          document.body.appendChild(modal);
+        }
+
+        modal.innerHTML = `
+          <div class="modal-card-pos" style="max-width: 540px; width: 92%; padding: 24px; border-radius: 14px; background: var(--bg-surface); border: 1.5px solid var(--border-color); box-shadow: 0 20px 40px rgba(0,0,0,0.6);">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px;">
+              <div>
+                <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #10b981; font-weight: 700;">✅ Evento Cerrado y Respaldado</span>
+                <h2 style="font-size: 22px; font-weight: 900; margin: 4px 0; color: var(--text-white);">${eventName}</h2>
+                <div style="font-size: 12px; color: var(--text-dim);">${dateStr}</div>
+              </div>
+              <button type="button" onclick="document.getElementById('finished-event-modal').style.display='none'; app.switchView('order');" style="background: var(--bg-surface-2); border: 1px solid var(--border-color); color: var(--text-dim); width: 34px; height: 34px; border-radius: 8px; font-size: 16px; cursor: pointer; display: grid; place-items: center;">✕</button>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px;">
+              <div style="background: var(--bg-surface-2); padding: 12px; border-radius: 8px; border: 1px solid var(--border-color);">
+                <div style="font-size: 11px; color: var(--text-dim);">Comandas Totales</div>
+                <div style="font-size: 26px; font-weight: 900; color: var(--brand-pink);">${orders.length}</div>
+              </div>
+              <div style="background: var(--bg-surface-2); padding: 12px; border-radius: 8px; border: 1px solid var(--border-color);">
+                <div style="font-size: 11px; color: var(--text-dim);">Unidades Servidas</div>
+                <div style="font-size: 26px; font-weight: 900; color: #10b981;">${units}</div>
+              </div>
+            </div>
+
+            <h4 style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-dim); margin-bottom: 8px;">Desglose de Producción</h4>
+            <div style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 18px; background: var(--bg-surface-2); padding: 12px; border-radius: 8px; font-size: 13px;">
+              <div style="display: flex; justify-content: space-between;"><span>🌯 Shawarmas Mixtos:</span><strong>${mixtos}</strong></div>
+              <div style="display: flex; justify-content: space-between;"><span>🍗 Shawarmas de Pollo:</span><strong>${pollos}</strong></div>
+              <div style="display: flex; justify-content: space-between;"><span>🥩 Shawarmas de Carne:</span><strong>${carnes}</strong></div>
+              ${bowls > 0 ? `<div style="display: flex; justify-content: space-between;"><span>🥗 Bowls en plato (sin pan):</span><strong>${bowls}</strong></div>` : ''}
+              ${falafel > 0 ? `<div style="display: flex; justify-content: space-between;"><span>🧆 Falafel:</span><strong>${falafel}</strong></div>` : ''}
+              <div style="display: flex; justify-content: space-between; border-top: 1px solid var(--border-color); padding-top: 6px; margin-top: 2px; color: var(--text-dim);"><span>⏱️ Tiempo de servicio:</span><strong>${durationStr}</strong></div>
+            </div>
+
+            <div style="display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap;">
+              <button type="button" onclick="app.showClientInvoiceModal()" style="background: var(--bg-surface-2); border: 1px solid var(--border-color); color: var(--text-white); padding: 10px 14px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer;">
+                📄 Ver Reporte / Imprimir
+              </button>
+              <button type="button" onclick="document.getElementById('finished-event-modal').style.display='none'; app.switchView('order');" style="background: var(--brand-pink); color: white; border: none; padding: 10px 16px; border-radius: 8px; font-size: 13px; font-weight: 800; cursor: pointer;">
+                🚀 Comenzar Nuevo Evento (Turno #1)
+              </button>
+            </div>
+          </div>
+        `;
+        modal.style.display = 'flex';
+      }
+
+      async closeEventWithoutSaving() {
         soundEngine.playClick();
         const ordersCount = this.db?.orders?.length || 0;
         const msg = ordersCount > 0 
-          ? `¿Estás seguro de LIMPIAR este evento sin guardarlo?\n\nSe descartarán los ${ordersCount} pedidos actuales y el sistema se reiniciará en Turno #0001 para empezar de cero.`
-          : '¿Reiniciar el sistema a cero en Turno #0001?';
+          ? `¿Cerrar evento sin guardar?\n\nSe descartarán los ${ordersCount} pedidos de prueba actuales y el sistema quedará 100% limpio en Turno #1 para el evento real.`
+          : '¿Cerrar evento sin guardar y reiniciar el sistema a cero en Turno #1?';
         
         if (!confirm(msg)) return;
 
         sessionStorage.setItem('shawarma_intentional_reset', 'true');
-        setTimeout(() => sessionStorage.removeItem('shawarma_intentional_reset'), 10000);
+        localStorage.setItem('shawarma_reset_in_progress', 'true');
+        setTimeout(() => {
+          sessionStorage.removeItem('shawarma_intentional_reset');
+          localStorage.removeItem('shawarma_reset_in_progress');
+        }, 10000);
 
         try {
           const res = await fetch('/api/event/reset', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name: 'Shawarma en Casa' })
+            body: JSON.stringify({ name: 'Shawarma en Casa', save_backup: false })
           });
           if (res.ok) {
             const data = await res.json();
-            localStorage.removeItem('shawarma_db_v6');
-            localStorage.removeItem('shawarma_permanent_vault_v2');
-            this.syncData(data.data, true);
-            this.resetForm();
-            this.showToast('🧹 Evento limpiado desde cero (sin guardar en bóveda)', 'info');
+            this.handleCleanEventReset(data.data);
+            this.showToast('🧹 Evento de prueba cerrado sin guardar. Listo en Turno #1', 'info');
             this.switchView('order');
             return;
           }
         } catch(e) {}
 
-        this.db = { event_info: { id: `evt_${Date.now()}`, name: 'Shawarma en Casa', turn_counter: 0, timer: { started_at: null, is_paused: false } }, orders: [] };
-        localStorage.setItem('shawarma_db_v6', JSON.stringify(this.db));
-        this.syncData(this.db, true);
-        this.resetForm();
-        this.showToast('🧹 Evento limpiado desde cero (sin guardar en bóveda)', 'info');
+        const fallbackDb = { event_info: { id: `evt_${Date.now()}`, name: 'Shawarma en Casa', turn_counter: 0, reset_at: Math.floor(Date.now() / 1000), timer: { started_at: null, elapsed_seconds: 0, is_paused: false } }, orders: [] };
+        this.handleCleanEventReset(fallbackDb);
+        this.showToast('🧹 Evento de prueba cerrado sin guardar. Listo en Turno #1', 'info');
         this.switchView('order');
+      }
+
+      clearEventWithoutSaving() {
+        return this.closeEventWithoutSaving();
       }
 
       updateTimers() {
         if (this.currentView === 'kitchen') this.renderKDS();
       }
 
+      updateKDSBadge() {
+        const pending = (this.db?.orders || []).filter(o => o.status === 'pending' || o.status === 'preparing').length;
+        const badge = document.getElementById('badge-kds-count');
+        if (badge) {
+          badge.textContent = pending;
+          badge.style.display = pending > 0 ? 'inline-flex' : 'none';
+        }
+      }
+
       showToast(msg, type = 'success') {
         const tray = document.getElementById('toast-tray');
         if (!tray) return;
+
+        // Limitar a máximo 1 notificación visible a la vez para evitar apilar
+        while (tray.firstChild) tray.removeChild(tray.firstChild);
+
+        let iconStr = '✓';
+        if (type === 'warning') iconStr = '⚠️';
+        else if (type === 'danger' || type === 'error') iconStr = '✕';
+        else if (type === 'info') iconStr = 'ℹ️';
+
         const t = document.createElement('div');
         t.className = `toast-msg toast-${type}`;
-        t.innerHTML = `<span>${type === 'success' ? '✅' : '⚠️'}</span><span>${msg}</span>`;
+        t.innerHTML = `<span>${iconStr}</span><span>${msg}</span>`;
+        t.onclick = () => t.remove();
         tray.appendChild(t);
-        setTimeout(() => t.remove(), 3500);
+        setTimeout(() => { if (t.parentNode) t.remove(); }, 2200);
       }
     }
 
     window.app = new AppState();
     window.addEventListener('DOMContentLoaded', () => window.app.init());
   </script>
-  <script src="js/premium-ui.js?v=20260902-12h-v2"></script>
-  <script src="js/unified-ui.js?v=20260902-12h-v2"></script>
-  <script src="js/supplies-ui.js?v=20260902-12h-v2"></script>
-  <script src="js/safety-ui.js?v=20260902-12h-v2"></script>
-  <script src="js/i18n-ui.js?v=20260902-12h-v2"></script>
-  <link rel="stylesheet" href="css/service.css?v=20260902-12h-v2">
-  <script src="js/service-ui.js?v=20260902-12h-v2"></script>
+  <script src="js/premium-ui.js?v=20260904-v4"></script>
+  <script src="js/unified-ui.js?v=20260904-v4"></script>
+  <script src="js/supplies-ui.js?v=20260904-v4"></script>
+  <script src="js/safety-ui.js?v=20260904-v4"></script>
+  <script src="js/i18n-ui.js?v=20260904-v4"></script>
+  <link rel="stylesheet" href="css/service.css?v=20260904-v4">
+  <script src="js/service-ui.js?v=20260904-v4"></script>
   <script src="vendor/jszip.min.js"></script>
-  <script src="js/report-template.js?v=20260902-12h-v2"></script>
-  <script src="js/reports-ui.js?v=20260902-12h-v2"></script>
+  <script src="js/report-template.js?v=20260904-v4"></script>
+  <script src="js/reports-ui.js?v=20260904-v4"></script>
 </body>
 </html>

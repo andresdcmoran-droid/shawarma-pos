@@ -5,9 +5,9 @@
  .premium-ui .s-name-list button {display:block;width:100%;min-height:44px;text-align:left;padding:10px 14px;background:transparent;border:0;color:var(--text-white);font-size:16px;}
  .premium-ui .s-name-list button[aria-selected="true"],.premium-ui .s-name-list button:hover {background:var(--brand-pink-soft);color:var(--brand-pink);}
  .premium-ui .presets-row {grid-template-columns:repeat(4,minmax(0,1fr));}
- .premium-ui #event-timer-container {gap:2px!important;padding:0 6px!important;}
- .premium-ui #event-timer-text {font-size:14px!important;letter-spacing:0!important;}
- .premium-ui #event-timer-container .ui-icon {width:18px;height:18px;}
+ .premium-ui #event-timer-container {gap:8px!important;padding:4px 8px 4px 12px!important;}
+ .premium-ui #event-timer-text {font-size:15px!important;letter-spacing:0.5px!important;}
+ .premium-ui #event-timer-container .ui-icon {width:15px;height:15px;}
  .premium-ui #event-timer-container .p-timer-label {display:none;}
  .premium-ui .p-received {font-size:12px;color:var(--text-dim);font-weight:400;}
  .premium-ui .p-ticket-footer {justify-content:flex-end;}
@@ -199,8 +199,8 @@
   }
   .premium-ui .view-content {padding-bottom:calc(76px + env(safe-area-inset-bottom,0px))!important;}
   .premium-ui #view-order {padding-bottom:calc(200px + env(safe-area-inset-bottom,0px))!important;}
-  .premium-ui #toast-tray {bottom:calc(68px + env(safe-area-inset-bottom,0px));}
-  .premium-ui[data-view="order"] #toast-tray {bottom:calc(128px + env(safe-area-inset-bottom,0px));}
+  .premium-ui #toast-tray,
+  .premium-ui[data-view="order"] #toast-tray {top:calc(16px + env(safe-area-inset-top,0px))!important;bottom:auto!important;left:50%!important;transform:translateX(-50%)!important;right:auto!important;}
   .premium-ui .presets-row {grid-template-columns:repeat(2,minmax(0,1fr));}
   .premium-ui .s-report-dialog {max-height:calc(100dvh - 16px);}.premium-ui #client-invoice-modal {padding:8px!important;}
   .premium-ui .s-report-fields {grid-template-columns:1fr;}.s-client-report {padding:20px;}.s-client-report h1 {font-size:24px;}

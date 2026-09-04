@@ -94,7 +94,27 @@ def broadcast_event(event_type, payload)
         client.flush
         false
       rescue StandardError
+        begin; client.close unless client.closed?; rescue StandardError; end
         true # Remove dead client
+      end
+    end
+  end
+end
+
+# Background Heartbeat Thread: Keeps SSE streams open through Render/proxies and detects dead clients
+Thread.new do
+  loop do
+    sleep 10
+    $clients_mutex.synchronize do
+      $clients.reject! do |client|
+        begin
+          client.write(": heartbeat #{Time.now.to_i}\n\n")
+          client.flush
+          false
+        rescue StandardError
+          begin; client.close unless client.closed?; rescue StandardError; end
+          true # Client disconnected
+        end
       end
     end
   end
@@ -180,16 +200,29 @@ server.mount_proc '/api/orders' do |req, res|
   elsif req.request_method == 'POST'
     begin
       body = JSON.parse(req.body)
-      
-      # Increment turn counter (siempre reinicia a 0 si la lista de pedidos está vacía)
-      if db['orders'].empty?
-        db['event_info']['turn_counter'] = 0
+
+      incoming_id = body['id'] ? body['id'].to_s.strip : nil
+
+      # Idempotency check: prevent duplicate order creation on network retries
+      if incoming_id && !incoming_id.empty?
+        existing_order = db['orders'].find { |o| o['id'] == incoming_id }
+        if existing_order
+          res.status = 200
+          res.body = JSON.generate({ status: 'existing', order: existing_order, event_info: db['event_info'] })
+          next
+        end
       end
-      turn_num = (db['event_info']['turn_counter'] || 0) + 1
+      
+      # Turn counter: strictly monotonic, continuous and atomic
+      max_turn = db['orders'].map { |o| o['turn'].to_i }.max || 0
+      counter = db['event_info']['turn_counter'].to_i
+      turn_num = [counter, max_turn].max + 1
       db['event_info']['turn_counter'] = turn_num
 
+      order_id = incoming_id && !incoming_id.empty? ? incoming_id : "ord_#{Time.now.to_f.to_s.sub('.', '')}"
+
       new_order = {
-        'id' => "ord_#{Time.now.to_f.to_s.sub('.', '')}",
+        'id' => order_id,
         'turn' => turn_num,
         'guest_name' => (body['guest_name'] || 'Invitado').strip,
         'table' => (body['table'] || '').strip,
@@ -316,6 +349,16 @@ server.mount_proc '/api/orders/bulk_restore' do |req, res|
       incoming_orders = body['orders'] || []
 
       db = load_db
+
+      # Anti-Resurrection Guard: Never allow orders from prior to reset_at
+      reset_at = db.dig('event_info', 'reset_at').to_i
+      if reset_at > 0
+        incoming_orders.select! do |ord|
+          ord_time = Time.parse(ord['created_at']).to_i rescue 0
+          ord_time >= reset_at
+        end
+      end
+
       existing_ids = db['orders'].map { |o| o['id'] }
 
       added = 0
@@ -511,11 +554,14 @@ server.mount_proc '/api/event/reset' do |req, res|
     begin
       body = JSON.parse(req.body || '{}')
       event_name = body['name'] || "Evento #{Time.now.strftime('%d/%m/%Y %H:%M')}"
+      save_backup = body['save_backup'] != false
 
-      # Backup previous event if it had orders
+      # Backup previous event only if save_backup is true and it had orders
       current_db = load_db
-      if current_db['orders'].any?
-        backup_file = File.join(DATA_DIR, "backup_#{current_db['event_info']['id']}.json")
+      backup_file = nil
+      if save_backup && current_db['orders'].any?
+        evt_id = current_db['event_info']['id'] || "evt_#{Time.now.to_i}"
+        backup_file = File.join(DATA_DIR, "backup_#{evt_id}.json")
         File.write(backup_file, JSON.pretty_generate(current_db))
       end
 
@@ -525,6 +571,7 @@ server.mount_proc '/api/event/reset' do |req, res|
           'name' => event_name,
           'created_at' => Time.now.iso8601,
           'turn_counter' => 0,
+          'reset_at' => Time.now.to_i,
           'timer' => {
             'started_at' => nil,
             'elapsed_seconds' => 0,
@@ -536,7 +583,59 @@ server.mount_proc '/api/event/reset' do |req, res|
       }
 
       save_db(new_db)
-      res.body = JSON.generate({ status: 'reset_ok', data: new_db })
+      broadcast_event('event_reset', new_db)
+      res.body = JSON.generate({ status: 'reset_ok', data: new_db, closed_event: current_db, backup_saved: !backup_file.nil? })
+    rescue StandardError => e
+      res.status = 400
+      res.body = JSON.generate({ error: e.message })
+    end
+  end
+end
+
+# API: Close Event, Save Backup, and Start Clean Next Event
+server.mount_proc '/api/event/close_and_start_next' do |req, res|
+  set_api_headers(res)
+
+  if req.request_method == 'OPTIONS'
+    res.status = 204
+    next
+  end
+
+  if req.request_method == 'POST'
+    begin
+      body = JSON.parse(req.body || '{}')
+      event_name = body['name'] || "Evento #{Time.now.strftime('%d/%m/%Y')}"
+
+      current_db = load_db
+      evt_id = current_db['event_info']['id'] || "evt_#{Time.now.to_i}"
+      backup_file = File.join(DATA_DIR, "backup_#{evt_id}.json")
+      File.write(backup_file, JSON.pretty_generate(current_db))
+
+      new_db = {
+        'event_info' => {
+          'id' => "evt_#{Time.now.to_i}",
+          'name' => event_name,
+          'created_at' => Time.now.iso8601,
+          'turn_counter' => 0,
+          'reset_at' => Time.now.to_i,
+          'timer' => {
+            'started_at' => nil,
+            'elapsed_seconds' => 0,
+            'is_paused' => false,
+            'paused_at' => nil
+          }
+        },
+        'orders' => []
+      }
+
+      save_db(new_db)
+      broadcast_event('event_reset', new_db)
+      res.body = JSON.generate({
+        status: 'ok',
+        data: new_db,
+        closed_event: current_db,
+        backup_file: File.basename(backup_file)
+      })
     rescue StandardError => e
       res.status = 400
       res.body = JSON.generate({ error: e.message })
@@ -657,8 +756,9 @@ end
 # API: Server-Sent Events (SSE) for Real-Time Sync without external internet
 server.mount_proc '/api/stream' do |req, res|
   res['Content-Type'] = 'text/event-stream'
-  res['Cache-Control'] = 'no-cache'
+  res['Cache-Control'] = 'no-cache, no-transform'
   res['Connection'] = 'keep-alive'
+  res['X-Accel-Buffering'] = 'no'
   res['Access-Control-Allow-Origin'] = '*'
 
   # Keep connection open for SSE streaming
@@ -672,6 +772,7 @@ server.mount_proc '/api/stream' do |req, res|
 
   # Send immediate current state
   begin
+    wr.write(": connected\n\n")
     wr.write("event: init\n")
     wr.write("data: #{JSON.generate(load_db)}\n\n")
     wr.flush

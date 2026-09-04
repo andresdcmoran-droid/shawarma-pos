@@ -27,9 +27,9 @@
         <div class="u-metrics">${metric('kpi-cost-total','Costo de insumos')}${metric('kpi-profit-net','Resultado neto')}${metric('kpi-margin-pct','Margen')}${metric('kpi-cost-per-unit','Costo por unidad')}${metric('kpi-single-plate-cost','Mixto estándar')}</div>
         <h3 class="u-subheading">Insumos y empaques</h3><div class="u-table-scroll" tabindex="0" role="region" aria-label="Desglose de costos"><table class="u-table"><thead><tr><th>Insumo</th><th>Uso</th><th>Cantidad</th><th>Costo unitario</th><th>Subtotal</th></tr></thead><tbody id="cost-breakdown-tbody"></tbody></table></div>
       </section>
-      ${card(heading('Historial y respaldos','box','Consulta los eventos archivados y descarga una copia.')+`<div class="u-metrics u-two-metrics">${metric('vault-total-orders','Comandas guardadas')}${metric('vault-total-events','Eventos archivados')}</div><div id="vault-events-list" class="u-archive-list"></div><div class="u-actions">${button('Exportar historial CSV','list','app.exportVaultCSV()')}${button('Abrir respaldo JSON','box','app.openRecoveryFile()')}${button('Vaciar toda la Bóveda','trash','app.clearVaultPrompt()','u-danger')}</div><input id="s-recovery-file" type="file" accept="application/json,.json" hidden onchange="app.inspectRecoveryFile(this.files[0]);this.value=''"><div id="s-recovery-preview" class="s-recovery-preview" hidden data-i18n-ignore></div><p class="u-muted">Abrir un respaldo permite consultarlo y archivarlo. No restaura pedidos al servidor.</p>`,'u-full')}
-      ${card(heading('Protección del evento','box','El respaldo descargado es independiente del navegador. La permanencia del servidor debe verificarse en Render.')+`<p class="u-muted" id="u-safety-storage">Copias de recuperación del dispositivo: sin comprobar.</p><p class="u-muted" id="u-safety-wake">Pantalla activa: sin comprobar.</p><div class="u-actions">${button('Respaldar Excel + JSON','box','app.downloadEventBundle()','u-primary')}${button('Descargar Excel','list','app.exportEventExcel()')}${button('Descargar respaldo JSON','box','app.downloadSafetyBackup()')}${button('Activar / desactivar pantalla activa','monitor','app.toggleScreenAwake()')}</div>`,'u-full')}
-      ${card(heading('Cerrar o limpiar evento','alert','Cierra con respaldo o limpia los pedidos de prueba para continuar en el mismo evento.')+`<div class="u-actions">${button('Respaldar y cerrar evento','check','app.closeEventAndStartNext()','u-primary')}${button('Limpiar evento con respaldo','reset','app.closeEventAndStartNext()')}${button('Limpiar sin guardar','trash','app.clearEventWithoutSaving()','u-danger s-clear-button')}${button('Reiniciar turnos a #1','reset','app.promptResetTurnCounter()')}</div><p class="u-muted">Limpiar sin guardar elimina los pedidos de prueba y reinicia la numeración de turnos al Turno #1.</p><p class="u-muted">No hay borrado automático por inactividad. El reloj empieza con el primer pedido o con el botón de inicio; recargar no reinicia el servicio.</p>`,'u-full')}
+      ${card(heading('Historial de eventos archivados','box','Consulta los eventos guardados anteriormente y descarga su historial.')+`<div class="u-metrics u-two-metrics">${metric('vault-total-orders','Comandas guardadas')}${metric('vault-total-events','Eventos archivados')}</div><div id="vault-events-list" class="u-archive-list"></div><div class="u-actions">${button('Exportar historial CSV','list','app.exportVaultCSV()')}</div>`,'u-full')}
+      ${card(heading('Copia de seguridad del evento activo','box','Descarga una copia completa en archivo ZIP que contiene el Excel para consulta y el JSON para resguardo.')+`<p class="u-muted" id="u-safety-storage">Copias de recuperación del dispositivo: activo.</p><p class="u-muted" id="u-safety-wake">Pantalla activa: disponible.</p><div class="u-actions">${button('Descargar copia de seguridad (Excel + JSON)','box','app.downloadEventBundle()','u-primary')}${button('Mantener pantalla activa','monitor','app.toggleScreenAwake()')}</div>`,'u-full')}
+      ${card(heading('Gestión y Cierre del Evento','alert','Cierra el evento con respaldo completo para comenzar el siguiente desde el Turno #1, o descarta pedidos de prueba.')+`<div class="u-actions">${button('Cerrar este evento, respaldar y próximo evento','check','app.closeEventBackupAndStartNext()','u-primary')}${button('Cerrar evento sin guardar','trash','app.closeEventWithoutSaving()','u-danger s-clear-button')}${button('Ver resumen / Reporte del evento','list','app.showClientInvoiceModal()')}</div><p class="u-muted"><strong>Cerrar este evento, respaldar y próximo evento:</strong> Guarda automáticamente la copia completa en Excel y JSON, muestra el resumen con el desglose de comandas servidas y reinicia todo el sistema limpiamente en el <strong>Turno #1</strong> para tu siguiente catering.</p><p class="u-muted"><strong>Cerrar evento sin guardar:</strong> Diseñado exclusivamente para pruebas de conexión y rendimiento previas al evento. Descarta todos los pedidos de prueba sin generar respaldos y deja el sistema 100% limpio en el <strong>Turno #1</strong> listo para el catering real.</p>`,'u-full')}
     </div>`;
   }
   function detailTemplate() {
@@ -58,11 +58,14 @@
     entries.forEach(({item,quantity})=>{const name=shortName(item);composition.set(name,(composition.get(name)||0)+quantity);});
     const product=entries.length===1?`${total>1?total+' × ':''}${shortName(item)}`:`${countLabel} · ${[...composition].map(([name,quantity])=>`${quantity} ${name}`).join(' + ')}`;
     const fullProduct=entries.length===1?`${total>1?total+' × ':''}${title(item)}`:product;
-    const guest=order.guest_name||'Sin nombre',identity=order.table?`${guest} · ${order.table}`:guest;
+    const {birthday,kids}=ui.specialOrder(order);
+    const guest=birthday
+      ? `⭐ ${ui.formatBirthdayName ? ui.formatBirthdayName(order.guest_name, order.notes) : 'Cumpleañero ' + (order.guest_name||'')}`
+      : (order.guest_name||'Sin nombre');
+    const identity=order.table?`${guest} · ${order.table}`:guest;
     const status=ready?'Listo':order.status==='preparing'?'Preparando':'En cola';
     const statusDescription=ready?'Listo para retirar':statusText[order.status]||'Revisar estado';
     const special=specialLabelsHTML(order);
-    const {birthday,kids}=ui.specialOrder(order);
     const accessibleLabel=`Ver detalle del turno ${order.turn}, ${identity}, ${fullProduct}, ${statusDescription}${birthday?', Cumpleañero':''}${kids?', Infantil':''}`;
     return `<button type="button" class="u-turn-card ${ready?'u-ready':''} ${specialClasses(order)}" data-p-action="detail" data-id="${esc(order.id)}" aria-haspopup="dialog" aria-controls="order-detail-modal" aria-label="${esc(accessibleLabel)}">
       <span class="u-turn-index"><span class="u-turn-label">Turno</span><strong class="u-turn-number">#${esc(order.turn)}</strong></span>
@@ -82,7 +85,7 @@
   function fillDetail(state,order) {
     ui.syncSpecialMotion();
     const dialog=$('order-detail-modal').querySelector('.u-detail-dialog');
-    if(dialog)dialog.className=`u-dialog u-detail-dialog ${specialClasses(order)}`;
+    if(dialog)dialog.className=`u-dialog u-detail-dialog ${order.status==='ready'?'u-ready-detail':''} ${specialClasses(order)}`;
     html('u-detail-special',specialLabelsHTML(order));
     text('modal-turn-title',`Turno #${order.turn}`);
     text('modal-guest-name',order.guest_name||'Sin nombre');
@@ -90,6 +93,7 @@
     text('u-detail-status',statusText[order.status]||'Revisar estado');
     $('u-detail-status').className=`p-status p-status-${order.status}`;
     let timeStr='—';
+    const date=new Date(order.created_at);
     if(Number.isFinite(date.getTime())){let h=date.getHours();const m=String(date.getMinutes()).padStart(2,'0');const ampm=h>=12?'pm':'am';h=h%12||12;timeStr=`${h}:${m} ${ampm}`;}
     text('modal-time-detail',`Recibido ${timeStr} · ${units(order)} ${units(order)===1?'shawarma':'shawarmas'}`);
     const recipeMarkup=orderUnits(order).map(({item,quantity},i)=>`<section class="p-ticket-item"><h3>${icon(proteinIcon(item.protein))}${order.is_group?`<span class="p-item-number">${i+1}</span>`:''}${quantity>1?`${quantity} × `:''}${esc(title(item))}</h3>${recipeHTML(item,true)}${item.notes?`<p class="p-note">${icon('edit')}${esc(item.notes)}</p>`:''}<p class="u-preparation">${icon(item.is_bowl||item.preset==='bowl'?'bowl':'wrap')}${item.is_bowl||item.preset==='bowl'?'Servido en plato, sin pan':'Envuelto y tostado en plancha'}</p></section>`).join('');
