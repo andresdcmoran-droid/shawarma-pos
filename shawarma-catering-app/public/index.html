@@ -2114,10 +2114,10 @@
       }
     }
   </style>
-  <link rel="stylesheet" href="css/premium.css?v=20260904-v4">
-  <link rel="stylesheet" href="css/unified.css?v=20260904-v4">
+  <link rel="stylesheet" href="css/premium.css?v=20260904-v5">
+  <link rel="stylesheet" href="css/unified.css?v=20260904-v5">
 </head>
-<body>
+<body class="premium-ui" data-view="order">
 
   <!-- Top App Navigation Header - BRAND LEFT, TIMER CENTER, BADGE RIGHT -->
   <header class="header-bar">
@@ -2128,6 +2128,7 @@
     <!-- Live Event Stopwatch Timer (Center) -->
     <div class="event-timer-badge" id="event-timer-container">
       <svg class="ui-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #ffffff;"><circle cx="12" cy="13" r="8"/><path d="M12 9v5l3 2M9 2h6M12 2v3"/></svg>
+      <span class="p-timer-label">Evento</span>
       <span id="event-timer-text">00:00:00</span>
       <div class="timer-btn-group" id="timer-btn-group">
         <button type="button" id="btn-timer-toggle" class="timer-control-btn" onclick="app.toggleEventTimer()" title="Pausar / Reanudar Cronómetro">
@@ -2148,28 +2149,28 @@
 
   <!-- Navigation Tabs (Centered over header on iPad/Mac, Native Bottom Bar on Phone) -->
   <nav class="tabs-nav" role="tablist">
-    <button class="tab-btn active" id="tab-order" onclick="app.switchView('order')">
+    <button class="tab-btn active" id="tab-order" onclick="app.switchView('order')" role="tab" aria-controls="view-order">
       <span class="tab-icon-wrap">
-        <span class="tab-icon">📱</span>
+        <span class="tab-icon"><svg class="ui-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M9 14h6"/><path d="M9 18h6"/></svg></span>
       </span>
       <span class="tab-text">Pedidos</span>
     </button>
-    <button class="tab-btn" id="tab-kitchen" onclick="app.switchView('kitchen')">
+    <button class="tab-btn" id="tab-kitchen" onclick="app.switchView('kitchen')" role="tab" aria-controls="view-kitchen">
       <span class="tab-icon-wrap">
-        <span class="tab-icon">👨‍🍳</span>
+        <span class="tab-icon"><svg class="ui-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 19v2"/><path d="M18 19v2"/><path d="M4 11h16v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-6Z"/><path d="M8 4c0 2-2 2-2 4"/><path d="M12 4c0 2-2 2-2 4"/><path d="M16 4c0 2-2 2-2 4"/></svg></span>
         <span class="badge-count" id="badge-kds-count" style="display:none;">0</span>
       </span>
       <span class="tab-text">Cocina KDS</span>
     </button>
-    <button class="tab-btn" id="tab-display" onclick="app.switchView('display')">
+    <button class="tab-btn" id="tab-display" onclick="app.switchView('display')" role="tab" aria-controls="view-display">
       <span class="tab-icon-wrap">
-        <span class="tab-icon">📺</span>
+        <span class="tab-icon"><svg class="ui-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></span>
       </span>
       <span class="tab-text">Monitor Turnos</span>
     </button>
-    <button class="tab-btn" id="tab-admin" onclick="app.switchView('admin')">
+    <button class="tab-btn" id="tab-admin" onclick="app.switchView('admin')" role="tab" aria-controls="view-admin">
       <span class="tab-icon-wrap">
-        <span class="tab-icon">⚙️</span>
+        <span class="tab-icon"><svg class="ui-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg></span>
       </span>
       <span class="tab-text">Admin</span>
     </button>
@@ -2751,13 +2752,13 @@
 
         <div style="background: var(--bg-surface-2); border: 1px solid var(--border-color); border-radius: 12px; padding: 12px 16px; font-size: 13px; line-height: 1.45; color: var(--text-dim); display: flex; align-items: center; gap: 10px; margin-bottom: 18px; text-align: left;">
           <svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="var(--brand-pink)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 20px; height: 20px; flex-shrink: 0;"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-          <span>Mantén esta pantalla abierta. Recibirás una <strong>alerta por sonido y vibración</strong> en tu teléfono cuando esté listo.</span>
+          <span>Mantén esta pantalla en tu navegador para ver la actualización de tu turno en tiempo real.</span>
         </div>
 
         <div id="guest-perm-box" style="margin-bottom: 12px;">
           <button type="button" id="btn-request-perm" class="u-button" style="width: 100%; justify-content: center; border-color: rgba(16, 185, 129, 0.4); color: var(--yes-green); font-size: 13px; font-weight: 700; min-height: 42px; gap: 8px;" onclick="app.requestNotificationPermission()">
             <svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px;"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-            <span>Activar avisos en pantalla bloqueada</span>
+            <span>Activar sonido de aviso al estar listo</span>
           </button>
         </div>
 
@@ -2830,7 +2831,7 @@
       <div style="background: var(--bg-surface-2); border: 1px solid var(--border-color); border-radius: 10px; padding: 11px 14px; display: flex; align-items: flex-start; gap: 10px; text-align: left; margin-bottom: 18px;">
         <svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="var(--brand-pink)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 18px; height: 18px; flex-shrink: 0; margin-top: 2px;"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
         <p style="font-size: 12.5px; color: var(--text-dim); line-height: 1.45; margin: 0;">
-          Pídele al comensal que <strong>escanee este código con la cámara de su teléfono</strong> para recibir la vibración y alerta cuando su shawarma esté listo.
+          Pídele al comensal que <strong>escanee este código con la cámara de su teléfono</strong> para seguir su turno en vivo en la pantalla de su celular.
         </p>
       </div>
 
@@ -6816,15 +6817,15 @@
     window.app = new AppState();
     window.addEventListener('DOMContentLoaded', () => window.app.init());
   </script>
-  <script src="js/premium-ui.js?v=20260904-v4"></script>
-  <script src="js/unified-ui.js?v=20260904-v4"></script>
-  <script src="js/supplies-ui.js?v=20260904-v4"></script>
-  <script src="js/safety-ui.js?v=20260904-v4"></script>
-  <script src="js/i18n-ui.js?v=20260904-v4"></script>
-  <link rel="stylesheet" href="css/service.css?v=20260904-v4">
-  <script src="js/service-ui.js?v=20260904-v4"></script>
+  <script src="js/premium-ui.js?v=20260904-v5"></script>
+  <script src="js/unified-ui.js?v=20260904-v5"></script>
+  <script src="js/supplies-ui.js?v=20260904-v5"></script>
+  <script src="js/safety-ui.js?v=20260904-v5"></script>
+  <script src="js/i18n-ui.js?v=20260904-v5"></script>
+  <link rel="stylesheet" href="css/service.css?v=20260904-v5">
+  <script src="js/service-ui.js?v=20260904-v5"></script>
   <script src="vendor/jszip.min.js"></script>
-  <script src="js/report-template.js?v=20260904-v4"></script>
-  <script src="js/reports-ui.js?v=20260904-v4"></script>
+  <script src="js/report-template.js?v=20260904-v5"></script>
+  <script src="js/reports-ui.js?v=20260904-v5"></script>
 </body>
 </html>

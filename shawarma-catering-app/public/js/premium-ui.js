@@ -74,7 +74,7 @@
     const additions = INGREDIENTS_CONFIG.filter(i => !i.isDefault && has(i));
     return {known, included, removed, additions, standard:known && removed.length === 0, count:core().filter(has).length};
   }
-  function recipeHTML(item, expanded = false, forceOpen = null) {
+  function recipeHTML(item, expanded = false, forceOpen = null, detailsKey = '') {
     const r = recipe(item);
     const kids = item.preset === 'ninos';
     let out = '';
@@ -91,8 +91,18 @@
       out += `<div class="p-modifiers">${r.removed.map(s => `<span class="p-mod">Sin ${esc(s)}</span>`).join('')}</div>`;
     }
     if (!kids) out += r.additions.map(i => `<span class="p-mod p-extra">${icon(names[i.id])} Con ${esc(i.name.replace(/\s*\(Opcional\)/i, ''))}</span>`).join('');
-    const isOpen = (forceOpen === true || (forceOpen === null && typeof window !== 'undefined' && !!window.previewDetailsOpen)) ? ' open' : '';
-    if (expanded && r.known && !kids) out += `<details class="p-recipe-details"${isOpen}><summary>Ver ingredientes incluidos</summary><p>${esc(r.included.join(' · ') || 'Sin ingredientes adicionales')}</p></details>`;
+    let isOpen = false;
+    if (forceOpen === true) {
+      isOpen = true;
+    } else if (forceOpen === false) {
+      isOpen = false;
+    } else if (detailsKey && typeof window !== 'undefined' && window._openTicketDetailsKeys) {
+      isOpen = window._openTicketDetailsKeys.has(detailsKey);
+    } else if (typeof window !== 'undefined' && !!window.previewDetailsOpen) {
+      isOpen = true;
+    }
+    const keyAttr = detailsKey ? ` data-details-key="${esc(detailsKey)}"` : '';
+    if (expanded && r.known && !kids) out += `<details class="p-recipe-details"${isOpen ? ' open' : ''}${keyAttr}><summary>Ver ingredientes incluidos</summary><p>${esc(r.included.join(' · ') || 'Sin ingredientes adicionales')}</p></details>`;
     return out;
   }
   function orderItems(o) { return o.is_group && Array.isArray(o.items) && o.items.length ? o.items : [o]; }
@@ -170,11 +180,10 @@
   // Presentation-only plan: include completed orders so finishing one never
   // pulls an unrelated order into a batch already being cooked. No new server fields.
   function productionBatches(source) {
-    const batches=[],outside=[],memberships=new Map();
+    const batches=[],memberships=new Map();
     for(const order of [...source].sort((a,b)=>Number(a.turn)-Number(b.turn))) {
       if(order.status==='cancelled')continue;
       for(const unit of orderUnits(order)) {
-        if(unit.item.is_bowl || unit.item.preset==='bowl') {outside.push(unit);continue;}
         let remaining=unit.quantity;
         while(remaining>0) {
           let batch=batches[batches.length-1];
@@ -185,7 +194,7 @@
         }
       }
     }
-    return {batches,outside,memberships};
+    return {batches,outside:[],memberships};
   }
   function syncSpecialMotion() {
     document.body.style.setProperty?.('--p-special-phase',`${-(Date.now()%10000)/1000}s`);
@@ -298,8 +307,23 @@
       kdsBadge.style.display = active.length > 0 ? 'inline-flex' : 'none';
     }
     document.querySelectorAll('.kds-filter-tab').forEach(b => {b.classList.toggle('active', b.dataset.filter === this.kdsFilter);b.setAttribute('aria-pressed', b.dataset.filter === this.kdsFilter);});
+    window._openBatchKeys = window._openBatchKeys || new Set();
+    document.querySelectorAll('#kds-batch-counters .p-batch-turns[open]').forEach(el => {
+      const k = el.getAttribute('data-batch-key');
+      if (k) window._openBatchKeys.add(k);
+    });
+    window._openTicketDetailsKeys = window._openTicketDetailsKeys || new Set();
+    grid.querySelectorAll('.p-recipe-details[open]').forEach(el => {
+      const k = el.getAttribute('data-details-key');
+      if (k) window._openTicketDetailsKeys.add(k);
+    });
+
     const work = groupPreparation(active);
-    html('kds-batch-counters', work.length ? work.map(({item,count,turns}) => `<div class="p-batch-item"><strong>${count}</strong><div><span>${icon(proteinIcon(item.protein))} ${esc(item.protein||'Shawarma')}</span>${batchRecipeHTML(item)}${item.notes?`<p class="p-batch-note">${esc(item.notes)}</p>`:''}<details class="p-batch-turns"><summary>${turns.length} ${turns.length===1?'pedido':'pedidos'}</summary><small>Turnos ${turns.map(t=>'#'+esc(t)).join(', ')}</small></details></div></div>`).join('') : '<p class="p-recipe-line">No hay pedidos pendientes.</p>');
+    html('kds-batch-counters', work.length ? work.map(({item,count,turns}) => {
+      const batchKey = preparationKey(item);
+      const isBatchOpen = window._openBatchKeys.has(batchKey) ? ' open' : '';
+      return `<div class="p-batch-item"><strong>${count}</strong><div><span>${icon(proteinIcon(item.protein))} ${esc(item.protein||'Shawarma')}</span>${batchRecipeHTML(item)}${item.notes?`<p class="p-batch-note">${esc(item.notes)}</p>`:''}<details class="p-batch-turns" data-batch-key="${esc(batchKey)}"${isBatchOpen}><summary>${turns.length} ${turns.length===1?'pedido':'pedidos'}</summary><small>Turnos ${turns.map(t=>'#'+esc(t)).join(', ')}</small></details></div></div>`;
+    }).join('') : '<p class="p-recipe-line">No hay pedidos pendientes.</p>');
     text('p-batch-total', `${active.length} ${active.length === 1 ? 'pedido' : 'pedidos'} · ${work.reduce((sum,g)=>sum+g.count,0)} shawarmas`);
     const filtered = {active, ready, delivered}[this.kdsFilter] || orders;
     if (!filtered.length) {
@@ -338,7 +362,10 @@
         ${partial?`<p class="p-tanda-portion">En esta sección: ${portionCount} de ${count} unidades del turno. El pedido queda listo al terminar todas.</p>`:''}
         ${specialLabelsHTML(o)}
         ${o.guest_ack ? `<p class="p-ack">${icon('check')} El invitado viene a retirar</p>` : ''}
-        <div class="p-ticket-items">${items.map((item,i) => `<section class="p-ticket-item"><h3>${completeUnits.length > 1 ? `<span class="p-item-number">${(units[i].index??i)+1}</span>` : icon(item.is_bowl ? 'bowl' : proteinIcon(item.protein))}${units[i].quantity>1?`${units[i].quantity} × `:''}${esc(title(item))}</h3>${completeUnits.length>1?specialLabelsHTML(item):''}${recipeHTML(item,true)}${item.notes ? `<p class="p-note">${icon('edit')}${esc(item.notes)}</p>` : ''}</section>`).join('')}</div>
+        <div class="p-ticket-items">${items.map((item,i) => {
+          const ticketKey = `${o.id || o.turn}_${i}`;
+          return `<section class="p-ticket-item"><h3>${completeUnits.length > 1 ? `<span class="p-item-number">${(units[i].index??i)+1}</span>` : icon(item.is_bowl ? 'bowl' : proteinIcon(item.protein))}${units[i].quantity>1?`${units[i].quantity} × `:''}${esc(title(item))}</h3>${completeUnits.length>1?specialLabelsHTML(item):''}${recipeHTML(item,true,null,ticketKey)}${item.notes ? `<p class="p-note">${icon('edit')}${esc(item.notes)}</p>` : ''}</section>`;
+        }).join('')}</div>
         <div class="p-ticket-actions-bar">
           <button type="button" class="p-kds-tool-btn" data-p-action="edit" data-id="${esc(o.id)}" title="Editar comanda">
             ${icon('edit')}
@@ -366,10 +393,8 @@
       grid.innerHTML=plan.batches.map(batch=>{
         const units=batch.units.filter(x=>isActive(x.order));if(!units.length)return '';
         const pending=units.reduce((n,x)=>n+x.quantity,0);
-        return `<div class="p-tanda-divider" role="heading" aria-level="3" data-tanda="${batch.number}"><strong>Tanda ${batch.number}</strong><span>${batch.count}/6 shawarmas · ${pending} por terminar</span></div>${renderPortions(units)}`;
+        return `<div class="p-tanda-divider" role="heading" aria-level="3" data-tanda="${batch.number}"><strong>Tanda ${batch.number}</strong><span>${batch.count}/6 pedidos · ${pending} por terminar</span></div>${renderPortions(units)}`;
       }).join('');
-      const outside=plan.outside.filter(x=>isActive(x.order));
-      if(outside.length)grid.innerHTML+=`<div class="p-tanda-divider p-tanda-outside" role="heading" aria-level="3"><strong>Bowls · sin plancha</strong><span>No cuentan en las tandas</span></div>${renderPortions(outside)}`;
     } else grid.innerHTML=filtered.map(o=>renderTicket(o)).join('');
   };
   // Repaint only clocks every second; do not close menus every ten seconds.
@@ -570,23 +595,31 @@
     const batchButton=document.querySelector('button[onclick="app.markNextBatchReady()"]');
     batchButton.className='p-batch-ready';batchButton.innerHTML=`${icon('check')} Marcar tanda lista · hasta 6 shawarmas`;
     document.querySelectorAll('#view-display .turn-column-header').forEach((el,i)=>{el.innerHTML=`${icon(i ? 'check' : 'kitchen')}<span>${i?'Listos para entregar':'En preparación'}</span>`;});
-    $('toast-tray')?.setAttribute('aria-live','polite');
-    document.body.insertAdjacentHTML('beforeend',`<div class="p-mobile-review"><div><span>Pedido actual</span><strong id="p-mobile-summary"></strong></div><button type="button" id="p-review-order">${icon('order')}<span id="p-mobile-action-text">Revisar pedido</span></button></div>`);
-    $('p-review-order').addEventListener('click',()=>{if(window.ShawarmaService?.confirmMobileReview())return;document.activeElement?.blur?.();const summary=document.querySelector('.summary-card-pos');summary.setAttribute('tabindex','-1');summary.scrollIntoView({behavior:'smooth',block:'start'});summary.focus({preventScroll:true});});
+    if (!document.querySelector('.p-mobile-review')) {
+      document.body.insertAdjacentHTML('beforeend',`<div class="p-mobile-review"><div><span>Pedido actual</span><strong id="p-mobile-summary"></strong></div><button type="button" id="p-review-order">${icon('order')}<span id="p-mobile-action-text">Revisar pedido</span></button></div>`);
+      $('p-review-order')?.addEventListener('click',()=>{if(window.ShawarmaService?.confirmMobileReview())return;document.activeElement?.blur?.();const summary=document.querySelector('.summary-card-pos');summary.setAttribute('tabindex','-1');summary.scrollIntoView({behavior:'smooth',block:'start'});summary.focus({preventScroll:true});});
+    }
     document.addEventListener('click',handleActionClick);
-    document.addEventListener('click', e => {
-      const summary = e.target.closest('.p-recipe-details summary');
-      if (summary) {
-        const details = summary.closest('.p-recipe-details');
-        if (details && (details.closest('#preview-tags-container') || details.closest('.summary-card-pos'))) {
-          window.previewDetailsOpen = !details.open;
+    window._openBatchKeys = window._openBatchKeys || new Set();
+    window._openTicketDetailsKeys = window._openTicketDetailsKeys || new Set();
+    document.addEventListener('toggle', e => {
+      const t = e.target;
+      if (!t || !t.classList) return;
+      if (t.classList.contains('p-batch-turns')) {
+        const k = t.getAttribute('data-batch-key');
+        if (k) {
+          if (t.open) window._openBatchKeys.add(k);
+          else window._openBatchKeys.delete(k);
         }
       }
-    }, true);
-    document.addEventListener('toggle', e => {
-      if (e.target && e.target.classList && e.target.classList.contains('p-recipe-details')) {
-        if (e.target.closest('#preview-tags-container') || e.target.closest('.summary-card-pos')) {
-          window.previewDetailsOpen = e.target.open;
+      if (t.classList.contains('p-recipe-details')) {
+        const k = t.getAttribute('data-details-key');
+        if (k) {
+          if (t.open) window._openTicketDetailsKeys.add(k);
+          else window._openTicketDetailsKeys.delete(k);
+        }
+        if (t.closest('#preview-tags-container') || t.closest('.summary-card-pos')) {
+          window.previewDetailsOpen = t.open;
         }
       }
     }, true);
