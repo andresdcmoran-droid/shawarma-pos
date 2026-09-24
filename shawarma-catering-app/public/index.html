@@ -2296,7 +2296,6 @@
           <div class="turn-badge-card">
             <div class="turn-label-txt" id="turn-label-display">Próximo Turno</div>
             <div class="turn-number-giant" id="next-turn-display">#1</div>
-            <div style="font-size: 11px; color: var(--text-dim); margin-top: 2px;" id="turn-sub-display">Se confirma al recibirlo el servidor</div>
           </div>
 
           <!-- Recipe Preview -->
@@ -2591,9 +2590,16 @@
         </div>
 
         <!-- Presupuesto / Ingreso Cobrado y Logística Inputs -->
+        <!-- Presupuesto / Ingreso Cobrado y Logística Inputs -->
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 16px; background: var(--bg-surface-2); padding: 14px; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
           <div>
             <label style="display: block; font-size: 11px; font-weight: 800; color: #38bdf8; text-transform: uppercase; margin-bottom: 6px;">
+              Cantidad de Shawarmas
+            </label>
+            <input type="number" id="cost-input-shawarmas" min="0" step="1" placeholder="0" style="width: 100%; background: var(--bg-dark); border: 1.5px solid var(--border-color); color: #38bdf8; padding: 10px 12px; border-radius: 8px; font-size: 18px; font-weight: 900;" oninput="app.recalculateCosts()">
+          </div>
+          <div>
+            <label style="display: block; font-size: 11px; font-weight: 800; color: #10b981; text-transform: uppercase; margin-bottom: 6px;">
               💵 Total Cobrado al Cliente ($)
             </label>
             <input type="number" id="cost-input-revenue" placeholder="Ej: 500" style="width: 100%; background: var(--bg-dark); border: 1.5px solid var(--border-color); color: #10b981; padding: 10px 12px; border-radius: 8px; font-size: 18px; font-weight: 900;" oninput="app.recalculateCosts()">
@@ -3801,8 +3807,10 @@
         } catch(e) {}
       }
 
-      handleCleanEventReset(data) {
+      handleCleanEventReset(data, preserveInputs = false) {
         const newEventId = String(data?.event_info?.id || `evt_${Date.now()}`);
+        sessionStorage.removeItem('shawarma_intentional_reset');
+        localStorage.removeItem('shawarma_reset_in_progress');
         this.activeEventId = newEventId;
         try {
           localStorage.setItem('shawarma_active_event_id', newEventId);
@@ -3823,7 +3831,7 @@
         this.editingOrderId = null;
         this.editingOrderTurn = null;
         this.outboxQueue = [];
-        this.resetForm();
+        this.resetForm(preserveInputs);
         this.updatePreviewAndTurn();
         if (this.currentView === 'kitchen') this.renderKDS();
         if (this.currentView === 'display') this.renderDisplay();
@@ -3840,14 +3848,15 @@
 
         // Si el ID del evento cambió respecto al local, es un evento nuevo / reseteado
         if (serverEventId && activeLocalEventId && serverEventId !== activeLocalEventId) {
-          this.handleCleanEventReset(data);
+          this.handleCleanEventReset(data, false);
           return;
         }
 
-        // Si el evento está fresco (turn_counter 0 y 0 pedidos), no resucitar nada
+        // Si el evento está fresco (turn_counter 0 y 0 pedidos), no resucitar nada de eventos pasados,
+        // pero SI el evento ya es el actual, NO reinicializar ni borrar lo que el operador esté rellenando
         const isFreshEvent = (parseInt(data.event_info?.turn_counter) || 0) === 0 && serverOrders.length === 0;
-        if (isFreshEvent) {
-          this.handleCleanEventReset(data);
+        if (isFreshEvent && (!this.activeEventId || this.activeEventId !== serverEventId)) {
+          this.handleCleanEventReset(data, true);
           return;
         }
 
@@ -3885,18 +3894,20 @@
         this.updateKDSBadge();
       }
 
-      resetForm() {
+      resetForm(preserveInputs = false) {
         this.selectedProtein = 'Mixto';
         this.selectedPreset = 'con-todo';
         this.ingredientPreferences = {};
         INGREDIENTS_CONFIG.forEach(i => { this.ingredientPreferences[i.id] = !!i.isDefault; });
 
-        const nameInp = document.getElementById('guest-name');
-        const tableInp = document.getElementById('guest-table');
-        const notesInp = document.getElementById('order-notes');
-        if (nameInp) nameInp.value = '';
-        if (tableInp) tableInp.value = '';
-        if (notesInp) notesInp.value = '';
+        if (!preserveInputs) {
+          const nameInp = document.getElementById('guest-name');
+          const tableInp = document.getElementById('guest-table');
+          const notesInp = document.getElementById('order-notes');
+          if (nameInp) nameInp.value = '';
+          if (tableInp) tableInp.value = '';
+          if (notesInp) notesInp.value = '';
+        }
 
         this.currentGroupItems = [];
         this.updateGroupTrayUI();
@@ -5471,6 +5482,7 @@
           if (lockedCard) lockedCard.style.display = 'none';
           if (unlockedCard) unlockedCard.style.display = 'block';
           this.recalculateCosts();
+          this.loadFixedFinances();
         } else {
           if (lockedCard) lockedCard.style.display = 'flex';
           if (unlockedCard) unlockedCard.style.display = 'none';
@@ -5782,9 +5794,14 @@
           }
         });
 
+        const qtyInput = document.getElementById('cost-input-shawarmas');
+        let manualQty = parseInt(qtyInput ? qtyInput.value : 0, 10);
+        if (isNaN(manualQty) || manualQty < 0) manualQty = 0;
+        const isManualMode = manualQty > 0;
+
         let totalShawarmasInBread = 0;
         let totalBowls = 0;
-        let totalPlates = allItems.length;
+        let totalPlates = 0;
         let totalSpicy = 0;
         let countCarne = 0;
         let countPollo = 0;
@@ -5800,53 +5817,72 @@
         let countAjo = 0;
         let countTahini = 0;
 
-        allItems.forEach(o => {
-          if (o.is_bowl || o.preset === 'bowl') {
-            totalBowls++;
-          } else {
-            totalShawarmasInBread++;
-          }
-
-          const rem = o.removed_ingredients || [];
-          const notes = (o.notes || '').toLowerCase();
-          
-          // Ingredientes individuales
-          if (!rem.includes('Tomate') && !rem.includes('tomate')) countTomate++;
-          if (!rem.includes('Cebolla') && !rem.includes('cebolla')) countCebolla++;
-          if (!rem.includes('Pepinillo') && !rem.includes('pepinillo')) countPepinillo++;
-          if (!rem.includes('Tabule') && !rem.includes('tabule')) countTabule++;
-          if (!rem.includes('Nabo') && !rem.includes('nabo')) countNabo++;
-          if (!rem.includes('Hummus') && !rem.includes('hummus')) countHummus++;
-          if (!rem.includes('Salsa de Ajo') && !rem.includes('ajo')) countAjo++;
-          if (!rem.includes('Salsa de Ajonjolí') && !rem.includes('ajonjoli') && !rem.includes('tahini')) countTahini++;
-
-          // Spicy check (1 tacita 2oz extra con tapa si piden picante)
-          const hasSpicy = (!rem.includes('Picante (Opcional)') && !rem.includes('picante') && !rem.includes('Picante') && o.preset !== 'ninos') || notes.includes('picante');
-          if (hasSpicy) totalSpicy++;
-
-          // Protein check & Falafel counts
-          const p = (o.protein || 'Mixto').toLowerCase();
-          const isFalafelProduct = p.includes('falafel') || o.preset === 'falafel';
-
-          if (isFalafelProduct) {
-            countFalafelShawarmas++;
-          } else {
-            const hasFalafelIng = !rem.includes('Falafel') && !rem.includes('falafel');
-            if (hasFalafelIng) countRegularWithFalafel++;
-
-            if (p.includes('mixto')) {
-              countCarne += 1.0;
-              countPollo += 1.0;
-            } else if (p.includes('carne')) {
-              countCarne += 2.0;
-            } else if (p.includes('pollo')) {
-              countPollo += 2.0;
+        if (isManualMode) {
+          totalPlates = manualQty;
+          totalShawarmasInBread = manualQty;
+          countCarne = manualQty;
+          countPollo = manualQty;
+          countRegularWithFalafel = manualQty;
+          countFalafelShawarmas = 0;
+          countTomate = manualQty;
+          countCebolla = manualQty;
+          countPepinillo = manualQty;
+          countTabule = manualQty;
+          countNabo = manualQty;
+          countHummus = manualQty;
+          countAjo = manualQty;
+          countTahini = manualQty;
+          totalSpicy = 0;
+        } else {
+          totalPlates = allItems.length;
+          allItems.forEach(o => {
+            if (o.is_bowl || o.preset === 'bowl') {
+              totalBowls++;
             } else {
-              countCarne += 1.0;
-              countPollo += 1.0;
+              totalShawarmasInBread++;
             }
-          }
-        });
+
+            const rem = o.removed_ingredients || [];
+            const notes = (o.notes || '').toLowerCase();
+            
+            // Ingredientes individuales
+            if (!rem.includes('Tomate') && !rem.includes('tomate')) countTomate++;
+            if (!rem.includes('Cebolla') && !rem.includes('cebolla')) countCebolla++;
+            if (!rem.includes('Pepinillo') && !rem.includes('pepinillo')) countPepinillo++;
+            if (!rem.includes('Tabule') && !rem.includes('tabule')) countTabule++;
+            if (!rem.includes('Nabo') && !rem.includes('nabo')) countNabo++;
+            if (!rem.includes('Hummus') && !rem.includes('hummus')) countHummus++;
+            if (!rem.includes('Salsa de Ajo') && !rem.includes('ajo')) countAjo++;
+            if (!rem.includes('Salsa de Ajonjolí') && !rem.includes('ajonjoli') && !rem.includes('tahini')) countTahini++;
+
+            // Spicy check (1 tacita 2oz extra con tapa si piden picante)
+            const hasSpicy = (!rem.includes('Picante (Opcional)') && !rem.includes('picante') && !rem.includes('Picante') && o.preset !== 'ninos') || notes.includes('picante');
+            if (hasSpicy) totalSpicy++;
+
+            // Protein check & Falafel counts
+            const p = (o.protein || 'Mixto').toLowerCase();
+            const isFalafelProduct = p.includes('falafel') || o.preset === 'falafel';
+
+            if (isFalafelProduct) {
+              countFalafelShawarmas++;
+            } else {
+              const hasFalafelIng = !rem.includes('Falafel') && !rem.includes('falafel');
+              if (hasFalafelIng) countRegularWithFalafel++;
+
+              if (p.includes('mixto')) {
+                countCarne += 1.0;
+                countPollo += 1.0;
+              } else if (p.includes('carne')) {
+                countCarne += 2.0;
+              } else if (p.includes('pollo')) {
+                countPollo += 2.0;
+              } else {
+                countCarne += 1.0;
+                countPollo += 1.0;
+              }
+            }
+          });
+        }
 
         // 1 falafel por shawarma regular + 4 falafeles si es plato de Falafel
         const totalFalafelUnits = (countRegularWithFalafel * 1) + (countFalafelShawarmas * 4);
@@ -6069,7 +6105,25 @@
         if (kpiMargin) kpiMargin.textContent = `${marginPct}%`;
         if (kpiUnit) kpiUnit.textContent = `$${costPerUnit}`;
         if (kpiSinglePlate) kpiSinglePlate.textContent = `$${singlePlateCost.toFixed(2)}`;
+        if (qtyInput) {
+          try {
+            localStorage.setItem('shawarma_manual_qty_calc', qtyInput.value || '');
+          } catch(e) {}
+        }
       }
+
+      loadFixedFinances() {
+        const qtyInput = document.getElementById('cost-input-shawarmas');
+        if (qtyInput && !qtyInput.value) {
+          try {
+            const saved = localStorage.getItem('shawarma_manual_qty_calc');
+            if (saved !== null && saved !== undefined) qtyInput.value = saved;
+          } catch(e) {}
+        }
+        this.recalculateCosts();
+      }
+
+      recalculateFixedFinances() {}
 
       toggleCostSettingsModal(show) {
         soundEngine.playClick();

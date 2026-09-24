@@ -74,7 +74,7 @@
     'Costos y rentabilidad':'Costs & profit','Accede con el PIN financiero configurado en este dispositivo.':'Use the finance PIN set on this device.',
     'Abrir módulo financiero':'Open finance','Cambiar PIN':'Change PIN','Bloquear':'Lock',
     'Editar insumos y empaques':'Edit supplies & packaging','Agregar renglón':'Add item','Exportar costos CSV':'Export costs CSV',
-    'Ingreso del evento ($)':'Event revenue ($)','Logística y otros gastos ($)':'Logistics & other costs ($)',
+    'Cantidad de shawarmas':'Shawarma quantity','Ingreso del evento ($)':'Event revenue ($)','Logística y otros gastos ($)':'Logistics & other costs ($)',
     'Costo de insumos':'Supply costs','Resultado neto':'Net profit','Margen':'Margin','Costo por unidad':'Cost per item','Mixto estándar':'Standard mixed',
     'Insumos y empaques':'Supplies & packaging','Desglose de costos':'Cost breakdown','Insumo':'Supply','Uso':'Usage','Cantidad':'Quantity','Costo unitario':'Unit cost','Subtotal':'Subtotal',
     'Historial y respaldos':'History & backups','Consulta los eventos archivados y descarga una copia.':'View archived events and download a copy.',

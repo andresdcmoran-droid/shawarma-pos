@@ -164,7 +164,8 @@
   .premium-ui .kds-cards-stream {display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,340px),1fr));gap:18px;align-items:start;}
   .premium-ui .p-ticket {min-width:0;background:var(--bg-surface);border:1px solid var(--border-color);border-top:3px solid var(--brand-pink);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:14px;}
   .premium-ui .p-ticket.status-ready {border-top-color:var(--yes-green);}
-  .premium-ui .p-ticket.status-delivered {border-top-color:var(--text-dim);}
+  .premium-ui .p-ticket.status-delivered {border-top-color:#10b981;border-color:rgba(16,185,129,0.3);}
+  .premium-ui .p-ticket.status-delivered .p-ticket-head h2 {color:#10b981;}
   .premium-ui .p-ticket-head {display:flex;align-items:flex-start;justify-content:space-between;gap:12px;}
   .premium-ui .p-eyebrow {font-size:12px;text-transform:uppercase;letter-spacing:.1em;color:var(--text-dim);}
   .premium-ui .p-ticket-head h2 {font-size:40px;line-height:1.1;font-weight:750;color:var(--brand-pink);letter-spacing:-1px;}
@@ -172,7 +173,7 @@
   .premium-ui .p-status {display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:650;background:var(--brand-pink-soft);color:var(--brand-pink);border-radius:5px;padding:4px 7px;}
   .premium-ui .p-status .ui-icon {width:15px;height:15px;}
   .premium-ui .p-status-ready {color:var(--p-success);background:var(--yes-green-bg);}
-  .premium-ui .p-status-delivered {color:var(--text-dim);background:var(--bg-surface-2);}
+  .premium-ui .p-status-delivered {color:#10b981;background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.35);font-weight:750;}
   .premium-ui .p-age-label {font-size:12px;color:var(--text-dim);margin-top:6px;}
   .premium-ui .p-age {font-size:22px;font-variant-numeric:tabular-nums;font-family:ui-monospace,SFMono-Regular,monospace;font-weight:600;}
   .premium-ui .p-overdue .p-age,.premium-ui .p-overdue .p-age-label {color:var(--p-warn)!important;}
@@ -215,7 +216,7 @@
   .premium-ui .p-kds-tool-btn.p-tool-danger:hover {border-color:rgba(239,68,68,0.5)!important;background:rgba(239,68,68,0.12)!important;}
   .premium-ui .p-kds-tool-btn.p-tool-danger:hover .ui-icon,.premium-ui .p-kds-tool-btn.p-tool-danger:hover span {color:#f87171!important;}
   .premium-ui .p-kds-main-btn {width:100%;min-height:48px;font-size:14px;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;border-radius:8px;}
-  .premium-ui .p-complete {display:flex;gap:8px;align-items:center;justify-content:center;color:var(--text-dim);font-size:14px;min-height:44px;}
+  .premium-ui .p-complete {display:flex;gap:8px;align-items:center;justify-content:center;color:#10b981;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.3);border-radius:8px;font-size:14px;min-height:44px;font-weight:750;}
   .premium-ui .p-empty {grid-column:1/-1;text-align:center;padding:64px 16px;border:1px dashed var(--border-color);border-radius:12px;color:var(--text-dim);}
   .premium-ui .p-empty > .ui-icon {width:40px;height:40px;color:var(--brand-pink);margin-bottom:14px;}
   .premium-ui .p-empty h2 {font-size:22px;color:var(--text-white);margin-bottom:6px;}

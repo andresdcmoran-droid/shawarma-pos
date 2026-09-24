@@ -247,12 +247,12 @@
     const count = this.currentGroupItems.length + 1;
     text('next-turn-display', `#${next}`);
     text('turn-label-display', editing ? 'Editando pedido' : 'Próximo turno');
-    text('turn-sub-display', editing ? 'Conserva su turno original' : 'Se confirma al recibirlo el servidor');
     text('btn-submit-label', editing ? 'Guardar cambios' : count > 1 ? `ENVIAR GRUPO (${count} SHAWARMAS) A COCINA` : `ENVIAR A COCINA (TURNO #${next})`);
     if ($('btn-submit-order')?.style) $('btn-submit-order').style.background = count > 1 ? 'linear-gradient(135deg, #7c3aed, #4f46e5)' : '';
     if ($('btn-cancel-edit')?.style) $('btn-cancel-edit').style.display = editing ? 'flex' : 'none';
     const item = currentItem(this);
-    const previewSpecial = { ...item, guest_name: $('guest-name')?.value || '' };
+    const rawGuestName = ($('guest-name')?.value || '').trim();
+    const previewSpecial = { ...item, guest_name: rawGuestName };
     const summary = document.querySelector('.summary-card-pos');
     if (summary) for (const cls of ['p-special', 'p-bowl', 'p-kids', 'p-birthday']) summary.classList.toggle(cls, specialClasses(previewSpecial).split(' ').includes(cls));
 
@@ -260,10 +260,14 @@
     if (existingDetails) window.previewDetailsOpen = existingDetails.open;
     const isDetailsOpen = !!(typeof window !== 'undefined' && window.previewDetailsOpen);
 
+    const guestLineHTML = rawGuestName
+      ? `<div style="display:flex; align-items:center; gap:8px; margin-bottom:10px; font-size:13px; font-weight:800; color:#ffffff; background:rgba(240,43,138,0.14); border-left:3px solid #f02b8a; padding:6px 10px; border-radius:4px;">${icon('person')}<span>Para: <strong style="color:#f02b8a; text-transform:uppercase;">${esc(rawGuestName)}</strong></span></div>`
+      : `<div style="display:flex; align-items:center; gap:8px; margin-bottom:10px; font-size:12px; font-weight:700; color:var(--text-dim); background:rgba(255,255,255,0.04); border-left:3px solid rgba(255,255,255,0.2); padding:5px 8px; border-radius:4px;">${icon('person')}<span>Sin comensal asignado</span></div>`;
+
     const orderKey = `${item.protein}|${item.preset}|${item.is_bowl}|${(item.ingredients||[]).join(',')}|${(item.removed_ingredients||[]).join(',')}|${item.notes}|${count}|${previewSpecial.guest_name}`;
     if (this._posOrderKey !== orderKey) {
       this._posOrderKey = orderKey;
-      html('preview-tags-container', `${count > 1 ? `<p class="p-recipe-line">Configurando shawarma ${count} del grupo</p>` : ''}<h3 class="p-preview-title">${icon(proteinIcon(item.protein))}${esc(title(item))}</h3>${!item.is_bowl && item.preset !== 'ninos' ? signatureHTML(item.protein) : ''}${specialLabelsHTML(previewSpecial)}${recipeHTML(item, true, isDetailsOpen)}${item.notes ? `<p class="p-note">${icon('edit')}${esc(item.notes)}</p>` : ''}`);
+      html('preview-tags-container', `${guestLineHTML}${count > 1 ? `<p class="p-recipe-line">Configurando shawarma ${count} del grupo</p>` : ''}<h3 class="p-preview-title">${icon(proteinIcon(item.protein))}${esc(title(item))}</h3>${!item.is_bowl && item.preset !== 'ninos' ? signatureHTML(item.protein) : ''}${specialLabelsHTML(previewSpecial)}${recipeHTML(item, true, isDetailsOpen)}${item.notes ? `<p class="p-note">${icon('edit')}${esc(item.notes)}</p>` : ''}`);
     } else if (existingDetails && existingDetails.open !== isDetailsOpen) {
       existingDetails.open = isDetailsOpen;
     }
@@ -627,10 +631,10 @@
     window.addEventListener('online',checkConnection);window.addEventListener('offline',()=>connection(false));
     setInterval(checkConnection,30000);
   }
-  wrap('resetForm', function() {
+  wrap('resetForm', function(...args) {
     this._posOrderKey = null;
     window.previewDetailsOpen = false;
-    originals.resetForm.call(this);
+    originals.resetForm.apply(this, args);
   });
   wrap('init', function() {decorate();originals.init.call(this);this.updatePreviewAndTurn();});
   // Exposed only for deterministic regression tests, not a second application.

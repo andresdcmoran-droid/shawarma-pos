@@ -23,7 +23,7 @@
       <section id="finance-unlocked-card" class="pos-card u-card u-full" style="display:none">
         <div class="u-between">${heading('Costos y rentabilidad','settings')}<div class="u-actions">${button('Cambiar PIN','edit','app.changeFinancePinPrompt()')}${button('Bloquear','close','app.lockFinance()')}</div></div>
         <div class="u-actions">${button('Editar insumos y empaques','edit','app.toggleCostSettingsModal(true)')}${button('Agregar renglón','plus','app.addSupplyRow()')}${button('Exportar costos CSV','list','app.exportFinancialCSV()')}</div>
-        <div class="u-finance-inputs"><label>Ingreso del evento ($)<input type="number" step="0.01" min="0" id="cost-input-revenue" placeholder="0.00" oninput="app.recalculateCosts()"></label><label>Logística y otros gastos ($)<input type="number" step="0.01" min="0" id="cost-input-logistics" placeholder="0.00" oninput="app.recalculateCosts()"></label></div>
+        <div class="u-finance-inputs"><label>Cantidad de shawarmas<input type="number" min="0" step="1" id="cost-input-shawarmas" placeholder="0" oninput="app.recalculateCosts()"></label><label>Ingreso del evento ($)<input type="number" step="0.01" min="0" id="cost-input-revenue" placeholder="0.00" oninput="app.recalculateCosts()"></label><label>Logística y otros gastos ($)<input type="number" step="0.01" min="0" id="cost-input-logistics" placeholder="0.00" oninput="app.recalculateCosts()"></label></div>
         <div class="u-metrics">${metric('kpi-cost-total','Costo de insumos')}${metric('kpi-profit-net','Resultado neto')}${metric('kpi-margin-pct','Margen')}${metric('kpi-cost-per-unit','Costo por unidad')}${metric('kpi-single-plate-cost','Mixto estándar')}</div>
         <h3 class="u-subheading">Insumos y empaques</h3><div class="u-table-scroll" tabindex="0" role="region" aria-label="Desglose de costos"><table class="u-table"><thead><tr><th>Insumo</th><th>Uso</th><th>Cantidad</th><th>Costo unitario</th><th>Subtotal</th></tr></thead><tbody id="cost-breakdown-tbody"></tbody></table></div>
       </section>
@@ -131,7 +131,7 @@
     this.updateOperatorDisplay();
     $('finance-locked-card').style.display=this.isFinanceUnlocked?'none':'flex';
     $('finance-unlocked-card').style.display=this.isFinanceUnlocked?'block':'none';
-    if(this.isFinanceUnlocked)this.recalculateCosts();
+    if(this.isFinanceUnlocked){this.recalculateCosts();this.loadFixedFinances?.();}
     const archives=this.getVaultArchives();text('vault-total-orders',this.getVaultOrders().length);text('vault-total-events',archives.length);
     const clearHeader = archives.length ? `<div style="display:flex;justify-content:flex-end;margin-bottom:12px;">${button('Vaciar toda la Bóveda ('+archives.length+' eventos)','trash','app.clearVaultPrompt()','u-danger')}</div>` : '';
     html('vault-events-list',clearHeader + (archives.length?archives.map((evt,index)=>{

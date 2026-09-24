@@ -108,8 +108,8 @@
     this.recalculateCosts();
     const breakdown=this.lastCostBreakdown||[];
     const total=breakdown.reduce((sum,r)=>sum+r.qty*r.unitCost,0);
-    const revenue=safeNumber($('cost-input-revenue')?.value),logistics=safeNumber($('cost-input-logistics')?.value);
-    const rows=[['Concepto','Descripción de uso','Cantidad','Costo unitario USD','Subtotal USD'],...breakdown.map(r=>[stripEmoji(r.name),r.formula,r.qty,r.unitCost,Number((r.qty*r.unitCost).toFixed(2))]),[],['Ingreso del evento','','','',revenue],['Insumos','','','',Number(total.toFixed(2))],['Logística','','','',logistics],['Resultado neto','','','',Number((revenue-total-logistics).toFixed(2))],['Margen %','','','',revenue>0?Number(((revenue-total-logistics)/revenue*100).toFixed(1)):0],['Costo por unidad','','','',$('kpi-cost-per-unit')?.textContent||''],['Mixto estándar (receta original, sin insumos manuales)','','','',$('kpi-single-plate-cost')?.textContent||'']];
+    const revenue=safeNumber($('cost-input-revenue')?.value),logistics=safeNumber($('cost-input-logistics')?.value),shawarmas=safeNumber($('cost-input-shawarmas')?.value);
+    const rows=[['Concepto','Descripción de uso','Cantidad','Costo unitario USD','Subtotal USD'],...breakdown.map(r=>[stripEmoji(r.name),r.formula,r.qty,r.unitCost,Number((r.qty*r.unitCost).toFixed(2))]),[],['Cantidad de shawarmas calculados','','','',shawarmas],['Ingreso del evento','','','',revenue],['Insumos','','','',Number(total.toFixed(2))],['Logística','','','',logistics],['Resultado neto','','','',Number((revenue-total-logistics).toFixed(2))],['Margen %','','','',revenue>0?Number(((revenue-total-logistics)/revenue*100).toFixed(1)):0],['Costo por unidad','','','',$('kpi-cost-per-unit')?.textContent||''],['Mixto estándar (receta original, sin insumos manuales)','','','',$('kpi-single-plate-cost')?.textContent||'']];
     return '\uFEFF'+rows.map(row=>row.map(csvCell).join(',')).join('\r\n');
   };
   proto.exportFinancialCSV=function() {

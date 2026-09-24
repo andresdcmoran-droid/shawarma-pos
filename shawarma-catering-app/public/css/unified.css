@@ -121,7 +121,7 @@ body.premium-ui .ing-card-item .switch-no {border-left:1px solid var(--border-co
 .premium-ui .u-safety-notice .u-actions {margin-top:8px;}
 @media(max-width:1099px) {.premium-ui .u-event-metrics {grid-template-columns:repeat(3,minmax(0,1fr));}}
 .premium-ui .u-two-metrics {grid-template-columns:repeat(2,minmax(0,1fr));}
-.premium-ui .u-finance-inputs {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:20px;}
+.premium-ui .u-finance-inputs {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:20px;}
 .premium-ui .u-card label,.premium-ui .u-dialog label {display:flex;flex-direction:column;gap:7px;font-size:14px;font-weight:550;color:var(--text-dim);}
 .premium-ui .u-card input,.premium-ui .u-dialog input {min-width:0;width:100%;min-height:46px;padding:10px 12px;border:1px solid var(--border-color);border-radius:8px;background:var(--bg-dark);color:var(--text-white);font:inherit;font-size:16px;}
 .premium-ui .u-subheading {font-size:16px;font-weight:650;margin:24px 0 12px;}
