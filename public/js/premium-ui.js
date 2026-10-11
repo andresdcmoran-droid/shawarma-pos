@@ -58,7 +58,8 @@
   const proteinIcon = (p, color = 'pink') => {
     const key = {Mixto:'mixto', Pollo:'pollo', Carne:'carne', Falafel:'falafel'}[p];
     if (key) {
-      return `<img src="images/protein-${key}-${color}.png" alt="${esc(p)}" class="protein-icon-art">`;
+      const file = (key === 'mixto') ? `images/protein-mixto-${color}-v2.png?v=20261011-v16` : `images/protein-${key}-${color}.png?v=20261011-v16`;
+      return `<img src="${file}" alt="${esc(p)}" class="protein-icon-art">`;
     }
     return icon('wrap');
   };
