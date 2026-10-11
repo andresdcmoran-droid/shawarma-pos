@@ -18,6 +18,30 @@ body.premium-ui .ing-card-item.state-yes .switch-no,body.premium-ui .ing-card-it
 body.premium-ui .ing-card-item.state-yes .switch-yes {background:var(--yes-green)!important;color:#fff!important;}
 body.premium-ui .ing-card-item.state-no .switch-no {background:#465365!important;color:#fff!important;}
 body.premium-ui .ing-card-item .switch-no {border-left:1px solid var(--border-color)!important;}
+body.premium-ui .ing-card-item[data-ingredient-row="picante"].state-yes {border:2px solid #ffffff!important;background:rgba(239,68,68,0.18)!important;box-shadow:0 0 10px rgba(255,255,255,0.25)!important;}
+body.premium-ui .ing-card-item[data-ingredient-row="picante"].state-yes .p-ingredient-label,
+body.premium-ui .ing-card-item[data-ingredient-row="picante"].state-yes .p-ingredient-label span,
+body.premium-ui .ing-card-item[data-ingredient-row="picante"].state-yes .p-ingredient-symbol,
+body.premium-ui .ing-card-item[data-ingredient-row="picante"].state-yes .ui-icon {color:#ef4444!important;stroke:#ef4444!important;font-weight:900!important;}
+body.premium-ui .ing-card-item[data-ingredient-row="picante"].state-yes .switch-yes {background:#ef4444!important;color:#ffffff!important;font-weight:900!important;}
+body.premium-ui.theme-day .ing-card-item[data-ingredient-row="picante"].state-yes {border:2px solid #000000!important;background:#fee2e2!important;}
+body.premium-ui.theme-day .ing-card-item[data-ingredient-row="picante"].state-yes .p-ingredient-label,
+body.premium-ui.theme-day .ing-card-item[data-ingredient-row="picante"].state-yes .p-ingredient-label span {color:#dc2626!important;font-weight:900!important;}
+body.premium-ui.theme-day .ing-card-item[data-ingredient-row="picante"].state-yes .switch-yes {background:#dc2626!important;color:#ffffff!important;}
+body.premium-ui .p-mod.p-mod-picante,
+body.premium-ui .p-mod[data-ingredient="picante"],
+body.premium-ui .p-mod:has(.ui-icon-chili),
+body.premium-ui .p-extra:has(.ui-icon-chili) {border:1.5px solid #ffffff!important;background:rgba(239,68,68,0.22)!important;color:#ef4444!important;font-weight:700!important;font-size:13px!important;line-height:1.25!important;padding:6px 4px!important;border-radius:6px!important;box-shadow:0 0 8px rgba(255,255,255,0.2)!important;}
+body.premium-ui .p-mod.p-mod-picante .ui-icon,
+body.premium-ui .p-mod[data-ingredient="picante"] .ui-icon,
+body.premium-ui .p-mod:has(.ui-icon-chili) .ui-icon,
+body.premium-ui .p-extra:has(.ui-icon-chili) .ui-icon {color:#ef4444!important;stroke:#ef4444!important;width:14px!important;height:14px!important;flex-shrink:0!important;}
+body.premium-ui.theme-day .p-mod.p-mod-picante,
+body.premium-ui.theme-day .p-mod[data-ingredient="picante"],
+body.premium-ui.theme-day .p-mod:has(.ui-icon-chili) {border:2px solid #000000!important;background:#fee2e2!important;color:#dc2626!important;font-weight:900!important;}
+body.premium-ui.theme-day .p-mod.p-mod-picante .ui-icon,
+body.premium-ui.theme-day .p-mod[data-ingredient="picante"] .ui-icon,
+body.premium-ui.theme-day .p-mod:has(.ui-icon-chili) .ui-icon {color:#dc2626!important;stroke:#dc2626!important;}
 /* Special orders: only the original thin top line moves. State labels remain. */
 .premium-ui .p-special {position:relative;border-top-color:transparent!important;}
 .premium-ui .p-special::before {content:"";position:absolute;left:0;right:0;top:0;height:3px;border-radius:11px 11px 0 0;pointer-events:none;}
@@ -113,7 +137,8 @@ body.premium-ui .ing-card-item .switch-no {border-left:1px solid var(--border-co
 .premium-ui .u-metric span {font-size:13px;line-height:1.4;color:var(--text-dim);}
 .premium-ui .u-event-metrics {grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;}
 .premium-ui .u-event-metrics .u-metric {display:grid;grid-template-columns:18px minmax(0,1fr);gap:4px 7px;padding:9px 10px;align-content:center;}
-.premium-ui .u-event-metrics .u-metric > .ui-icon {grid-column:1;grid-row:1;width:18px;height:18px;align-self:center;}
+.premium-ui .u-event-metrics .u-metric > .ui-icon,
+.premium-ui .u-event-metrics .u-metric > .protein-icon-art {grid-column:1;grid-row:1;width:18px;height:18px;align-self:center;object-fit:contain;}
 .premium-ui .u-event-metrics .u-metric > span {grid-column:2;grid-row:1;font-size:14px;line-height:1.3;}
 .premium-ui .u-event-metrics .u-metric > strong {grid-column:1/-1;grid-row:2;font-size:22px;line-height:1.2;}
 .premium-ui .u-stats-note {font-size:12px;color:var(--text-dim);margin-top:8px;line-height:1.4;}

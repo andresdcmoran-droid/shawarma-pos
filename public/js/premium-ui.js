@@ -21,11 +21,10 @@
     reset: '<path d="M5 12a7 7 0 1 0 7-7 7 7 0 0 0-5.2 2.3L4 10"/><path d="M4 5v5h5"/>',
     person: '<circle cx="12" cy="7" r="4"/><path d="M4 22v-3a8 8 0 0 1 16 0v3"/>',
     pin: '<path d="M19 9c0 5-7 12-7 12S5 14 5 9a7 7 0 0 1 14 0Z"/><circle cx="12" cy="9" r="2"/>',
-    wrap: '<path d="m5 7 4 14h6l4-14M6 10l11 4M8 16l8 3"/><ellipse cx="12" cy="6" rx="7" ry="4"/><path d="m8 6 2-2 3 3 3-2"/>',
-    // Drumstick, Lucide. ISC license reproduced at the end of this file.
-    chicken: '<path d="M7.1 13.1C5.8 10.5 7.5 5.5 12 3.2c4.8-1.7 9.5 1.3 9.5 6.8 0 3.8-3.3 6.2-7.3 6.8-1.4.2-2.2.6-2.9.5M7.1 13.1l4.2 4.2M8 14l-2.4 2.4c-1.1-1.1-3.1-.4-3.6 1.2-.5 1.6.8 3.2 2.4 3.2.8 0 1.4-.6 1.8-1.4.4.8 1 1.4 1.8 1.4 1.6 0 2.9-1.6 2.4-3.2-.5-1.6-2.5-2.3-3.6-1.2L10.4 16.4"/><circle cx="17" cy="7.8" r=".9" fill="currentColor" stroke="none"/><circle cx="15.2" cy="10.2" r=".9" fill="currentColor" stroke="none"/><circle cx="18.2" cy="10.2" r=".9" fill="currentColor" stroke="none"/>',
-    meat: '<path d="M4 7.2C6.5 4.5 12.2 3.2 17 4.5c3.5 1 5.2 4 5.2 7.5 0 4-2.7 7.5-7.2 9-2.5.8-5.2-.5-7-3-1.2-1.8-.8-4.5-2.8-6.8C2.8 8.8 2.2 8 4 7.2Z"/><path d="M5.8 8.5C7.8 6.2 12 5 16.2 6c2.8.8 4.3 3.2 4.3 6.2 0 3.3-2.5 6-6.3 7.3-2.2.7-4.4-.3-6-2.5-.7-1-1.4-2-2.2-3.2"/><circle cx="9.8" cy="8.2" r="1.6"/><path d="m8.2 8.2-3.4-.4M10.8 9.5c1.4 1.7 2.7 4.3 4.4 7.3m-3-5.3c2-1.7 4.6-2.7 7.6-2.7M6.8 11.2l1.7 1"/>',
-    falafel: '<circle cx="8" cy="15" r="5"/><circle cx="16" cy="15" r="5"/><circle cx="12" cy="6" r="4"/><path d="M10 5h.01M13 7h.01M6 15h.01M9 17h.01M16 13h.01M18 16h.01"/>',
+    wrap: '<path d="M12 2v2.5M12 19.5v2.5M8 4.5h8"/><path d="M7 7c1.5-.7 8.5-.7 10 0-.3 3.2.7 6.8 2.2 9.5l-2.8 3-2.8-3C8.1 13.8 7.3 10.2 7 7Z"/><path d="M7.2 9.8c1.6-.4 8-.4 9.6 0M8 12.6c1.4-.4 6.6-.4 8 0M9.2 15.4c1-.3 4.6-.3 5.6 0"/><path d="M4.2 14.5c-.8-1.5 0-3 1-3.8-.2 1.3.6 1.8.5 3.8M19.8 14.5c.8-1.5 0-3-1-3.8.2 1.3-.6 1.8-.5 3.8"/>',
+    chicken: '<path d="M5.5 17C3.8 14 4.5 9.5 8 6.5c3.8-3.2 8.5-2.8 11 0 2 2.2 2 6 .5 9.5-2 4.2-6.5 6.2-10.5 5-2-.6-3-1.8-3.5-4Z"/><path d="m9 7.5 3.5 3.5M12 7l4 4M15 8.5l3.5 3.5M7.5 11l3.5 3.5M10 13.5l3.5 3.5"/>',
+    meat: '<path d="M5.5 15C3.8 12.2 4 8 7 5.5s8.8-1.5 12 .8c2.5 2 2.8 5.8 1.5 8.8-1.8 3.8-5.8 6-10 5.2-2.2-.4-3.5-1.8-5-5.3Z"/><path d="m8.5 9 6.5 6.5M11.5 6.5l5.5 5.5M6.5 12.5l4 4M9 15.5l5.5-5.5M7 10.5l5-5M12 18l4.5-4.5"/>',
+    falafel: '<circle cx="12" cy="7.5" r="4"/><circle cx="7.5" cy="16" r="4"/><circle cx="16.5" cy="16" r="4"/><path d="M11 6.5h.01M13 8.5h.01M11.5 7.5h.01M6.5 15h.01M8.5 17h.01M7.5 16h.01M15.5 15h.01M17.5 17h.01M16.5 16h.01"/>',
     bowl: '<path d="M3 10h18c0 7-4 10-9 10S3 17 3 10ZM8 22h8M8 6l2-3 3 4 4-4"/>',
     child: '<circle cx="12" cy="9" r="6"/><path d="M10 8h.01M14 8h.01M10 11q2 2 4 0M5 22v-2a7 7 0 0 1 14 0v2"/>',
     sauce: '<path d="M9 2h6v5l3 3v10H6V10l3-3ZM6 13h12M10 2v-1"/>',
@@ -56,7 +55,13 @@
   const normal = value => String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
   const $ = id => document.getElementById(id);
   const names = {hummus:'bowl',tabule:'bowl',cebolla:'onion',tomate:'tomato',pepinillo:'pickle',nabo:'turnip',ajo:'garlic',ajonjoli:'sauce',falafel:'falafel',picante:'chili'};
-  const proteinIcon = p => ({Mixto:'wrap',Pollo:'chicken',Carne:'meat',Falafel:'falafel'}[p] || 'wrap');
+  const proteinIcon = (p, color = 'pink') => {
+    const key = {Mixto:'mixto', Pollo:'pollo', Carne:'carne', Falafel:'falafel'}[p];
+    if (key) {
+      return `<img src="images/protein-${key}-${color}.png" alt="${esc(p)}" class="protein-icon-art">`;
+    }
+    return icon('wrap');
+  };
   const text = (id, value) => { if ($(id)) $(id).textContent = value; };
   const html = (id, value) => { if ($(id)) $(id).innerHTML = value; };
   const core = () => INGREDIENTS_CONFIG.filter(i => i.isDefault);
@@ -85,12 +90,20 @@
     } else if (r.standard) {
       out += `<p class="p-standard">${icon('check')} Con todo <span>· ${r.count}/${core().length} ingredientes</span></p>`;
     } else if (r.known) {
-      out += `<p class="p-recipe-line">Personalizado · ${r.count}/${core().length} ingredientes base</p><div class="p-modifiers">${r.removed.map(s => `<span class="p-mod">${icon('minus')} Sin ${esc(s)}</span>`).join('')}</div>`;
+      const items = [
+        ...r.removed.map(s => `<span class="p-mod">${icon('minus')} Sin ${esc(s)}</span>`),
+        ...(!kids ? r.additions.map(i => `<span class="p-mod p-extra ${i.id === 'picante' ? 'p-mod-picante' : ''}" data-ingredient="${esc(i.id)}">${icon(names[i.id])} Con ${esc(i.name.replace(/\s*\(Opcional\)/i, ''))}</span>`) : [])
+      ];
+      out += `<p class="p-recipe-line">Personalizado · ${r.count}/${core().length} ingredientes base</p>`;
+      if (items.length) out += `<div class="p-modifiers">${items.join('')}</div>`;
     } else {
+      const items = [
+        ...r.removed.map(s => `<span class="p-mod">Sin ${esc(s)}</span>`),
+        ...(!kids ? r.additions.map(i => `<span class="p-mod p-extra ${i.id === 'picante' ? 'p-mod-picante' : ''}" data-ingredient="${esc(i.id)}">${icon(names[i.id])} Con ${esc(i.name.replace(/\s*\(Opcional\)/i, ''))}</span>`) : [])
+      ];
       out += `<p class="p-recipe-line">Verificar ingredientes del pedido</p>`;
-      out += `<div class="p-modifiers">${r.removed.map(s => `<span class="p-mod">Sin ${esc(s)}</span>`).join('')}</div>`;
+      if (items.length) out += `<div class="p-modifiers">${items.join('')}</div>`;
     }
-    if (!kids) out += r.additions.map(i => `<span class="p-mod p-extra">${icon(names[i.id])} Con ${esc(i.name.replace(/\s*\(Opcional\)/i, ''))}</span>`).join('');
     let isOpen = false;
     if (forceOpen === true) {
       isOpen = true;
@@ -267,11 +280,10 @@
     const orderKey = `${item.protein}|${item.preset}|${item.is_bowl}|${(item.ingredients||[]).join(',')}|${(item.removed_ingredients||[]).join(',')}|${item.notes}|${count}|${previewSpecial.guest_name}`;
     if (this._posOrderKey !== orderKey) {
       this._posOrderKey = orderKey;
-      html('preview-tags-container', `${guestLineHTML}${count > 1 ? `<p class="p-recipe-line">Configurando shawarma ${count} del grupo</p>` : ''}<h3 class="p-preview-title">${icon(proteinIcon(item.protein))}${esc(title(item))}</h3>${!item.is_bowl && item.preset !== 'ninos' ? signatureHTML(item.protein) : ''}${specialLabelsHTML(previewSpecial)}${recipeHTML(item, true, isDetailsOpen)}${item.notes ? `<p class="p-note">${icon('edit')}${esc(item.notes)}</p>` : ''}`);
+      html('preview-tags-container', `${guestLineHTML}${count > 1 ? `<p class="p-recipe-line">Configurando shawarma ${count} del grupo</p>` : ''}<h3 class="p-preview-title">${proteinIcon(item.protein)}${esc(title(item))}</h3>${!item.is_bowl && item.preset !== 'ninos' ? signatureHTML(item.protein) : ''}${specialLabelsHTML(previewSpecial)}${recipeHTML(item, true, isDetailsOpen)}${item.notes ? `<p class="p-note">${icon('edit')}${esc(item.notes)}</p>` : ''}`);
     } else if (existingDetails && existingDetails.open !== isDetailsOpen) {
       existingDetails.open = isDetailsOpen;
     }
-    html('prep-type-hint', `${icon(item.is_bowl ? 'bowl' : 'wrap')}<span>${item.is_bowl ? 'Servido en plato, sin pan' : 'Envuelto y tostado en plancha'}</span>`);
     text('p-mobile-summary', `${count > 1 ? count + ' shawarmas' : item.protein} · #${next}`);
     text('p-mobile-action-text', editing ? 'Revisar cambios' : 'Revisar pedido');
     window.ShawarmaService?.refreshMobileReview?.();
@@ -326,7 +338,7 @@
     html('kds-batch-counters', work.length ? work.map(({item,count,turns}) => {
       const batchKey = preparationKey(item);
       const isBatchOpen = window._openBatchKeys.has(batchKey) ? ' open' : '';
-      return `<div class="p-batch-item"><strong>${count}</strong><div><span>${icon(proteinIcon(item.protein))} ${esc(item.protein||'Shawarma')}</span>${batchRecipeHTML(item)}${item.notes?`<p class="p-batch-note">${esc(item.notes)}</p>`:''}<details class="p-batch-turns" data-batch-key="${esc(batchKey)}"${isBatchOpen}><summary>${turns.length} ${turns.length===1?'pedido':'pedidos'}</summary><small>Turnos ${turns.map(t=>'#'+esc(t)).join(', ')}</small></details></div></div>`;
+      return `<div class="p-batch-item"><strong>${count}</strong><div><span>${proteinIcon(item.protein)} ${esc(item.protein||'Shawarma')}</span>${batchRecipeHTML(item)}${item.notes?`<p class="p-batch-note">${esc(item.notes)}</p>`:''}<details class="p-batch-turns" data-batch-key="${esc(batchKey)}"${isBatchOpen}><summary>${turns.length} ${turns.length===1?'pedido':'pedidos'}</summary><small>Turnos ${turns.map(t=>'#'+esc(t)).join(', ')}</small></details></div></div>`;
     }).join('') : '<p class="p-recipe-line">No hay pedidos pendientes.</p>');
     text('p-batch-total', `${active.length} ${active.length === 1 ? 'pedido' : 'pedidos'} · ${work.reduce((sum,g)=>sum+g.count,0)} shawarmas`);
     const filtered = {active, ready, delivered}[this.kdsFilter] || orders;
@@ -368,7 +380,9 @@
         ${o.guest_ack ? `<p class="p-ack">${icon('check')} El invitado viene a retirar</p>` : ''}
         <div class="p-ticket-items">${items.map((item,i) => {
           const ticketKey = `${o.id || o.turn}_${i}`;
-          return `<section class="p-ticket-item"><h3>${completeUnits.length > 1 ? `<span class="p-item-number">${(units[i].index??i)+1}</span>` : icon(item.is_bowl ? 'bowl' : proteinIcon(item.protein))}${units[i].quantity>1?`${units[i].quantity} × `:''}${esc(title(item))}</h3>${completeUnits.length>1?specialLabelsHTML(item):''}${recipeHTML(item,true,null,ticketKey)}${item.notes ? `<p class="p-note">${icon('edit')}${esc(item.notes)}</p>` : ''}</section>`;
+          const isMixto = normal(item.protein) === 'mixto';
+          const starIconHTML = isMixto ? `<span class="p-mixto-star" title="Especialidad de la casa">${icon('star')}</span>` : '';
+          return `<section class="p-ticket-item"><h3>${completeUnits.length > 1 ? `<span class="p-item-number">${(units[i].index??i)+1}</span>` : (item.is_bowl ? icon('bowl') : proteinIcon(item.protein))}${units[i].quantity>1?`${units[i].quantity} × `:''}${esc(title(item))}${starIconHTML}</h3>${completeUnits.length>1?specialLabelsHTML(item):''}${recipeHTML(item,true,null,ticketKey)}${item.notes ? `<p class="p-note">${icon('edit')}${esc(item.notes)}</p>` : ''}</section>`;
         }).join('')}</div>
         <div class="p-ticket-actions-bar">
           <button type="button" class="p-kds-tool-btn" data-p-action="edit" data-id="${esc(o.id)}" title="Editar comanda">
@@ -567,7 +581,14 @@
       b.querySelector('.tab-icon').innerHTML = icon(['order','kitchen','monitor','settings'][i]);
       b.setAttribute('role','tab');b.setAttribute('aria-controls',`view-${id}`);
     });
-    document.querySelectorAll('.protein-card-btn').forEach(b=>{b.querySelector('.protein-emoji').innerHTML=icon(proteinIcon(b.dataset.protein));if(b.dataset.protein==='Mixto')b.insertAdjacentHTML('beforeend',signatureHTML('Mixto'));});
+    document.querySelectorAll('.protein-card-btn').forEach(b => {
+      if (!b.querySelector('.protein-icon-art')) {
+        b.querySelector('.protein-emoji').innerHTML = icon(proteinIcon(b.dataset.protein));
+      }
+      if (b.dataset.protein === 'Mixto' && !b.querySelector('.p-signature')) {
+        b.insertAdjacentHTML('beforeend', signatureHTML('Mixto'));
+      }
+    });
     const presets = {'con-todo':['check','Con todo'],bowl:['bowl','Bowl sin pan'],ninos:['child','Para niño'],'sin-salsas':['sauce','Sin salsas'],'solo-carnes':['meat','Carnes y salsas'],'sin-cebolla':['onion','Sin cebolla'],'sin-pepinillo':['pickle','Sin pepinillo'],'sin-tomate':['tomato','Sin tomate']};
     Object.entries(presets).forEach(([id,[glyph,label]])=>{const b=$('preset-'+id);if(b){b.querySelector('.preset-icon').innerHTML=icon(glyph);b.querySelector('.preset-txt-main').textContent=label;}});
     document.querySelector('label[for="guest-name"]').innerHTML=`${icon('person')} Nombre del invitado`;

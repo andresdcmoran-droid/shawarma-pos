@@ -47,8 +47,8 @@
    padding:calc(max(44px, env(safe-area-inset-top,0px))) calc(12px + env(safe-area-inset-right,0px)) 12px calc(12px + env(safe-area-inset-left,0px))!important;
    align-items:center!important;gap:10px!important;box-sizing:border-box;isolation:isolate;
   }
-  .premium-ui .brand-section {display:flex!important;align-items:center;flex:0 1 142px!important;min-width:0;max-width:46%;}
- .premium-ui .brand-section .brand-logo-img {display:block!important;width:100%!important;max-width:142px!important;min-width:0;height:32px!important;max-height:32px!important;object-fit:contain!important;object-position:left center;}
+  .premium-ui .brand-section {display:flex!important;align-items:center;flex:0 1 170px!important;min-width:0;max-width:50%;}
+  .premium-ui .brand-section .brand-logo-img {display:block!important;width:100%!important;max-width:170px!important;min-width:0;height:38px!important;max-height:38px!important;object-fit:contain!important;object-position:left center;}
  .premium-ui .connection-badge {flex:0 1 auto;min-width:0;max-width:54%;white-space:nowrap;}
  .premium-ui #conn-text {min-width:0;overflow:hidden;text-overflow:ellipsis;}
   /* Fijación estable con aceleración por hardware (GPU) para evitar temblores al hacer scroll en iOS/Android */
