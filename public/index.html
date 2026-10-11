@@ -2125,8 +2125,8 @@
       }
     }
   </style>
-  <link rel="stylesheet" href="css/premium.css?v=20261011-v16">
-  <link rel="stylesheet" href="css/unified.css?v=20261011-v16">
+  <link rel="stylesheet" href="css/premium.css?v=20261011-v20">
+  <link rel="stylesheet" href="css/unified.css?v=20261011-v17">
 </head>
 <body class="premium-ui" data-view="order">
 
@@ -2215,19 +2215,19 @@
         </div>
         <div class="protein-selector-grid">
           <button type="button" class="protein-card-btn selected" data-protein="Mixto" onclick="app.selectProtein('Mixto')">
-            <span class="protein-emoji"><img src="images/protein-mixto-pink-v2.png?v=20261011-v16" alt="Mixto" class="protein-icon-art" width="38" height="38"></span>
-            <span class="protein-title">Shawarma Mixto</span>
+            <span class="protein-emoji"><img src="images/protein-mixto-pink-v3.png?v=20261011-v20" alt="Mixto" class="protein-icon-art protein-art-mixto" width="38" height="38"></span>
+            <span class="protein-title">Shawarma Mixto <span class="p-star-star" title="Especialidad de la casa">★</span></span>
           </button>
           <button type="button" class="protein-card-btn" data-protein="Pollo" onclick="app.selectProtein('Pollo')">
-            <span class="protein-emoji"><img src="images/protein-pollo-white.png?v=20261011-v16" alt="Pollo" class="protein-icon-art" width="38" height="38"></span>
+            <span class="protein-emoji"><img src="images/protein-pollo-white.png?v=20261011-v20" alt="Pollo" class="protein-icon-art" width="38" height="38"></span>
             <span class="protein-title">Shawarma de Pollo</span>
           </button>
           <button type="button" class="protein-card-btn" data-protein="Carne" onclick="app.selectProtein('Carne')">
-            <span class="protein-emoji"><img src="images/protein-carne-white.png?v=20261011-v16" alt="Carne" class="protein-icon-art" width="38" height="38"></span>
+            <span class="protein-emoji"><img src="images/protein-carne-white.png?v=20261011-v20" alt="Carne" class="protein-icon-art" width="38" height="38"></span>
             <span class="protein-title">Shawarma de Carne</span>
           </button>
           <button type="button" class="protein-card-btn" data-protein="Falafel" onclick="app.selectProtein('Falafel')">
-            <span class="protein-emoji"><img src="images/protein-falafel-white.png?v=20261011-v16" alt="Falafel" class="protein-icon-art" width="38" height="38"></span>
+            <span class="protein-emoji"><img src="images/protein-falafel-white.png?v=20261011-v20" alt="Falafel" class="protein-icon-art" width="38" height="38"></span>
             <span class="protein-title">Shawarma Falafel</span>
           </button>
         </div>
@@ -2303,19 +2303,33 @@
       <aside class="sidebar-pos">
         <div class="summary-card-pos">
           
-          <!-- Strict Turn Counter -->
+          <!-- Strict Turn Counter Header -->
           <div class="turn-badge-card">
-            <div class="turn-label-txt" id="turn-label-display">Próximo Turno</div>
-            <div class="turn-number-giant" id="next-turn-display">#1</div>
+            <div class="summary-top-tag">RESUMEN DEL PEDIDO</div>
+            <div class="turn-row-modern">
+              <div class="turn-number-giant" id="next-turn-display">01</div>
+              <div class="turn-label-txt" id="turn-label-display">Próximo<br>turno</div>
+            </div>
           </div>
+
+          <div class="summary-divider-line"></div>
 
           <!-- Recipe Preview -->
           <div class="live-preview-box">
-            <h4>Resumen del Pedido</h4>
             <div class="tags-flow-container" id="preview-tags-container">
-              <h3 class="p-preview-title">🍗 Shawarma Mixto</h3>
-              <div class="p-signature">✨ Receta de autor · Shawarma en Casa</div>
-              <div class="p-standard"><span>Ingredientes completos (Con todo)</span></div>
+              <div class="p-guest-modern-block">
+                <div class="p-guest-primary no-name">Invitado sin asignar</div>
+              </div>
+              <div class="p-summary-divider"></div>
+              <div class="p-product-modern-row">
+                <div class="p-product-icon-wrap">
+                  <img src="images/protein-mixto-white-v3.png?v=20261011-v20" alt="Mixto" class="protein-icon-art">
+                </div>
+                <div class="p-product-modern-info">
+                  <h3 class="p-preview-title">Shawarma Mixto <span class="p-star-star" title="Especialidad de la casa">★</span></h3>
+                  <div class="p-standard">Con todo · 9 ingredientes</div>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -2335,14 +2349,21 @@
           </div>
 
           <!-- Add to Group Button -->
-          <button type="button" id="btn-add-to-group" onclick="app.addCurrentToGroup()" style="background: var(--bg-surface-2); border: 1.5px dashed var(--brand-pink); color: var(--brand-pink); padding: 12px 14px; border-radius: var(--radius-md); font-size: 13px; font-weight: 900; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s ease;">
-            <span>➕</span> <span>Agregar otro Shawarma a este Grupo (Pareja / Familia)</span>
+          <button type="button" id="btn-add-to-group" onclick="app.addCurrentToGroup()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            <span id="btn-add-to-group-label">Agregar otro shawarma</span>
           </button>
 
           <!-- Submit Button -->
           <button type="button" class="btn-submit-pos" id="btn-submit-order" onclick="app.submitOrder()">
-            <span>🚀</span>
-            <span id="btn-submit-label">ENVIAR A COCINA (TURNO #1)</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="22" y1="2" x2="11" y2="13"></line>
+              <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+            </svg>
+            <span id="btn-submit-label">Enviar a cocina</span>
           </button>
 
           <!-- Cancel Edit Button (Hidden by default) -->
@@ -2516,7 +2537,7 @@
           </div>
           <div style="background: var(--bg-surface-2); padding: 14px; border-radius: var(--radius-md);">
             <div style="font-size: 28px; font-weight: 900; color: #fbbf24;" id="stat-mixto">0</div>
-            <div style="font-size: 12px; color: var(--text-dim); display: flex; align-items: center; justify-content: center; gap: 4px;"><span>Mixto</span><img src="images/protein-mixto-white-v2.png?v=20261011-v16" alt="Mixto" style="width: 16px; height: 16px; object-fit: contain;"></div>
+            <div style="font-size: 12px; color: var(--text-dim); display: flex; align-items: center; justify-content: center; gap: 4px;"><span>Mixto</span><img src="images/protein-mixto-white-v3.png?v=20261011-v17" alt="Mixto" style="width: 16px; height: 16px; object-fit: contain;"></div>
           </div>
           <div style="background: var(--bg-surface-2); padding: 14px; border-radius: var(--radius-md);">
             <div style="font-size: 28px; font-weight: 900; color: #60a5fa;" id="stat-pollo">0</div>
@@ -3964,8 +3985,8 @@
             const key = (btn.dataset.protein || '').toLowerCase();
             const color = isSelected ? 'pink' : 'white';
             img.src = (key === 'mixto')
-              ? `images/protein-mixto-${color}-v2.png?v=20261011-v16`
-              : `images/protein-${key}-${color}.png?v=20261011-v16`;
+              ? `images/protein-mixto-${color}-v3.png?v=20261011-v20`
+              : `images/protein-${key}-${color}.png?v=20261011-v20`;
           }
         });
       }
@@ -4241,8 +4262,8 @@
 
         const p = this.selectedProtein || 'Mixto';
         const iconFile = (key === 'mixto')
-          ? `images/protein-mixto-pink-v2.png?v=20261011-v16`
-          : `images/protein-${key}-pink.png?v=20261011-v16`;
+          ? `images/protein-mixto-pink-v3.png?v=20261011-v17`
+          : `images/protein-${key}-pink.png?v=20261011-v17`;
         const iconImg = `<img src="${iconFile}" alt="${p}" class="protein-icon-art">`;
         const title = isBowl ? `Bowl ${p}` : `Shawarma ${p}`;
         const removed = this.getRemoved();
@@ -6915,12 +6936,12 @@
     window.app = new AppState();
     window.addEventListener('DOMContentLoaded', () => window.app.init());
   </script>
-  <script src="js/premium-ui.js?v=20261011-v16"></script>
-  <script src="js/unified-ui.js?v=20261011-v16"></script>
+  <script src="js/premium-ui.js?v=20261011-v20"></script>
+  <script src="js/unified-ui.js?v=20261011-v17"></script>
   <script src="js/supplies-ui.js?v=20260904-v6"></script>
   <script src="js/safety-ui.js?v=20260904-v6"></script>
   <script src="js/i18n-ui.js?v=20260904-v6"></script>
-  <link rel="stylesheet" href="css/service.css?v=20261011-v16">
+  <link rel="stylesheet" href="css/service.css?v=20261011-v17">
   <script src="js/service-ui.js?v=20260904-v6"></script>
   <script src="vendor/jszip.min.js"></script>
   <script src="js/report-template.js?v=20260904-v6"></script>

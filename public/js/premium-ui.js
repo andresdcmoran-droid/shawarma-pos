@@ -55,11 +55,11 @@
   const normal = value => String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
   const $ = id => document.getElementById(id);
   const names = {hummus:'bowl',tabule:'bowl',cebolla:'onion',tomate:'tomato',pepinillo:'pickle',nabo:'turnip',ajo:'garlic',ajonjoli:'sauce',falafel:'falafel',picante:'chili'};
-  const proteinIcon = (p, color = 'pink') => {
+  const proteinIcon = (p, color = 'white') => {
     const key = {Mixto:'mixto', Pollo:'pollo', Carne:'carne', Falafel:'falafel'}[p];
     if (key) {
-      const file = (key === 'mixto') ? `images/protein-mixto-${color}-v2.png?v=20261011-v16` : `images/protein-${key}-${color}.png?v=20261011-v16`;
-      return `<img src="${file}" alt="${esc(p)}" class="protein-icon-art">`;
+      const file = (key === 'mixto') ? `images/protein-mixto-${color}-v3.png?v=20261011-v20` : `images/protein-${key}-${color}.png?v=20261011-v20`;
+      return `<img src="${file}" alt="${esc(p)}" class="protein-icon-art ${key === 'mixto' ? 'protein-art-mixto' : ''}">`;
     }
     return icon('wrap');
   };
@@ -92,7 +92,7 @@
       out += `<p class="p-standard">${icon('check')} Con todo <span>· ${r.count}/${core().length} ingredientes</span></p>`;
     } else if (r.known) {
       const items = [
-        ...r.removed.map(s => `<span class="p-mod">${icon('minus')} Sin ${esc(s)}</span>`),
+        ...r.removed.map(s => `<span class="p-mod">Sin ${esc(s)}</span>`),
         ...(!kids ? r.additions.map(i => `<span class="p-mod p-extra ${i.id === 'picante' ? 'p-mod-picante' : ''}" data-ingredient="${esc(i.id)}">${icon(names[i.id])} Con ${esc(i.name.replace(/\s*\(Opcional\)/i, ''))}</span>`) : [])
       ];
       out += `<p class="p-recipe-line">Personalizado · ${r.count}/${core().length} ingredientes base</p>`;
@@ -154,7 +154,7 @@
     return `<span class="p-special-labels">${kids?`<span class="p-special-tag p-kids-tag">${icon('child')}${order.is_group?'Incluye infantil':'Infantil'}</span>`:''}${labelBowl?`<span class="p-special-tag p-bowl-tag">${icon('bowl')}${bowl.all?'Bowl sin pan':'Incluye bowls'}</span>`:''}</span>`;
   }
   function signatureHTML(protein) {
-    return normal(protein)==='mixto'?`<span class="p-signature">${icon('star')}<span>Especialidad de la casa</span></span>`:'';
+    return '';
   }
   const unitCount = value => Number.isSafeInteger(Number(value)) && Number(value) > 0 ? Number(value) : 1;
   function orderUnits(order) {
@@ -259,13 +259,14 @@
     const activeOrders = this.db?.orders || [];
     const next = editing ? this.editingOrderTurn : (activeOrders.length === 0 ? 1 : turnCounter + 1);
     const count = this.currentGroupItems.length + 1;
-    text('next-turn-display', `#${next}`);
-    text('turn-label-display', editing ? 'Editando pedido' : 'Próximo turno');
-    text('btn-submit-label', editing ? 'Guardar cambios' : count > 1 ? `ENVIAR GRUPO (${count} SHAWARMAS) A COCINA` : `ENVIAR A COCINA (TURNO #${next})`);
+    text('next-turn-display', String(next).padStart(2, '0'));
+    text('turn-label-display', editing ? 'Editando\npedido' : 'Próximo\nturno');
+    text('btn-submit-label', editing ? 'Guardar cambios' : count > 1 ? `ENVIAR GRUPO (${count} SHAWARMAS) A COCINA` : 'Enviar a cocina');
     if ($('btn-submit-order')?.style) $('btn-submit-order').style.background = count > 1 ? 'linear-gradient(135deg, #7c3aed, #4f46e5)' : '';
     if ($('btn-cancel-edit')?.style) $('btn-cancel-edit').style.display = editing ? 'flex' : 'none';
     const item = currentItem(this);
     const rawGuestName = ($('guest-name')?.value || '').trim();
+    const rawGuestTable = ($('guest-table')?.value || '').trim();
     const previewSpecial = { ...item, guest_name: rawGuestName };
     const summary = document.querySelector('.summary-card-pos');
     if (summary) for (const cls of ['p-special', 'p-bowl', 'p-kids', 'p-birthday']) summary.classList.toggle(cls, specialClasses(previewSpecial).split(' ').includes(cls));
@@ -274,14 +275,21 @@
     if (existingDetails) window.previewDetailsOpen = existingDetails.open;
     const isDetailsOpen = !!(typeof window !== 'undefined' && window.previewDetailsOpen);
 
-    const guestLineHTML = rawGuestName
-      ? `<div style="display:flex; align-items:center; gap:8px; margin-bottom:10px; font-size:13px; font-weight:800; color:#ffffff; background:rgba(240,43,138,0.14); border-left:3px solid #f02b8a; padding:6px 10px; border-radius:4px;">${icon('person')}<span>Para: <strong style="color:#f02b8a; text-transform:uppercase;">${esc(rawGuestName)}</strong></span></div>`
-      : `<div style="display:flex; align-items:center; gap:8px; margin-bottom:10px; font-size:12px; font-weight:700; color:var(--text-dim); background:rgba(255,255,255,0.04); border-left:3px solid rgba(255,255,255,0.2); padding:5px 8px; border-radius:4px;">${icon('person')}<span>Sin comensal asignado</span></div>`;
+    const guestLineHTML = `
+      <div class="p-guest-modern-block">
+        <div class="p-guest-primary ${rawGuestName ? 'has-name' : 'no-name'}">${rawGuestName ? `Para: <strong>${esc(rawGuestName)}</strong>` : 'Invitado sin asignar'}</div>
+        ${rawGuestTable ? `<div class="p-guest-secondary"><span class="p-table-pill">${icon('pin')} Mesa: ${esc(rawGuestTable)}</span></div>` : ''}
+      </div>
+      <div class="p-summary-divider"></div>
+    `;
 
-    const orderKey = `${item.protein}|${item.preset}|${item.is_bowl}|${(item.ingredients||[]).join(',')}|${(item.removed_ingredients||[]).join(',')}|${item.notes}|${count}|${previewSpecial.guest_name}`;
+    const isMixto = normal(item.protein) === 'mixto';
+    const starHTML = isMixto ? '<span class="p-star-star" title="Especialidad de la casa">★</span>' : '';
+
+    const orderKey = `${item.protein}|${item.preset}|${item.is_bowl}|${(item.ingredients||[]).join(',')}|${(item.removed_ingredients||[]).join(',')}|${item.notes}|${count}|${previewSpecial.guest_name}|${rawGuestTable}`;
     if (this._posOrderKey !== orderKey) {
       this._posOrderKey = orderKey;
-      html('preview-tags-container', `${guestLineHTML}${count > 1 ? `<p class="p-recipe-line">Configurando shawarma ${count} del grupo</p>` : ''}<h3 class="p-preview-title">${proteinIcon(item.protein)}${esc(title(item))}</h3>${!item.is_bowl && item.preset !== 'ninos' ? signatureHTML(item.protein) : ''}${specialLabelsHTML(previewSpecial)}${recipeHTML(item, true, isDetailsOpen)}${item.notes ? `<p class="p-note">${icon('edit')}${esc(item.notes)}</p>` : ''}`);
+      html('preview-tags-container', `${guestLineHTML}${count > 1 ? `<p class="p-recipe-line" style="margin-bottom:8px;">Configurando shawarma ${count} del grupo</p>` : ''}<div class="p-product-modern-row"><div class="p-product-icon-wrap">${proteinIcon(item.protein, 'white')}</div><div class="p-product-modern-info"><h3 class="p-preview-title">${esc(title(item))}${starHTML}</h3>${specialLabelsHTML(previewSpecial)}${recipeHTML(item, true, isDetailsOpen)}${item.notes ? `<p class="p-note">${icon('edit')}${esc(item.notes)}</p>` : ''}</div></div>`);
     } else if (existingDetails && existingDetails.open !== isDetailsOpen) {
       existingDetails.open = isDetailsOpen;
     }
@@ -339,7 +347,7 @@
     html('kds-batch-counters', work.length ? work.map(({item,count,turns}) => {
       const batchKey = preparationKey(item);
       const isBatchOpen = window._openBatchKeys.has(batchKey) ? ' open' : '';
-      return `<div class="p-batch-item"><strong>${count}</strong><div><span>${proteinIcon(item.protein)} ${esc(item.protein||'Shawarma')}</span>${batchRecipeHTML(item)}${item.notes?`<p class="p-batch-note">${esc(item.notes)}</p>`:''}<details class="p-batch-turns" data-batch-key="${esc(batchKey)}"${isBatchOpen}><summary>${turns.length} ${turns.length===1?'pedido':'pedidos'}</summary><small>Turnos ${turns.map(t=>'#'+esc(t)).join(', ')}</small></details></div></div>`;
+      return `<div class="p-batch-item"><strong>${count}</strong><div><span>${proteinIcon(item.protein, 'white')} ${esc(item.protein||'Shawarma')}</span>${batchRecipeHTML(item)}${item.notes?`<p class="p-batch-note">${esc(item.notes)}</p>`:''}<details class="p-batch-turns" data-batch-key="${esc(batchKey)}"${isBatchOpen}><summary>${turns.length} ${turns.length===1?'pedido':'pedidos'}</summary><small>Turnos ${turns.map(t=>'#'+esc(t)).join(', ')}</small></details></div></div>`;
     }).join('') : '<p class="p-recipe-line">No hay pedidos pendientes.</p>');
     text('p-batch-total', `${active.length} ${active.length === 1 ? 'pedido' : 'pedidos'} · ${work.reduce((sum,g)=>sum+g.count,0)} shawarmas`);
     const filtered = {active, ready, delivered}[this.kdsFilter] || orders;
@@ -373,7 +381,7 @@
         ? `<span class="p-birthday-guest-badge">${icon('star')}${esc(formatBirthdayName(o.guest_name, o.notes))}</span>`
         : esc(o.guest_name || 'Sin nombre');
       return `<article class="p-ticket status-${esc(o.status)} ${overdue ? 'p-overdue' : ''} ${specialClasses(visualOrder)}" data-order-id="${esc(o.id)}" aria-label="Turno ${esc(o.turn)}, ${esc(o.guest_name)}, ${status}">
-        <header class="p-ticket-head"><div><span class="p-eyebrow">Turno</span><h2>#${esc(o.turn)}</h2></div><div class="p-ticket-meta"><span class="p-status p-status-${esc(o.status)}">${icon(waiting ? 'kitchen' : 'check')}${status}</span><span class="p-age-label">${overdue ? '⚠️ Espera prolongada' : (waiting ? 'Desde el pedido' : 'Tiempo total')}</span><strong class="p-age" data-age-id="${esc(o.id)}">${duration(sec)}</strong><span class="p-received">Pedido · ${time}</span></div></header>
+        <header class="p-ticket-head"><div class="turn-row-modern kds-turn-modern"><span class="turn-number-giant">${String(o.turn).padStart(2, '0')}</span><div class="turn-label-txt">Turno</div></div><div class="p-ticket-meta"><span class="p-status p-status-${esc(o.status)}">${icon(waiting ? 'kitchen' : 'check')}${status}</span><span class="p-age-label">${overdue ? '⚠️ Espera prolongada' : (waiting ? 'Desde el pedido' : 'Tiempo total')}</span><strong class="p-age" data-age-id="${esc(o.id)}">${duration(sec)}</strong><span class="p-received">Pedido · ${time}</span></div></header>
         <div class="p-guest-line"><strong>${guestDisplayName}</strong>${o.table ? `<span>${icon('pin')}${esc(o.table)}</span>` : ''}</div>
         ${completeUnits.length > 1 ? `<div class="p-group-title">${icon('group')} Grupo · ${count} shawarmas</div>` : ''}
         ${partial?`<p class="p-tanda-portion">En esta sección: ${portionCount} de ${count} unidades del turno. El pedido queda listo al terminar todas.</p>`:''}
@@ -382,8 +390,8 @@
         <div class="p-ticket-items">${items.map((item,i) => {
           const ticketKey = `${o.id || o.turn}_${i}`;
           const isMixto = normal(item.protein) === 'mixto';
-          const starIconHTML = isMixto ? `<span class="p-mixto-star" title="Especialidad de la casa">${icon('star')}</span>` : '';
-          return `<section class="p-ticket-item"><h3>${completeUnits.length > 1 ? `<span class="p-item-number">${(units[i].index??i)+1}</span>` : (item.is_bowl ? icon('bowl') : proteinIcon(item.protein))}${units[i].quantity>1?`${units[i].quantity} × `:''}${esc(title(item))}${starIconHTML}</h3>${completeUnits.length>1?specialLabelsHTML(item):''}${recipeHTML(item,true,null,ticketKey)}${item.notes ? `<p class="p-note">${icon('edit')}${esc(item.notes)}</p>` : ''}</section>`;
+          const starIconHTML = isMixto ? '<span class="p-star-star" title="Especialidad de la casa">★</span>' : '';
+          return `<section class="p-ticket-item"><h3>${completeUnits.length > 1 ? `<span class="p-item-number">${(units[i].index??i)+1}</span>` : (item.is_bowl ? icon('bowl') : proteinIcon(item.protein, 'white'))}${units[i].quantity>1?`${units[i].quantity} × `:''}${esc(title(item))}${starIconHTML}</h3>${completeUnits.length>1?specialLabelsHTML(item):''}${recipeHTML(item,true,null,ticketKey)}${item.notes ? `<p class="p-note">${icon('edit')}${esc(item.notes)}</p>` : ''}</section>`;
         }).join('')}</div>
         <div class="p-ticket-actions-bar">
           <button type="button" class="p-kds-tool-btn" data-p-action="edit" data-id="${esc(o.id)}" title="Editar comanda">
@@ -586,8 +594,13 @@
       if (!b.querySelector('.protein-icon-art')) {
         b.querySelector('.protein-emoji').innerHTML = icon(proteinIcon(b.dataset.protein));
       }
-      if (b.dataset.protein === 'Mixto' && !b.querySelector('.p-signature')) {
-        b.insertAdjacentHTML('beforeend', signatureHTML('Mixto'));
+      if (b.dataset.protein === 'Mixto') {
+        const titleEl = b.querySelector('.protein-title');
+        if (titleEl && !titleEl.querySelector('.p-star-star')) {
+          titleEl.innerHTML = 'Shawarma Mixto<span class="p-star-star" title="Especialidad de la casa">★</span>';
+        }
+        const sig = b.querySelector('.p-signature');
+        if (sig) sig.remove();
       }
     });
     const presets = {'con-todo':['check','Con todo'],bowl:['bowl','Bowl sin pan'],ninos:['child','Para niño'],'sin-salsas':['sauce','Sin salsas'],'solo-carnes':['meat','Carnes y salsas'],'sin-cebolla':['onion','Sin cebolla'],'sin-pepinillo':['pickle','Sin pepinillo'],'sin-tomate':['tomato','Sin tomate']};
@@ -597,6 +610,7 @@
     $('guest-name').placeholder='Nombre del invitado';$('guest-table').placeholder='Ej. Mesa 2';
     $('guest-name').maxLength=100;$('guest-table').maxLength=60;$('order-notes').maxLength=500;
     $('guest-name').addEventListener('input',()=>app.updatePreviewAndTurn());
+    $('guest-table').addEventListener('input',()=>app.updatePreviewAndTurn());
     $('order-notes').setAttribute('aria-label','Notas para cocina');
     const headers=document.querySelectorAll('#view-order .pos-section-header');
     ['1. Elige la proteína','2. Atajos','3. Ingredientes'].forEach((s,i)=>{headers[i].firstElementChild.textContent=s;headers[i].lastElementChild.textContent=['Selección obligatoria','Recetas rápidas','Incluir o quitar'][i];});
