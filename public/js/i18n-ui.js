@@ -231,7 +231,7 @@
     const source=String(value??'');if(locale!=='en')return source;
     return source.replace(/^(\s*)([\s\S]*?)(\s*)$/,(_,before,body,after)=>before+english(body)+after);
   }
-  const excluded='[data-i18n-ignore],script,style,svg,textarea,.toast-msg,.p-note,.p-batch-note,.p-guest-line,.u-turn-guest,#modal-guest-name,#modal-table-name,#admin-operator-display,#cost-breakdown-tbody,.u-archive h3,.u-archive p,.sidebar-watermark-container,#client-invoice-modal,#view-guest,#qr-modal-name';
+  const excluded='[data-i18n-ignore],script,style,svg,textarea,.toast-msg,.p-note,.p-batch-note,.p-guest-line,.u-turn-guest,#modal-guest-name,#modal-table-name,#admin-operator-display,#cost-breakdown-tbody,.u-archive h3,.u-archive p,.sidebar-watermark-container,#client-invoice-modal,#view-guest,#qr-modal-name,#google-review-qr-container';
   const records=new WeakMap();
   function convert(node,key,current,write) {
     let cache=records.get(node);if(!cache){cache={};records.set(node,cache);}

@@ -7,8 +7,8 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Shawarma">
-  <link rel="apple-touch-icon" href="images/brand-icon-v22.png?v=20261011-v22">
-  <link rel="icon" type="image/png" href="images/brand-icon-v22.png?v=20261011-v22">
+  <link rel="apple-touch-icon" href="images/brand-icon-v22.png?v=20261012-v26">
+  <link rel="icon" type="image/png" href="images/brand-icon-v22.png?v=20261012-v26">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Montserrat:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Syne:wght@500;600;700;800&display=swap" rel="stylesheet">
@@ -2126,7 +2126,7 @@
     }
   </style>
   <link rel="stylesheet" href="css/premium.css?v=20261011-v20">
-  <link rel="stylesheet" href="css/unified.css?v=20261011-v17">
+  <link rel="stylesheet" href="css/unified.css?v=20261012-v28">
 </head>
 <body class="premium-ui" data-view="order">
 
@@ -2478,278 +2478,24 @@
   <!-- VIEW 4: ADMIN & REPORTES                                                  -->
   <!-- ========================================================================= -->
   <main class="view-content" id="view-admin">
-    <div style="max-width: 800px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px;">
-      
-      <div class="pos-card" style="margin-bottom: 0px;">
-        <h2 style="font-size: 18px; margin-bottom: 12px;">🎨 Apariencia del Sistema</h2>
-        <p style="font-size: 14px; color: var(--text-dim); margin-bottom: 16px;">
-          Alterna entre el Modo Noche / Fiesta (fondo oscuro) y el Modo Día / Exterior (fondo blanco de alto contraste para luz solar directa).
-        </p>
-        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-          <button type="button" id="btn-theme-noche" style="background: var(--bg-surface-2); color: white; border: 1px solid var(--border-color); padding: 12px 16px; border-radius: var(--radius-md); font-weight: 800; cursor: pointer; flex: 1; min-width: 140px;" onclick="app.setTheme('noche')">
-            🌙 Modo Noche
-          </button>
-          <button type="button" id="btn-theme-dia" style="background: #ffffff; color: #0f172a; border: 2px solid #cbd5e1; padding: 12px 16px; border-radius: var(--radius-md); font-weight: 900; cursor: pointer; letter-spacing: 0.5px; flex: 1; min-width: 140px;" onclick="app.setTheme('dia')">
-            ☀️ Modo Día
-          </button>
-          <button type="button" id="btn-theme-auto" style="background: var(--bg-surface-2); color: #38bdf8; border: 1.5px dashed #38bdf8; padding: 12px 16px; border-radius: var(--radius-md); font-weight: 900; cursor: pointer; flex: 1; min-width: 140px;" onclick="app.setTheme('auto')">
-            📱 Auto (Según Teléfono / SO)
-          </button>
-        </div>
-      </div>
-
-      <!-- Dispositivo & Operador Asignado -->
-      <div class="pos-card" style="display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap;">
-        <div>
-          <div style="font-size: 12px; font-weight: 800; color: #38bdf8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">
-            📱 Dispositivo & Operador Asignado
-          </div>
-          <div style="font-size: 20px; font-weight: 900; color: var(--text-white); display: flex; align-items: center; gap: 8px;">
-            <span id="admin-operator-display">Dispositivo 1</span>
-          </div>
-          <div style="font-size: 12px; color: var(--text-dim); margin-top: 2px;">
-            Este nombre identifica qué dispositivo/persona tomó cada comanda.
-          </div>
-        </div>
-        <div>
-          <button type="button" onclick="app.promptChangeOperator()" style="background: var(--bg-surface-2); border: 1.5px solid #38bdf8; color: #38bdf8; padding: 10px 18px; border-radius: var(--radius-md); font-weight: 900; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
-            <span>✏️</span> <span>Cambiar Nombre</span>
-          </button>
-        </div>
-      </div>
-
-      <div class="pos-card">
-        <h2 style="font-size: 18px; margin-bottom: 12px;">📶 Conexión de Dispositivos sin Internet</h2>
-        <p style="font-size: 14px; color: var(--text-dim); margin-bottom: 16px;">
-          Conecta los dispositivos (iPads, teléfonos o computadoras) a la red Wi-Fi o Hotspot y abre esta dirección en el navegador:
-        </p>
-        <div style="background: var(--bg-surface-2); padding: 14px; border-radius: var(--radius-md); font-family: monospace; font-size: 16px; color: var(--brand-pink); font-weight: 800;">
-          <span id="admin-url-text">http://10.0.0.161:8080</span>
-        </div>
-      </div>
-
-      <div class="pos-card">
-        <h2 style="font-size: 18px; margin-bottom: 12px;">📊 Resumen y Cierre del Evento</h2>
-        <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; text-align: center;">
-          <div style="background: var(--bg-surface-2); padding: 14px; border-radius: var(--radius-md);">
-            <div style="font-size: 28px; font-weight: 900; color: var(--brand-pink);" id="stat-total">0</div>
-            <div style="font-size: 12px; color: var(--text-dim);">Total Shawarmas</div>
-          </div>
-          <div style="background: var(--bg-surface-2); padding: 14px; border-radius: var(--radius-md);">
-            <div style="font-size: 28px; font-weight: 900; color: #fbbf24;" id="stat-mixto">0</div>
-            <div style="font-size: 12px; color: var(--text-dim); display: flex; align-items: center; justify-content: center; gap: 4px;"><span>Mixto</span><img src="images/protein-mixto-white-v3.png?v=20261011-v17" alt="Mixto" style="width: 16px; height: 16px; object-fit: contain;"></div>
-          </div>
-          <div style="background: var(--bg-surface-2); padding: 14px; border-radius: var(--radius-md);">
-            <div style="font-size: 28px; font-weight: 900; color: #60a5fa;" id="stat-pollo">0</div>
-            <div style="font-size: 12px; color: var(--text-dim); display: flex; align-items: center; justify-content: center; gap: 4px;"><span>Pollo</span><img src="images/protein-pollo-white.png?v=20261011-v16" alt="Pollo" style="width: 16px; height: 16px; object-fit: contain;"></div>
-          </div>
-          <div style="background: var(--bg-surface-2); padding: 14px; border-radius: var(--radius-md);">
-            <div style="font-size: 28px; font-weight: 900; color: #f87171;" id="stat-carne">0</div>
-            <div style="font-size: 12px; color: var(--text-dim); display: flex; align-items: center; justify-content: center; gap: 4px;"><span>Carne</span><img src="images/protein-carne-white.png?v=20261011-v16" alt="Carne" style="width: 16px; height: 16px; object-fit: contain;"></div>
-          </div>
-          <div style="background: var(--bg-surface-2); padding: 14px; border-radius: var(--radius-md);">
-            <div style="font-size: 28px; font-weight: 900; color: #34d399;" id="stat-falafel">0</div>
-            <div style="font-size: 12px; color: var(--text-dim); display: flex; align-items: center; justify-content: center; gap: 4px;"><span>Falafel</span><img src="images/protein-falafel-white.png?v=20261011-v16" alt="Falafel" style="width: 16px; height: 16px; object-fit: contain;"></div>
-          </div>
-        </div>
-
-        <!-- Botones de Acción: Resumen Ejecutivo / Factura, Excel Crudo, Siguiente Evento, Solo Limpiar -->
-        <div style="margin-top: 20px; display: flex; gap: 12px; flex-wrap: wrap;">
-          <button type="button" style="background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; padding: 14px 20px; border-radius: var(--radius-md); font-size: 13px; font-weight: 900; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 14px rgba(16,185,129,0.35);" onclick="app.showClientInvoiceModal()">
-            <span>🧾</span> <span>Resumen Ejecutivo / Factura</span>
-          </button>
-          <button type="button" style="background: var(--bg-surface-2); color: white; border: 1px solid var(--border-color); padding: 14px 18px; border-radius: var(--radius-md); font-size: 13px; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;" onclick="app.exportRawCSV()">
-            <span>📊</span> <span>Excel Crudo</span>
-          </button>
-          <button type="button" style="background: linear-gradient(135deg, #0284c7, #0369a1); color: white; border: none; padding: 14px 20px; border-radius: var(--radius-md); font-size: 13px; font-weight: 900; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 14px rgba(2,132,199,0.35);" onclick="app.closeEventBackupAndStartNext()">
-            <span>💾</span> <span>Cerrar este evento, respaldar y próximo evento</span>
-          </button>
-          <button type="button" style="background: rgba(239, 68, 68, 0.12); color: #f87171; border: 1.5px solid #ef4444; padding: 14px 20px; border-radius: var(--radius-md); font-size: 13px; font-weight: 900; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;" onclick="app.closeEventWithoutSaving()">
-            <span>🗑️</span> <span>Cerrar evento sin guardar</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- ========================================================================= -->
-      <!-- MODULO FINANCIERO PROTEGIDO CON PIN DE 4 DÍGITOS (PRIVADO PARA DUEÑO)     -->
-      <!-- ========================================================================= -->
-      <!-- Estado Bloqueado: Tarjeta Privada -->
-      <div id="finance-locked-card" class="pos-card" style="border: 2px solid #10b981; background: rgba(16, 185, 129, 0.04); display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap;">
-        <div style="display: flex; align-items: center; gap: 12px;">
-          <div style="width: 44px; height: 44px; background: rgba(16, 185, 129, 0.15); border: 1.5px solid #10b981; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px;">
-            🔒
-          </div>
-          <div>
-            <h2 style="font-size: 17px; color: #10b981; margin: 0; font-weight: 900;">
-              Módulo Financiero & Rentabilidad (Privado)
-            </h2>
-            <div style="font-size: 12px; color: var(--text-dim); margin-top: 2px;">
-              Protegido con clave de 4 dígitos para resguardar tus precios, costos brutos y ganancia neta.
-            </div>
-          </div>
-        </div>
-        <div>
-          <button type="button" onclick="app.promptUnlockFinance()" style="background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; padding: 12px 22px; border-radius: var(--radius-md); font-weight: 900; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 14px rgba(16,185,129,0.35);">
-            <span>🔑</span> <span>Desbloquear con PIN</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- Estado Desbloqueado: Dashboard Completo -->
-      <div id="finance-unlocked-card" class="pos-card" style="display: none; border: 2px solid #10b981; background: rgba(16, 185, 129, 0.04);">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
-          <div>
-            <h2 style="font-size: 18px; color: #10b981; margin: 0; display: flex; align-items: center; gap: 8px;">
-              <span>💰</span> <span>Costos, Insumos & Ganancia Real</span>
-            </h2>
-            <div style="font-size: 12px; color: var(--text-dim); margin-top: 2px;">
-              Cálculo automático de costos brutos por plato y rentabilidad neta del evento.
-            </div>
-          </div>
-          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-            <button type="button" onclick="app.toggleCostSettingsModal(true)" style="background: var(--bg-surface-2); border: 1.5px solid #10b981; color: #10b981; padding: 8px 14px; border-radius: var(--radius-md); font-weight: 800; font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
-              <span>⚙️</span> <span>Configurar Cajas & Precios</span>
-            </button>
-            <button type="button" onclick="app.exportFinancialCSV()" style="background: #10b981; color: white; border: none; padding: 8px 14px; border-radius: var(--radius-md); font-weight: 800; font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
-              <span>📥</span> <span>Excel Financiero</span>
-            </button>
-            <button type="button" onclick="app.changeFinancePinPrompt()" style="background: var(--bg-surface-2); border: 1px solid var(--border-color); color: var(--text-dim); padding: 8px 12px; border-radius: var(--radius-md); font-weight: 800; font-size: 12px; cursor: pointer;" title="Cambiar clave de 4 dígitos">
-              <span>🔑 Cambiar PIN</span>
-            </button>
-            <button type="button" onclick="app.lockFinance()" style="background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid #ef4444; padding: 8px 12px; border-radius: var(--radius-md); font-weight: 800; font-size: 12px; cursor: pointer;">
-              <span>🔒 Bloquear</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- Presupuesto / Ingreso Cobrado y Logística Inputs -->
-        <!-- Presupuesto / Ingreso Cobrado y Logística Inputs -->
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 16px; background: var(--bg-surface-2); padding: 14px; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
-          <div>
-            <label style="display: block; font-size: 11px; font-weight: 800; color: #38bdf8; text-transform: uppercase; margin-bottom: 6px;">
-              Cantidad de Shawarmas
-            </label>
-            <input type="number" id="cost-input-shawarmas" min="0" step="1" placeholder="0" style="width: 100%; background: var(--bg-dark); border: 1.5px solid var(--border-color); color: #38bdf8; padding: 10px 12px; border-radius: 8px; font-size: 18px; font-weight: 900;" oninput="app.recalculateCosts()">
-          </div>
-          <div>
-            <label style="display: block; font-size: 11px; font-weight: 800; color: #10b981; text-transform: uppercase; margin-bottom: 6px;">
-              💵 Total Cobrado al Cliente ($)
-            </label>
-            <input type="number" id="cost-input-revenue" placeholder="Ej: 500" style="width: 100%; background: var(--bg-dark); border: 1.5px solid var(--border-color); color: #10b981; padding: 10px 12px; border-radius: 8px; font-size: 18px; font-weight: 900;" oninput="app.recalculateCosts()">
-          </div>
-          <div>
-            <label style="display: block; font-size: 11px; font-weight: 800; color: #fbbf24; text-transform: uppercase; margin-bottom: 6px;">
-              🚚 Otros Gastos (Gas, Transporte, Ayudante) ($)
-            </label>
-            <input type="number" id="cost-input-logistics" placeholder="Ej: 40" style="width: 100%; background: var(--bg-dark); border: 1.5px solid var(--border-color); color: #fbbf24; padding: 10px 12px; border-radius: 8px; font-size: 18px; font-weight: 900;" oninput="app.recalculateCosts()">
-          </div>
-        </div>
-
-        <!-- Dashboard KPIs -->
-        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; text-align: center;">
-          <div style="background: var(--bg-surface-2); border: 1px solid var(--border-color); padding: 14px; border-radius: var(--radius-md);">
-            <div style="font-size: 11px; font-weight: 800; color: var(--text-dim); text-transform: uppercase;">Costo Total Insumos</div>
-            <div style="font-size: 22px; font-weight: 900; color: #f87171; margin-top: 4px;" id="kpi-cost-total">$0.00</div>
-          </div>
-          <div style="background: var(--bg-surface-2); border: 1.5px solid #10b981; padding: 14px; border-radius: var(--radius-md); box-shadow: 0 4px 16px rgba(16,185,129,0.15);">
-            <div style="font-size: 11px; font-weight: 800; color: #10b981; text-transform: uppercase;">Ganancia Neta Real</div>
-            <div style="font-size: 24px; font-weight: 900; color: #10b981; margin-top: 4px;" id="kpi-profit-net">$0.00</div>
-          </div>
-          <div style="background: var(--bg-surface-2); border: 1px solid var(--border-color); padding: 14px; border-radius: var(--radius-md);">
-            <div style="font-size: 11px; font-weight: 800; color: var(--text-dim); text-transform: uppercase;">Margen Operativo</div>
-            <div style="font-size: 22px; font-weight: 900; color: #38bdf8; margin-top: 4px;" id="kpi-margin-pct">0%</div>
-          </div>
-          <div style="background: var(--bg-surface-2); border: 1px solid var(--border-color); padding: 14px; border-radius: var(--radius-md);">
-            <div style="font-size: 11px; font-weight: 800; color: var(--text-dim); text-transform: uppercase;">Costo Promedio / U</div>
-            <div style="font-size: 22px; font-weight: 900; color: #fbbf24; margin-top: 4px;" id="kpi-cost-per-unit">$0.00</div>
-          </div>
-        </div>
-
-        <!-- Tarjeta Visual: Costo de 1 Plato Servido Completo -->
-        <div style="background: linear-gradient(135deg, rgba(16,185,129,0.10), rgba(2,132,199,0.08)); border: 1.5px solid #10b981; border-radius: var(--radius-md); padding: 14px 20px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
-          <div>
-            <div style="font-size: 11px; font-weight: 900; color: #10b981; text-transform: uppercase; letter-spacing: 0.5px;">
-              🍽️ Escandallo Unitario
-            </div>
-            <div style="font-size: 16px; font-weight: 900; color: var(--text-white); margin-top: 2px;">
-              Costo Real de 1 Plato Servido
-            </div>
-          </div>
-          <div style="text-align: right; background: var(--bg-surface-2); padding: 10px 22px; border-radius: 12px; border: 1.5px solid #10b981; box-shadow: 0 4px 14px rgba(16,185,129,0.15);">
-            <div style="font-size: 28px; font-weight: 900; color: #10b981;" id="kpi-single-plate-cost">$0.00</div>
-          </div>
-        </div>
-
-        <!-- Desglose de Insumos Utilizados en Vivo -->
-        <div style="background: var(--bg-surface-2); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 16px;">
-          <div style="font-size: 13px; font-weight: 900; color: var(--text-white); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
-            <span>📋 Insumos y Empaques Gastados en este Evento</span>
-            <span style="font-size: 11px; color: var(--text-dim); font-weight: 700;">Calculado en tiempo real</span>
-          </div>
-          <div style="overflow-x: auto;">
-            <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
-              <thead>
-                <tr style="border-bottom: 1.5px solid var(--border-color); color: var(--text-dim); text-align: left;">
-                  <th style="padding: 8px 10px;">Insumo / Concepto</th>
-                  <th style="padding: 8px 10px; text-align: center;">Fórmula / Uso</th>
-                  <th style="padding: 8px 10px; text-align: center;">Cantidad</th>
-                  <th style="padding: 8px 10px; text-align: right;">Costo Unit.</th>
-                  <th style="padding: 8px 10px; text-align: right;">Subtotal</th>
-                </tr>
-              </thead>
-              <tbody id="cost-breakdown-tbody">
-                <!-- Rendered dynamically by JS -->
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <!-- Bóveda de Seguridad y Respaldo Permanente (Anti-Pérdidas) -->
-      <div class="pos-card" style="border: 2px solid #0284c7; background: rgba(2, 132, 199, 0.05);">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-          <h2 style="font-size: 18px; color: #0284c7; margin: 0; display: flex; align-items: center; gap: 8px;">
-            <span>🛡️</span> <span>Bóveda de Seguridad e Historial Permanente</span>
-          </h2>
-          <span style="background: #0284c7; color: white; font-size: 11px; font-weight: 900; padding: 3px 8px; border-radius: 999px;">ANTI-PÉRDIDAS</span>
-        </div>
-        <p style="font-size: 13px; color: var(--text-dim); margin-bottom: 14px; line-height: 1.5;">
-          Cada comanda y evento que cierras se almacena en la memoria física de este dispositivo, organizado por días y eventos independientes.
-        </p>
-
-        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 16px;">
-          <div style="background: var(--bg-surface-2); padding: 12px; border-radius: var(--radius-md); text-align: center;">
-            <div style="font-size: 24px; font-weight: 900; color: #0284c7;" id="vault-total-orders">0</div>
-            <div style="font-size: 11px; color: var(--text-dim);">Total Comandas en Bóveda</div>
-          </div>
-          <div style="background: var(--bg-surface-2); padding: 12px; border-radius: var(--radius-md); text-align: center;">
-            <div style="font-size: 24px; font-weight: 900; color: var(--yes-green);" id="vault-total-events">0</div>
-            <div style="font-size: 11px; color: var(--text-dim);">Eventos Archivados</div>
-          </div>
-        </div>
-
-        <!-- Lista de Eventos Archivados por Día -->
-        <div style="margin-bottom: 16px;">
-          <div style="font-size: 13px; font-weight: 800; color: #38bdf8; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">
-            📁 Eventos Respaldados por Día:
-          </div>
-          <div id="vault-events-list" style="display: flex; flex-direction: column; gap: 8px; max-height: 220px; overflow-y: auto;">
-            <!-- Rendered by JS -->
-          </div>
-        </div>
-
-        <div style="display: flex; gap: 10px; flex-wrap: wrap; border-top: 1px solid var(--border-color); padding-top: 14px;">
-          <button type="button" style="background: #0284c7; color: white; border: none; padding: 10px 16px; border-radius: var(--radius-md); font-weight: 900; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;" onclick="app.exportVaultCSV()">
-            <span>📥</span> <span>Descargar Historial Master (Todo)</span>
-          </button>
-          <button type="button" style="background: var(--bg-surface-2); color: var(--text-white); border: 1.5px solid #0284c7; padding: 10px 16px; border-radius: var(--radius-md); font-weight: 900; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;" onclick="app.restoreVaultToServer()">
-            <span>♻️</span> <span>Restaurar al Servidor</span>
-          </button>
-          <button type="button" style="background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1.5px solid #ef4444; padding: 10px 16px; border-radius: var(--radius-md); font-weight: 900; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;" onclick="app.clearVaultPrompt()">
-            <span>🗑️</span> <span>Limpiar / Vaciar Bóveda</span>
-          </button>
-        </div>
-      </div>
+<div class="u-page-heading"><div><span class="p-eyebrow">Configuración y servicio</span><h1>Administración</h1></div><p>El mismo sistema. Todo en su lugar.</p></div>
+    <div class="u-admin-grid">
+      <section class="pos-card u-card "><div class="u-section-title"><h2><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Apariencia</h2><p>La misma interfaz en Mac, iPad y celular.</p></div><div class="u-theme-options"><button type="button" class="u-button" id="btn-theme-noche" onclick="app.setTheme('noche')"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>Noche</button><button type="button" class="u-button" id="btn-theme-dia" onclick="app.setTheme('dia')"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Día</button><button type="button" class="u-button" id="btn-theme-auto" onclick="app.setTheme('auto')"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Automático</button></div><div class="u-language-setting"><span id="u-language-label">Idioma de este dispositivo</span><div class="u-language-options" role="group" aria-labelledby="u-language-label"><button type="button" class="u-button" id="u-language-es" lang="es" data-i18n-ignore onclick="app.setLanguage('es')" aria-pressed="true">Español</button><button type="button" class="u-button" id="u-language-en" lang="en" data-i18n-ignore onclick="app.setLanguage('en')" aria-pressed="false">English</button></div></div></section>
+      <section class="pos-card u-card "><div class="u-section-title"><h2><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Dispositivo y operador</h2></div><div class="u-between"><div><strong id="admin-operator-display">Dispositivo 1</strong><p class="u-muted">Identifica quién toma los pedidos.</p></div><button type="button" class="u-button " onclick="app.promptChangeOperator()"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m14 5 5 5M3 21l1-6L16 3a2 2 0 0 1 5 5L9 20ZM13 21h9"/></svg><span>Cambiar nombre</span></button></div></section>
+      <section class="pos-card u-card u-full"><div class="u-section-title"><h2><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>Conexión entre pantallas</h2><p>Pedidos, cocina y monitor deben usar el mismo servidor.</p></div><div class="u-address" id="admin-url-text"></div><p class="u-muted" id="u-network-note"></p></section>
+      <section class="pos-card u-card u-full"><div class="u-section-title"><h2><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>Resumen del evento</h2></div><div class="u-metrics u-event-metrics"><div class="u-metric"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg><strong id="stat-total">0</strong><span>Total unidades</span></div><div class="u-metric"><img src="images/protein-mixto-white-v3.png?v=20261011-v17" alt="Mixto" class="u-protein-icon" width="20" height="20"><strong id="stat-mixto">0</strong><span>Mixto</span></div><div class="u-metric"><img src="images/protein-pollo-white-v3.png?v=20261011-v17" alt="Pollo" class="u-protein-icon" width="20" height="20"><strong id="stat-pollo">0</strong><span>Pollo</span></div><div class="u-metric"><img src="images/protein-carne-white-v3.png?v=20261011-v17" alt="Carne" class="u-protein-icon" width="20" height="20"><strong id="stat-carne">0</strong><span>Carne</span></div><div class="u-metric"><img src="images/protein-falafel-white-v3.png?v=20261011-v17" alt="Falafel" class="u-protein-icon" width="20" height="20"><strong id="stat-falafel">0</strong><span>Falafel</span></div><div class="u-metric"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11a8 8 0 0 0 16 0H4Z"/><path d="M6 19h12"/></svg><strong id="stat-bowls">0</strong><span>Bowls · sin pan</span></div></div><p class="u-stats-note">Las proteínas incluyen los bowls. Bowls es un dato adicional, no se suma otra vez al total.</p><div class="u-actions"><button type="button" class="u-button u-primary" onclick="app.showClientInvoiceModal()"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg><span>Resumen para el cliente</span></button><button type="button" class="u-button " onclick="app.exportRawCSV()"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg><span>Exportar pedidos CSV</span></button></div></section>
+      <section class="pos-card u-card u-full"><div class="u-section-title"><h2><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h7v7H3ZM14 3h7v7h-7ZM3 14h7v7H3ZM14 14h3v3h-3ZM20 14v3M14 20h3M20 20h1"/></svg>Código QR de Reseña</h2><p>Muestra el código QR oficial para que los comensales califiquen el servicio directamente.</p></div><div class="u-actions"><button type="button" class="u-button u-primary" onclick="app.showGoogleReviewQRModal()"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h7v7H3ZM14 3h7v7h-7ZM3 14h7v7H3ZM14 14h3v3h-3ZM20 14v3M14 20h3M20 20h1"/></svg><span>Mostrar QR de Reseña</span></button></div><p class="u-muted">Pide a los clientes que escaneen el código desde su celular para calificar directamente en segundos.</p></section>
+      <section id="finance-locked-card" class="pos-card u-card u-full u-between"><div><div class="u-section-title"><h2><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Costos y rentabilidad</h2></div><p class="u-muted">Accede con el PIN financiero configurado en este dispositivo.</p></div><button type="button" class="u-button " onclick="app.promptUnlockFinance()"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span>Abrir módulo financiero</span></button></section>
+      <section id="finance-unlocked-card" class="pos-card u-card u-full" style="display:none">
+        <div class="u-between"><div class="u-section-title"><h2><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Costos y rentabilidad</h2></div><div class="u-actions"><button type="button" class="u-button " onclick="app.changeFinancePinPrompt()"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m14 5 5 5M3 21l1-6L16 3a2 2 0 0 1 5 5L9 20ZM13 21h9"/></svg><span>Cambiar PIN</span></button><button type="button" class="u-button " onclick="app.lockFinance()"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg><span>Bloquear</span></button></div></div>
+        <div class="u-actions"><button type="button" class="u-button " onclick="app.toggleCostSettingsModal(true)"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m14 5 5 5M3 21l1-6L16 3a2 2 0 0 1 5 5L9 20ZM13 21h9"/></svg><span>Editar insumos y empaques</span></button><button type="button" class="u-button " onclick="app.addSupplyRow()"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg><span>Agregar renglón</span></button><button type="button" class="u-button " onclick="app.exportFinancialCSV()"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg><span>Exportar costos CSV</span></button></div>
+        <div class="u-finance-inputs"><label>Cantidad de shawarmas<input type="number" min="0" step="1" id="cost-input-shawarmas" placeholder="0" oninput="app.recalculateCosts()"></label><label>Ingreso del evento ($)<input type="number" step="0.01" min="0" id="cost-input-revenue" placeholder="0.00" oninput="app.recalculateCosts()"></label><label>Logística y otros gastos ($)<input type="number" step="0.01" min="0" id="cost-input-logistics" placeholder="0.00" oninput="app.recalculateCosts()"></label></div>
+        <div class="u-metrics"><div class="u-metric"><strong id="kpi-cost-total">0</strong><span>Costo de insumos</span></div><div class="u-metric"><strong id="kpi-profit-net">0</strong><span>Resultado neto</span></div><div class="u-metric"><strong id="kpi-margin-pct">0</strong><span>Margen</span></div><div class="u-metric"><strong id="kpi-cost-per-unit">0</strong><span>Costo por unidad</span></div><div class="u-metric"><strong id="kpi-single-plate-cost">0</strong><span>Mixto estándar</span></div></div>
+        <h3 class="u-subheading">Insumos y empaques</h3><div class="u-table-scroll" tabindex="0" role="region" aria-label="Desglose de costos"><table class="u-table"><thead><tr><th>Insumo</th><th>Uso</th><th>Cantidad</th><th>Costo unitario</th><th>Subtotal</th></tr></thead><tbody id="cost-breakdown-tbody"></tbody></table></div>
+      </section>
+      <section class="pos-card u-card u-full"><div class="u-section-title"><h2><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>Historial de eventos archivados</h2><p>Consulta los eventos guardados anteriormente y descarga su historial.</p></div><div class="u-metrics u-two-metrics"><div class="u-metric"><strong id="vault-total-orders">0</strong><span>Comandas guardadas</span></div><div class="u-metric"><strong id="vault-total-events">0</strong><span>Eventos archivados</span></div></div><div id="vault-events-list" class="u-archive-list"></div><div class="u-actions"><button type="button" class="u-button " onclick="app.exportVaultCSV()"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg><span>Exportar historial CSV</span></button></div></section>
+      <section class="pos-card u-card u-full"><div class="u-section-title"><h2><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>Copia de seguridad del evento activo</h2><p>Descarga una copia completa en archivo ZIP que contiene el Excel para consulta y el JSON para resguardo.</p></div><p class="u-muted" id="u-safety-storage">Copias de recuperación del dispositivo: activo.</p><p class="u-muted" id="u-safety-wake">Pantalla activa: disponible.</p><div class="u-actions"><button type="button" class="u-button u-primary" onclick="app.downloadEventBundle()"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg><span>Descargar copia de seguridad (Excel + JSON)</span></button><button type="button" class="u-button " onclick="app.toggleScreenAwake()"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg><span>Mantener pantalla activa</span></button></div></section>
+      <section class="pos-card u-card u-full"><div class="u-section-title"><h2><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Gestión y Cierre del Evento</h2><p>Cierra el evento con respaldo completo para comenzar el siguiente desde el Turno #1, o descarta pedidos de prueba.</p></div><div class="u-actions"><button type="button" class="u-button u-primary" onclick="app.closeEventBackupAndStartNext()"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span>Cerrar este evento, respaldar y próximo evento</span></button><button type="button" class="u-button u-danger s-clear-button" onclick="app.closeEventWithoutSaving()"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7M14 10v7"/></svg><span>Cerrar evento sin guardar</span></button><button type="button" class="u-button " onclick="app.showClientInvoiceModal()"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg><span>Ver resumen / Reporte del evento</span></button></div><p class="u-muted"><strong>Cerrar este evento, respaldar y próximo evento:</strong> Guarda automáticamente la copia completa en Excel y JSON, muestra el resumen con el desglose de comandas servidas y reinicia todo el sistema limpiamente en el <strong>Turno #1</strong> para tu siguiente catering.</p><p class="u-muted"><strong>Cerrar evento sin guardar:</strong> Diseñado exclusivamente para pruebas de conexión y rendimiento previas al evento. Descarta todos los pedidos de prueba sin generar respaldos y deja el sistema 100% limpio en el <strong>Turno #1</strong> listo para el catering real.</p></section>
     </div>
   </main>
 
@@ -2896,6 +2642,47 @@
   </div>
 
   <!-- ========================================================================= -->
+  <!-- ========================================================================= -->
+  <!-- MODAL DE CÓDIGO QR PARA CALIFICAR EL SERVICIO                             -->
+  <!-- ========================================================================= -->
+  <div class="modal-overlay u-overlay" id="google-review-modal" style="display: none; z-index: 10000;" onclick="app.closeGoogleReviewModal(event)">
+    <section class="u-dialog u-qr-dialog" onclick="event.stopPropagation()" role="dialog" aria-modal="true" aria-labelledby="google-review-modal-title" style="max-width: 560px; width: 92%; text-align: center; border-radius: 28px; padding: 32px 24px 28px; background: #bc147a; border: 2px solid rgba(255, 255, 255, 0.22); box-shadow: 0 25px 65px rgba(0,0,0,0.75); position: relative; color: #ffffff;">
+      
+      <!-- Botón de Cerrar (X) Superior -->
+      <button type="button" class="p-icon-button" onclick="app.closeGoogleReviewModal()" aria-label="Cerrar modal" style="position: absolute; top: 16px; right: 16px; background: rgba(0,0,0,0.25); border: 1.5px solid rgba(255,255,255,0.35); color: #ffffff; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; display: grid; place-items: center;">
+        <svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width: 18px; height: 18px;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+
+      <!-- Encabezado idéntico al flyer oficial -->
+      <div style="margin-bottom: 20px;">
+        <h2 id="google-review-modal-title" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 34px; font-weight: 900; line-height: 1.08; letter-spacing: -0.5px; color: #ffffff; text-transform: uppercase; margin: 0; text-shadow: 2px 3px 0px rgba(0,0,0,0.65);">
+          TU REVIEW<br>ES IMPORTANTE
+        </h2>
+      </div>
+
+      <!-- Código QR Oficial Visible, Nítido y Grande con Logo Central -->
+      <div style="background: #ffffff; padding: 14px; border-radius: 20px; display: inline-block; box-shadow: 0 12px 32px rgba(0,0,0,0.45); margin: 0 auto;">
+        <img id="google-review-qr-img" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAWgAAAFnCAYAAACLs9MAAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAABaKADAAQAAAABAAABZwAAAADZDamEAABAAElEQVR4AeydB7x0RXn/jyURC9Kx4wsBBRFQUbEiaKyAgqISwRYVYkWNUVGiGMWGFSV/MYoQIRYsIAY0ihoLFmyAomCko6h0ULDA+9/veflenzt35pyze3bv3fuy8/mcOzNP+T1lyp67O2f3JisHpZqVWQZmGZhlYJaBqcvATafOo5lDswzMMjDLwCwDdQZmG/RsIswyMMvALANTmoHZBj2lAzNza5aBWQZmGZht0LM5MMvALAOzDExpBmYb9JQOzMytWQZmGZhlYLZBz+bALAOzDMwyMKUZmG3QUzowM7dmGZhlYJaB2QY9mwOzDMwyMMvAlGZgtkFP6cDM3JplYJaBWQZmG/RsDswyMMvALANTmoHZBj2lAzNza5aBWQZmGZht0LM5MMvALAOzDExpBnpt0HzPUrymNMaJuUXs119//cTwAW76Litzf91112Xlon/iTNrfXDL0E9u29Scn35U2DqzoU8lutNNFvoTTl+7YmTt9SXHhOyeUTWX69rWtnRyeMjne6kyL86Vv/m8+aqKiEze5yU3mYHRoHLRxYuFgipf2czKRRpuCXoxvFXV8f1O/7FtjO/WBxXCzm91snhP6CE8dBNCNWCqltLSvLrXYbTT4FnT0JerL71rrF/K0jU262PaRa6OJEWVpW8DiuulNbzqXuxw+8tK12ZXWRU+ZpjzCi0VZdfXLPrLD0MQ3Z+CoH+3ShueVysS+vjTRushok7oJKyc3LnxxqPXBGrvDlJE36GiEAdOpSMeplN6VFnFod9XrKtcXHzssVu1Rj6ukWKW7FHOrHyX7+jjMOKVYYkR6Vxo6+Ormhl76YhJx29pggWE85iHqdfVNOfzBv1KJtmijlxaxIr0rLerQzulJbxtv5MjJn//8Z5pj9xXfyAFXyRfHiNrc5WLqSqsDCX+66nWVC9B1s6teTg4A6Fx9S68NGgeuueaa6qtf/Wp16aWXLtiM+zo3rfos5jvf+c7V/e53v+pWt7rVWAYixho3nGuvvbb61re+VV144YVRpG6zOJj8G2ywQbXddttV6667btYXNvhzzjmnOvnkk6u//OUvtc4CsEUguGjXWmut6iEPeUi1/vrrj2yVOM4444zqBz/4QR1zzNkwoLe+9a2r+973vtVGG21U5yW3sC655JLqm9/8ZnXFFVfUc3wcC28YH5VlvG9+85vX827FihXZFznycPnll1ff/e53q9/97nf1BsocGXfBDr7c7W53q+5zn/vUvsS80EaG/YF5d8EFF9Rvu4zbj2nEI3bW4o477ljvD3187LVBM/BXX3119d73vrc65ZRTbjQDsMYaa1RPeMITqq222qr3ADQNHgNNfg877LDqi1/84jxRJj8LlheLe9/73tU73vGOelLMExp0kGOcTjvttGr//fevrrrqqiUbJ30mb5ttttnIGzR54e6QTehVr3pVnQdehEYpt7vd7aq3vvWt9QaNPthp+c1vflPPcXJILnMyqc4k+oz1mmuuWY81Lyilu9df//rX1cEHH1z96Ec/qsd63D4TP2P5t3/7t9ULX/jC6l73ulf2xYIccIPxyU9+sjr22GPr9iTyMm2YjNM222xTv5CyVzBOo5ZeGzSGGSg2Ee6gR10kozq/FHpMTibmH/7wh3qhOlnHuWgjFvm98sor6/waL/wow6aLXK64iP/4xz9Wl112WX13VZLN6Y+Dpq/Ypc18YdMYtYBBXMTE3SK4o+KxmJi3TYsIbOe4MeD7UuSR/xyI2xzkcohfzImLL754jg1tXP46nqwD7pC5k5amQWxB42Kt8F/In/70p7H5oJ1prJlTzBdy0DSvuvjea4OOBsY1+BFzGtsxznRSLpa/+MCFff1pmghL5af50Ff7467NwSi4o+qOqjeKjzmdpjF1LnjnPAlfwezyohj9nIQfudwsNW2ccY5+773UWZgi+3ESLpZb2BzW7jgnzmLFWbIzbOwlnOVGH3YMR5kn48jJjXV8xpG7iDHboGM2llF72IW6jELr5OqNPf5OSbpBaJarYbI1XbK9N2hfKa2nK7zJeuPEt56stfno5Dvaje35kn/trW5j1CXmv0a/erS6jGHMC+0uOsNmB8wmXH2wHhZ/OcubF+s+sYztPeiSE7xh7iCldUlnKegkk/fuqH1vzXop/OlqE5/JK6caqNNJwQdgfngLzzGI+Oqk+qms722iK1aXHCGLrrLgpthgykden6Av5+L8J15zkIvdcSRW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" onerror="this.src='images/google-review-qr-v26.png?v=20261012-v26'" alt="Código QR para Calificar en Google" style="width: 270px; height: 270px; display: block; border-radius: 6px; image-rendering: -webkit-optimize-contrast;">
+      </div>
+
+      <!-- 5 Estrellas Doradas Sin Neón (Solid Gold, No Glow) -->
+      <div style="display: flex; justify-content: center; gap: 8px; margin: 18px 0 10px; font-size: 34px; color: #fbbf24; filter: none; text-shadow: none;" aria-label="5 estrellas">
+        ★ ★ ★ ★ ★
+      </div>
+
+      <p style="font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.95); margin: 0 auto 20px; line-height: 1.45; max-width: 420px; text-shadow: 0 1px 2px rgba(0,0,0,0.4);">
+        Escanea el código con la cámara de tu celular para calificar nuestro servicio directamente.
+      </p>
+
+      <!-- Acción Limpia: Solo botón de Abrir calificación directa -->
+      <div style="display: flex; justify-content: center; margin-bottom: 4px;">
+        <a id="btn-open-google-review-link" href="https://g.page/r/CTPvPGnyH6EgEBM/review" target="_blank" rel="noopener noreferrer" class="u-button" style="background: #ffffff; color: #bc147a; text-decoration: none; font-weight: 850; font-size: 15px; padding: 14px 28px; border-radius: 14px; box-shadow: 0 4px 16px rgba(0,0,0,0.25); display: inline-flex; align-items: center; justify-content: center; gap: 8px;">
+          Abrir calificación directa
+        </a>
+      </div>
+    </section>
+  </div>
+
   <!-- MODAL FLOTANTE DE DETALLE DE PEDIDO (MONITOR DE TURNOS)                   -->
   <!-- ========================================================================= -->
   <div class="modal-overlay" id="order-detail-modal" onclick="app.closeModal(event)">
@@ -3497,14 +3284,6 @@
 
       checkParams() {
         const p = new URLSearchParams(window.location.search);
-        if (p.has('reset_vault') || p.has('clear_vault')) {
-          localStorage.removeItem('shawarma_permanent_vault_v2');
-          localStorage.setItem('shawarma_event_vault_archives', '[]');
-          localStorage.setItem('shawarma_deleted_vault_ids', JSON.stringify(['ALL']));
-          fetch('/api/vault/archives/clear', { method: 'POST' }).catch(() => {});
-          window.location.href = window.location.pathname + '?view=admin';
-          return;
-        }
         const v = p.get('view');
         if (v === 'guest') {
           this.guestOrderId = p.get('order_id') || p.get('id');
@@ -5195,7 +4974,9 @@
 
         const qrContainer = document.getElementById('qr-code-canvas-container');
         if (qrContainer) {
-          if (typeof window.generateQRCodeSVG === 'function') {
+          if (typeof window.renderQRCode === 'function') {
+            window.renderQRCode(qrContainer, guestUrl, 220);
+          } else if (typeof window.generateQRCodeSVG === 'function') {
             qrContainer.innerHTML = window.generateQRCodeSVG(guestUrl, 220);
           } else {
             qrContainer.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(guestUrl)}" alt="QR Code" style="display:block; width:220px; height:220px; border-radius:8px; margin:0 auto;">`;
@@ -5220,6 +5001,45 @@
         if (modal) {
           modal.classList.remove('active');
           modal.style.display = 'none';
+        }
+      }
+
+      getGoogleReviewURL() {
+        return 'https://g.page/r/CTPvPGnyH6EgEBM/review';
+      }
+
+      showGoogleReviewQRModal() {
+        try { if (typeof soundEngine !== 'undefined') soundEngine.playClick(); } catch(e){}
+        const modal = document.getElementById('google-review-modal');
+        if (!modal) return;
+        const openLink = document.getElementById('btn-open-google-review-link');
+        if (openLink) openLink.href = this.getGoogleReviewURL();
+        modal.classList.add('active');
+        modal.style.display = 'flex';
+      }
+
+      closeGoogleReviewModal(event) {
+        if (event && event.target && event.target !== document.getElementById('google-review-modal') && !event.target.closest('button')) {
+          return;
+        }
+        const modal = document.getElementById('google-review-modal');
+        if (modal) {
+          modal.classList.remove('active');
+          modal.style.display = 'none';
+        }
+      }
+
+      copyGoogleReviewLink() {
+        if (window.soundEngine) soundEngine.playClick();
+        const url = this.getGoogleReviewURL();
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(url).then(() => {
+            this.showToast('Enlace copiado al portapapeles', 'success');
+          }).catch(() => {
+            this.showToast(url, 'info');
+          });
+        } else {
+          prompt('Enlace de calificación:', url);
         }
       }
 
@@ -5735,29 +5555,23 @@
         const deletedId = String(target.id || '');
         const rawId = deletedId.replace(/^backup_/, '');
 
-        // 1. Quitar de la lista local
-        archives.splice(index, 1);
-        localStorage.setItem('shawarma_event_vault_archives', JSON.stringify(archives));
-
-        // 2. Registrar en la lista negra de borrados para que NUNCA vuelva a resucitar
-        const deletedIds = JSON.parse(localStorage.getItem('shawarma_deleted_vault_ids') || '[]');
-        if (!deletedIds.includes(deletedId)) deletedIds.push(deletedId);
-        if (!deletedIds.includes(`backup_${rawId}`)) deletedIds.push(`backup_${rawId}`);
-        if (!deletedIds.includes(rawId)) deletedIds.push(rawId);
-        localStorage.setItem('shawarma_deleted_vault_ids', JSON.stringify(deletedIds));
-
-        this.renderAdmin();
-
-        // 3. Eliminar el archivo físico en el servidor
         try {
-          await fetch('/api/vault/archives/delete', {
+          const res = await fetch('/api/vault/archives/delete', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ id: deletedId })
           });
-        } catch(e) {}
-
-        this.showToast(`🗑️ Respaldo de "${name}" eliminado definitivamente`, 'info');
+          if (!res.ok) throw new Error((await res.json()).error || 'No se pudo eliminar el respaldo');
+          archives.splice(index, 1);
+          localStorage.setItem('shawarma_event_vault_archives', JSON.stringify(archives));
+          const deletedIds = JSON.parse(localStorage.getItem('shawarma_deleted_vault_ids') || '[]');
+          [deletedId, `backup_${rawId}`, rawId].forEach(id => { if (!deletedIds.includes(id)) deletedIds.push(id); });
+          localStorage.setItem('shawarma_deleted_vault_ids', JSON.stringify(deletedIds));
+          this.renderAdmin();
+          this.showToast(`Respaldo de "${name}" eliminado`, 'success');
+        } catch(e) {
+          this.showToast(e.message || 'No se pudo eliminar el respaldo. La lista no cambió.', 'error');
+        }
       }
 
       async clearVaultPrompt() {
@@ -5765,17 +5579,17 @@
         const msg = `⚠️ ¡ADVERTENCIA DE SEGURIDAD!\n\n¿Estás seguro de ELIMINAR y VACIAR toda la Bóveda de respaldos?\n\nEsta acción borrará todos los eventos anteriores guardados tanto en este dispositivo como en el servidor de forma definitiva.`;
         if (!confirm(msg)) return;
 
-        localStorage.removeItem('shawarma_permanent_vault_v2');
-        localStorage.setItem('shawarma_event_vault_archives', '[]');
-        localStorage.setItem('shawarma_deleted_vault_ids', JSON.stringify(['ALL']));
-        
-        this.renderAdmin();
-
         try {
-          await fetch('/api/vault/archives/clear', { method: 'POST' });
-        } catch(e) {}
-
-        this.showToast('🗑️ Bóveda vaciada completamente en el dispositivo y en el servidor', 'info');
+          const res = await fetch('/api/vault/archives/clear', { method: 'POST' });
+          if (!res.ok) throw new Error((await res.json()).error || 'No se pudo vaciar el historial');
+          localStorage.removeItem('shawarma_permanent_vault_v2');
+          localStorage.setItem('shawarma_event_vault_archives', '[]');
+          localStorage.setItem('shawarma_deleted_vault_ids', JSON.stringify(['ALL']));
+          this.renderAdmin();
+          this.showToast('Historial de respaldos vaciado', 'success');
+        } catch(e) {
+          this.showToast(e.message || 'No se pudo vaciar el historial. Los datos locales siguen intactos.', 'error');
+        }
       }
 
       exportVaultCSV() {
@@ -6698,80 +6512,34 @@
 
         if (!confirm(confirmMsg)) return;
 
-        // 1. Snapshot del evento que acaba de finalizar
-        const closedEventSnapshot = JSON.parse(JSON.stringify(this.db || {}));
-
-        // 2. Archivar en la Bóveda del navegador
-        try {
-          const archives = JSON.parse(localStorage.getItem('shawarma_event_vault_archives') || '[]');
-          archives.push({
-            id: closedEventSnapshot.event_info?.id || `evt_${Date.now()}`,
-            name: closedEventSnapshot.event_info?.name || 'Evento Catering',
-            date: new Date().toISOString(),
-            total_orders: count,
-            operator: this.operatorName,
-            orders: orders,
-            timer: closedEventSnapshot.event_info?.timer
-          });
-          localStorage.setItem('shawarma_event_vault_archives', JSON.stringify(archives));
-        } catch(e) {}
-
-        // 3. Descarga automática del respaldo de seguridad
-        try {
-          if (count > 0 && typeof this.downloadEventBundle === 'function') {
-            this.downloadEventBundle();
-          }
-        } catch(e) {
-          console.warn('Descarga de respaldo:', e);
-        }
-
-        // 4. Marcar reseteo intencional para evitar re-inyecciones
-        sessionStorage.setItem('shawarma_intentional_reset', 'true');
-        localStorage.setItem('shawarma_reset_in_progress', 'true');
-        setTimeout(() => {
-          sessionStorage.removeItem('shawarma_intentional_reset');
-          localStorage.removeItem('shawarma_reset_in_progress');
-        }, 10000);
-
-        // 5. Llamar al servidor para crear el nuevo evento limpio
         try {
           const res = await fetch('/api/event/close_and_start_next', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ name: `Evento ${new Date().toLocaleDateString()}` })
           });
-          if (res.ok) {
-            const data = await res.json();
-            const freshDb = data.new_event || data.data;
-            this.handleCleanEventReset(freshDb);
-            this.showToast('✅ ¡Evento respaldado y cerrado! Sistema listo en Turno #1.', 'success');
-            if (count > 0) {
-              this.showFinishedEventSummary(closedEventSnapshot);
-            } else {
-              this.switchView('order');
-            }
-            return;
+          if (!res.ok) throw new Error((await res.json()).error || 'El servidor no cerró el evento');
+          const data = await res.json();
+          const closedEventSnapshot = data.closed_event;
+          const freshDb = data.new_event || data.data;
+          if (!closedEventSnapshot || !freshDb) throw new Error('El servidor no confirmó el respaldo y el evento nuevo');
+          let bundleSaved = true;
+          const closedCount = closedEventSnapshot.orders?.length || 0;
+          if (closedCount > 0 && typeof this.downloadEventBundle === 'function') {
+            this.db = closedEventSnapshot;
+            bundleSaved = await this.downloadEventBundle();
           }
-        } catch(e) {}
-
-        // Fallback local si el servidor no responde
-        const fallbackDb = {
-          event_info: {
-            id: `evt_${Date.now()}`,
-            name: 'Shawarma en Casa',
-            created_at: new Date().toISOString(),
-            turn_counter: 0,
-            reset_at: Math.floor(Date.now() / 1000),
-            timer: { started_at: null, elapsed_seconds: 0, is_paused: false }
-          },
-          orders: []
-        };
-        this.handleCleanEventReset(fallbackDb);
-        this.showToast('✅ ¡Evento respaldado y cerrado! Sistema listo en Turno #1.', 'success');
-        if (count > 0) {
-          this.showFinishedEventSummary(closedEventSnapshot);
-        } else {
-          this.switchView('order');
+          sessionStorage.setItem('shawarma_intentional_reset', 'true');
+          localStorage.setItem('shawarma_reset_in_progress', 'true');
+          this.handleCleanEventReset(freshDb);
+          await this.fetchVaultArchives();
+          this.showToast(bundleSaved ? 'Evento respaldado en el servidor y cerrado. Sistema listo en Turno #1.' : 'El servidor respaldó el evento, pero no se generó la descarga ZIP local.', bundleSaved ? 'success' : 'info');
+          if (closedCount > 0) this.showFinishedEventSummary(closedEventSnapshot);
+          else this.switchView('order');
+        } catch(e) {
+          sessionStorage.removeItem('shawarma_intentional_reset');
+          localStorage.removeItem('shawarma_reset_in_progress');
+          this.showToast(e.message || 'No se pudo confirmar el cierre. Los pedidos activos siguen en el servidor.', 'error');
         }
       }
 
@@ -6867,32 +6635,23 @@
         
         if (!confirm(msg)) return;
 
-        sessionStorage.setItem('shawarma_intentional_reset', 'true');
-        localStorage.setItem('shawarma_reset_in_progress', 'true');
-        setTimeout(() => {
-          sessionStorage.removeItem('shawarma_intentional_reset');
-          localStorage.removeItem('shawarma_reset_in_progress');
-        }, 10000);
-
         try {
           const res = await fetch('/api/event/reset', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ name: 'Shawarma en Casa', save_backup: false })
           });
-          if (res.ok) {
-            const data = await res.json();
-            this.handleCleanEventReset(data.data);
-            this.showToast('🧹 Evento de prueba cerrado sin guardar. Listo en Turno #1', 'info');
-            this.switchView('order');
-            return;
-          }
-        } catch(e) {}
-
-        const fallbackDb = { event_info: { id: `evt_${Date.now()}`, name: 'Shawarma en Casa', turn_counter: 0, reset_at: Math.floor(Date.now() / 1000), timer: { started_at: null, elapsed_seconds: 0, is_paused: false } }, orders: [] };
-        this.handleCleanEventReset(fallbackDb);
-        this.showToast('🧹 Evento de prueba cerrado sin guardar. Listo en Turno #1', 'info');
-        this.switchView('order');
+          if (!res.ok) throw new Error((await res.json()).error || 'El servidor no cerró el evento');
+          const data = await res.json();
+          if (!data.data) throw new Error('El servidor no confirmó el evento nuevo');
+          sessionStorage.setItem('shawarma_intentional_reset', 'true');
+          localStorage.setItem('shawarma_reset_in_progress', 'true');
+          this.handleCleanEventReset(data.data);
+          this.showToast('Evento de prueba cerrado. Sistema listo en Turno #1.', 'success');
+          this.switchView('order');
+        } catch(e) {
+          this.showToast(e.message || 'No se pudo confirmar el cierre. Los pedidos activos siguen en el servidor.', 'error');
+        }
       }
 
       clearEventWithoutSaving() {
@@ -6936,8 +6695,9 @@
     window.app = new AppState();
     window.addEventListener('DOMContentLoaded', () => window.app.init());
   </script>
-  <script src="js/premium-ui.js?v=20261011-v22"></script>
-  <script src="js/unified-ui.js?v=20261011-v17"></script>
+  <script src="js/qrcode.js?v=20261012-v26"></script>
+  <script src="js/premium-ui.js?v=20261012-v29"></script>
+  <script src="js/unified-ui.js?v=20261012-v28"></script>
   <script src="js/supplies-ui.js?v=20260904-v6"></script>
   <script src="js/safety-ui.js?v=20260904-v6"></script>
   <script src="js/i18n-ui.js?v=20260904-v6"></script>
@@ -6945,6 +6705,60 @@
   <script src="js/service-ui.js?v=20260904-v6"></script>
   <script src="vendor/jszip.min.js"></script>
   <script src="js/report-template.js?v=20260904-v6"></script>
-  <script src="js/reports-ui.js?v=20260904-v6"></script>
+  <script src="js/reports-ui.js?v=20261012-v1"></script>
+  <script>
+    (() => {
+      const nativeFetch = window.fetch.bind(window);
+      let loginAttempt = null;
+      const login = () => {
+        if (loginAttempt) return loginAttempt;
+        loginAttempt = new Promise(resolve => {
+          const overlay = document.createElement('div');
+          overlay.style.cssText = 'position:fixed;inset:0;z-index:100000;display:grid;place-items:center;padding:20px;background:rgba(0,0,0,.78);';
+          overlay.innerHTML = '<form style="box-sizing:border-box;width:min(420px,100%);padding:24px;border:1px solid #303a47;border-radius:18px;background:#141a22;color:#f4f6fa;font:inherit;box-shadow:0 24px 70px rgba(0,0,0,.5)"><h2 style="margin:0 0 8px;font-size:22px">Acceso al sistema</h2><p style="margin:0 0 18px;color:#aeb8c7">Ingresa la clave para ver pedidos, cocina e historial.</p><input type="password" autocomplete="current-password" required aria-label="Clave de acceso" placeholder="Clave de acceso" style="box-sizing:border-box;width:100%;padding:13px;border:1px solid #394454;border-radius:10px;background:#1d2530;color:#fff;font:inherit"><p data-auth-error role="alert" style="min-height:20px;margin:8px 0;color:#ff719d;font-size:13px"></p><div style="display:flex;justify-content:flex-end;gap:10px"><button type="button" data-auth-cancel style="padding:10px 14px;border:1px solid #394454;border-radius:9px;background:#1d2530;color:#fff;font:inherit;cursor:pointer">Cancelar</button><button type="submit" style="padding:10px 16px;border:0;border-radius:9px;background:#d41473;color:#fff;font:inherit;font-weight:700;cursor:pointer">Entrar</button></div></form>';
+          document.body.appendChild(overlay);
+          const form = overlay.querySelector('form');
+          const input = form.querySelector('input');
+          const error = form.querySelector('[data-auth-error]');
+          const finish = result => { overlay.remove(); resolve(result); };
+          overlay.querySelector('[data-auth-cancel]').addEventListener('click', () => finish(false));
+          form.addEventListener('submit', async event => {
+            event.preventDefault();
+            const submit = form.querySelector('[type="submit"]');
+            submit.disabled = true;
+            error.textContent = '';
+            try {
+              const response = await nativeFetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ password: input.value })
+              });
+              if (!response.ok) {
+                error.textContent = (await response.json()).error || 'No se pudo iniciar sesión.';
+                submit.disabled = false;
+                input.focus();
+                return;
+              }
+              finish(true);
+            } catch (_) {
+              error.textContent = 'No se pudo conectar con el servidor.';
+              submit.disabled = false;
+            }
+          });
+          input.focus();
+        });
+        return loginAttempt.finally(() => { loginAttempt = null; });
+      };
+      window.fetch = async (input, init) => {
+        const rawUrl = typeof input === 'string' ? input : input.url;
+        const url = new URL(rawUrl, window.location.href);
+        const protectedApi = url.origin === window.location.origin && url.pathname.startsWith('/api/') && !['/api/auth/login', '/api/ping', '/api/info'].includes(url.pathname);
+        let response = await nativeFetch(input, init);
+        if (!protectedApi || response.status !== 401 || !(await login())) return response;
+        response = await nativeFetch(input, init);
+        return response;
+      };
+    })();
+  </script>
 </body>
 </html>

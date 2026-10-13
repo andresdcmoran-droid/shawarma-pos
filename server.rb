@@ -11,17 +11,39 @@ require 'fileutils'
 require 'time'
 require 'net/http'
 require 'uri'
+require 'openssl'
+require 'securerandom'
+require 'monitor'
+require 'base64'
 
 PORT = (ENV['PORT'] || 8080).to_i
-DATA_DIR = File.expand_path('data', __dir__)
+DATA_DIR = if ENV['SHAWARMA_DATA_DIR'] && !ENV['SHAWARMA_DATA_DIR'].to_s.strip.empty?
+             File.expand_path(ENV['SHAWARMA_DATA_DIR'].strip)
+           elsif Dir.exist?('/var/data')
+             '/var/data'
+           else
+             File.expand_path('data', __dir__)
+           end
 DATA_FILE = File.join(DATA_DIR, 'catering_event.json')
 PUBLIC_DIR = File.expand_path('public', __dir__)
 
 FileUtils.mkdir_p(DATA_DIR)
 FileUtils.mkdir_p(PUBLIC_DIR)
 
+# Si el disco persistente de Render (/var/data) esta vacio en su primer uso,
+# copiamos automaticamente el estado inicial para no arrancar vacios
+bundled_seed = File.join(__dir__, 'data', 'catering_event.json')
+if DATA_DIR != File.expand_path('data', __dir__) && !File.exist?(DATA_FILE) && File.exist?(bundled_seed)
+  begin
+    FileUtils.cp(bundled_seed, DATA_FILE)
+    puts "[DATA] Base de datos inicial sembrada en disco persistente: #{DATA_DIR}"
+  rescue StandardError => e
+    puts "[DATA WARN] Sembrado inicial omitido: #{e.message}"
+  end
+end
+
 # Mutex for thread-safe operations
-$db_mutex = Mutex.new
+$db_mutex = Monitor.new
 $clients = []
 $clients_mutex = Mutex.new
 
@@ -64,15 +86,10 @@ end
 def load_db
   $db_mutex.synchronize do
     if File.exist?(DATA_FILE)
-      begin
-        JSON.parse(File.read(DATA_FILE))
-      rescue StandardError => e
-        puts "[DB WARN] Corrupt file, reinitializing: #{e.message}"
-        default_db_state
-      end
+      JSON.parse(File.read(DATA_FILE))
     else
       initial = default_db_state
-      File.write(DATA_FILE, JSON.pretty_generate(initial))
+      write_json_atomic(DATA_FILE, initial)
       initial
     end
   end
@@ -80,9 +97,93 @@ end
 
 def save_db(data)
   $db_mutex.synchronize do
-    File.write(DATA_FILE, JSON.pretty_generate(data))
+    write_json_atomic(DATA_FILE, data)
   end
   broadcast_event('sync', data)
+end
+
+def write_json_atomic(path, data)
+  FileUtils.mkdir_p(File.dirname(path))
+  temp_path = "#{path}.#{Process.pid}.#{SecureRandom.hex(6)}.tmp"
+  File.open(temp_path, 'wb', 0o600) do |file|
+    file.write(JSON.pretty_generate(data))
+    file.flush
+    file.fsync
+  end
+  File.rename(temp_path, path)
+ensure
+  File.delete(temp_path) if temp_path && File.exist?(temp_path)
+end
+
+def mount_locked(server, path, &handler)
+  server.mount_proc(path) do |req, res|
+    $db_mutex.synchronize { handler.call(req, res) }
+  end
+end
+
+def same_origin_request?(req)
+  origin = req['Origin']
+  return true if origin.nil? || origin.empty?
+
+  uri = URI.parse(origin)
+  forwarded_proto = req['X-Forwarded-Proto'].to_s.split(',').first.to_s.strip
+  scheme = forwarded_proto.empty? ? (req.ssl? ? 'https' : 'http') : forwarded_proto
+  request_host = req['X-Forwarded-Host'].to_s.split(',').first.to_s.strip
+  request_host = req['Host'].to_s if request_host.empty?
+  expected = URI.parse("//#{request_host}")
+  uri.host == expected.host && uri.port == (expected.port || (scheme == 'https' ? 443 : 80)) && uri.scheme == scheme
+rescue URI::InvalidURIError
+  false
+end
+
+def admin_session_cookie(req)
+  req.cookies.find { |cookie| cookie.name == 'shawarma_admin' }&.value
+end
+
+def secure_compare(left, right)
+  return false unless left.bytesize == right.bytesize
+
+  difference = 0
+  left.bytes.zip(right.bytes) { |a, b| difference |= a ^ b }
+  difference.zero?
+end
+
+def valid_admin_session?(req)
+  password = ENV['SHAWARMA_ADMIN_PASSWORD'].to_s
+  return false if password.length < 16
+
+  token = admin_session_cookie(req).to_s
+  encoded, signature = token.split('.', 2)
+  return false unless encoded && signature
+
+  expected = OpenSSL::HMAC.hexdigest('SHA256', password, encoded)
+  return false unless secure_compare(expected, signature)
+
+  payload = JSON.parse(Base64.urlsafe_decode64(encoded))
+  payload['exp'].to_i > Time.now.to_i
+rescue StandardError
+  false
+end
+
+def require_api_auth(req, res)
+  unless same_origin_request?(req)
+    res.status = 403
+    res.body = JSON.generate({ error: 'Origen no permitido' })
+    return false
+  end
+  if ENV['SHAWARMA_ADMIN_PASSWORD'].to_s.length < 16
+    res.status = 503
+    res.body = JSON.generate({ error: 'Configura SHAWARMA_ADMIN_PASSWORD con al menos 16 caracteres' })
+    return false
+  end
+  if valid_admin_session?(req)
+    true
+  else
+    res.status = 401
+    res['WWW-Authenticate'] = 'Session'
+    res.body = JSON.generate({ error: 'Se requiere autenticación de administrador' })
+    false
+  end
 end
 
 def broadcast_event(event_type, payload)
@@ -129,13 +230,48 @@ server = WEBrick::HTTPServer.new(
   AccessLog: []
 )
 
-# Enable CORS and disable caching for API
+# API responses are same-origin and private to the authenticated operator.
 def set_api_headers(res)
   res['Content-Type'] = 'application/json; charset=utf-8'
-  res['Access-Control-Allow-Origin'] = '*'
-  res['Access-Control-Allow-Methods'] = 'GET, POST, PATCH, PUT, DELETE, OPTIONS'
-  res['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
   res['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+  res['Vary'] = 'Cookie, Origin'
+end
+
+server.mount_proc '/api/auth/login' do |req, res|
+  set_api_headers(res)
+  if req.request_method == 'OPTIONS'
+    res.status = 204
+    next
+  end
+  unless same_origin_request?(req)
+    res.status = 403
+    res.body = JSON.generate({ error: 'Origen no permitido' })
+    next
+  end
+  password = ENV['SHAWARMA_ADMIN_PASSWORD'].to_s
+  if password.length < 16
+    res.status = 503
+    res.body = JSON.generate({ error: 'Configura SHAWARMA_ADMIN_PASSWORD con al menos 16 caracteres' })
+    next
+  end
+  begin
+    supplied = JSON.parse(req.body.to_s)['password'].to_s
+  rescue StandardError
+    supplied = ''
+  end
+  unless secure_compare(supplied, password)
+    res.status = 401
+    res.body = JSON.generate({ error: 'Clave incorrecta' })
+    next
+  end
+  payload = { exp: Time.now.to_i + 43_200, nonce: SecureRandom.hex(12) }
+  encoded = Base64.urlsafe_encode64(JSON.generate(payload), padding: false)
+  signature = OpenSSL::HMAC.hexdigest('SHA256', password, encoded)
+  secure = req['X-Forwarded-Proto'].to_s.split(',').first.to_s.strip == 'https'
+  cookie = "shawarma_admin=#{encoded}.#{signature}; Path=/; HttpOnly; SameSite=Strict; Max-Age=43200"
+  cookie += '; Secure' if secure
+  res['Set-Cookie'] = cookie
+  res.body = JSON.generate({ status: 'ok', expires_in: 43_200 })
 end
 
 # API: Health Ping & Keep-Alive Endpoint
@@ -175,6 +311,12 @@ server.mount_proc '/api/info' do |req, res|
     status: 'ok',
     local_ip: local_ip,
     port: PORT,
+    storage: {
+      data_dir: DATA_DIR,
+      persistent_disk_mounted: (DATA_DIR == '/var/data' || Dir.exist?('/var/data')),
+      database_file: DATA_FILE,
+      database_exists: File.exist?(DATA_FILE)
+    },
     urls: {
       kiosk: "http://#{local_ip}:#{PORT}/?view=order",
       kitchen: "http://#{local_ip}:#{PORT}/?view=kitchen",
@@ -185,13 +327,15 @@ server.mount_proc '/api/info' do |req, res|
 end
 
 # API: Get DB State (Orders + Event Info)
-server.mount_proc '/api/orders' do |req, res|
+mount_locked(server, '/api/orders') do |req, res|
   set_api_headers(res)
 
   if req.request_method == 'OPTIONS'
     res.status = 204
     next
   end
+
+  next unless require_api_auth(req, res)
 
   db = load_db
 
@@ -263,13 +407,15 @@ server.mount_proc '/api/orders' do |req, res|
 end
 
 # API: Update Order Status
-server.mount_proc '/api/orders/status' do |req, res|
+mount_locked(server, '/api/orders/status') do |req, res|
   set_api_headers(res)
 
   if req.request_method == 'OPTIONS'
     res.status = 204
     next
   end
+
+  next unless require_api_auth(req, res)
 
   if req.request_method == 'POST' || req.request_method == 'PATCH'
     begin
@@ -300,13 +446,15 @@ server.mount_proc '/api/orders/status' do |req, res|
 end
 
 # API: Customer Ack Coming to Pick Up
-server.mount_proc '/api/orders/ack' do |req, res|
+mount_locked(server, '/api/orders/ack') do |req, res|
   set_api_headers(res)
 
   if req.request_method == 'OPTIONS'
     res.status = 204
     next
   end
+
+  next unless require_api_auth(req, res)
 
   if req.request_method == 'POST'
     begin
@@ -335,13 +483,15 @@ server.mount_proc '/api/orders/ack' do |req, res|
 end
 
 # API: Bulk Restore / Sync Orders from Client (Anti-Data Loss)
-server.mount_proc '/api/orders/bulk_restore' do |req, res|
+mount_locked(server, '/api/orders/bulk_restore') do |req, res|
   set_api_headers(res)
 
   if req.request_method == 'OPTIONS'
     res.status = 204
     next
   end
+
+  next unless require_api_auth(req, res)
 
   if req.request_method == 'POST'
     begin
@@ -385,13 +535,15 @@ server.mount_proc '/api/orders/bulk_restore' do |req, res|
 end
 
 # API: Update Existing Order (Edit comanda)
-server.mount_proc '/api/orders/update' do |req, res|
+mount_locked(server, '/api/orders/update') do |req, res|
   set_api_headers(res)
 
   if req.request_method == 'OPTIONS'
     res.status = 204
     next
   end
+
+  next unless require_api_auth(req, res)
 
   if req.request_method == 'POST'
     begin
@@ -426,13 +578,15 @@ server.mount_proc '/api/orders/update' do |req, res|
 end
 
 # API: Delete Order (Cancel order by error)
-server.mount_proc '/api/orders/delete' do |req, res|
+mount_locked(server, '/api/orders/delete') do |req, res|
   set_api_headers(res)
 
   if req.request_method == 'OPTIONS'
     res.status = 204
     next
   end
+
+  next unless require_api_auth(req, res)
 
   if req.request_method == 'POST'
     begin
@@ -462,13 +616,15 @@ server.mount_proc '/api/orders/delete' do |req, res|
 end
 
 # API: Event Timer (Play / Pause / Reset)
-server.mount_proc '/api/event/timer' do |req, res|
+mount_locked(server, '/api/event/timer') do |req, res|
   set_api_headers(res)
 
   if req.request_method == 'OPTIONS'
     res.status = 204
     next
   end
+
+  next unless require_api_auth(req, res)
 
   if req.request_method == 'POST'
     begin
@@ -523,12 +679,13 @@ server.mount_proc '/api/event/timer' do |req, res|
   end
 end
 
-server.mount_proc '/api/event/reset_turns' do |req, res|
+mount_locked(server, '/api/event/reset_turns') do |req, res|
   set_api_headers(res)
   if req.request_method == 'OPTIONS'
     res.status = 204
     next
   end
+  next unless require_api_auth(req, res)
   if req.request_method == 'POST'
     begin
       db = load_db
@@ -542,13 +699,14 @@ server.mount_proc '/api/event/reset_turns' do |req, res|
   end
 end
 
-server.mount_proc '/api/event/reset' do |req, res|
+mount_locked(server, '/api/event/reset') do |req, res|
   set_api_headers(res)
 
   if req.request_method == 'OPTIONS'
     res.status = 204
     next
   end
+  next unless require_api_auth(req, res)
 
   if req.request_method == 'POST'
     begin
@@ -562,7 +720,7 @@ server.mount_proc '/api/event/reset' do |req, res|
       if save_backup && current_db['orders'].any?
         evt_id = current_db['event_info']['id'] || "evt_#{Time.now.to_i}"
         backup_file = File.join(DATA_DIR, "backup_#{evt_id}.json")
-        File.write(backup_file, JSON.pretty_generate(current_db))
+        write_json_atomic(backup_file, current_db)
       end
 
       new_db = {
@@ -593,13 +751,14 @@ server.mount_proc '/api/event/reset' do |req, res|
 end
 
 # API: Close Event, Save Backup, and Start Clean Next Event
-server.mount_proc '/api/event/close_and_start_next' do |req, res|
+mount_locked(server, '/api/event/close_and_start_next') do |req, res|
   set_api_headers(res)
 
   if req.request_method == 'OPTIONS'
     res.status = 204
     next
   end
+  next unless require_api_auth(req, res)
 
   if req.request_method == 'POST'
     begin
@@ -609,7 +768,7 @@ server.mount_proc '/api/event/close_and_start_next' do |req, res|
       current_db = load_db
       evt_id = current_db['event_info']['id'] || "evt_#{Time.now.to_i}"
       backup_file = File.join(DATA_DIR, "backup_#{evt_id}.json")
-      File.write(backup_file, JSON.pretty_generate(current_db))
+      write_json_atomic(backup_file, current_db)
 
       new_db = {
         'event_info' => {
@@ -643,13 +802,72 @@ server.mount_proc '/api/event/close_and_start_next' do |req, res|
   end
 end
 
-# API: List all Vault Backups on Server
-server.mount_proc '/api/vault/archives' do |req, res|
+mount_locked(server, '/api/event/restore') do |req, res|
   set_api_headers(res)
   if req.request_method == 'OPTIONS'
     res.status = 204
     next
   end
+  next unless require_api_auth(req, res)
+  unless req.request_method == 'POST'
+    res.status = 405
+    res.body = JSON.generate({ error: 'Método no permitido' })
+    next
+  end
+
+  begin
+    payload = JSON.parse(req.body.to_s)
+    restored = payload['event']
+    info = restored.is_a?(Hash) ? restored['event_info'] : nil
+    orders = restored.is_a?(Hash) ? restored['orders'] : nil
+    valid_statuses = %w[pending preparing ready delivered cancelled]
+    valid = info.is_a?(Hash) && info['id'].is_a?(String) && orders.is_a?(Array) && orders.length <= 10_000
+    if valid
+      seen = {}
+      valid = orders.all? do |order|
+        next false unless order.is_a?(Hash) && order['id'].is_a?(String) && order['turn'].to_s.match?(/\A[1-9]\d*\z/) && valid_statuses.include?(order['status'])
+        next false if seen[order['id']]
+        seen[order['id']] = true
+      end
+    end
+    unless valid
+      res.status = 422
+      res.body = JSON.generate({ error: 'El evento de respaldo no tiene una estructura válida' })
+      next
+    end
+
+    current = load_db
+    current_id = current.dig('event_info', 'id').to_s.gsub(/[^a-zA-Z0-9_-]/, '')
+    backup_file = nil
+    if current['orders'].is_a?(Array) && current['orders'].any?
+      base = current_id.empty? ? "evt_#{Time.now.to_i}" : current_id
+      backup_file = File.join(DATA_DIR, "backup_#{base}.json")
+      backup_file = File.join(DATA_DIR, "backup_#{base}_#{Time.now.to_i}.json") if File.exist?(backup_file)
+      write_json_atomic(backup_file, current)
+    end
+
+    restored_db = Marshal.load(Marshal.dump(restored))
+    restored_db['event_info']['restored_from'] = info['id']
+    restored_db['event_info']['restored_at'] = Time.now.iso8601
+    restored_db['event_info']['id'] = "evt_restore_#{Time.now.to_i}_#{SecureRandom.hex(3)}"
+    restored_db['event_info']['turn_counter'] = [info['turn_counter'].to_i, orders.map { |order| order['turn'].to_i }.max || 0].max
+    save_db(restored_db)
+    broadcast_event('event_reset', restored_db)
+    res.body = JSON.generate({ status: 'restored', data: restored_db, backup_saved: !backup_file.nil? })
+  rescue StandardError => e
+    res.status = 400
+    res.body = JSON.generate({ error: e.message })
+  end
+end
+
+# API: List all Vault Backups on Server
+mount_locked(server, '/api/vault/archives') do |req, res|
+  set_api_headers(res)
+  if req.request_method == 'OPTIONS'
+    res.status = 204
+    next
+  end
+  next unless require_api_auth(req, res)
 
   begin
     backup_files = Dir.glob(File.join(DATA_DIR, 'backup_*.json')).sort_by { |f| File.mtime(f) }.reverse
@@ -678,12 +896,13 @@ server.mount_proc '/api/vault/archives' do |req, res|
 end
 
 # API: Delete a Single Vault Backup on Server
-server.mount_proc '/api/vault/archives/delete' do |req, res|
+mount_locked(server, '/api/vault/archives/delete') do |req, res|
   set_api_headers(res)
   if req.request_method == 'OPTIONS'
     res.status = 204
     next
   end
+  next unless require_api_auth(req, res)
 
   if req.request_method == 'POST'
     begin
@@ -703,8 +922,11 @@ server.mount_proc '/api/vault/archives/delete' do |req, res|
           File.join(DATA_DIR, "#{raw_id}.json")
         ].uniq.each do |f|
           if File.exist?(f)
-            File.delete(f) rescue nil
-            deleted_files << File.basename(f)
+            begin
+              File.delete(f)
+              deleted_files << File.basename(f)
+            rescue StandardError
+            end
           end
         end
 
@@ -722,7 +944,12 @@ server.mount_proc '/api/vault/archives/delete' do |req, res|
         end
       end
 
-      res.body = JSON.generate({ status: 'ok', deleted_id: target_id, deleted_files: deleted_files })
+      if deleted_files.empty?
+        res.status = 404
+        res.body = JSON.generate({ error: 'No se encontró el respaldo', deleted_id: target_id })
+      else
+        res.body = JSON.generate({ status: 'ok', deleted_id: target_id, deleted_files: deleted_files })
+      end
     rescue StandardError => e
       res.status = 400
       res.body = JSON.generate({ error: e.message })
@@ -731,19 +958,23 @@ server.mount_proc '/api/vault/archives/delete' do |req, res|
 end
 
 # API: Clear all Vault Backups on Server
-server.mount_proc '/api/vault/archives/clear' do |req, res|
+mount_locked(server, '/api/vault/archives/clear') do |req, res|
   set_api_headers(res)
   if req.request_method == 'OPTIONS'
     res.status = 204
     next
   end
+  next unless require_api_auth(req, res)
 
   if req.request_method == 'POST'
     begin
       cleared = []
       Dir.glob(File.join(DATA_DIR, 'backup_*.json')).each do |f|
-        File.delete(f) rescue nil
-        cleared << File.basename(f)
+        begin
+          File.delete(f)
+          cleared << File.basename(f)
+        rescue StandardError
+        end
       end
       res.body = JSON.generate({ status: 'ok', cleared_count: cleared.length, files: cleared })
     rescue StandardError => e
@@ -755,11 +986,14 @@ end
 
 # API: Server-Sent Events (SSE) for Real-Time Sync without external internet
 server.mount_proc '/api/stream' do |req, res|
+  set_api_headers(res)
+  unless require_api_auth(req, res)
+    next
+  end
   res['Content-Type'] = 'text/event-stream'
   res['Cache-Control'] = 'no-cache, no-transform'
   res['Connection'] = 'keep-alive'
   res['X-Accel-Buffering'] = 'no'
-  res['Access-Control-Allow-Origin'] = '*'
 
   # Keep connection open for SSE streaming
   res.chunked = true
@@ -803,13 +1037,9 @@ server.mount_proc '/' do |req, res|
       '.ico' => 'image/x-icon'
     }
     res['Content-Type'] = mime_types[ext] || 'application/octet-stream'
-    if ['.html', '.css', '.js', '.json'].include?(ext)
-      res['Cache-Control'] = 'no-cache, no-store, must-revalidate'
-      res['Pragma'] = 'no-cache'
-      res['Expires'] = '0'
-    else
-      res['Cache-Control'] = 'public, max-age=3600'
-    end
+    res['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    res['Pragma'] = 'no-cache'
+    res['Expires'] = '0'
     res.body = File.binread(target_file)
   else
     # Fallback to index.html for SPA routes

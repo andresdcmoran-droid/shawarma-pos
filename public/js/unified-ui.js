@@ -19,6 +19,7 @@
       ${card(heading('Dispositivo y operador','person')+`<div class="u-between"><div><strong id="admin-operator-display">Dispositivo 1</strong><p class="u-muted">Identifica quién toma los pedidos.</p></div>${button('Cambiar nombre','edit','app.promptChangeOperator()')}</div>`)}
       ${card(heading('Conexión entre pantallas','monitor','Pedidos, cocina y monitor deben usar el mismo servidor.')+`<div class="u-address" id="admin-url-text"></div><p class="u-muted" id="u-network-note"></p>`,'u-full')}
       ${card(heading('Resumen del evento','order')+`<div class="u-metrics u-event-metrics">${metric('stat-total','Total unidades','order')}${metric('stat-mixto','Mixto',proteinIcon('Mixto','white'))}${metric('stat-pollo','Pollo',proteinIcon('Pollo','white'))}${metric('stat-carne','Carne',proteinIcon('Carne','white'))}${metric('stat-falafel','Falafel',proteinIcon('Falafel','white'))}${metric('stat-bowls','Bowls · sin pan','bowl')}</div><p class="u-stats-note">Las proteínas incluyen los bowls. Bowls es un dato adicional, no se suma otra vez al total.</p><div class="u-actions">${button('Resumen para el cliente','order','app.showClientInvoiceModal()','u-primary')}${button('Exportar pedidos CSV','list','app.exportRawCSV()')}</div>`,'u-full')}
+      ${card(heading('Código QR de Reseña','qr','Muestra el código QR oficial para que los comensales califiquen el servicio directamente.')+`<div class="u-actions">${button('Mostrar QR de Reseña','star','app.showGoogleReviewQRModal()','u-primary')}</div><p class="u-muted">Pide a los clientes que escaneen el código desde su celular para calificar directamente en segundos.</p>`,'u-full')}
       <section id="finance-locked-card" class="pos-card u-card u-full u-between"><div>${heading('Costos y rentabilidad','settings')}<p class="u-muted">Accede con el PIN financiero configurado en este dispositivo.</p></div>${button('Abrir módulo financiero','settings','app.promptUnlockFinance()')}</section>
       <section id="finance-unlocked-card" class="pos-card u-card u-full" style="display:none">
         <div class="u-between">${heading('Costos y rentabilidad','settings')}<div class="u-actions">${button('Cambiar PIN','edit','app.changeFinancePinPrompt()')}${button('Bloquear','close','app.lockFinance()')}</div></div>
@@ -28,7 +29,7 @@
         <h3 class="u-subheading">Insumos y empaques</h3><div class="u-table-scroll" tabindex="0" role="region" aria-label="Desglose de costos"><table class="u-table"><thead><tr><th>Insumo</th><th>Uso</th><th>Cantidad</th><th>Costo unitario</th><th>Subtotal</th></tr></thead><tbody id="cost-breakdown-tbody"></tbody></table></div>
       </section>
       ${card(heading('Historial de eventos archivados','box','Consulta los eventos guardados anteriormente y descarga su historial.')+`<div class="u-metrics u-two-metrics">${metric('vault-total-orders','Comandas guardadas')}${metric('vault-total-events','Eventos archivados')}</div><div id="vault-events-list" class="u-archive-list"></div><div class="u-actions">${button('Exportar historial CSV','list','app.exportVaultCSV()')}</div>`,'u-full')}
-      ${card(heading('Copia de seguridad del evento activo','box','Descarga una copia completa en archivo ZIP que contiene el Excel para consulta y el JSON para resguardo.')+`<p class="u-muted" id="u-safety-storage">Copias de recuperación del dispositivo: activo.</p><p class="u-muted" id="u-safety-wake">Pantalla activa: disponible.</p><div class="u-actions">${button('Descargar copia de seguridad (Excel + JSON)','box','app.downloadEventBundle()','u-primary')}${button('Mantener pantalla activa','monitor','app.toggleScreenAwake()')}</div>`,'u-full')}
+      ${card(heading('Copia de seguridad del evento activo','box','Descarga una copia completa en archivo ZIP que contiene el Excel para consulta y el JSON para resguardo.')+`<p class="u-muted" id="u-safety-storage">Copias de recuperación del dispositivo: activo.</p><p class="u-muted" id="u-safety-wake">Pantalla activa: disponible.</p><div class="u-actions">${button('Descargar copia de seguridad (Excel + JSON)','box','app.downloadEventBundle()','u-primary')}${button('Mantener pantalla activa','monitor','app.toggleScreenAwake()')}${button('Importar y restaurar respaldo','box','app.openRecoveryFile()')}</div><input id="s-recovery-file" type="file" accept="application/json,.json" hidden onchange="app.inspectRecoveryFile(this.files[0]); this.value=''"><div id="s-recovery-preview" class="s-recovery-preview" hidden></div>`,'u-full')}
       ${card(heading('Gestión y Cierre del Evento','alert','Cierra el evento con respaldo completo para comenzar el siguiente desde el Turno #1, o descarta pedidos de prueba.')+`<div class="u-actions">${button('Cerrar este evento, respaldar y próximo evento','check','app.closeEventBackupAndStartNext()','u-primary')}${button('Cerrar evento sin guardar','trash','app.closeEventWithoutSaving()','u-danger s-clear-button')}${button('Ver resumen / Reporte del evento','list','app.showClientInvoiceModal()')}</div><p class="u-muted"><strong>Cerrar este evento, respaldar y próximo evento:</strong> Guarda automáticamente la copia completa en Excel y JSON, muestra el resumen con el desglose de comandas servidas y reinicia todo el sistema limpiamente en el <strong>Turno #1</strong> para tu siguiente catering.</p><p class="u-muted"><strong>Cerrar evento sin guardar:</strong> Diseñado exclusivamente para pruebas de conexión y rendimiento previas al evento. Descarta todos los pedidos de prueba sin generar respaldos y deja el sistema 100% limpio en el <strong>Turno #1</strong> listo para el catering real.</p>`,'u-full')}
     </div>`;
   }
@@ -169,7 +170,7 @@
   function prepareTemplates() {
     html('view-admin',adminTemplate());html('order-detail-modal',detailTemplate());
     html('finance-pin-modal',pinTemplate());html('cost-settings-modal',costTemplate());
-    ['order-detail-modal','finance-pin-modal','cost-settings-modal','client-invoice-modal','order-qr-modal'].forEach(id=>$(id)?.classList.add('u-overlay'));
+    ['order-detail-modal','finance-pin-modal','cost-settings-modal','client-invoice-modal','order-qr-modal','google-review-modal'].forEach(id=>$(id)?.classList.add('u-overlay'));
     // The printable report remains a white document; its controls match the app.
     const invoice=$('client-invoice-modal');
     if(invoice) {
@@ -196,5 +197,16 @@
   }
   const init=proto.init;
   proto.init=function() {prepareTemplates();init.call(this);this.renderDisplay();this.renderAdmin();};
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      prepareTemplates();
+      if (app && app.currentView === 'admin') app.renderAdmin?.();
+      if (app && app.currentView === 'display') app.renderDisplay?.();
+    });
+  } else {
+    prepareTemplates();
+    if (app && app.currentView === 'admin') app.renderAdmin?.();
+    if (app && app.currentView === 'display') app.renderDisplay?.();
+  }
   window.ShawarmaUnified={adminTemplate,detailTemplate,costTemplate,pinTemplate,renderMonitorCard,prepareTemplates,fillDetail};
 })();
