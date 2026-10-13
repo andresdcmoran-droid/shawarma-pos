@@ -14,7 +14,6 @@ require 'uri'
 require 'openssl'
 require 'securerandom'
 require 'monitor'
-require 'base64'
 
 PORT = (ENV['PORT'] || 8080).to_i
 DATA_DIR = if ENV['SHAWARMA_DATA_DIR'] && !ENV['SHAWARMA_DATA_DIR'].to_s.strip.empty?
@@ -140,6 +139,16 @@ def admin_session_cookie(req)
   req.cookies.find { |cookie| cookie.name == 'shawarma_admin' }&.value
 end
 
+def urlsafe_b64encode(str)
+  [str].pack('m0').tr('+/', '-_').tr('=', '')
+end
+
+def urlsafe_b64decode(str)
+  s = str.to_s.tr('-_', '+/')
+  s += '=' * ((4 - s.length % 4) % 4)
+  s.unpack1('m0')
+end
+
 def secure_compare(left, right)
   return false unless left.bytesize == right.bytesize
 
@@ -159,7 +168,7 @@ def valid_admin_session?(req)
   expected = OpenSSL::HMAC.hexdigest('SHA256', password, encoded)
   return false unless secure_compare(expected, signature)
 
-  payload = JSON.parse(Base64.urlsafe_decode64(encoded))
+  payload = JSON.parse(urlsafe_b64decode(encoded))
   payload['exp'].to_i > Time.now.to_i
 rescue StandardError
   false
@@ -265,7 +274,7 @@ server.mount_proc '/api/auth/login' do |req, res|
     next
   end
   payload = { exp: Time.now.to_i + 43_200, nonce: SecureRandom.hex(12) }
-  encoded = Base64.urlsafe_encode64(JSON.generate(payload), padding: false)
+  encoded = urlsafe_b64encode(JSON.generate(payload))
   signature = OpenSSL::HMAC.hexdigest('SHA256', password, encoded)
   secure = req['X-Forwarded-Proto'].to_s.split(',').first.to_s.strip == 'https'
   cookie = "shawarma_admin=#{encoded}.#{signature}; Path=/; HttpOnly; SameSite=Strict; Max-Age=43200"
