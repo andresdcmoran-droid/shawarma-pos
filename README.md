@@ -1,6 +1,6 @@
 # 🌯 Shawarma Catering Kiosk & Kitchen Display System (KDS)
 
-Sistema profesional diseñado para **Shawarma en Casa®**, operativo tanto en la nube (24/7) como 100% Offline para catering y eventos.
+Sistema profesional diseñado para **Shawarma en Casa**, operativo tanto en la nube (24/7) como 100% Offline para catering y eventos.
 
 ---
 
