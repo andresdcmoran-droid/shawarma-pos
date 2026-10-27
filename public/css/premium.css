@@ -287,6 +287,61 @@
   .premium-ui .p-kds-tool-btn.p-tool-danger:hover .ui-icon,.premium-ui .p-kds-tool-btn.p-tool-danger:hover span {color:#f87171!important;}
   .premium-ui .p-kds-main-btn {width:100%;min-height:48px;font-size:14px;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;border-radius:8px;}
   .premium-ui .p-complete {display:flex;gap:8px;align-items:center;justify-content:center;color:#10b981;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.3);border-radius:8px;font-size:14px;min-height:44px;font-weight:750;}
+
+  /* KDS Tanda Batch Dividers */
+  .premium-ui .kds-batch-divider {
+    grid-column: 1 / -1 !important;
+    width: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 16px !important;
+    margin: 28px 0 16px 0 !important;
+  }
+  .premium-ui .kds-batch-divider-line {
+    flex: 1 !important;
+    height: 2px !important;
+    background: linear-gradient(90deg, transparent, var(--brand-pink), transparent) !important;
+    opacity: 0.75 !important;
+  }
+  .premium-ui .kds-batch-divider-badge {
+    background: var(--bg-surface-2) !important;
+    border: 1.5px solid var(--brand-pink) !important;
+    font-size: 13px !important;
+    font-weight: 900 !important;
+    padding: 7px 22px !important;
+    border-radius: var(--radius-full) !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.6px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    box-shadow: 0 4px 14px var(--brand-pink-glow) !important;
+    white-space: nowrap !important;
+  }
+  .premium-ui .kds-batch-divider-badge span:first-child {
+    font-size: 16px !important;
+    line-height: 1 !important;
+  }
+  .premium-ui .kds-batch-divider-text {
+    color: #ffffff !important;
+    font-weight: 900 !important;
+  }
+  body.theme-day .premium-ui .kds-batch-divider-line,
+  .premium-ui.theme-day .kds-batch-divider-line {
+    background: linear-gradient(90deg, transparent, #475569, transparent) !important;
+    opacity: 0.8 !important;
+  }
+  body.theme-day .premium-ui .kds-batch-divider-badge,
+  .premium-ui.theme-day .kds-batch-divider-badge {
+    background: #f1f5f9 !important;
+    border: 1.5px solid #475569 !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+  }
+  body.theme-day .premium-ui .kds-batch-divider-text,
+  .premium-ui.theme-day .kds-batch-divider-text {
+    color: #1e293b !important;
+  }
   .premium-ui .p-empty {grid-column:1/-1;text-align:center;padding:64px 16px;border:1px dashed var(--border-color);border-radius:12px;color:var(--text-dim);}
   .premium-ui .p-empty > .ui-icon {width:40px;height:40px;color:var(--brand-pink);margin-bottom:14px;}
   .premium-ui .p-empty h2 {font-size:22px;color:var(--text-white);margin-bottom:6px;}

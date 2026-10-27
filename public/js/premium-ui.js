@@ -355,7 +355,7 @@
       grid.innerHTML = `<div class="p-empty">${icon(this.kdsFilter === 'ready' ? 'check' : 'kitchen')}<h2>${this.kdsFilter === 'active' ? 'Cocina al día' : 'Sin pedidos en esta sección'}</h2><p>${this.kdsFilter === 'active' ? 'Los nuevos pedidos aparecerán aquí.' : 'Usa los filtros para ver las otras comandas.'}</p></div>`;
       return;
     }
-    const plan=productionBatches(this.kdsFilter==='active'?active:orders);
+    const plan=productionBatches(orders);
     const renderTicket=(o,portion) => {
       const completeUnits=orderUnits(o),units=portion||completeUnits,items=units.map(x=>x.item),count=completeUnits.reduce((sum,x)=>sum+x.quantity,0);
       const portionCount=units.reduce((sum,x)=>sum+x.quantity,0),partial=portionCount<count;
@@ -410,19 +410,36 @@
         ${next ? button(next[0],o.id,next[1],next[2],`p-primary p-kds-main-btn ${next[0] === 'ready' ? 'p-ready' : 'p-deliver'}`) : `<p class="p-complete">${icon('check')}${status}</p>`}
       </article>`;
     };
-    if(this.kdsFilter==='active') {
-      const isActive=o=>['pending','preparing'].includes(o.status);
-      const renderPortions=units=>{
-        const grouped=new Map();
-        for(const unit of units) {const key=String(unit.order.id);if(!grouped.has(key))grouped.set(key,{order:unit.order,units:[]});grouped.get(key).units.push(unit);}
-        return [...grouped.values()].map(({order,units})=>renderTicket(order,units)).join('');
-      };
-      grid.innerHTML=plan.batches.map(batch=>{
-        const units=batch.units.filter(x=>isActive(x.order));if(!units.length)return '';
-        const pending=units.reduce((n,x)=>n+x.quantity,0);
-        return `<div class="p-tanda-divider" role="heading" aria-level="3" data-tanda="${batch.number}"><strong>Tanda ${batch.number}</strong><span>${batch.count}/6 pedidos · ${pending} por terminar</span></div>${renderPortions(units)}`;
-      }).join('');
-    } else grid.innerHTML=filtered.map(o=>renderTicket(o)).join('');
+    const activeIds = new Set(filtered.map(o => String(o.id)));
+    const isMatching = o => activeIds.has(String(o.id));
+    const renderPortions = units => {
+      const grouped = new Map();
+      for (const unit of units) {
+        const key = String(unit.order.id);
+        if (!grouped.has(key)) grouped.set(key, { order: unit.order, units: [] });
+        grouped.get(key).units.push(unit);
+      }
+      return [...grouped.values()].map(({ order, units }) => renderTicket(order, units)).join('');
+    };
+
+    grid.innerHTML = plan.batches.map(batch => {
+      const units = batch.units.filter(x => isMatching(x.order));
+      if (!units.length) return '';
+      const startNum = (batch.number - 1) * 6 + 1;
+      const endNum = batch.number * 6;
+      const showDivider = batch.number > 1;
+      const dividerHtml = showDivider ? `
+        <div class="kds-batch-divider" role="heading" aria-level="3">
+          <div class="kds-batch-divider-line"></div>
+          <div class="kds-batch-divider-badge">
+            <span>🌯</span>
+            <span class="kds-batch-divider-text">Tanda ${batch.number} · Shawarmas ${startNum} al ${endNum}</span>
+          </div>
+          <div class="kds-batch-divider-line"></div>
+        </div>
+      ` : '';
+      return `${dividerHtml}${renderPortions(units)}`;
+    }).join('');
   };
   // Repaint only clocks every second; do not close menus every ten seconds.
   proto.updateTimers = function() {
