@@ -322,6 +322,27 @@
   .premium-ui .kds-filter-row > div:first-child {flex-wrap:wrap;}
   .premium-ui .p-mobile-review {bottom:0;}
 }
+/* Adaptación exclusiva a la medida para iPad 10.2" (1080px horizontal) */
+@media screen and (min-width: 980px) and (max-width: 1084px) {
+  .premium-ui .view-content {padding: 16px 14px 90px !important;}
+  .premium-ui .kds-cards-stream {display: grid !important; grid-template-columns: repeat(3, minmax(0, 1fr)) !important; gap: 12px !important; align-items: start !important;}
+  .premium-ui .p-ticket {padding: 14px 12px !important; gap: 10px !important; border-radius: 10px !important;}
+  .premium-ui .kds-turn-modern .turn-number-giant {font-size: 38px !important;}
+  .premium-ui .kds-turn-modern .turn-label-txt {font-size: 11px !important; letter-spacing: 0.5px !important;}
+  .premium-ui .p-status {font-size: 11px !important; padding: 3px 6px !important;}
+  .premium-ui .p-age-label {font-size: 11px !important; margin-top: 3px !important;}
+  .premium-ui .p-age {font-size: 18px !important;}
+  .premium-ui .p-received {font-size: 11px !important;}
+  .premium-ui .p-guest-line {padding-bottom: 8px !important; gap: 4px 8px !important;}
+  .premium-ui .p-guest-line strong {font-size: 20px !important;}
+  .premium-ui .p-ticket-items {gap: 8px !important;}
+  .premium-ui .p-ticket-item h3 {font-size: 16px !important; margin-bottom: 6px !important;}
+  .premium-ui .p-recipe-details {font-size: 13px !important; margin-top: 4px !important;}
+  .premium-ui .p-ticket-actions-bar {gap: 4px !important; padding-top: 6px !important; margin-top: 4px !important;}
+  .premium-ui .p-kds-tool-btn {height: 30px !important; min-height: 30px !important; max-height: 30px !important; padding: 0 4px !important;}
+  .premium-ui .p-kds-tool-btn span {font-size: 11px !important;}
+  .premium-ui .p-kds-main-btn {min-height: 44px !important; font-size: 13.5px !important; border-radius: 7px !important;}
+}
 @media screen and (max-width:1099px) {
   .premium-ui[data-view="order"] .p-mobile-review {display:flex;}
   .premium-ui .p-mobile-review {position:fixed;z-index:98;left:0;right:0;align-items:center;justify-content:space-between;gap:12px;padding:10px 20px calc(10px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--border-color);background:var(--bg-surface);box-shadow:0 -6px 22px #0002;}
