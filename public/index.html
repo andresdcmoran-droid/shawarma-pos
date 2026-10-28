@@ -7,8 +7,8 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Shawarma">
-  <link rel="apple-touch-icon" href="images/brand-icon-dark-v34.png?v=20261026-v34">
-  <link rel="icon" type="image/png" href="images/brand-icon-dark-v34.png?v=20261026-v34">
+  <link rel="apple-touch-icon" href="images/brand-icon-dark-v34.png?v=20261028-v43">
+  <link rel="icon" type="image/png" href="images/brand-icon-dark-v34.png?v=20261028-v43">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Montserrat:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Syne:wght@500;600;700;800&display=swap" rel="stylesheet">
@@ -2125,7 +2125,7 @@
       }
     }
   </style>
-  <link rel="stylesheet" href="css/premium.css?v=20261026-v34">
+  <link rel="stylesheet" href="css/premium.css?v=20261028-v43">
   <link rel="stylesheet" href="css/unified.css?v=20261012-v28">
 </head>
 <body class="premium-ui" data-view="order">
@@ -2136,18 +2136,34 @@
       <img src="images/shawarma-logo-exact.png?v=20261011-v16" alt="SHAWARMA en casa" class="brand-logo-img">
     </div>
 
-    <!-- Live Event Stopwatch Timer (Center) -->
-    <div class="event-timer-badge" id="event-timer-container">
-      <svg class="ui-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #ffffff;"><circle cx="12" cy="13" r="8"/><path d="M12 9v5l3 2M9 2h6M12 2v3"/></svg>
-      <span class="p-timer-label">Evento</span>
-      <span id="event-timer-text">00:00:00</span>
-      <div class="timer-btn-group" id="timer-btn-group">
-        <button type="button" id="btn-timer-toggle" class="timer-control-btn" onclick="app.toggleEventTimer()" title="Pausar / Reanudar Cronómetro">
-          <span id="timer-toggle-icon" style="display: inline-flex; align-items: center; justify-content: center;"><svg class="ui-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="7 4.5 19 12 7 19.5 7 4.5"/></svg></span>
-        </button>
-        <button type="button" id="btn-timer-reset" class="timer-control-btn" onclick="app.resetEventTimer()" title="Reiniciar Cronómetro a 00:00:00">
-          <span id="timer-reset-icon" style="display: inline-flex; align-items: center; justify-content: center;"><svg class="ui-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12a7 7 0 1 0 7-7 7 7 0 0 0-5.2 2.3L4 10"/><path d="M4 5v5h5"/></svg></span>
-        </button>
+    <!-- Center Status Station: Live Clock & Event Stopwatch -->
+    <div class="header-station" id="header-time-widgets">
+      <!-- Reloj de Hora Real con jerarquía destacada -->
+      <div class="header-clock-card" id="event-clock-container" title="Hora actual del servicio">
+        <svg class="ui-icon header-clock-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #fbbf24;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        <div class="header-clock-content">
+          <span class="header-micro-label">HORA ACTUAL</span>
+          <span id="event-clock-text">--:--:-- --</span>
+        </div>
+      </div>
+
+      <div class="header-station-divider"></div>
+
+      <!-- Cronómetro de Evento -->
+      <div class="header-timer-card" id="event-timer-container" title="Cronómetro de duración del evento">
+        <svg class="ui-icon header-timer-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v5l3 2M9 2h6M12 2v3"/></svg>
+        <div class="header-timer-content">
+          <span class="header-micro-label">CRONÓMETRO</span>
+          <span id="event-timer-text">00:00:00</span>
+        </div>
+        <div class="timer-btn-group" id="timer-btn-group">
+          <button type="button" id="btn-timer-toggle" class="timer-control-btn" onclick="app.toggleEventTimer()" title="Pausar / Reanudar Cronómetro">
+            <span id="timer-toggle-icon" style="display: inline-flex; align-items: center; justify-content: center;"><svg class="ui-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="7 4.5 19 12 7 19.5 7 4.5"/></svg></span>
+          </button>
+          <button type="button" id="btn-timer-reset" class="timer-control-btn" onclick="app.resetEventTimer()" title="Reiniciar Cronómetro a 00:00:00">
+            <span id="timer-reset-icon" style="display: inline-flex; align-items: center; justify-content: center;"><svg class="ui-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12a7 7 0 1 0 7-7 7 7 0 0 0-5.2 2.3L4 10"/><path d="M4 5v5h5"/></svg></span>
+          </button>
+        </div>
       </div>
     </div>
 
@@ -2398,17 +2414,25 @@
           <span>Resumen de Pedidos</span>
         </div>
         
-        <!-- Temporizador de Cocina Integrado al extremo derecho -->
-        <div style="display: flex; align-items: center; gap: 8px; background: var(--bg-surface-2); border: 1px solid var(--border-color); padding: 4px 8px 4px 12px; border-radius: var(--radius-full);">
-          <span style="font-size: 12px; font-weight: 800; color: var(--text-dim);">⏱️ Cocina:</span>
-          <span id="kds-timer-text" style="font-family: monospace; font-size: 14px; font-weight: 900; color: #ffffff;">00:00:00</span>
-          <div class="timer-btn-group" style="display: inline-flex; align-items: center; gap: 4px; margin-left: 2px;">
-            <button type="button" id="kds-btn-timer-toggle" class="timer-control-btn" onclick="app.toggleEventTimer()" title="Pausar / Reanudar Cronómetro">
-              <span id="kds-timer-toggle-icon" style="display: inline-flex; align-items: center; justify-content: center;"><svg class="ui-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="7 4.5 19 12 7 19.5 7 4.5"/></svg></span>
-            </button>
-            <button type="button" id="kds-btn-timer-reset" class="timer-control-btn" onclick="app.resetEventTimer()" title="Reiniciar Cronómetro a 00:00:00">
-              <span id="kds-timer-reset-icon" style="display: inline-flex; align-items: center; justify-content: center;"><svg class="ui-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12a7 7 0 1 0 7-7 7 7 0 0 0-5.2 2.3L4 10"/><path d="M4 5v5h5"/></svg></span>
-            </button>
+        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+          <!-- Reloj de Hora Actual Integrado -->
+          <div class="kds-live-clock-pill" style="display: flex; align-items: center; gap: 7px; background: var(--bg-surface-2); border: 1px solid var(--border-color); padding: 4px 12px; border-radius: var(--radius-full);">
+            <span style="font-size: 13px;">🕐</span>
+            <span id="kds-live-clock-text" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 14px; font-weight: 900; color: #ffffff; letter-spacing: 0.5px; font-variant-numeric: tabular-nums;">--:-- --</span>
+          </div>
+
+          <!-- Temporizador de Cocina Integrado al extremo derecho -->
+          <div style="display: flex; align-items: center; gap: 8px; background: var(--bg-surface-2); border: 1px solid var(--border-color); padding: 4px 8px 4px 12px; border-radius: var(--radius-full);">
+            <span style="font-size: 12px; font-weight: 800; color: var(--text-dim);">⏱️ Cocina:</span>
+            <span id="kds-timer-text" style="font-family: monospace; font-size: 14px; font-weight: 900; color: #ffffff;">00:00:00</span>
+            <div class="timer-btn-group" style="display: inline-flex; align-items: center; gap: 4px; margin-left: 2px;">
+              <button type="button" id="kds-btn-timer-toggle" class="timer-control-btn" onclick="app.toggleEventTimer()" title="Pausar / Reanudar Cronómetro">
+                <span id="kds-timer-toggle-icon" style="display: inline-flex; align-items: center; justify-content: center;"><svg class="ui-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="7 4.5 19 12 7 19.5 7 4.5"/></svg></span>
+              </button>
+              <button type="button" id="kds-btn-timer-reset" class="timer-control-btn" onclick="app.resetEventTimer()" title="Reiniciar Cronómetro a 00:00:00">
+                <span id="kds-timer-reset-icon" style="display: inline-flex; align-items: center; justify-content: center;"><svg class="ui-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12a7 7 0 1 0 7-7 7 7 0 0 0-5.2 2.3L4 10"/><path d="M4 5v5h5"/></svg></span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -4646,10 +4670,49 @@
         grid.innerHTML = cardListHtml;
       }
 
+      recordKDSAction(action) {
+        this.lastKDSAction = action;
+        const btn = document.getElementById('kds-global-undo-btn');
+        const lbl = document.getElementById('kds-global-undo-label');
+        if (btn && lbl) {
+          lbl.textContent = action.label || 'Deshacer';
+          btn.style.display = 'inline-flex';
+        }
+      }
+
+      async undoLastKDSAction() {
+        if (!this.lastKDSAction) return;
+        soundEngine.playClick();
+        const action = this.lastKDSAction;
+        this.lastKDSAction = null;
+        const btn = document.getElementById('kds-global-undo-btn');
+        if (btn) btn.style.display = 'none';
+
+        if (action.type === 'batch') {
+          for (const item of action.items) {
+            await this.updateStatus(item.id, item.prevStatus);
+          }
+          this.showToast(`↩ Tanda (${action.range}) regresada a En preparación`, 'info');
+        } else if (action.type === 'single') {
+          await this.updateStatus(action.id, action.prevStatus);
+          this.showToast(`↩ Turno #${action.turn} regresado a ${action.prevStatus === 'preparing' || action.prevStatus === 'pending' ? 'En preparación' : 'Listos'}`, 'info');
+        }
+      }
+
       async updateStatus(id, newStatus) {
         soundEngine.playClick();
         const o = this.db.orders.find(item => item.id === id);
         if (o) {
+          const prevStatus = o.status;
+          if (prevStatus !== newStatus && ['ready', 'delivered'].includes(newStatus)) {
+            this.recordKDSAction({
+              type: 'single',
+              id: id,
+              prevStatus: prevStatus,
+              turn: o.turn,
+              label: `Deshacer Turno #${o.turn}`
+            });
+          }
           o.status = newStatus;
           if (newStatus === 'ready') o.prepared_at = new Date().toISOString();
           if (newStatus === 'delivered') o.delivered_at = new Date().toISOString();
@@ -4683,6 +4746,14 @@
         const turnRange = count === 1 
           ? `Turno #${batchToReady[0].turn}` 
           : `Turnos #${batchToReady[0].turn} al #${batchToReady[count - 1].turn}`;
+
+        const prevStates = batchToReady.map(o => ({ id: o.id, prevStatus: o.status }));
+        this.recordKDSAction({
+          type: 'batch',
+          items: prevStates,
+          range: turnRange,
+          label: `Deshacer ${turnRange}`
+        });
 
         soundEngine.playReady();
 
@@ -6691,12 +6762,12 @@
     window.addEventListener('DOMContentLoaded', () => window.app.init());
   </script>
   <script src="js/qrcode.js?v=20261012-v26"></script>
-  <script src="js/premium-ui.js?v=20261026-v34"></script>
+  <script src="js/premium-ui.js?v=20261028-v43"></script>
   <script src="js/unified-ui.js?v=20261012-v28"></script>
   <script src="js/supplies-ui.js?v=20260904-v6"></script>
   <script src="js/safety-ui.js?v=20260904-v6"></script>
   <script src="js/i18n-ui.js?v=20260904-v6"></script>
-  <link rel="stylesheet" href="css/service.css?v=20261011-v17">
+  <link rel="stylesheet" href="css/service.css?v=20261028-v43">
   <script src="js/service-ui.js?v=20260904-v6"></script>
   <script src="vendor/jszip.min.js"></script>
   <script src="js/report-template.js?v=20260904-v6"></script>

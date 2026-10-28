@@ -6,8 +6,8 @@
  .premium-ui .s-name-list button[aria-selected="true"],.premium-ui .s-name-list button:hover {background:var(--brand-pink-soft);color:var(--brand-pink);}
  .premium-ui .presets-row {grid-template-columns:repeat(4,minmax(0,1fr));}
  .premium-ui #event-timer-container {gap:8px!important;padding:4px 8px 4px 12px!important;}
- .premium-ui #event-timer-text {font-size:15px!important;letter-spacing:0.5px!important;}
- .premium-ui #event-timer-container .ui-icon {width:15px;height:15px;}
+ .premium-ui #event-timer-text {font-size:18px!important;letter-spacing:0.6px!important;}
+ .premium-ui #event-timer-container .ui-icon {width:18px!important;height:18px!important;}
  .premium-ui #event-timer-container .p-timer-label {display:none;}
  .premium-ui .p-received {font-size:12px;color:var(--text-dim);font-weight:400;}
  .premium-ui .p-ticket-footer {justify-content:flex-end;}

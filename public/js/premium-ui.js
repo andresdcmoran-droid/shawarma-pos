@@ -371,7 +371,7 @@
       if (Number.isFinite(date.getTime())) {
         let h = date.getHours();
         const m = String(date.getMinutes()).padStart(2, '0');
-        const ampm = h >= 12 ? 'pm' : 'am';
+        const ampm = h >= 12 ? 'PM' : 'AM';
         h = h % 12 || 12;
         time = `${h}:${m} ${ampm}`;
       }
@@ -428,12 +428,21 @@
       const startNum = (batch.number - 1) * 6 + 1;
       const endNum = batch.number * 6;
       const showDivider = batch.number > 1;
+
+      const pCounts = {};
+      batch.units.forEach(u => {
+        const p = u.item?.protein || 'Mixto';
+        pCounts[p] = (pCounts[p] || 0) + (u.quantity || 1);
+      });
+      const pSummary = Object.entries(pCounts).map(([p, n]) => `${n} ${p}`).join(' · ');
+
       const dividerHtml = showDivider ? `
         <div class="kds-batch-divider" role="heading" aria-level="3">
           <div class="kds-batch-divider-line"></div>
           <div class="kds-batch-divider-badge">
             <span>🌯</span>
             <span class="kds-batch-divider-text">Tanda ${batch.number} · Shawarmas ${startNum} al ${endNum}</span>
+            ${pSummary ? `<span class="kds-batch-divider-meats">${pSummary}</span>` : ''}
           </div>
           <div class="kds-batch-divider-line"></div>
         </div>
@@ -443,6 +452,20 @@
   };
   // Repaint only clocks every second; do not close menus every ten seconds.
   proto.updateTimers = function() {
+    const now = new Date();
+    let h = now.getHours();
+    const m = String(now.getMinutes()).padStart(2, '0');
+    const s = String(now.getSeconds()).padStart(2, '0');
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    h = h % 12 || 12;
+    const timeStr = `${h}:${m}:${s} ${ampm}`;
+
+    const headClock = $('event-clock-text');
+    if (headClock) headClock.textContent = timeStr;
+
+    const kdsClock = $('kds-live-clock-text');
+    if (kdsClock) kdsClock.textContent = timeStr;
+
     if (this.currentView !== 'kitchen') return;
     document.querySelectorAll('[data-age-id]').forEach(el => {
       const o = (this.db.orders || []).find(x => String(x.id) === el.dataset.ageId);
@@ -505,6 +528,14 @@
     const quantity=eligible.flatMap(orderUnits).reduce((n,u)=>n+u.quantity,0);
     const excluded=crossing.length?`\nNo se marcarán completos los grupos que abarcan otras tandas o incluyen bowls.`:'';
     if(!confirm(`¿Terminaste ${quantity} shawarmas de la tanda ${batch.number}?\nTurnos: ${eligible.map(o=>'#'+o.turn).join(', ')}${excluded}`))return;
+    const prevStates = eligible.map(o => ({ id: o.id, prevStatus: o.status }));
+    const turnRange = eligible.length === 1 ? `Turno #${eligible[0].turn}` : `Turnos #${eligible[0].turn} al #${eligible[eligible.length - 1].turn}`;
+    this.recordKDSAction?.({
+      type: 'batch',
+      items: prevStates,
+      range: turnRange,
+      label: `Deshacer ${turnRange}`
+    });
     this.pTandaSubmitting=true;
     try {
       for(const order of eligible) {
@@ -551,6 +582,13 @@
       const res = await fetch('/api/orders', { cache: 'no-store' });
       if (!res.ok) throw new Error('No response');
       const data = await res.json();
+      if (this.currentView === 'kitchen' && Array.isArray(this.db?.orders) && Array.isArray(data?.orders)) {
+        const oldActiveIds = new Set((this.db.orders || []).filter(o => ['pending','preparing'].includes(o.status)).map(o => String(o.id)));
+        const hasNewOrder = data.orders.some(o => ['pending','preparing'].includes(o.status) && !oldActiveIds.has(String(o.id)));
+        if (hasNewOrder && this.db.orders.length > 0) {
+          window.soundEngine?.playChime?.();
+        }
+      }
       this.syncData(data, true);
       connection(true);
     } catch {
@@ -587,6 +625,20 @@
     else if(action==='qr') app.showOrderQRModalById(id);
     else if(action==='edit') app.editOrder(id);
     else if(action==='delete') {const o=(app.db.orders||[]).find(x=>String(x.id)===id);if(o) await app.deleteOrderPrompt(o.id,o.turn);}
+    else if(action==='undo-order' || action==='revert-preparing' || action==='revert-ready') {
+      const o=(app.db.orders||[]).find(x=>String(x.id)===String(id));
+      if(o) {
+        if(o.status === 'delivered') {
+          await app.updateStatus(id,'ready');
+          app.showToast?.(`Turno #${o.turn} regresado a Listos para entregar.`, 'info');
+        } else if(o.status === 'ready') {
+          await app.updateStatus(id,'preparing');
+          app.showToast?.(`Turno #${o.turn} regresado a En preparación.`, 'info');
+        } else {
+          app.showToast?.(`Turno #${o.turn} ya se encuentra en preparación.`, 'info');
+        }
+      }
+    }
     else if(['preparing','ready','delivered'].includes(action)) {
       if(action==='ready') {
         const isActive=o=>['pending','preparing'].includes(o.status),active=(app.db.orders||[]).filter(isActive).sort((a,b)=>Number(a.turn)-Number(b.turn));
