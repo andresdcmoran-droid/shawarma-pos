@@ -16,7 +16,7 @@
     return `<div class="u-page-heading"><div><span class="p-eyebrow">Configuración y servicio</span><h1>Administración</h1></div><p>El mismo sistema. Todo en su lugar.</p></div>
     <div class="u-admin-grid">
       ${card(heading('Apariencia','settings','La misma interfaz en Mac, iPad y celular.')+`<div class="u-theme-options">${[['noche','Noche','monitor'],['dia','Día','check'],['auto','Automático','settings']].map(([id,label,glyph])=>`<button type="button" class="u-button" id="btn-theme-${id}" onclick="app.setTheme('${id}')">${icon(glyph)}${label}</button>`).join('')}</div><div class="u-language-setting"><span id="u-language-label">Idioma de este dispositivo</span><div class="u-language-options" role="group" aria-labelledby="u-language-label"><button type="button" class="u-button" id="u-language-es" lang="es" data-i18n-ignore onclick="app.setLanguage('es')" aria-pressed="true">Español</button><button type="button" class="u-button" id="u-language-en" lang="en" data-i18n-ignore onclick="app.setLanguage('en')" aria-pressed="false">English</button></div></div>`)}
-      ${card(heading('Dispositivo y operador','person')+`<div class="u-between"><div><strong id="admin-operator-display">Dispositivo 1</strong><p class="u-muted">Identifica quién toma los pedidos.</p></div>${button('Cambiar nombre','edit','app.promptChangeOperator()')}</div>`)}
+      ${card(heading('Dispositivo y operador','person')+`<div class="u-between"><div><strong id="admin-operator-display">Andrés</strong><p class="u-muted">Selecciona el equipo o identifica quién envía mensajes y toma pedidos.</p></div>${button('Otro nombre','edit','app.promptChangeOperator()')}</div><div class="p-operator-presets-row" role="group" aria-label="Equipos predeterminados"><button type="button" class="u-button" data-operator-preset="Andrés" onclick="app.selectOperatorPreset('Andrés')">${icon('person')}<span>Andrés</span></button><button type="button" class="u-button" data-operator-preset="Anaíz" onclick="app.selectOperatorPreset('Anaíz')">${icon('person')}<span>Anaíz</span></button><button type="button" class="u-button" data-operator-preset="Leandro" onclick="app.selectOperatorPreset('Leandro')">${icon('person')}<span>Leandro</span></button></div>`)}
       ${card(heading('Conexión entre pantallas','monitor','Pedidos, cocina y monitor deben usar el mismo servidor.')+`<div class="u-address" id="admin-url-text"></div><p class="u-muted" id="u-network-note"></p>`,'u-full')}
       ${card(heading('Resumen del evento','order')+`<div class="u-metrics u-event-metrics">${metric('stat-total','Total unidades','order')}${metric('stat-mixto','Mixto',proteinIcon('Mixto','white'))}${metric('stat-pollo','Pollo',proteinIcon('Pollo','white'))}${metric('stat-carne','Carne',proteinIcon('Carne','white'))}${metric('stat-falafel','Falafel',proteinIcon('Falafel','white'))}${metric('stat-bowls','Bowls · sin pan','bowl')}</div><p class="u-stats-note">Las proteínas incluyen los bowls. Bowls es un dato adicional, no se suma otra vez al total.</p><div class="u-actions">${button('Resumen para el cliente','order','app.showClientInvoiceModal()','u-primary')}${button('Exportar pedidos CSV','list','app.exportRawCSV()')}</div>`,'u-full')}
       ${card(heading('Código QR de Reseña','qr','Muestra el código QR oficial para que los comensales califiquen el servicio directamente.')+`<div class="u-actions">${button('Mostrar QR de Reseña','star','app.showGoogleReviewQRModal()','u-primary')}</div><p class="u-muted">Pide a los clientes que escaneen el código desde su celular para calificar directamente en segundos.</p>`,'u-full')}
@@ -50,6 +50,7 @@
   }
   function renderMonitorCard(order) {
     const ready=order.status==='ready';
+    const isDelivered=order.status==='delivered';
     const entries=orderUnits(order),item=entries[0]?.item || order,total=units(order);
     const isBowl=item=>item.is_bowl||item.preset==='bowl';
     const shortName=item=>`${isBowl(item)?'Bowl · ':''}${item.protein||'Shawarma'}`;
@@ -64,24 +65,239 @@
       ? `⭐ ${ui.formatBirthdayName ? ui.formatBirthdayName(order.guest_name, order.notes) : 'Cumpleañero ' + (order.guest_name||'')}`
       : (order.guest_name||'Sin nombre');
     const identity=order.table?`${guest} · ${order.table}`:guest;
-    const status=ready?'Listo':order.status==='preparing'?'Preparando':'En cola';
-    const statusDescription=ready?'Listo para retirar':statusText[order.status]||'Revisar estado';
+    const status=isDelivered?'Entregado':ready?'Listo':order.status==='preparing'?'Preparando':'En cola';
+    const statusDescription=isDelivered?'Entregado al comensal':ready?'Listo para retirar':statusText[order.status]||'Revisar estado';
     const special=specialLabelsHTML(order);
     const accessibleLabel=`Ver detalle del turno ${order.turn}, ${identity}, ${fullProduct}, ${statusDescription}${birthday?', Cumpleañero':''}${kids?', Infantil':''}`;
-    return `<button type="button" class="u-turn-card ${ready?'u-ready':''} ${specialClasses(order)}" data-p-action="detail" data-id="${esc(order.id)}" aria-haspopup="dialog" aria-controls="order-detail-modal" aria-label="${esc(accessibleLabel)}">
+    return `<button type="button" class="u-turn-card ${ready?'u-ready':''} ${isDelivered?'u-delivered':''} ${specialClasses(order)}" data-p-action="detail" data-id="${esc(order.id)}" aria-haspopup="dialog" aria-controls="order-detail-modal" aria-label="${esc(accessibleLabel)}">
       <span class="u-turn-index"><span class="u-turn-label">Turno</span><strong class="u-turn-number">#${esc(order.turn)}</strong></span>
       <span class="u-turn-main"><strong class="u-turn-guest" title="${esc(identity)}">${esc(identity)}</strong><span class="u-turn-product" title="${esc(fullProduct)}">${icon(entries.length>1?'group':isBowl(item)?'bowl':proteinIcon(item.protein))}<span>${esc(product)}</span></span></span>
       <span class="u-turn-end"><span class="u-turn-status p-status p-status-${esc(order.status)}" title="${esc(statusDescription)}">${esc(status)}</span><span class="u-turn-open">Ver detalle</span></span>
       ${special?`<span class="u-turn-highlights">${special}</span>`:''}
     </button>`;
   }
+
+  proto.getContractedQty=function() {
+    const serverVal=Number(this.db?.event_info?.contracted_qty);
+    if(Number.isFinite(serverVal)&&serverVal>0)return serverVal;
+    const evtId=String(this.db?.event_info?.id||'default');
+    const localVal=Number(localStorage.getItem('shawarma_contracted_'+evtId));
+    return Number.isFinite(localVal)&&localVal>=0?localVal:0;
+  };
+
+  proto.getEventOwnerName=function() {
+    const serverOwner=String(this.db?.event_info?.owner_name||'').trim();
+    if(serverOwner)return serverOwner;
+    const evtId=String(this.db?.event_info?.id||'default');
+    const localOwner=String(localStorage.getItem('shawarma_owner_'+evtId)||'').trim();
+    if(localOwner)return localOwner;
+    try {
+      const meta=JSON.parse(localStorage.getItem('shawarma_service_metadata_v1')||'{}');
+      if(meta&&typeof meta.client==='string'&&meta.client.trim())return meta.client.trim();
+    } catch(e){}
+    return '';
+  };
+
+  proto.saveEventMeta=async function({qty, ownerName}={}) {
+    window.soundEngine?.playClick?.();
+    const finalQty = qty !== undefined ? Math.max(0,Math.round(Number(qty)||0)) : this.getContractedQty();
+    const finalOwner = ownerName !== undefined ? String(ownerName||'').trim() : this.getEventOwnerName();
+    this.db.event_info ||= {};
+    this.db.event_info.contracted_qty = finalQty;
+    this.db.event_info.owner_name = finalOwner;
+    if(finalOwner) this.db.event_info.name = `Evento · ${finalOwner}`;
+    const evtId=String(this.db?.event_info?.id||'default');
+    try {
+      localStorage.setItem('shawarma_contracted_'+evtId,String(finalQty));
+      localStorage.setItem('shawarma_owner_'+evtId,finalOwner);
+      const meta=JSON.parse(localStorage.getItem('shawarma_service_metadata_v1')||'{}');
+      meta.client=finalOwner;
+      localStorage.setItem('shawarma_service_metadata_v1',JSON.stringify(meta));
+    } catch(e){}
+    const inpQty=$('monitor-contracted-input');
+    if(inpQty && document.activeElement!==inpQty)inpQty.value=finalQty>0?String(finalQty):'';
+    const inpOwner=$('monitor-owner-input');
+    if(inpOwner && document.activeElement!==inpOwner)inpOwner.value=finalOwner;
+    const svcClientInp=$('service-client');
+    if(svcClientInp && document.activeElement!==svcClientInp)svcClientInp.value=finalOwner;
+    this.renderDisplay();
+    try {
+      const res=await fetch('/api/event/meta',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({contracted_qty:finalQty, owner_name:finalOwner})
+      });
+      if(res.ok){
+        const data=await res.json();
+        if(data.event_info)this.db.event_info=data.event_info;
+      }
+    } catch(e){}
+    this.syncData(this.db,true);
+    const msgParts=[];
+    if(finalOwner)msgParts.push(`Dueño/Evento: ${finalOwner}`);
+    if(finalQty>0)msgParts.push(`${finalQty} shawarmas contratados`);
+    this.showToast(msgParts.length?`Registro guardado · ${msgParts.join(' · ')}`:'Datos del evento actualizados.','info');
+  };
+
+  proto.setContractedQty=async function(val) {
+    const ownerInp=$('monitor-owner-input');
+    const ownerVal=ownerInp?ownerInp.value:this.getEventOwnerName();
+    return this.saveEventMeta({qty:val, ownerName:ownerVal});
+  };
+
+  proto.adjustContractedQty=function(delta) {
+    const current=this.getContractedQty();
+    this.setContractedQty(Math.max(0,current+Number(delta)));
+  };
+
+  proto.saveContractedQtyFromInput=function() {
+    const inpQty=$('monitor-contracted-input');
+    const inpOwner=$('monitor-owner-input');
+    this.saveEventMeta({
+      qty: inpQty ? inpQty.value : this.getContractedQty(),
+      ownerName: inpOwner ? inpOwner.value : this.getEventOwnerName()
+    });
+  };
+
   proto.renderDisplay=function() {
     ui.syncSpecialMotion();
-    const orders=[...(this.db.orders||[])].sort((a,b)=>Number(a.turn)-Number(b.turn));
-    const prep=orders.filter(o=>['pending','preparing'].includes(o.status)),ready=orders.filter(o=>o.status==='ready');
-    html('display-prep-list',prep.length?prep.map(renderMonitorCard).join(''):`<div class="p-empty">${icon('kitchen')}<h2>Cocina al día</h2><p>No hay pedidos en preparación.</p></div>`);
-    html('display-ready-list',ready.length?ready.map(renderMonitorCard).join(''):`<div class="p-empty">${icon('check')}<h2>Aquí aparecerán los listos</h2><p>Espera a que cocina confirme la preparación.</p></div>`);
-    document.querySelectorAll('#view-display .turn-column-header').forEach((el,i)=>{el.innerHTML=`${icon(i?'check':'kitchen')}<span>${i?'Listos para entregar':'En preparación'}</span><strong class="u-count">${i?ready.length:prep.length}</strong>`;});
+    const orders=[...(this.db.orders||[])].filter(o=>o.status!=='cancelled').sort((a,b)=>Number(a.turn)-Number(b.turn));
+    const delivered=orders.filter(o=>o.status==='delivered').sort((a,b)=>Number(a.turn)-Number(b.turn));
+    const prep=orders.filter(o=>['pending','preparing'].includes(o.status));
+    const ready=orders.filter(o=>o.status==='ready');
+    const inKitchen=[...ready,...prep];
+
+    const sumUnits=list=>list.reduce((sum,o)=>sum+units(o),0);
+    const deliveredUnits=sumUnits(delivered);
+    const prepUnits=sumUnits(prep);
+    const readyUnits=sumUnits(ready);
+    const inKitchenUnits=prepUnits+readyUnits;
+    const totalOrderedUnits=deliveredUnits+inKitchenUnits;
+    const contracted=this.getContractedQty();
+    const ownerName=this.getEventOwnerName();
+
+    const remainingToDeliver=contracted>0?Math.max(0,contracted-deliveredUnits):0;
+    const extraDelivered=contracted>0&&deliveredUnits>contracted?(deliveredUnits-contracted):0;
+    const remainingToOrder=contracted>0?Math.max(0,contracted-totalOrderedUnits):0;
+    const pctDelivered=contracted>0?Math.min(100,Math.round((deliveredUnits/contracted)*100)):0;
+    const pctInKitchen=contracted>0?Math.min(100-pctDelivered,Math.round((inKitchenUnits/contracted)*100)):0;
+
+    const topBar=$('event-monitor-top-bar');
+    if(topBar && !topBar.querySelector('#monitor-contracted-input')) {
+      topBar.innerHTML=`
+        <div class="p-monitor-contract-bar">
+          <div class="p-monitor-contract-title">
+            ${icon('order')}
+            <div>
+              <strong>Registro del Evento · Dueño y Cantidad Contratada</strong>
+              <span>Guarda el nombre de la persona/dueño del evento y la cantidad de shawarmas contratados</span>
+            </div>
+          </div>
+          <div class="p-monitor-contract-controls">
+            <div class="p-monitor-owner-field">
+              ${icon('person')}
+              <input type="text" id="monitor-owner-input" class="text-input-pos p-owner-input" placeholder="Dueño / Evento (ej: Andrés)" value="${esc(ownerName)}" maxlength="100" onkeydown="if(event.key==='Enter')app.saveContractedQtyFromInput()">
+            </div>
+            <button type="button" class="u-button" onclick="app.adjustContractedQty(-5)">-5</button>
+            <input type="number" id="monitor-contracted-input" class="text-input-pos p-contract-input" min="0" step="1" placeholder="Cant. (40)" value="${contracted>0?contracted:''}" onkeydown="if(event.key==='Enter')app.saveContractedQtyFromInput()">
+            <button type="button" class="u-button" onclick="app.adjustContractedQty(5)">+5</button>
+            <button type="button" class="u-button" onclick="app.adjustContractedQty(10)">+10</button>
+            <button type="button" class="u-button u-primary" onclick="app.saveContractedQtyFromInput()">${icon('check')}<span>Guardar evento</span></button>
+          </div>
+        </div>
+      `;
+    } else if (topBar) {
+      const inp=$('monitor-contracted-input');
+      if(inp && document.activeElement!==inp) inp.value=contracted>0?String(contracted):'';
+      const inpOwner=$('monitor-owner-input');
+      if(inpOwner && document.activeElement!==inpOwner) inpOwner.value=ownerName;
+    }
+
+    const delivItems=delivered.flatMap(orderUnits);
+    const byProt={Mixto:0,Pollo:0,Carne:0,Falafel:0,Bowls:0};
+    delivItems.forEach(({item,quantity})=>{
+      if(byProt[item.protein]!==undefined)byProt[item.protein]+=quantity;
+      if(item.is_bowl||item.preset==='bowl')byProt.Bowls+=quantity;
+    });
+
+    const deliveredSummaryHTML=`
+      <div class="p-monitor-delivered-summary">
+        <span class="p-deliv-chip"><strong>${deliveredUnits}</strong> Total entregados</span>
+        <span class="p-deliv-chip">Mixto: <strong>${byProt.Mixto}</strong></span>
+        <span class="p-deliv-chip">Pollo: <strong>${byProt.Pollo}</strong></span>
+        <span class="p-deliv-chip">Carne: <strong>${byProt.Carne}</strong></span>
+        <span class="p-deliv-chip">Falafel: <strong>${byProt.Falafel}</strong></span>
+        ${byProt.Bowls?`<span class="p-deliv-chip">Bowls: <strong>${byProt.Bowls}</strong></span>`:''}
+      </div>
+    `;
+
+    html('display-prep-list', deliveredSummaryHTML + (delivered.length
+      ? delivered.map(renderMonitorCard).join('')
+      : `<div class="p-empty">${icon('box')}<h2>Aún no hay entregados</h2><p>Los pedidos que marques como entregados aparecerán aquí con su conteo exacto.</p></div>`));
+
+    const balanceStatusBanner = contracted <= 0
+      ? `<div class="p-balance-banner is-neutral">${icon('alert')}<span>Escribe arriba la cantidad de shawarmas que contrató el cliente (ej. <strong>40</strong>) para activar el descuento automático de faltantes.</span></div>`
+      : extraDelivered > 0
+        ? `<div class="p-balance-banner is-complete">${icon('check')}<span>¡Meta de <strong>${contracted} shawarmas</strong> cumplida! Se han entregado <strong>+${extraDelivered} adicionales</strong> (${deliveredUnits} en total).</span></div>`
+        : remainingToDeliver === 0
+          ? `<div class="p-balance-banner is-complete">${icon('check')}<span>¡Meta exacta alcanzada! Se entregaron los <strong>${contracted} shawarmas</strong> contratados.</span></div>`
+          : remainingToDeliver <= 5
+            ? `<div class="p-balance-banner is-warning">${icon('alert')}<span>¡Atención! Solo faltan <strong>${remainingToDeliver} shawarmas</strong> por entregar para completar los ${contracted} contratados.</span></div>`
+            : `<div class="p-balance-banner is-active">${icon('clock')}<span>Se han entregado <strong>${deliveredUnits} de ${contracted}</strong> shawarmas contratados (${pctDelivered}%). Faltan <strong>${remainingToDeliver}</strong> por entregar.</span></div>`;
+
+    const ownerBadgeHTML = ownerName
+      ? `<div class="p-balance-owner-badge">${icon('person')}<span>Evento / Dueño: <strong>${esc(ownerName)}</strong></span></div>`
+      : '';
+
+    const balanceDashboardHTML = `
+      <div class="p-balance-card">
+        ${ownerBadgeHTML}
+        ${balanceStatusBanner}
+        <div class="p-balance-kpis">
+          <div class="p-balance-kpi">
+            <span>Contratados</span>
+            <strong>${contracted > 0 ? contracted : '—'}</strong>
+            <small>Meta del evento</small>
+          </div>
+          <div class="p-balance-kpi is-delivered">
+            <span>Ya entregados</span>
+            <strong>${deliveredUnits}</strong>
+            <small>${delivered.length} ${delivered.length===1?'turno entregado':'turnos entregados'}</small>
+          </div>
+          <div class="p-balance-kpi is-remaining">
+            <span>Faltan por entregar</span>
+            <strong>${contracted > 0 ? remainingToDeliver : '—'}</strong>
+            <small>${extraDelivered > 0 ? `+${extraDelivered} sobre contrato` : 'Segun lo entregado'}</small>
+          </div>
+          <div class="p-balance-kpi is-kitchen">
+            <span>Faltan por pedir</span>
+            <strong>${contracted > 0 ? remainingToOrder : '—'}</strong>
+            <small>${inKitchenUnits} ahora en cocina</small>
+          </div>
+        </div>
+        ${contracted > 0 ? `
+          <div class="p-balance-progress-wrap">
+            <div class="p-balance-progress-labels">
+              <span>Avance de entregas: <strong>${pctDelivered}%</strong> (${deliveredUnits}/${contracted})</span>
+              <span>En preparación/listos ahora: <strong>${inKitchenUnits} uds</strong></span>
+            </div>
+            <div class="p-balance-progress-track">
+              <div class="p-balance-progress-fill is-delivered" style="width:${pctDelivered}%"></div>
+              <div class="p-balance-progress-fill is-kitchen" style="width:${pctInKitchen}%"></div>
+            </div>
+          </div>
+        ` : ''}
+      </div>
+      <div class="p-balance-in-progress">
+        <h3 class="p-balance-subtitle">${icon('kitchen')}<span>En preparación y listos ahora (${inKitchenUnits} shawarmas en ${inKitchen.length} turnos)</span></h3>
+        ${inKitchen.length ? `<div class="p-balance-active-list">${inKitchen.map(renderMonitorCard).join('')}</div>` : `<p class="u-muted" style="padding:8px 0;">No hay pedidos activos en cocina en este momento.</p>`}
+      </div>
+    `;
+
+    html('display-ready-list', balanceDashboardHTML);
+    document.querySelectorAll('#view-display .turn-column-header').forEach((el,i)=>{
+      el.innerHTML=`${icon(i?'monitor':'box')}<span>${i?'Balance de los que faltan':'Entregados'}</span><strong class="u-count">${i?(contracted>0?`${remainingToDeliver} faltan`:`${totalOrderedUnits} pedidos`):`${deliveredUnits} uds`}</strong>`;
+    });
   };
   function fillDetail(state,order) {
     ui.syncSpecialMotion();

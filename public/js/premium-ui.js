@@ -46,7 +46,10 @@
     list: '<path d="M8 5h13M8 12h13M8 19h13M3 5h.01M3 12h.01M3 19h.01"/>',
     alert: '<path d="m12 2 10 19H2ZM12 9v5M12 18h.01"/>',
     close: '<path d="m6 6 12 12M18 6 6 18"/>',
-    cut: '<path d="m4 3 16 18M20 3 4 21"/><circle cx="6" cy="6" r="3"/><circle cx="18" cy="6" r="3"/>'
+    cut: '<path d="m4 3 16 18M20 3 4 21"/><circle cx="6" cy="6" r="3"/><circle cx="18" cy="6" r="3"/>',
+    copy: '<rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>',
+    chat: '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
+    repeat: '<path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/>'
   };
   function icon(name, extra = '') {
     return `<svg class="ui-icon ${extra}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${paths[name] || paths.order}</svg>`;
@@ -68,6 +71,19 @@
   const core = () => INGREDIENTS_CONFIG.filter(i => i.isDefault);
   const stripEmoji = s => String(s).replace(/[\p{Extended_Pictographic}\uFE0F\u200D]/gu, '').replace(/ +/g, ' ').trim();
   function wrap(name, fn) { originals[name] = proto[name]; proto[name] = fn; }
+  function prepProfile(item) {
+    const p = String(item?.preset || '');
+    if (p === 'ninos' || p === 'ninos:nino') {
+      return { active: true, code: 'ninos:nino', type: 'nino', label: 'Pan y proteína · Niño', shortTag: 'Niño · Preparación suave', hint: 'Tamaño moderado y trato infantil', icon: 'child' };
+    }
+    if (p === 'ninos:adulto') {
+      return { active: true, code: 'ninos:adulto', type: 'adulto', label: 'Pan y proteína · Adulto', shortTag: 'Adulto · Pan y proteína', hint: 'Porción estándar de adulto', icon: 'person' };
+    }
+    if (p === 'ninos:mayor') {
+      return { active: true, code: 'ninos:mayor', type: 'mayor', label: 'Pan y proteína · Persona mayor', shortTag: 'Persona mayor · Preparación suave', hint: 'No muy grande · tacto suave para adulto mayor', icon: 'person' };
+    }
+    return { active: false, code: p, type: null, label: '', shortTag: '', hint: '', icon: 'wrap' };
+  }
   function currentItem(state) {
     return {protein:state.selectedProtein, preset:state.selectedPreset, is_bowl:state.selectedPreset === 'bowl', ingredients:state.getActive(), removed_ingredients:state.getRemoved(), notes:$('order-notes')?.value.trim() || ''};
   }
@@ -82,12 +98,13 @@
   }
   function recipeHTML(item, expanded = false, forceOpen = null, detailsKey = '') {
     const r = recipe(item);
-    const kids = item.preset === 'ninos';
+    const prof = prepProfile(item);
+    const kids = prof.active;
     let out = '';
     if (item.is_bowl || item.preset === 'bowl') out += `<span class="p-mod p-format">${icon('bowl')} Sin pan · en plato</span>`;
     if (kids) {
-      out += `<span class="p-mod p-format">${icon('child')} Menú infantil</span>`;
-      out += `<p class="p-recipe-line">${r.included.length ? 'Incluye: ' + esc(r.included.join(' · ')) : 'Solo pan y proteína'}</p>`;
+      out += `<span class="p-mod p-format p-format-${esc(prof.type)}">${icon(prof.icon)} ${esc(prof.label)}</span>`;
+      out += `<p class="p-recipe-line">${r.included.length ? 'Incluye: ' + esc(r.included.join(' · ')) : 'Solo pan y proteína'} · <strong>${esc(prof.hint)}</strong></p>`;
     } else if (r.standard) {
       out += `<p class="p-standard">${icon('check')} Con todo <span>· ${r.count}/${core().length} ingredientes</span></p>`;
     } else if (r.known) {
@@ -128,17 +145,19 @@
   function specialOrder(order) {
     const items=orderItems(order);
     const birthday=[order.guest_name,order.notes,...items.map(item=>item.notes)].some(birthdayMention);
-    const kids=items.some(item=>item.preset==='ninos');
-    return {birthday,kids};
+    const kids=items.some(item=>prepProfile(item).active && prepProfile(item).type === 'nino');
+    const elder=items.some(item=>prepProfile(item).active && prepProfile(item).type === 'mayor');
+    const adultPlain=items.some(item=>prepProfile(item).active && prepProfile(item).type === 'adulto');
+    return {birthday,kids,elder,adultPlain};
   }
   function bowlFormat(order) {
     const items=orderItems(order),isBowl=item=>!!(item.is_bowl || item.preset==='bowl');
     return {all:items.length>0 && items.every(isBowl),some:items.some(isBowl)};
   }
   function specialClasses(order) {
-    const {birthday,kids}=specialOrder(order);
+    const {birthday,kids,elder}=specialOrder(order);
     const bowl=bowlFormat(order).all;
-    return birthday||kids||bowl?`p-special${bowl?' p-bowl':''}${kids?' p-kids':''}${birthday?' p-birthday':''}`:'';
+    return birthday||kids||elder||bowl?`p-special${bowl?' p-bowl':''}${(kids||elder)?' p-kids':''}${birthday?' p-birthday':''}`:'';
   }
   function formatBirthdayName(rawName, notes) {
     const isFemale = /cumpleañera|cumpleanera/i.test((rawName || '') + ' ' + (notes || ''));
@@ -148,10 +167,10 @@
     return cleanName ? `${prefix} ${cleanName}` : prefix;
   }
   function specialLabelsHTML(order) {
-    const {kids}=specialOrder(order);
-    const bowl=bowlFormat(order),labelBowl=bowl.some && (kids||!bowl.all);
-    if(!kids&&!labelBowl)return '';
-    return `<span class="p-special-labels">${kids?`<span class="p-special-tag p-kids-tag">${icon('child')}${order.is_group?'Incluye infantil':'Infantil'}</span>`:''}${labelBowl?`<span class="p-special-tag p-bowl-tag">${icon('bowl')}${bowl.all?'Bowl sin pan':'Incluye bowls'}</span>`:''}</span>`;
+    const {kids,elder,adultPlain}=specialOrder(order);
+    const bowl=bowlFormat(order),labelBowl=bowl.some && (kids||elder||adultPlain||!bowl.all);
+    if(!kids&&!elder&&!adultPlain&&!labelBowl)return '';
+    return `<span class="p-special-labels">${kids?`<span class="p-special-tag p-kids-tag">${icon('child')}${order.is_group?'Incluye niño · suave':'Niño · Preparación suave'}</span>`:''}${elder?`<span class="p-special-tag p-kids-tag">${icon('person')}${order.is_group?'Incluye persona mayor':'Persona mayor · Preparación suave'}</span>`:''}${adultPlain?`<span class="p-special-tag p-bowl-tag">${icon('person')}${order.is_group?'Incluye pan y proteína (Adulto)':'Adulto · Pan y proteína'}</span>`:''}${labelBowl?`<span class="p-special-tag p-bowl-tag">${icon('bowl')}${bowl.all?'Bowl sin pan':'Incluye bowls'}</span>`:''}</span>`;
   }
   function signatureHTML(protein) {
     return '';
@@ -173,7 +192,8 @@
     const set=values=>[...new Set((values||[]).map(ingredientToken))].sort();
     const included=Array.isArray(item.ingredients)?set(item.ingredients):null;
     const excluded=set([...(item.removed_ingredients||[]),...core().filter(i=>included && !included.includes(i.id)).map(i=>i.id)]);
-    return JSON.stringify([normal(item.protein),!!(item.is_bowl || item.preset==='bowl'),item.preset==='ninos',included,excluded,String(item.notes||'').trim().replace(/\s+/g,' ').toLocaleLowerCase('es')]);
+    const prof=prepProfile(item);
+    return JSON.stringify([normal(item.protein),!!(item.is_bowl || item.preset==='bowl'),prof.active ? prof.code : false,included,excluded,String(item.notes||'').trim().replace(/\s+/g,' ').toLocaleLowerCase('es')]);
   }
   function groupPreparation(orders) {
     const groups=new Map();
@@ -214,14 +234,14 @@
     document.body.style.setProperty?.('--p-special-phase',`${-(Date.now()%10000)/1000}s`);
   }
   function batchRecipeHTML(item) {
-    const r=recipe(item),labels=[];
+    const r=recipe(item),prof=prepProfile(item),labels=[];
     if(item.is_bowl||item.preset==='bowl')labels.push('Bowl sin pan');
-    if(item.preset==='ninos')labels.push('Infantil');
+    if(prof.active)labels.push(prof.label);
     if(!r.known)labels.push('Verificar ingredientes');
     else if(r.standard)labels.push('Con todo');
-    else if(item.preset==='ninos')labels.push(r.included.length?'Incluye: '+r.included.join(', '):'Solo pan y proteína');
+    else if(prof.active)labels.push(r.included.length?'Incluye: '+r.included.join(', '):'Solo pan y proteína');
     else labels.push(...r.removed.map(name=>'Sin '+name));
-    if(item.preset!=='ninos')labels.push(...r.additions.map(i=>'Con '+i.name.replace(/\s*\(Opcional\)/i,'')));
+    if(!prof.active)labels.push(...r.additions.map(i=>'Con '+i.name.replace(/\s*\(Opcional\)/i,'')));
     return `<p class="p-batch-recipe ${r.standard?'p-batch-standard':''}">${esc(labels.join(' · '))}</p>`;
   }
 
@@ -394,6 +414,10 @@
           return `<section class="p-ticket-item"><h3>${completeUnits.length > 1 ? `<span class="p-item-number">${(units[i].index??i)+1}</span>` : (item.is_bowl ? icon('bowl') : proteinIcon(item.protein, 'white'))}${units[i].quantity>1?`${units[i].quantity} × `:''}${esc(title(item))}${starIconHTML}</h3>${completeUnits.length>1?specialLabelsHTML(item):''}${recipeHTML(item,true,null,ticketKey)}${item.notes ? `<p class="p-note">${icon('edit')}${esc(item.notes)}</p>` : ''}</section>`;
         }).join('')}</div>
         <div class="p-ticket-actions-bar">
+          <button type="button" class="p-kds-tool-btn p-tool-duplicate" data-p-action="duplicate" data-id="${esc(o.id)}" title="Duplicar comanda como nuevo pedido">
+            ${icon('copy')}
+            <span>Duplicar</span>
+          </button>
           <button type="button" class="p-kds-tool-btn" data-p-action="edit" data-id="${esc(o.id)}" title="Editar comanda">
             ${icon('edit')}
             <span>Editar</span>
@@ -563,17 +587,17 @@
     if (ok) {
       failCount = 0;
       badge.dataset.connection = 'online';
-      text('conn-text','Servidor conectado');
+      text('conn-text','En línea');
       app.lastConfirmedSync = Date.now();
       badge.title = `Conectado · Última respuesta: ${new Date().toLocaleTimeString()}`;
     } else {
       failCount++;
       if (failCount >= 3) {
         badge.dataset.connection = 'offline';
-        text('conn-text','Reconectando...');
+        text('conn-text','Sin red');
       } else {
         badge.dataset.connection = 'online';
-        text('conn-text','Servidor conectado');
+        text('conn-text','En línea');
       }
     }
   }
@@ -624,6 +648,7 @@
     else if(action==='detail') app.openModal(id);
     else if(action==='qr') app.showOrderQRModalById(id);
     else if(action==='edit') app.editOrder(id);
+    else if(action==='duplicate') await app.duplicateOrderWithConfirm(id);
     else if(action==='delete') {const o=(app.db.orders||[]).find(x=>String(x.id)===id);if(o) await app.deleteOrderPrompt(o.id,o.turn);}
     else if(action==='undo-order' || action==='revert-preparing' || action==='revert-ready') {
       const o=(app.db.orders||[]).find(x=>String(x.id)===String(id));
@@ -672,9 +697,16 @@
         if (sig) sig.remove();
       }
     });
-    const presets = {'con-todo':['check','Con todo'],bowl:['bowl','Bowl sin pan'],ninos:['child','Para niño'],'sin-salsas':['sauce','Sin salsas'],'solo-carnes':['meat','Carnes y salsas'],'sin-cebolla':['onion','Sin cebolla'],'sin-pepinillo':['pickle','Sin pepinillo'],'sin-tomate':['tomato','Sin tomate']};
-    Object.entries(presets).forEach(([id,[glyph,label]])=>{const b=$('preset-'+id);if(b){b.querySelector('.preset-icon').innerHTML=icon(glyph);b.querySelector('.preset-txt-main').textContent=label;}});
-    document.querySelector('label[for="guest-name"]').innerHTML=`${icon('person')} Nombre del invitado`;
+    const presets = {'con-todo':['check','Con todo'],bowl:['bowl','Bowl sin pan'],ninos:['mixto-art','Pan y proteína'],'sin-salsas':['sauce','Sin salsas'],'solo-carnes':['meat','Carnes y salsas'],'sin-cebolla':['onion','Sin cebolla'],'sin-pepinillo':['pickle','Sin pepinillo'],'sin-tomate':['tomato','Sin tomate']};
+    Object.entries(presets).forEach(([id,[glyph,label]])=>{const b=$('preset-'+id);if(b){b.querySelector('.preset-icon').innerHTML=glyph==='mixto-art'?proteinIcon('Mixto','white'):icon(glyph);b.querySelector('.preset-txt-main').textContent=label;}});
+    const guestLabel = document.querySelector('label[for="guest-name"]');
+    if (guestLabel) {
+      guestLabel.style.display = 'flex';
+      guestLabel.style.alignItems = 'center';
+      guestLabel.style.justifyContent = 'space-between';
+      guestLabel.style.gap = '8px';
+      guestLabel.innerHTML = `<span style="display:inline-flex;align-items:center;gap:6px;">${icon('person')} Nombre del invitado</span><button type="button" class="p-repeat-search-btn" onclick="app.openRepeatOrderModal()" title="Buscar cliente y repetir su pedido">${icon('repeat')}<span>Repetir pedido</span></button>`;
+    }
     document.querySelector('label[for="guest-table"]').innerHTML=`${icon('pin')} Mesa / referencia`;
     $('guest-name').placeholder='Nombre del invitado';$('guest-table').placeholder='Ej. Mesa 2';
     $('guest-name').maxLength=100;$('guest-table').maxLength=60;$('order-notes').maxLength=500;
@@ -693,8 +725,6 @@
     $('btn-cancel-edit').innerHTML=`${icon('close')} Cancelar edición`;
     document.querySelector('#group-tray-box > div > span > span:first-child').innerHTML=icon('group');
     document.querySelector('.sidebar-watermark-container').hidden=false;
-    const timer=$('event-timer-container');if(timer?.firstElementChild)timer.firstElementChild.innerHTML=icon('clock');
-    if(timer&&!timer.querySelector('.p-timer-label'))timer.firstElementChild.insertAdjacentHTML('afterend','<span class="p-timer-label">Evento</span>');
     const resetSpan=$('timer-reset-icon');if(resetSpan)resetSpan.innerHTML=icon('reset');else if($('btn-timer-reset'))$('btn-timer-reset').innerHTML=icon('reset');
     const kdsResetSpan=$('kds-timer-reset-icon');if(kdsResetSpan)kdsResetSpan.innerHTML=icon('reset');
     const batch=document.querySelector('.kds-batching-bar');
@@ -703,11 +733,12 @@
     document.querySelectorAll('.kds-filter-tab').forEach(b=>{const [glyph,label,id]=filters[b.dataset.filter];b.innerHTML=`${icon(glyph)}<span>${label}</span><strong id="count-${id}-kds">0</strong>`;});
     const batchButton=document.querySelector('button[onclick="app.markNextBatchReady()"]');
     batchButton.className='p-batch-ready';batchButton.innerHTML=`${icon('check')} Marcar tanda lista · hasta 6 shawarmas`;
-    document.querySelectorAll('#view-display .turn-column-header').forEach((el,i)=>{el.innerHTML=`${icon(i ? 'check' : 'kitchen')}<span>${i?'Listos para entregar':'En preparación'}</span>`;});
+    document.querySelectorAll('#view-display .turn-column-header').forEach((el,i)=>{el.innerHTML=`${icon(i ? 'monitor' : 'box')}<span>${i?'Balance de los que faltan':'Entregados'}</span>`;});
     if (!document.querySelector('.p-mobile-review')) {
       document.body.insertAdjacentHTML('beforeend',`<div class="p-mobile-review"><div><span>Pedido actual</span><strong id="p-mobile-summary"></strong></div><button type="button" id="p-review-order">${icon('order')}<span id="p-mobile-action-text">Revisar pedido</span></button></div>`);
       $('p-review-order')?.addEventListener('click',()=>{if(window.ShawarmaService?.confirmMobileReview())return;document.activeElement?.blur?.();const summary=document.querySelector('.summary-card-pos');summary.setAttribute('tabindex','-1');summary.scrollIntoView({behavior:'smooth',block:'start'});summary.focus({preventScroll:true});});
     }
+    setupInteractiveModals();
     document.addEventListener('click',handleActionClick);
     window._openBatchKeys = window._openBatchKeys || new Set();
     window._openTicketDetailsKeys = window._openTicketDetailsKeys || new Set();
@@ -736,14 +767,467 @@
     window.addEventListener('online',checkConnection);window.addEventListener('offline',()=>connection(false));
     setInterval(checkConnection,30000);
   }
+
+  function setupInteractiveModals() {
+    if (!$('prep-profile-modal')) {
+      document.body.insertAdjacentHTML('beforeend', `
+        <div class="modal-overlay u-overlay" id="prep-profile-modal" style="display:none;z-index:10050;" onclick="app.closePrepProfileModal(event)">
+          <section class="u-dialog p-profile-dialog" role="dialog" aria-modal="true" aria-labelledby="prep-profile-title" onclick="event.stopPropagation()">
+            <header class="u-dialog-heading">
+              <div>
+                <span class="p-eyebrow">Ajuste de porción y preparación</span>
+                <h2 id="prep-profile-title">${proteinIcon('Mixto', 'white')} Pan y proteína · ¿Para quién es?</h2>
+              </div>
+              <button type="button" class="p-icon-button" onclick="app.closePrepProfileModal()" aria-label="Cerrar">${icon('close')}</button>
+            </header>
+            <p class="u-muted" style="margin-bottom:14px;">Selecciona el perfil del comensal para que el preparador ajuste el tamaño y tenga el tacto adecuado en cocina:</p>
+            <div class="p-profile-options-grid">
+              <button type="button" class="p-profile-option-card" onclick="app.selectPrepProfile('nino')">
+                <div class="p-profile-option-icon">${icon('child')}</div>
+                <div class="p-profile-option-body">
+                  <strong>Niño</strong>
+                  <span>Tamaño moderado, fácil de comer y preparación suave para niño.</span>
+                </div>
+              </button>
+              <button type="button" class="p-profile-option-card" onclick="app.selectPrepProfile('adulto')">
+                <div class="p-profile-option-icon">${icon('person')}</div>
+                <div class="p-profile-option-body">
+                  <strong>Adulto</strong>
+                  <span>Porción estándar normal de adulto · solo pan y proteína (sin etiqueta infantil).</span>
+                </div>
+              </button>
+              <button type="button" class="p-profile-option-card" onclick="app.selectPrepProfile('mayor')">
+                <div class="p-profile-option-icon">${icon('person')}</div>
+                <div class="p-profile-option-body">
+                  <strong>Persona mayor</strong>
+                  <span>No muy grande · preparación suave, bien cuidada y con tacto especial.</span>
+                </div>
+              </button>
+            </div>
+            <footer class="u-dialog-footer" style="margin-top:14px;display:flex;justify-content:space-between;gap:8px;">
+              <button type="button" class="u-button" onclick="app.applyPreset('con-todo'); app.closePrepProfileModal()">Volver a Con todo</button>
+              <button type="button" class="u-button" onclick="app.closePrepProfileModal()">Cerrar</button>
+            </footer>
+          </section>
+        </div>
+      `);
+    }
+
+    if (!$('repeat-order-modal')) {
+      document.body.insertAdjacentHTML('beforeend', `
+        <div class="modal-overlay u-overlay" id="repeat-order-modal" style="display:none;z-index:10050;" onclick="app.closeRepeatOrderModal(event)">
+          <section class="u-dialog p-repeat-dialog" role="dialog" aria-modal="true" aria-labelledby="repeat-order-title" onclick="event.stopPropagation()">
+            <header class="u-dialog-heading">
+              <div>
+                <span class="p-eyebrow">Duplicar o repetir pedido rápido</span>
+                <h2 id="repeat-order-title">${icon('repeat')} Buscar pedido para repetir</h2>
+              </div>
+              <button type="button" class="p-icon-button" onclick="app.closeRepeatOrderModal()" aria-label="Cerrar">${icon('close')}</button>
+            </header>
+            <div class="p-repeat-search-box">
+              <input type="search" id="repeat-order-search-input" class="text-input-pos" placeholder="Escribe el nombre (ej: Andrés) o número de turno..." autocomplete="off" oninput="app.renderRepeatOrderList(this.value)">
+            </div>
+            <div id="repeat-order-list" class="p-repeat-order-list"></div>
+          </section>
+        </div>
+      `);
+    }
+
+    if (!$('team-chat-drawer')) {
+      document.body.insertAdjacentHTML('beforeend', `
+        <aside class="p-chat-drawer" id="team-chat-drawer" aria-label="Chat del equipo" aria-hidden="true">
+          <div class="p-chat-panel">
+            <header class="p-chat-header">
+              <div class="p-chat-header-title">
+                <span class="p-chat-online-dot" aria-hidden="true"></span>
+                <div>
+                  <h2>${icon('chat')} Chat de Equipo</h2>
+                  <span class="p-chat-subtitle">Enviando como: <strong id="chat-sender-label">${esc(app.operatorName || 'Andrés')}</strong></span>
+                </div>
+              </div>
+              <button type="button" class="p-icon-button" onclick="app.toggleTeamChat(false)" aria-label="Cerrar chat">${icon('close')}</button>
+            </header>
+            <div class="p-chat-sender-bar" role="group" aria-label="Seleccionar quién envía">
+              <button type="button" class="p-chat-sender-pill" data-operator-preset="Andrés" onclick="app.selectOperatorPreset('Andrés')">Andrés</button>
+              <button type="button" class="p-chat-sender-pill" data-operator-preset="Anaíz" onclick="app.selectOperatorPreset('Anaíz')">Anaíz</button>
+              <button type="button" class="p-chat-sender-pill" data-operator-preset="Leandro" onclick="app.selectOperatorPreset('Leandro')">Leandro</button>
+            </div>
+            <div class="p-chat-messages" id="team-chat-messages"></div>
+            <form class="p-chat-form" onsubmit="event.preventDefault(); app.sendTeamChatMessage();">
+              <input type="text" id="team-chat-input" class="text-input-pos" placeholder="Escribe un mensaje al equipo..." maxlength="240" autocomplete="off">
+              <button type="submit" class="u-button u-primary p-chat-send-btn" aria-label="Enviar mensaje">${icon('send')}<span>Enviar</span></button>
+            </form>
+          </div>
+        </aside>
+      `);
+    }
+  }
+
+  proto.openPrepProfileModal = function() {
+    const m = $('prep-profile-modal');
+    if (!m) return;
+    m.style.display = 'flex';
+  };
+  proto.closePrepProfileModal = function(e) {
+    if (e && e.target !== $('prep-profile-modal')) return;
+    const m = $('prep-profile-modal');
+    if (m) m.style.display = 'none';
+  };
+  proto.selectPrepProfile = function(type) {
+    window.soundEngine?.playClick?.();
+    const code = type === 'adulto' ? 'ninos:adulto' : type === 'mayor' ? 'ninos:mayor' : 'ninos:nino';
+    this.selectedPreset = code;
+    INGREDIENTS_CONFIG.forEach(i => { this.ingredientPreferences[i.id] = false; });
+    const btn = $('preset-ninos');
+    if (btn) {
+      const txt = btn.querySelector('.preset-txt-main');
+      const suffix = type === 'adulto' ? ' (Adulto)' : type === 'mayor' ? ' (Mayor)' : ' (Niño)';
+      if (txt) txt.textContent = 'Pan y proteína' + suffix;
+    }
+    this.updatePresetPills();
+    this.renderIngredientsMatrix();
+    this.updatePreviewAndTurn();
+    this.closePrepProfileModal();
+  };
+
+  proto.duplicateOrderWithConfirm = async function(orderId) {
+    window.soundEngine?.playClick?.();
+    const order = (this.db?.orders || []).find(o => String(o.id) === String(orderId));
+    if (!order) return;
+    const unitsCount = orderUnits(order).reduce((s, u) => s + u.quantity, 0);
+    const desc = orderUnits(order).map(u => `${u.quantity > 1 ? u.quantity + 'x ' : ''}${title(u.item)}`).join(' + ');
+    const ok = confirm(`⚠️ AVISO DE SEGURIDAD · DUPLICAR PEDIDO\n\n¿Confirmas crear un NUEVO pedido idéntico para "${order.guest_name || 'Invitado'}" (copia del Turno #${order.turn})?\n\nDetalle: ${desc} (${unitsCount} ${unitsCount === 1 ? 'unidad' : 'unidades'})\nSe agregará como un nuevo turno al final de la cola.`);
+    if (!ok) return;
+
+    const cloneItems = Array.isArray(order.items) && order.items.length
+      ? JSON.parse(JSON.stringify(order.items))
+      : [{
+          protein: order.protein || 'Mixto',
+          preset: order.preset || 'con-todo',
+          is_bowl: !!order.is_bowl,
+          ingredients: Array.isArray(order.ingredients) ? [...order.ingredients] : [],
+          removed_ingredients: Array.isArray(order.removed_ingredients) ? [...order.removed_ingredients] : [],
+          notes: order.notes || ''
+        }];
+
+    const newOrderData = {
+      id: 'ord_' + Date.now() + '_' + Math.random().toString(36).substring(2, 8),
+      guest_name: order.guest_name || 'Invitado',
+      table: order.table || '',
+      protein: order.protein || 'Mixto',
+      preset: order.preset || 'con-todo',
+      is_bowl: !!order.is_bowl,
+      is_group: !!order.is_group,
+      items_count: order.items_count || cloneItems.length,
+      items: cloneItems,
+      ingredients: Array.isArray(order.ingredients) ? [...order.ingredients] : [],
+      removed_ingredients: Array.isArray(order.removed_ingredients) ? [...order.removed_ingredients] : [],
+      notes: order.notes || '',
+      operator: this.operatorName || 'Dispositivo 1',
+      quantity: order.quantity || unitsCount || 1,
+      created_at: new Date().toISOString()
+    };
+
+    this.enqueueOutbox(newOrderData);
+    await this.processOutboxQueue();
+    this.closeRepeatOrderModal();
+    this.showToast(`Pedido de ${order.guest_name} duplicado y enviado a cocina.`, 'success');
+  };
+
+  proto.loadOrderToRepeat = function(orderId) {
+    window.soundEngine?.playClick?.();
+    const order = (this.db?.orders || []).find(o => String(o.id) === String(orderId));
+    if (!order) return;
+    this.editingOrderId = null;
+    this.editingOrderTurn = null;
+
+    const nameInp = $('guest-name');
+    const tableInp = $('guest-table');
+    if (nameInp) nameInp.value = order.guest_name || '';
+    if (tableInp) tableInp.value = order.table || '';
+
+    const entries = orderUnits(order);
+    if (entries.length > 1) {
+      this.currentGroupItems = JSON.parse(JSON.stringify(entries.slice(0, -1).map(e => e.item)));
+    } else {
+      this.currentGroupItems = [];
+    }
+    const lastItem = entries[entries.length - 1]?.item || order;
+    this.selectedProtein = lastItem.protein || 'Mixto';
+    this.selectedPreset = lastItem.preset || (lastItem.is_bowl ? 'bowl' : 'con-todo');
+
+    this.ingredientPreferences = {};
+    const activeList = Array.isArray(lastItem.ingredients) ? lastItem.ingredients : [];
+    INGREDIENTS_CONFIG.forEach(i => {
+      this.ingredientPreferences[i.id] = activeList.some(ai => normal(ai).includes(normal(i.name)) || normal(ai) === normal(i.id));
+    });
+    const notesInp = $('order-notes');
+    if (notesInp) notesInp.value = lastItem.notes || order.notes || '';
+
+    this.updateGroupTrayUI();
+    this.updateProteinCards();
+    this.updatePresetPills();
+    this.renderIngredientsMatrix();
+    this.updateQuickNoteButtons();
+    this.updatePreviewAndTurn();
+    this.closeRepeatOrderModal();
+    this.switchView('order');
+    this.showToast(`Receta de ${order.guest_name} (Turno #${order.turn}) cargada y lista para enviar.`, 'info');
+  };
+
+  proto.openRepeatOrderModal = function() {
+    window.soundEngine?.playClick?.();
+    const m = $('repeat-order-modal');
+    if (!m) return;
+    m.style.display = 'flex';
+    const inp = $('repeat-order-search-input');
+    if (inp) {
+      inp.value = '';
+      this.renderRepeatOrderList('');
+      setTimeout(() => inp.focus(), 50);
+    } else {
+      this.renderRepeatOrderList('');
+    }
+  };
+  proto.closeRepeatOrderModal = function(e) {
+    if (e && e.target !== $('repeat-order-modal')) return;
+    const m = $('repeat-order-modal');
+    if (m) m.style.display = 'none';
+  };
+  proto.renderRepeatOrderList = function(query = '') {
+    const container = $('repeat-order-list');
+    if (!container) return;
+    const q = normal(query);
+    const orders = [...(this.db?.orders || [])].filter(o => o.status !== 'cancelled').sort((a, b) => Number(b.turn) - Number(a.turn));
+    const filtered = q
+      ? orders.filter(o => normal(o.guest_name).includes(q) || String(o.turn).includes(q) || normal(o.table).includes(q))
+      : orders;
+
+    if (!filtered.length) {
+      container.innerHTML = `<div class="p-empty" style="padding:24px 12px;"><p class="u-muted">${q ? `No se encontraron pedidos con "${esc(query)}".` : 'Aún no hay personas que hayan pedido en este evento.'}</p></div>`;
+      return;
+    }
+
+    container.innerHTML = filtered.map(o => {
+      const units = orderUnits(o);
+      const summary = units.map(({item, quantity}) => {
+        const prof = prepProfile(item);
+        const r = recipe(item);
+        const modText = prof.active ? prof.label : r.standard ? 'Con todo' : r.removed.length ? `Sin ${r.removed.join(', ')}` : 'Personalizado';
+        return `${quantity > 1 ? quantity + '× ' : ''}${title(item)} (${modText})`;
+      }).join(' + ');
+      return `
+        <div class="p-repeat-item">
+          <div class="p-repeat-item-info">
+            <div class="p-repeat-item-head">
+              <span class="p-repeat-turn">Turno #${esc(o.turn)}</span>
+              <strong>${esc(o.guest_name || 'Invitado')}</strong>
+              ${o.table ? `<span class="p-table-pill">${icon('pin')} ${esc(o.table)}</span>` : ''}
+            </div>
+            <p class="p-repeat-item-desc">${esc(summary)}${o.notes ? ` · Nota: ${esc(o.notes)}` : ''}</p>
+          </div>
+          <div class="p-repeat-item-actions">
+            <button type="button" class="u-button" onclick="app.loadOrderToRepeat('${esc(o.id)}')" title="Cargar datos en la pantalla de Pedidos por si deseas ajustar algo">${icon('edit')}<span>Cargar en Pedidos</span></button>
+            <button type="button" class="u-button u-primary" onclick="app.duplicateOrderWithConfirm('${esc(o.id)}')" title="Crear nuevo turno idéntico con aviso de confirmación">${icon('copy')}<span>Duplicar directo</span></button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  };
+
+  proto.selectOperatorPreset = function(presetName) {
+    window.soundEngine?.playClick?.();
+    if (!presetName) return;
+    this.operatorName = presetName.trim();
+    try { localStorage.setItem('shawarma_operator_name', this.operatorName); } catch (e) {}
+    this.updateOperatorDisplay();
+    this.renderTeamChat?.();
+    this.showToast(`Equipo configurado: ${this.operatorName}`, 'info');
+  };
+
+  const origUpdateOp = proto.updateOperatorDisplay;
+  proto.updateOperatorDisplay = function(...args) {
+    if (typeof origUpdateOp === 'function') origUpdateOp.apply(this, args);
+    const current = this.operatorName || 'Andrés';
+    const chatLbl = $('chat-sender-label');
+    if (chatLbl) chatLbl.textContent = current;
+    document.querySelectorAll('[data-operator-preset]').forEach(btn => {
+      const active = btn.dataset.operatorPreset === current;
+      btn.classList.toggle('is-active', active);
+      btn.setAttribute('aria-pressed', String(active));
+    });
+  };
+
+  proto.chatStage = 'Todos';
+  proto.unreadChatCount = 0;
+  proto.lastSeenChatId = null;
+
+  proto.toggleTeamChat = function(force) {
+    window.soundEngine?.playClick?.();
+    const drawer = $('team-chat-drawer');
+    if (!drawer) return;
+    const isOpen = typeof force === 'boolean' ? force : !drawer.classList.contains('is-open');
+    drawer.classList.toggle('is-open', isOpen);
+    drawer.setAttribute('aria-hidden', String(!isOpen));
+    if (isOpen) {
+      this.unreadChatCount = 0;
+      const msgs = this.db?.event_info?.chat_messages || [];
+      if (msgs.length) this.lastSeenChatId = msgs[msgs.length - 1].id;
+      this.updateChatBadge();
+      this.updateOperatorDisplay();
+      this.renderTeamChat();
+      setTimeout(() => $('team-chat-input')?.focus(), 80);
+    }
+  };
+
+  proto.setChatStage = function(stage) {
+    window.soundEngine?.playClick?.();
+    this.chatStage = stage;
+    document.querySelectorAll('.p-chat-stage-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.chatStage === stage);
+    });
+  };
+
+  proto.updateChatBadge = function() {
+    const badge = $('team-chat-badge');
+    if (!badge) return;
+    badge.textContent = String(this.unreadChatCount || 0);
+    badge.style.display = this.unreadChatCount > 0 ? 'inline-flex' : 'none';
+  };
+
+  proto.renderTeamChat = function() {
+    const box = $('team-chat-messages');
+    if (!box) return;
+    const msgs = this.db?.event_info?.chat_messages || [];
+    if (!msgs.length) {
+      box.innerHTML = `<div class="p-chat-empty">${icon('chat')}<p>Chat del equipo listo.</p><small>Escribe cualquier indicación interna y la ventana se abrirá automáticamente en las demás pantallas.</small></div>`;
+      return;
+    }
+    box.innerHTML = msgs.map(m => {
+      const d = new Date(m.created_at);
+      let tStr = '';
+      if (Number.isFinite(d.getTime())) {
+        let h = d.getHours();
+        const min = String(d.getMinutes()).padStart(2, '0');
+        const ampm = h >= 12 ? 'PM' : 'AM';
+        h = h % 12 || 12;
+        tStr = `${h}:${min} ${ampm}`;
+      }
+      const isMe = (m.sender || '') === (this.operatorName || 'Dispositivo 1');
+      return `
+        <article class="p-chat-bubble ${isMe ? 'is-mine' : ''}">
+          <header class="p-chat-bubble-meta">
+            <strong>${esc(m.sender || 'Equipo')}</strong>
+            <time>${esc(tStr)}</time>
+          </header>
+          <p class="p-chat-bubble-text">${esc(m.text)}</p>
+        </article>
+      `;
+    }).join('');
+    box.scrollTop = box.scrollHeight;
+  };
+
+  proto.sendTeamChatMessage = async function(customText) {
+    const inp = $('team-chat-input');
+    const textVal = (typeof customText === 'string' ? customText : (inp?.value || '')).trim();
+    if (!textVal) return;
+    window.soundEngine?.playClick?.();
+    if (!customText && inp) inp.value = '';
+
+    const sender = this.operatorName || 'Dispositivo 1';
+    const stage = this.chatStage || 'Todos';
+    const optimisticMsg = {
+      id: 'msg_' + Date.now(),
+      sender,
+      stage,
+      text: textVal,
+      created_at: new Date().toISOString()
+    };
+    this.db.event_info ||= {};
+    this.db.event_info.chat_messages ||= [];
+    this.db.event_info.chat_messages.push(optimisticMsg);
+    this.lastSeenChatId = optimisticMsg.id;
+    this.renderTeamChat();
+
+    try {
+      const res = await fetch('/api/event/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sender, stage, text: textVal })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.event_info) {
+          this.db.event_info = data.event_info;
+          const msgs = this.db.event_info.chat_messages || [];
+          if (msgs.length) this.lastSeenChatId = msgs[msgs.length - 1].id;
+          this.syncData(this.db, true);
+        }
+      }
+    } catch (e) {
+      this.syncData(this.db, true);
+    }
+  };
+
+  const origCleanReset = proto.handleCleanEventReset;
+  if (typeof origCleanReset === 'function') {
+    proto.handleCleanEventReset = function(data, preserveInputs = false) {
+      this.unreadChatCount = 0;
+      this.lastSeenChatId = null;
+      if (data && data.event_info) {
+        data.event_info.chat_messages = [];
+      }
+      origCleanReset.call(this, data, preserveInputs);
+      this.updateChatBadge?.();
+      this.renderTeamChat?.();
+      const drawer = $('team-chat-drawer');
+      if (drawer) {
+        drawer.classList.remove('is-open');
+        drawer.setAttribute('aria-hidden', 'true');
+      }
+    };
+  }
+
+  wrap('syncData', function(data, saveCache) {
+    const prevMsgs = this.db?.event_info?.chat_messages || [];
+    const prevLastId = prevMsgs.length ? prevMsgs[prevMsgs.length - 1].id : this.lastSeenChatId;
+    originals.syncData.call(this, data, saveCache);
+    const newMsgs = this.db?.event_info?.chat_messages || [];
+    if (newMsgs.length) {
+      const latest = newMsgs[newMsgs.length - 1];
+      if (!this.lastSeenChatId) {
+        this.lastSeenChatId = latest.id;
+      } else if (latest.id !== prevLastId && latest.id !== this.lastSeenChatId) {
+        this.lastSeenChatId = latest.id;
+        const isOpen = $('team-chat-drawer')?.classList.contains('is-open');
+        if (!isOpen) {
+          const drawer = $('team-chat-drawer');
+          if (drawer) {
+            drawer.classList.add('is-open');
+            drawer.setAttribute('aria-hidden', 'false');
+          }
+          this.unreadChatCount = 0;
+          this.updateChatBadge();
+        }
+        window.soundEngine?.playChime?.();
+      }
+    }
+    this.renderTeamChat?.();
+  });
+
   wrap('resetForm', function(...args) {
     this._posOrderKey = null;
     window.previewDetailsOpen = false;
     originals.resetForm.apply(this, args);
+    const btn = $('preset-ninos');
+    if (btn) {
+      const txt = btn.querySelector('.preset-txt-main');
+      if (txt) txt.textContent = 'Pan y proteína';
+    }
   });
-  wrap('init', function() {decorate();originals.init.call(this);this.updatePreviewAndTurn();});
+  wrap('init', function() {decorate();originals.init.call(this);this.updatePreviewAndTurn();this.renderTeamChat?.();});
   // Exposed only for deterministic regression tests, not a second application.
-  window.ShawarmaPremium={recipe,recipeHTML,batchRecipeHTML,title,duration,elapsed,esc,icon,core,orderItems,orderUnits,preparationKey,groupPreparation,productionBatches,syncSpecialMotion,proteinIcon,stripEmoji,birthdayMention,specialOrder,bowlFormat,specialClasses,specialLabelsHTML,signatureHTML,formatBirthdayName,handleActionClick};
+  window.ShawarmaPremium={recipe,recipeHTML,batchRecipeHTML,prepProfile,title,duration,elapsed,esc,icon,core,orderItems,orderUnits,preparationKey,groupPreparation,productionBatches,syncSpecialMotion,proteinIcon,stripEmoji,birthdayMention,specialOrder,bowlFormat,specialClasses,specialLabelsHTML,signatureHTML,formatBirthdayName,handleActionClick};
 })();
 /* Drumstick icon: ISC License. Copyright (c) 2026 Lucide Icons and Contributors.
 Permission to use, copy, modify, and/or distribute this software for any

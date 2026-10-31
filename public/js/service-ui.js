@@ -83,10 +83,14 @@
     input.setAttribute('role','combobox');input.setAttribute('aria-autocomplete','list');input.setAttribute('aria-controls',list.id);input.setAttribute('aria-expanded','false');input.setAttribute('autocomplete','off');
     let matches=[],active=-1;
     function close(){list.hidden=true;input.setAttribute('aria-expanded','false');input.removeAttribute('aria-activedescendant');active=-1;}
-    function draw(){list.innerHTML=matches.map((name,i)=>`<button type="button" role="option" id="guest-option-${i}" data-name-index="${i}" aria-selected="${i===active}" tabindex="-1">${esc(name)}</button>`).join('');list.hidden=!matches.length;input.setAttribute('aria-expanded',String(!!matches.length));if(active>=0)input.setAttribute('aria-activedescendant','guest-option-'+active);else input.removeAttribute('aria-activedescendant');}
+    function draw(){
+      list.innerHTML=matches.map((name,i)=>`<button type="button" role="option" id="guest-option-${i}" data-name-index="${i}" aria-selected="${i===active}" tabindex="-1">${esc(name)}</button>`).join('');
+      list.hidden=!matches.length;input.setAttribute('aria-expanded',String(!!matches.length));
+      if(active>=0)input.setAttribute('aria-activedescendant','guest-option-'+active);else input.removeAttribute('aria-activedescendant');
+    }
     function select(i){if(!matches[i])return;input.value=matches[i];close();app.updatePreviewAndTurn();input.focus();}
     input.addEventListener('input',()=>{matches=suggest(input.value);active=-1;draw();});
-    input.addEventListener('keydown',event=>{if(event.key==='Escape'){close();return;}if(list.hidden)return;if(event.key==='ArrowDown'||event.key==='ArrowUp'){event.preventDefault();active=active<0?(event.key==='ArrowDown'?0:matches.length-1):(active+(event.key==='ArrowDown'?1:-1)+matches.length)%matches.length;draw();}else if(event.key==='Enter'&&active>=0){event.preventDefault();select(active);}});
+    input.addEventListener('keydown',event=>{if(event.key==='Escape'){close();return;}if(list.hidden)return;if(event.key==='ArrowDown'||event.key==='ArrowUp'){if(!matches.length)return;event.preventDefault();active=active<0?(event.key==='ArrowDown'?0:matches.length-1):(active+(event.key==='ArrowDown'?1:-1)+matches.length)%matches.length;draw();}else if(event.key==='Enter'&&active>=0){event.preventDefault();select(active);}});
     list.addEventListener('pointerdown',event=>event.preventDefault());
     list.addEventListener('click',event=>{const item=event.target.closest('[data-name-index]');if(item)select(Number(item.dataset.nameIndex));});
     input.addEventListener('blur',close);
@@ -94,15 +98,36 @@
   const legacyPreset=proto.applyPreset;
   proto.applyPreset=function(preset) {
     if(!['con-todo','bowl','ninos','sin-salsas'].includes(preset))return legacyPreset.call(this,preset);
-    const prior=this.selectedPreset;
-    if(preset==='con-todo') {INGREDIENTS_CONFIG.forEach(i=>this.ingredientPreferences[i.id]=i.id!=='picante');this.selectedPreset=prior==='bowl'?'bowl':'con-todo';}
-    if(preset==='bowl')this.selectedPreset=prior==='bowl'?'custom':'bowl';
-    if(preset==='ninos') {if(prior==='ninos')this.selectedPreset='custom';else {this.selectedPreset='ninos';INGREDIENTS_CONFIG.forEach(i=>this.ingredientPreferences[i.id]=false);}}
-    if(preset==='sin-salsas') {this.ingredientPreferences.ajo=false;this.ingredientPreferences.ajonjoli=false;if(!['bowl','ninos'].includes(prior))this.selectedPreset='sin-salsas';}
+    const prior=String(this.selectedPreset||'');
+    if(preset==='con-todo') {
+      INGREDIENTS_CONFIG.forEach(i=>this.ingredientPreferences[i.id]=i.id!=='picante');
+      this.selectedPreset=prior==='bowl'?'bowl':'con-todo';
+      const txt=$('preset-ninos')?.querySelector('.preset-txt-main');if(txt)txt.textContent='Pan y proteína';
+    }
+    if(preset==='bowl'){
+      this.selectedPreset=prior==='bowl'?'custom':'bowl';
+      const txt=$('preset-ninos')?.querySelector('.preset-txt-main');if(txt)txt.textContent='Pan y proteína';
+    }
+    if(preset==='ninos') {
+      this.openPrepProfileModal?.();
+      return;
+    }
+    if(preset==='sin-salsas') {
+      this.ingredientPreferences.ajo=false;
+      this.ingredientPreferences.ajonjoli=false;
+      if(!prior.startsWith('ninos') && prior!=='bowl')this.selectedPreset='sin-salsas';
+    }
     this.updatePresetPills();this.renderIngredientsMatrix();this.updatePreviewAndTurn();
   };
   const updatePills=proto.updatePresetPills;
-  proto.updatePresetPills=function(){updatePills.call(this);const complete=INGREDIENTS_CONFIG.every(i=>!!this.ingredientPreferences[i.id]===(i.id!=='picante'));$('preset-con-todo')?.classList.toggle('active',complete);$('preset-sin-salsas')?.classList.toggle('active',!this.ingredientPreferences.ajo&&!this.ingredientPreferences.ajonjoli);};
+  proto.updatePresetPills=function(){
+    updatePills.call(this);
+    const isPanProt=String(this.selectedPreset||'').startsWith('ninos');
+    $('preset-ninos')?.classList.toggle('active',isPanProt);
+    const complete=!isPanProt && INGREDIENTS_CONFIG.every(i=>!!this.ingredientPreferences[i.id]===(i.id!=='picante'));
+    $('preset-con-todo')?.classList.toggle('active',complete);
+    $('preset-sin-salsas')?.classList.toggle('active',!isPanProt && !this.ingredientPreferences.ajo&&!this.ingredientPreferences.ajonjoli);
+  };
   async function timerAction(action) {
     if(app.safetyConflict||app.safetyClosing||app.serviceTimerBusy)return;
     if(action==='reset'&&!confirm(t('¿Reiniciar solo el reloj? No borra pedidos ni cambia sus horas.','Reset only the timer? Orders and their timestamps will not change.')))return;

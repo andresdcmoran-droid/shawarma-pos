@@ -707,6 +707,78 @@ mount_locked(server, '/api/event/reset_turns') do |req, res|
   end
 end
 
+# API: Event Contracted Quantity & Metadata
+mount_locked(server, '/api/event/meta') do |req, res|
+  set_api_headers(res)
+  if req.request_method == 'OPTIONS'
+    res.status = 204
+    next
+  end
+  next unless require_api_auth(req, res)
+  if req.request_method == 'POST'
+    begin
+      body = JSON.parse(req.body || '{}')
+      db = load_db
+      db['event_info'] ||= {}
+      if body.key?('contracted_qty')
+        db['event_info']['contracted_qty'] = [body['contracted_qty'].to_i, 0].max
+      end
+      if body.key?('owner_name')
+        owner = body['owner_name'].to_s.strip[0, 120]
+        db['event_info']['owner_name'] = owner
+        db['event_info']['name'] = owner.empty? ? 'Catering Evento Especial' : owner
+      end
+      save_db(db)
+      res.body = JSON.generate({ status: 'ok', event_info: db['event_info'] })
+    rescue StandardError => e
+      res.status = 400
+      res.body = JSON.generate({ error: e.message })
+    end
+  end
+end
+
+# API: Team Chat Messages (Pedidos <-> Cocina / Plancha / Armado)
+mount_locked(server, '/api/event/chat') do |req, res|
+  set_api_headers(res)
+  if req.request_method == 'OPTIONS'
+    res.status = 204
+    next
+  end
+  next unless require_api_auth(req, res)
+  if req.request_method == 'POST'
+    begin
+      body = JSON.parse(req.body || '{}')
+      db = load_db
+      db['event_info'] ||= {}
+      db['event_info']['chat_messages'] ||= []
+      if body['action'] == 'clear'
+        db['event_info']['chat_messages'] = []
+      else
+        text_msg = body['text'].to_s.strip[0, 300]
+        unless text_msg.empty?
+          msg = {
+            'id' => "msg_#{Time.now.to_f.to_s.sub('.', '')}_#{SecureRandom.hex(2)}",
+            'sender' => (body['sender'] || 'Equipo').to_s.strip[0, 60],
+            'stage' => (body['stage'] || 'Todos').to_s.strip[0, 40],
+            'text' => text_msg,
+            'created_at' => Time.now.iso8601
+          }
+          db['event_info']['chat_messages'] << msg
+          # Keep last 80 messages in active event state
+          if db['event_info']['chat_messages'].length > 80
+            db['event_info']['chat_messages'] = db['event_info']['chat_messages'].last(80)
+          end
+        end
+      end
+      save_db(db)
+      res.body = JSON.generate({ status: 'ok', event_info: db['event_info'] })
+    rescue StandardError => e
+      res.status = 400
+      res.body = JSON.generate({ error: e.message })
+    end
+  end
+end
+
 mount_locked(server, '/api/event/reset') do |req, res|
   set_api_headers(res)
 
