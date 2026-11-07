@@ -18,7 +18,7 @@
       ${card(heading('Apariencia','settings','La misma interfaz en Mac, iPad y celular.')+`<div class="u-theme-options">${[['noche','Noche','monitor'],['dia','Día','check'],['auto','Automático','settings']].map(([id,label,glyph])=>`<button type="button" class="u-button" id="btn-theme-${id}" onclick="app.setTheme('${id}')">${icon(glyph)}${label}</button>`).join('')}</div><div class="u-language-setting"><span id="u-language-label">Idioma de este dispositivo</span><div class="u-language-options" role="group" aria-labelledby="u-language-label"><button type="button" class="u-button" id="u-language-es" lang="es" data-i18n-ignore onclick="app.setLanguage('es')" aria-pressed="true">Español</button><button type="button" class="u-button" id="u-language-en" lang="en" data-i18n-ignore onclick="app.setLanguage('en')" aria-pressed="false">English</button></div></div>`)}
       ${card(heading('Dispositivo y operador','person')+`<div class="u-between"><div><strong id="admin-operator-display">Andrés</strong><p class="u-muted">Selecciona el equipo o identifica quién envía mensajes y toma pedidos.</p></div>${button('Otro nombre','edit','app.promptChangeOperator()')}</div><div class="p-operator-presets-row" role="group" aria-label="Equipos predeterminados"><button type="button" class="u-button" data-operator-preset="Andrés" onclick="app.selectOperatorPreset('Andrés')">${icon('person')}<span>Andrés</span></button><button type="button" class="u-button" data-operator-preset="Anaíz" onclick="app.selectOperatorPreset('Anaíz')">${icon('person')}<span>Anaíz</span></button><button type="button" class="u-button" data-operator-preset="Leandro" onclick="app.selectOperatorPreset('Leandro')">${icon('person')}<span>Leandro</span></button></div>`)}
       ${card(heading('Conexión entre pantallas','monitor','Pedidos, cocina y monitor deben usar el mismo servidor.')+`<div class="u-address" id="admin-url-text"></div><p class="u-muted" id="u-network-note"></p>`,'u-full')}
-      ${card(heading('Resumen del evento','order')+`<div class="u-metrics u-event-metrics">${metric('stat-total','Total unidades','order')}${metric('stat-mixto','Mixto',proteinIcon('Mixto','white'))}${metric('stat-pollo','Pollo',proteinIcon('Pollo','white'))}${metric('stat-carne','Carne',proteinIcon('Carne','white'))}${metric('stat-falafel','Falafel',proteinIcon('Falafel','white'))}${metric('stat-bowls','Bowls · sin pan','bowl')}</div><p class="u-stats-note">Las proteínas incluyen los bowls. Bowls es un dato adicional, no se suma otra vez al total.</p><div class="u-actions">${button('Resumen para el cliente','order','app.showClientInvoiceModal()','u-primary')}${button('Exportar pedidos CSV','list','app.exportRawCSV()')}</div>`,'u-full')}
+      ${card(heading('Resumen del evento','order')+`<div class="u-metrics u-event-metrics">${metric('stat-total','Total unidades','order')}${metric('stat-mixto','Mixto',proteinIcon('Mixto','white'))}${metric('stat-pollo','Pollo',proteinIcon('Pollo','white'))}${metric('stat-carne','Carne',proteinIcon('Carne','white'))}${metric('stat-falafel','Falafel',proteinIcon('Falafel','white'))}${metric('stat-bowls','Bowls · sin pan','bowl')}</div><p class="u-stats-note">Las proteínas incluyen los bowls. Bowls es un dato adicional, no se suma otra vez al total.</p><div class="u-actions">${button('Resumen para el cliente','order','app.showClientInvoiceModal()','u-primary')}${button('Exportar pedidos CSV','list','app.exportRawCSV()')}</div><div id="admin-deleted-orders-container" class="u-deleted-orders-section" style="margin-top:16px; border-top:1px dashed var(--border-color); padding-top:14px;"></div>`,'u-full')}
       ${card(heading('Código QR de Reseña','qr','Muestra el código QR oficial para que los comensales califiquen el servicio directamente.')+`<div class="u-actions">${button('Mostrar QR de Reseña','star','app.showGoogleReviewQRModal()','u-primary')}</div><p class="u-muted">Pide a los clientes que escaneen el código desde su celular para calificar directamente en segundos.</p>`,'u-full')}
       <section id="finance-locked-card" class="pos-card u-card u-full u-between"><div>${heading('Costos y rentabilidad','settings')}<p class="u-muted">Accede con el PIN financiero configurado en este dispositivo.</p></div>${button('Abrir módulo financiero','settings','app.promptUnlockFinance()')}</section>
       <section id="finance-unlocked-card" class="pos-card u-card u-full" style="display:none">
@@ -249,6 +249,34 @@
       ? `<div class="p-balance-owner-badge">${icon('person')}<span>Evento / Dueño: <strong>${esc(ownerName)}</strong></span></div>`
       : '';
 
+    const deletedList = (this.db?.deleted_orders || []).slice().sort((a,b) => Number(a.turn) - Number(b.turn));
+    const deletedMonitorHTML = deletedList.length ? `
+      <div class="p-balance-deleted-box" style="margin-top:14px; padding:12px 14px; border-radius:10px; background:rgba(239,68,68,0.08); border:1.5px dashed rgba(239,68,68,0.35);">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+          <span style="font-size:12.5px; font-weight:850; color:#f87171; display:inline-flex; align-items:center; gap:6px;">
+            ${icon('trash')} Pedidos Eliminados (${deletedList.length})
+          </span>
+          <span style="font-size:11px; color:var(--text-dim);">Turnos descartados</span>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:6px;">
+          ${deletedList.map(d => {
+            const prod = d.protein ? (d.is_bowl ? `Bowl ${d.protein}` : `Shawarma ${d.protein}`) : 'Shawarma';
+            return `
+              <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:6px; padding:6px 10px; background:rgba(239,68,68,0.12); border-radius:6px; font-size:12.5px;">
+                <div style="display:flex; align-items:center; gap:6px;">
+                  <span style="background:#ef4444; color:#fff; font-weight:900; font-size:11px; padding:2px 7px; border-radius:4px;">Turno #${esc(d.turn)}</span>
+                  <strong style="color:var(--text-white);">${esc(d.guest_name || 'Comensal')}</strong>
+                  ${d.table ? `<span style="color:var(--text-dim); font-size:11.5px;">(${esc(d.table)})</span>` : ''}
+                  <span style="color:#fca5a5; font-size:11.5px;">• ${esc(prod)}</span>
+                </div>
+                <span style="font-size:11px; color:#fca5a5; font-weight:700;">Eliminado</span>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      </div>
+    ` : '';
+
     const balanceDashboardHTML = `
       <div class="p-balance-card">
         ${ownerBadgeHTML}
@@ -287,6 +315,7 @@
             </div>
           </div>
         ` : ''}
+        ${deletedMonitorHTML}
       </div>
       <div class="p-balance-in-progress">
         <h3 class="p-balance-subtitle">${icon('kitchen')}<span>En preparación y listos ahora (${inKitchenUnits} shawarmas en ${inKitchen.length} turnos)</span></h3>
@@ -346,6 +375,7 @@
     text('stat-bowls',all.filter(x=>x.item.is_bowl||x.item.preset==='bowl').reduce((sum,x)=>sum+x.quantity,0));
     ['Mixto','Pollo','Carne','Falafel'].forEach(p=>text('stat-'+p.toLowerCase(),all.filter(x=>x.item.protein===p).reduce((sum,x)=>sum+x.quantity,0)));
     this.updateOperatorDisplay();
+    this.renderDeletedOrdersSection?.();
     $('finance-locked-card').style.display=this.isFinanceUnlocked?'none':'flex';
     $('finance-unlocked-card').style.display=this.isFinanceUnlocked?'block':'none';
     if(this.isFinanceUnlocked){this.recalculateCosts();this.loadFixedFinances?.();}
@@ -359,6 +389,60 @@
     text('admin-url-text',this.isLocalPreview?'Prueba local · este navegador':/^https?:\/\//.test(origin)?origin:'Abre la aplicación desde su servidor');
     text('u-network-note',this.isLocalPreview?'No sincroniza otros dispositivos. Los datos de prueba se borran al recargar.':/^http:\/\/(localhost|127\.0\.0\.1)(:|$)/.test(origin)?'Esta dirección sirve en este equipo. En iPad o celular usa la IP local del Mac y el mismo puerto, dentro de la misma red.':'Para el servicio local, conecta los dispositivos a la misma red y utiliza la dirección del Mac servidor.');
   };
+  proto.renderDeletedOrdersSection=function() {
+    const box = $('admin-deleted-orders-container');
+    if (!box) return;
+    const deleted = (this.db?.deleted_orders || []).slice().sort((a,b) => Number(a.turn) - Number(b.turn));
+    if (!deleted.length) {
+      box.innerHTML = `
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; font-size:13px; color:var(--text-dim);">
+          <span style="display:inline-flex; align-items:center; gap:6px;">${icon('trash')}<strong>Pedidos eliminados del evento:</strong> Ninguno (secuencia limpia de turnos)</span>
+          <span style="font-size:11px; opacity:0.75;">0 eliminados</span>
+        </div>
+      `;
+      return;
+    }
+
+    const rows = deleted.map(d => {
+      let timeStr = '—';
+      const dt = new Date(d.deleted_at || d.created_at);
+      if (Number.isFinite(dt.getTime())) {
+        let h = dt.getHours();
+        const m = String(dt.getMinutes()).padStart(2, '0');
+        const ampm = h >= 12 ? 'pm' : 'am';
+        h = h % 12 || 12;
+        timeStr = `${h}:${m} ${ampm}`;
+      }
+      const prod = d.protein ? (d.is_bowl ? `Bowl · ${d.protein}` : `Shawarma · ${d.protein}`) : 'Shawarma';
+      return `
+        <div class="u-deleted-order-item" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; padding:8px 12px; background:rgba(239,68,68,0.08); border:1px solid rgba(239,68,68,0.25); border-radius:8px; font-size:13px;">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="background:#ef4444; color:#ffffff; font-weight:900; font-size:12px; padding:2px 8px; border-radius:6px; letter-spacing:0.3px;">Turno #${esc(d.turn)}</span>
+            <strong style="color:var(--text-white);">${esc(d.guest_name || 'Comensal')}</strong>
+            ${d.table ? `<span style="color:var(--text-dim); font-size:12px;">(${esc(d.table)})</span>` : ''}
+            <span style="color:#fca5a5; font-size:12px;">• ${esc(prod)}</span>
+          </div>
+          <div style="font-size:11.5px; color:var(--text-dim);">
+            <span>Eliminado a las <strong>${timeStr}</strong></span>
+            ${d.operator ? `<span> por ${esc(d.operator)}</span>` : ''}
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    box.innerHTML = `
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+        <span style="font-size:13px; font-weight:800; color:#f87171; display:inline-flex; align-items:center; gap:6px;">
+          ${icon('trash')} Registro de Turnos Eliminados (${deleted.length})
+        </span>
+        <span style="font-size:11.5px; color:var(--text-dim);">Explica saltos en la secuencia de turnos</span>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:6px;">
+        ${rows}
+      </div>
+    `;
+  };
+
   proto.renderCostSettingsInputs=function() {
     const cfg=this.costConfig||DEFAULT_COST_CONFIG;
     html('cost-settings-inputs-list',Object.entries(cfg).map(([key,item])=>{

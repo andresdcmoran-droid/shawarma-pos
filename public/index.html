@@ -2125,8 +2125,8 @@
       }
     }
   </style>
-  <link rel="stylesheet" href="css/premium.css?v=20261031-v47">
-  <link rel="stylesheet" href="css/unified.css?v=20261031-v47">
+  <link rel="stylesheet" href="css/premium.css?v=20261107-v49">
+  <link rel="stylesheet" href="css/unified.css?v=20261107-v49">
 </head>
 <body class="premium-ui" data-view="order">
 
@@ -3668,7 +3668,8 @@
             turn_counter: 0,
             timer: { started_at: null, elapsed_seconds: 0, is_paused: false }
           },
-          orders: []
+          orders: [],
+          deleted_orders: []
         };
         this.currentGroupItems = [];
         this.editingOrderId = null;
@@ -4278,17 +4279,43 @@
         soundEngine.playClick();
         if (!confirm(`¿Estás seguro de ELIMINAR la comanda Turno #${turn}?`)) return;
 
-        // Remover localmente
+        const target = (this.db.orders || []).find(o => o.id === orderId);
+        if (target) {
+          this.db.deleted_orders = this.db.deleted_orders || [];
+          const deletedEntry = {
+            id: target.id,
+            turn: target.turn,
+            guest_name: target.guest_name,
+            table: target.table,
+            protein: target.protein,
+            preset: target.preset,
+            is_bowl: !!target.is_bowl,
+            is_group: !!target.is_group,
+            items_count: target.items_count || 1,
+            notes: target.notes,
+            operator: target.operator,
+            created_at: target.created_at,
+            deleted_at: new Date().toISOString()
+          };
+          this.db.deleted_orders = this.db.deleted_orders.filter(d => d.id !== orderId && String(d.turn) !== String(target.turn));
+          this.db.deleted_orders.push(deletedEntry);
+        }
+
+        // Remover de la lista de activos
         this.db.orders = (this.db.orders || []).filter(o => o.id !== orderId);
         this.syncData(this.db, true);
-        this.showToast(`🗑️ Comanda Turno #${turn} eliminada`, 'info');
+        this.showToast(`🗑️ Comanda Turno #${turn} eliminada (registrada en Admin)`, 'info');
 
         try {
-          await fetch('/api/orders/delete', {
+          const res = await fetch('/api/orders/delete', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ id: orderId })
           });
+          if (res.ok) {
+            const data = await res.json();
+            if (data.db) this.syncData(data.db, true);
+          }
         } catch(e) {}
       }
 
@@ -6785,13 +6812,13 @@
     window.addEventListener('DOMContentLoaded', () => window.app.init());
   </script>
   <script src="js/qrcode.js?v=20261012-v26"></script>
-  <script src="js/premium-ui.js?v=20261031-v47"></script>
-  <script src="js/unified-ui.js?v=20261031-v47"></script>
+  <script src="js/premium-ui.js?v=20261107-v49"></script>
+  <script src="js/unified-ui.js?v=20261107-v49"></script>
   <script src="js/supplies-ui.js?v=20260904-v6"></script>
   <script src="js/safety-ui.js?v=20260904-v6"></script>
-  <script src="js/i18n-ui.js?v=20261031-v47"></script>
-  <link rel="stylesheet" href="css/service.css?v=20261031-v47">
-  <script src="js/service-ui.js?v=20261031-v47"></script>
+  <script src="js/i18n-ui.js?v=20261107-v49"></script>
+  <link rel="stylesheet" href="css/service.css?v=20261107-v49">
+  <script src="js/service-ui.js?v=20261107-v49"></script>
   <script src="vendor/jszip.min.js"></script>
   <script src="js/report-template.js?v=20260904-v6"></script>
   <script src="js/reports-ui.js?v=20261012-v1"></script>

@@ -602,16 +602,35 @@ mount_locked(server, '/api/orders/delete') do |req, res|
       order_id = body['id']
 
       db = load_db
-      orig_len = db['orders'].length
-      db['orders'].reject! { |o| o['id'] == order_id }
+      db['deleted_orders'] ||= []
+      target_order = db['orders'].find { |o| o['id'] == order_id }
 
-      if db['orders'].length < orig_len
-        # Si la lista de pedidos quedó vacía tras borrar, reiniciar el contador de turnos a 0
-        if db['orders'].empty?
+      if target_order
+        deleted_entry = {
+          'id' => target_order['id'],
+          'turn' => target_order['turn'],
+          'guest_name' => target_order['guest_name'],
+          'table' => target_order['table'],
+          'protein' => target_order['protein'],
+          'preset' => target_order['preset'],
+          'is_bowl' => !!target_order['is_bowl'],
+          'is_group' => !!target_order['is_group'],
+          'items_count' => target_order['items_count'] || 1,
+          'notes' => target_order['notes'],
+          'operator' => target_order['operator'],
+          'created_at' => target_order['created_at'],
+          'deleted_at' => Time.now.iso8601
+        }
+        # Evitar duplicados en deleted_orders
+        db['deleted_orders'].reject! { |d| d['id'] == order_id || d['turn'].to_s == target_order['turn'].to_s }
+        db['deleted_orders'] << deleted_entry
+        db['orders'].reject! { |o| o['id'] == order_id }
+
+        if db['orders'].empty? && db['deleted_orders'].empty?
           db['event_info']['turn_counter'] = 0
         end
         save_db(db)
-        res.body = JSON.generate({ status: 'ok', deleted_id: order_id })
+        res.body = JSON.generate({ status: 'ok', deleted_id: order_id, deleted_order: deleted_entry, db: db })
       else
         res.status = 404
         res.body = JSON.generate({ error: 'Order not found' })
@@ -817,7 +836,8 @@ mount_locked(server, '/api/event/reset') do |req, res|
             'paused_at' => nil
           }
         },
-        'orders' => []
+        'orders' => [],
+        'deleted_orders' => []
       }
 
       save_db(new_db)
@@ -864,7 +884,8 @@ mount_locked(server, '/api/event/close_and_start_next') do |req, res|
             'paused_at' => nil
           }
         },
-        'orders' => []
+        'orders' => [],
+        'deleted_orders' => []
       }
 
       save_db(new_db)
