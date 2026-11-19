@@ -352,6 +352,16 @@
       kdsBadge.style.display = active.length > 0 ? 'inline-flex' : 'none';
     }
     document.querySelectorAll('.kds-filter-tab').forEach(b => {b.classList.toggle('active', b.dataset.filter === this.kdsFilter);b.setAttribute('aria-pressed', b.dataset.filter === this.kdsFilter);});
+
+    // Smart Diff Guard: evitar destruir y reconstruir el DOM si nada cambió (vital para iPad 7ª Gen y toques táctiles)
+    const langKey = document.documentElement?.lang || 'es';
+    const kdsSig = `${this.kdsFilter}|${langKey}|` + orders.map(o => `${o.id}:${o.turn}:${o.status}:${o.updated_at || ''}:${o.guest_ack ? 1 : 0}:${o.guest_name || ''}:${o.table || ''}:${o.protein || ''}:${o.preset || ''}:${o.items_count || 1}:${o.notes || ''}`).join(';');
+    if (this._lastKdsSig === kdsSig && grid.childElementCount > 0) {
+      this.updateTimers();
+      return;
+    }
+    this._lastKdsSig = kdsSig;
+
     window._openBatchKeys = window._openBatchKeys || new Set();
     document.querySelectorAll('#kds-batch-counters .p-batch-turns[open]').forEach(el => {
       const k = el.getAttribute('data-batch-key');
@@ -562,16 +572,18 @@
     });
     this.pTandaSubmitting=true;
     try {
+      const nowIso = new Date().toISOString();
       for(const order of eligible) {
-        const res=await fetch('/api/orders/status',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:order.id,status:'ready'})});
-        if(!res.ok)throw new Error('Unconfirmed batch');
-        order.status='ready';order.prepared_at ||= new Date().toISOString();
+        order.status='ready';
+        order.prepared_at ||= nowIso;
+        this.enqueueActionOutbox?.('/api/orders/status', { id: order.id, status: 'ready' }, 'status:' + order.id);
       }
       this.syncData(this.db,true);
+      await this.processActionOutboxQueue?.();
       this.showToast(`${quantity} shawarmas de la tanda ${batch.number} confirmados listos.`, 'success');
     } catch(error) {
       this.renderKDS();
-      this.showToast('No se confirmó toda la tanda. Revisa los estados y la conexión antes de repetir.','error');
+      this.showToast('Tanda guardada en cola local. Se sincronizará automáticamente al recuperar señal.','info');
     } finally {this.pTandaSubmitting=false;}
   };
   proto.showToast = function(msg,type='success') {
@@ -583,23 +595,19 @@
   };
   let failCount = 0;
   function connection(ok) {
-    const badge = $('conn-badge');if (!badge) return;
+    const badge = $('conn-badge');
     if (ok) {
       failCount = 0;
-      badge.dataset.connection = 'online';
-      text('conn-text','En línea');
+      app.isOnline = true;
       app.lastConfirmedSync = Date.now();
-      badge.title = `Conectado · Última respuesta: ${new Date().toLocaleTimeString()}`;
+      if (badge) badge.title = `Conectado · Última respuesta: ${new Date().toLocaleTimeString()}`;
     } else {
       failCount++;
       if (failCount >= 3) {
-        badge.dataset.connection = 'offline';
-        text('conn-text','Sin red');
-      } else {
-        badge.dataset.connection = 'online';
-        text('conn-text','En línea');
+        app.isOnline = false;
       }
     }
+    app.updateConnectionBadge?.();
   }
   wrap('fetchServer', async function() {
     try {
@@ -699,47 +707,85 @@
     });
     const presets = {'con-todo':['check','Con todo'],bowl:['bowl','Bowl sin pan'],ninos:['mixto-art','Pan y proteína'],'sin-salsas':['sauce','Sin salsas'],'solo-carnes':['meat','Carnes y salsas'],'sin-cebolla':['onion','Sin cebolla'],'sin-pepinillo':['pickle','Sin pepinillo'],'sin-tomate':['tomato','Sin tomate']};
     Object.entries(presets).forEach(([id,[glyph,label]])=>{const b=$('preset-'+id);if(b){b.querySelector('.preset-icon').innerHTML=glyph==='mixto-art'?proteinIcon('Mixto','white'):icon(glyph);b.querySelector('.preset-txt-main').textContent=label;}});
-    const guestLabel = document.querySelector('label[for="guest-name"]');
-    if (guestLabel) {
-      guestLabel.style.display = 'flex';
-      guestLabel.style.alignItems = 'center';
-      guestLabel.style.justifyContent = 'space-between';
-      guestLabel.style.gap = '8px';
-      guestLabel.innerHTML = `<span style="display:inline-flex;align-items:center;gap:6px;">${icon('person')} Nombre del invitado</span><button type="button" class="p-repeat-search-btn" onclick="app.openRepeatOrderModal()" title="Buscar cliente y repetir su pedido">${icon('repeat')}<span>Repetir pedido</span></button>`;
+    try {
+      const guestLabel = document.querySelector('label[for="guest-name"]');
+      if (guestLabel) {
+        guestLabel.style.display = 'flex';
+        guestLabel.style.alignItems = 'center';
+        guestLabel.style.justifyContent = 'space-between';
+        guestLabel.style.gap = '8px';
+        guestLabel.innerHTML = `<span style="display:inline-flex;align-items:center;gap:6px;">${icon('person')} Nombre del invitado</span><button type="button" class="p-repeat-search-btn" onclick="app.openRepeatOrderModal()" title="Buscar cliente y repetir su pedido">${icon('repeat')}<span>Repetir pedido</span></button>`;
+      }
+      const tableLabel = document.querySelector('label[for="guest-table"]');
+      if (tableLabel) tableLabel.innerHTML = `${icon('pin')} Mesa / referencia`;
+      const gName = $('guest-name');
+      if (gName) {
+        gName.placeholder = 'Nombre del invitado';
+        gName.maxLength = 100;
+        gName.addEventListener('input', () => app.updatePreviewAndTurn());
+      }
+      const gTable = $('guest-table');
+      if (gTable) {
+        gTable.placeholder = 'Ej. Mesa 2';
+        gTable.maxLength = 60;
+        gTable.addEventListener('input', () => app.updatePreviewAndTurn());
+      }
+      const oNotes = $('order-notes');
+      if (oNotes) {
+        oNotes.maxLength = 500;
+        oNotes.setAttribute('aria-label', 'Notas para cocina');
+      }
+      const headers = document.querySelectorAll('#view-order .pos-section-header');
+      ['1. Elige la proteína','2. Atajos','3. Ingredientes'].forEach((s, i) => {
+        if (headers[i]?.firstElementChild) headers[i].firstElementChild.textContent = s;
+        if (headers[i]?.lastElementChild) headers[i].lastElementChild.textContent = ['Selección obligatoria','Recetas rápidas','Incluir o quitar'][i];
+      });
+      const notes = $('quick-notes-bar');
+      if (notes && notes.previousElementSibling) {
+        notes.previousElementSibling.innerHTML = `${icon('edit')} Notas para cocina`;
+        const glyphs = ['plus','bowl','bowl','sauce','cut','kitchen','falafel','box'];
+        notes.querySelectorAll('button').forEach((b, i) => {
+          const match = b.getAttribute('onclick')?.match(/toggleQuickNote\('([^']+)'\)/);
+          if (match) {
+            b.dataset.note = match[1];
+            b.innerHTML = `${icon(glyphs[i] || 'edit')}<span>${esc(match[1])}</span>`;
+          }
+        });
+      }
+      const submitBtn = $('btn-submit-order');
+      if (submitBtn?.firstElementChild) submitBtn.firstElementChild.innerHTML = icon('send');
+      const cancelEditBtn = $('btn-cancel-edit');
+      if (cancelEditBtn) cancelEditBtn.innerHTML = `${icon('close')} Cancelar edición`;
+      const groupTraySpan = document.querySelector('#group-tray-box > div > span > span:first-child');
+      if (groupTraySpan) groupTraySpan.innerHTML = icon('group');
+      const watermark = document.querySelector('.sidebar-watermark-container');
+      if (watermark) watermark.hidden = false;
+      const resetSpan = $('timer-reset-icon'); if (resetSpan) resetSpan.innerHTML = icon('reset'); else if ($('btn-timer-reset')) $('btn-timer-reset').innerHTML = icon('reset');
+      const kdsResetSpan = $('kds-timer-reset-icon'); if (kdsResetSpan) kdsResetSpan.innerHTML = icon('reset');
+      const batch = document.querySelector('.kds-batching-bar');
+      if (batch) batch.innerHTML = `<div class="p-batch-heading"><span>${icon('kitchen')} Preparaciones iguales</span><strong id="p-batch-total"></strong></div><div class="batch-chips-wrapper" id="kds-batch-counters"></div>`;
+      const filters = {active:['clock','En preparación','active'],ready:['check','Listos','ready'],delivered:['box','Entregados','delivered'],all:['list','Todos','all']};
+      document.querySelectorAll('.kds-filter-tab').forEach(b => {
+        const entry = filters[b.dataset.filter];
+        if (entry) { const [glyph, label, id] = entry; b.innerHTML = `${icon(glyph)}<span>${label}</span><strong id="count-${id}-kds">0</strong>`; }
+      });
+      const batchButton = document.querySelector('button[onclick="app.markNextBatchReady()"]');
+      if (batchButton) { batchButton.className = 'p-batch-ready'; batchButton.innerHTML = `${icon('check')} Marcar tanda lista · hasta 6 shawarmas`; }
+      document.querySelectorAll('#view-display .turn-column-header').forEach((el, i) => { el.innerHTML = `${icon(i ? 'monitor' : 'box')}<span>${i ? 'Balance de los que faltan' : 'Entregados'}</span>`; });
+      if (!document.querySelector('.p-mobile-review')) {
+        document.body.insertAdjacentHTML('beforeend', `<div class="p-mobile-review"><div><span>Pedido actual</span><strong id="p-mobile-summary"></strong></div><button type="button" id="p-review-order">${icon('order')}<span id="p-mobile-action-text">Revisar pedido</span></button></div>`);
+        $('p-review-order')?.addEventListener('click', () => {
+          if (window.ShawarmaService?.confirmMobileReview()) return;
+          document.activeElement?.blur?.();
+          const summary = document.querySelector('.summary-card-pos');
+          if (summary) { summary.setAttribute('tabindex', '-1'); summary.scrollIntoView({behavior:'smooth',block:'start'}); summary.focus({preventScroll:true}); }
+        });
+      }
+      setupInteractiveModals();
+      document.addEventListener('click', handleActionClick);
+    } catch(err) {
+      if (typeof console !== 'undefined' && console.warn) console.warn('Decorate warning:', err);
     }
-    document.querySelector('label[for="guest-table"]').innerHTML=`${icon('pin')} Mesa / referencia`;
-    $('guest-name').placeholder='Nombre del invitado';$('guest-table').placeholder='Ej. Mesa 2';
-    $('guest-name').maxLength=100;$('guest-table').maxLength=60;$('order-notes').maxLength=500;
-    $('guest-name').addEventListener('input',()=>app.updatePreviewAndTurn());
-    $('guest-table').addEventListener('input',()=>app.updatePreviewAndTurn());
-    $('order-notes').setAttribute('aria-label','Notas para cocina');
-    const headers=document.querySelectorAll('#view-order .pos-section-header');
-    ['1. Elige la proteína','2. Atajos','3. Ingredientes'].forEach((s,i)=>{headers[i].firstElementChild.textContent=s;headers[i].lastElementChild.textContent=['Selección obligatoria','Recetas rápidas','Incluir o quitar'][i];});
-    const notes=$('quick-notes-bar');notes.previousElementSibling.innerHTML=`${icon('edit')} Notas para cocina`;
-    const glyphs=['plus','bowl','bowl','sauce','cut','kitchen','falafel','box'];
-    notes.querySelectorAll('button').forEach((b,i)=>{
-      const match=b.getAttribute('onclick').match(/toggleQuickNote\('([^']+)'\)/);b.dataset.note=match[1];
-      b.innerHTML=`${icon(glyphs[i])}<span>${esc(match[1])}</span>`;
-    });
-    $('btn-submit-order').firstElementChild.innerHTML=icon('send');
-    $('btn-cancel-edit').innerHTML=`${icon('close')} Cancelar edición`;
-    document.querySelector('#group-tray-box > div > span > span:first-child').innerHTML=icon('group');
-    document.querySelector('.sidebar-watermark-container').hidden=false;
-    const resetSpan=$('timer-reset-icon');if(resetSpan)resetSpan.innerHTML=icon('reset');else if($('btn-timer-reset'))$('btn-timer-reset').innerHTML=icon('reset');
-    const kdsResetSpan=$('kds-timer-reset-icon');if(kdsResetSpan)kdsResetSpan.innerHTML=icon('reset');
-    const batch=document.querySelector('.kds-batching-bar');
-    batch.innerHTML=`<div class="p-batch-heading"><span>${icon('kitchen')} Preparaciones iguales</span><strong id="p-batch-total"></strong></div><div class="batch-chips-wrapper" id="kds-batch-counters"></div>`;
-    const filters={active:['clock','En preparación','active'],ready:['check','Listos','ready'],delivered:['box','Entregados','delivered'],all:['list','Todos','all']};
-    document.querySelectorAll('.kds-filter-tab').forEach(b=>{const [glyph,label,id]=filters[b.dataset.filter];b.innerHTML=`${icon(glyph)}<span>${label}</span><strong id="count-${id}-kds">0</strong>`;});
-    const batchButton=document.querySelector('button[onclick="app.markNextBatchReady()"]');
-    batchButton.className='p-batch-ready';batchButton.innerHTML=`${icon('check')} Marcar tanda lista · hasta 6 shawarmas`;
-    document.querySelectorAll('#view-display .turn-column-header').forEach((el,i)=>{el.innerHTML=`${icon(i ? 'monitor' : 'box')}<span>${i?'Balance de los que faltan':'Entregados'}</span>`;});
-    if (!document.querySelector('.p-mobile-review')) {
-      document.body.insertAdjacentHTML('beforeend',`<div class="p-mobile-review"><div><span>Pedido actual</span><strong id="p-mobile-summary"></strong></div><button type="button" id="p-review-order">${icon('order')}<span id="p-mobile-action-text">Revisar pedido</span></button></div>`);
-      $('p-review-order')?.addEventListener('click',()=>{if(window.ShawarmaService?.confirmMobileReview())return;document.activeElement?.blur?.();const summary=document.querySelector('.summary-card-pos');summary.setAttribute('tabindex','-1');summary.scrollIntoView({behavior:'smooth',block:'start'});summary.focus({preventScroll:true});});
-    }
-    setupInteractiveModals();
-    document.addEventListener('click',handleActionClick);
     window._openBatchKeys = window._openBatchKeys || new Set();
     window._openTicketDetailsKeys = window._openTicketDetailsKeys || new Set();
     document.addEventListener('toggle', e => {

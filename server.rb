@@ -208,14 +208,16 @@ def broadcast_event(event_type, payload)
   end
 end
 
-# Background Heartbeat Thread: Keeps SSE streams open through Render/proxies and detects dead clients
+# Background Heartbeat Thread: Keeps SSE streams open through Render/Cloudflare and updates client watchdog
 Thread.new do
   loop do
-    sleep 10
+    sleep 15
+    ts = Time.now.to_i
     $clients_mutex.synchronize do
       $clients.reject! do |client|
         begin
-          client.write(": heartbeat #{Time.now.to_i}\n\n")
+          client.write("event: ping\n")
+          client.write("data: {\"t\":#{ts}}\n\n")
           client.flush
           false
         rescue StandardError
@@ -232,6 +234,8 @@ server = WEBrick::HTTPServer.new(
   Port: PORT,
   DocumentRoot: PUBLIC_DIR,
   BindAddress: '0.0.0.0',
+  MaxClients: 100,
+  RequestTimeout: 30,
   Logger: WEBrick::Log.new(nil, WEBrick::Log::WARN),
   AccessLog: []
 )
@@ -437,8 +441,12 @@ mount_locked(server, '/api/orders/status') do |req, res|
       if order
         order['status'] = new_status
         order['updated_at'] = Time.now.iso8601
+        order['preparing_at'] ||= Time.now.iso8601 if new_status == 'preparing'
         order['prepared_at'] = Time.now.iso8601 if new_status == 'ready'
-        order['delivered_at'] = Time.now.iso8601 if new_status == 'delivered'
+        if new_status == 'delivered'
+          order['prepared_at'] ||= Time.now.iso8601
+          order['delivered_at'] = Time.now.iso8601
+        end
         save_db(db)
 
         res.body = JSON.generate({ status: 'ok', order: order })
@@ -570,6 +578,25 @@ mount_locked(server, '/api/orders/update') do |req, res|
         order['ingredients'] = body['ingredients'] || order['ingredients']
         order['removed_ingredients'] = body['removed_ingredients'] || []
         order['notes'] = (body['notes'] || '').strip
+        if body.key?('is_group')
+          order['is_group'] = !!body['is_group']
+        end
+        if body['items'].is_a?(Array) && !body['items'].empty?
+          order['items'] = body['items']
+          order['items_count'] = (body['items_count'] || body['items'].length).to_i
+          order['quantity'] = (body['quantity'] || body['items'].length).to_i
+        elsif !order['is_group']
+          order['items'] = [{
+            'protein' => order['protein'],
+            'preset' => order['preset'],
+            'is_bowl' => order['is_bowl'],
+            'ingredients' => order['ingredients'],
+            'removed_ingredients' => order['removed_ingredients'],
+            'notes' => order['notes']
+          }]
+          order['items_count'] = 1
+          order['quantity'] = 1
+        end
         order['updated_at'] = Time.now.iso8601
         save_db(db)
 
@@ -746,6 +773,12 @@ mount_locked(server, '/api/event/meta') do |req, res|
         owner = body['owner_name'].to_s.strip[0, 120]
         db['event_info']['owner_name'] = owner
         db['event_info']['name'] = owner.empty? ? 'Catering Evento Especial' : owner
+      end
+      if body['finances'].is_a?(Hash)
+        db['event_info']['finances'] ||= {}
+        body['finances'].each do |k, v|
+          db['event_info']['finances'][k.to_s[0, 64]] = v
+        end
       end
       save_db(db)
       res.body = JSON.generate({ status: 'ok', event_info: db['event_info'] })
@@ -983,7 +1016,9 @@ mount_locked(server, '/api/vault/archives') do |req, res|
           'date' => data.dig('event_info', 'created_at') || File.mtime(f).iso8601,
           'total_orders' => (data['orders'] || []).length,
           'orders' => data['orders'] || [],
-          'timer' => data.dig('event_info', 'timer')
+          'timer' => data.dig('event_info', 'timer'),
+          'event_info' => data['event_info'] || {},
+          'deleted_orders' => data['deleted_orders'] || []
         }
       rescue StandardError
       end
@@ -1122,9 +1157,10 @@ server.mount_proc '/' do |req, res|
   # Normalize path
   path = '/index.html' if path == '/' || ['/order', '/kitchen', '/display', '/admin'].include?(path)
   
-  target_file = File.join(PUBLIC_DIR, path)
+  target_file = File.expand_path(File.join(PUBLIC_DIR, path))
+  safe_file = target_file.start_with?(PUBLIC_DIR + File::SEPARATOR) && File.file?(target_file)
 
-  if File.file?(target_file)
+  if safe_file
     ext = File.extname(target_file).downcase
     mime_types = {
       '.html' => 'text/html; charset=utf-8',

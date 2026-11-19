@@ -2125,8 +2125,8 @@
       }
     }
   </style>
-  <link rel="stylesheet" href="css/premium.css?v=20261107-v49">
-  <link rel="stylesheet" href="css/unified.css?v=20261107-v49">
+  <link rel="stylesheet" href="css/premium.css?v=20261118-v70">
+  <link rel="stylesheet" href="css/unified.css?v=20261118-v70">
 </head>
 <body class="premium-ui" data-view="order">
 
@@ -3163,11 +3163,14 @@
         this.kdsFilter = 'active';
         this.broadcast = null;
 
-        // Cola de salida garantizada (Outbox) y gestor de conectividad
+        // Cola de salida garantizada (Outbox de pedidos y acciones) y gestor de conectividad
         this.outboxQueue = JSON.parse(localStorage.getItem('shawarma_outbox_queue_v1') || '[]');
         this.isProcessingOutbox = false;
+        this.actionOutboxQueue = JSON.parse(localStorage.getItem('shawarma_action_outbox_v1') || '[]');
+        this.isProcessingActions = false;
         this.sse = null;
         this.lastHeartbeat = Date.now();
+        this.lastPollAt = 0;
         this.isOnline = navigator.onLine !== false;
       }
 
@@ -3218,8 +3221,9 @@
         window.addEventListener('online', () => {
           this.isOnline = true;
           this.updateConnectionBadge();
-          this.fetchServer();
           this.processOutboxQueue();
+          this.processActionOutboxQueue();
+          this.fetchServer();
           this.startSSE();
         });
 
@@ -3231,8 +3235,9 @@
         // Recuperación instantánea cuando el iPad o teléfono despierta de pantalla bloqueada (iOS Safari)
         document.addEventListener('visibilitychange', () => {
           if (document.visibilityState === 'visible') {
-            this.fetchServer();
             this.processOutboxQueue();
+            this.processActionOutboxQueue();
+            this.fetchServer();
             this.checkSSEWatchdog();
           }
         });
@@ -3245,22 +3250,31 @@
         this.startSSE();
         this.fetchVaultArchives();
         this.processOutboxQueue();
+        this.processActionOutboxQueue();
         this.updateKDSBadge();
 
         // Cronómetro en tiempo real y pulso keep-alive continuo
         setInterval(() => this.updateEventTimerDisplay(), 1000);
         setInterval(() => this.updateTimers(), 10000);
 
-        // Watchdog de salud SSE cada 5 segundos (detecta sockets congelados)
-        setInterval(() => this.checkSSEWatchdog(), 5000);
+        // Watchdog de salud SSE cada 10 segundos (detecta sockets congelados sin falsos positivos)
+        setInterval(() => this.checkSSEWatchdog(), 10000);
 
-        // Procesar cola de salida cada 2.5 segundos si hay comandas pendientes
-        setInterval(() => this.processOutboxQueue(), 2500);
+        // Procesar colas de salida cada 2.5 segundos si hay comandas o cambios pendientes
+        setInterval(() => {
+          this.processOutboxQueue();
+          this.processActionOutboxQueue();
+        }, 2500);
 
-        // Sondeo de seguridad dual (Dual-Sync): Cocina y monitor sondean cada 3 segundos
+        // Sondeo de respaldo inteligente: cada 8s si SSE está vivo, cada 3s solo si SSE cayó
         setInterval(() => {
           if (this.currentView === 'kitchen' || this.currentView === 'display') {
-            this.fetchServer();
+            const sseOpen = this.sse && this.sse.readyState === 1;
+            const intervalMs = sseOpen ? 8000 : 3000;
+            if (Date.now() - (this.lastPollAt || 0) >= intervalMs) {
+              this.lastPollAt = Date.now();
+              this.fetchServer();
+            }
           }
         }, 3000);
         
@@ -3315,7 +3329,13 @@
 
       checkParams() {
         const p = new URLSearchParams(window.location.search);
-        const v = p.get('view');
+        let v = p.get('view');
+        if (!v) {
+          const path = (window.location.pathname || '').replace(/^\/+|\/+$/g, '');
+          if (['order', 'kitchen', 'display', 'admin', 'guest'].includes(path)) {
+            v = path;
+          }
+        }
         if (v === 'guest') {
           this.guestOrderId = p.get('order_id') || p.get('id');
           this.switchView('guest');
@@ -3327,7 +3347,9 @@
       }
 
       switchView(v) {
+        try { soundEngine?.playClick?.(); } catch(_) {}
         this.currentView = v;
+        if (document.body) document.body.dataset.view = v;
         const detailModal = document.getElementById('order-detail-modal');
         if (detailModal) {
           detailModal.classList.remove('active');
@@ -3384,9 +3406,10 @@
         const dot = badge ? badge.querySelector('.connection-dot') : null;
         if (!badge || !text) return;
 
-        const queueCount = (this.outboxQueue || []).length;
+        const queueCount = (this.outboxQueue || []).length + (this.actionOutboxQueue || []).length;
 
         if (queueCount > 0) {
+          badge.dataset.connection = 'syncing';
           badge.style.color = '#f59e0b';
           badge.style.borderColor = 'rgba(245, 158, 11, 0.4)';
           badge.style.background = 'rgba(245, 158, 11, 0.12)';
@@ -3395,7 +3418,8 @@
             dot.style.boxShadow = '0 0 8px #f59e0b';
           }
           text.textContent = `${queueCount} en cola (enviando...)`;
-        } else if (this.isOnline && this.sse && this.sse.readyState === 1) {
+        } else if (this.isOnline && navigator.onLine !== false) {
+          badge.dataset.connection = 'online';
           badge.style.color = '#10b981';
           badge.style.borderColor = 'rgba(16, 185, 129, 0.3)';
           badge.style.background = 'rgba(16, 185, 129, 0.1)';
@@ -3405,6 +3429,7 @@
           }
           text.textContent = 'En línea';
         } else {
+          badge.dataset.connection = 'offline';
           badge.style.color = '#ef4444';
           badge.style.borderColor = 'rgba(239, 68, 68, 0.4)';
           badge.style.background = 'rgba(239, 68, 68, 0.12)';
@@ -3413,6 +3438,91 @@
             dot.style.boxShadow = '0 0 8px #ef4444';
           }
           text.textContent = 'Sin red';
+        }
+      }
+
+      saveActionOutboxQueue() {
+        try {
+          localStorage.setItem('shawarma_action_outbox_v1', JSON.stringify(this.actionOutboxQueue || []));
+        } catch(e) {}
+      }
+
+      enqueueActionOutbox(endpoint, payload, dedupeKey = '') {
+        if (!Array.isArray(this.actionOutboxQueue)) this.actionOutboxQueue = [];
+        if (dedupeKey) {
+          this.actionOutboxQueue = this.actionOutboxQueue.filter(item => item.dedupeKey !== dedupeKey);
+        }
+        this.actionOutboxQueue.push({
+          id: 'act_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
+          endpoint,
+          payload,
+          dedupeKey,
+          createdAt: Date.now(),
+          attempts: 0
+        });
+        this.saveActionOutboxQueue();
+        this.updateConnectionBadge();
+      }
+
+      applyPendingActionsToData(data) {
+        if (!data || !Array.isArray(data.orders) || !Array.isArray(this.actionOutboxQueue) || this.actionOutboxQueue.length === 0) return;
+        for (const act of this.actionOutboxQueue) {
+          const p = act.payload || {};
+          if (act.endpoint === '/api/orders/status' && p.id) {
+            const o = data.orders.find(x => String(x.id) === String(p.id));
+            if (o) {
+              o.status = p.status;
+              if (p.status === 'ready') o.prepared_at ||= new Date(act.createdAt).toISOString();
+              if (p.status === 'delivered') o.delivered_at ||= new Date(act.createdAt).toISOString();
+            }
+          } else if (act.endpoint === '/api/orders/update' && p.id) {
+            const o = data.orders.find(x => String(x.id) === String(p.id));
+            if (o) Object.assign(o, p);
+          } else if (act.endpoint === '/api/orders/delete' && p.id) {
+            data.orders = data.orders.filter(x => String(x.id) !== String(p.id));
+          }
+        }
+      }
+
+      async processActionOutboxQueue() {
+        if (this.isProcessingActions || !Array.isArray(this.actionOutboxQueue) || this.actionOutboxQueue.length === 0) {
+          return;
+        }
+        this.isProcessingActions = true;
+        const remaining = [];
+        let anySynced = false;
+
+        for (const item of this.actionOutboxQueue) {
+          try {
+            item.attempts = (item.attempts || 0) + 1;
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 6000);
+            const res = await fetch(item.endpoint, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(item.payload),
+              signal: controller.signal
+            });
+            clearTimeout(timeoutId);
+
+            if (res.ok || res.status === 404) {
+              anySynced = true;
+              this.isOnline = true;
+            } else {
+              remaining.push(item);
+            }
+          } catch(err) {
+            this.isOnline = false;
+            remaining.push(item);
+          }
+        }
+
+        this.actionOutboxQueue = remaining;
+        this.saveActionOutboxQueue();
+        this.isProcessingActions = false;
+        this.updateConnectionBadge();
+        if (anySynced && remaining.length === 0) {
+          this.fetchServer();
         }
       }
 
@@ -3578,6 +3688,12 @@
             this.updateConnectionBadge();
           });
 
+          this.sse.addEventListener('ping', () => {
+            this.isOnline = true;
+            this.lastHeartbeat = Date.now();
+            this.updateConnectionBadge();
+          });
+
           this.sse.addEventListener('event_reset', (e) => {
             this.isOnline = true;
             this.lastHeartbeat = Date.now();
@@ -3599,8 +3715,8 @@
 
       checkSSEWatchdog() {
         const now = Date.now();
-        // Si el stream está cerrado o no ha recibido latido en más de 25s
-        if (!this.sse || this.sse.readyState === 2 || (now - this.lastHeartbeat > 25000)) {
+        // Si el stream está cerrado o no ha recibido ping real en más de 40s (servidor envía ping cada 15s)
+        if (!this.sse || this.sse.readyState === 2 || (now - this.lastHeartbeat > 40000)) {
           this.startSSE();
           this.fetchServer();
         }
@@ -3675,6 +3791,9 @@
         this.editingOrderId = null;
         this.editingOrderTurn = null;
         this.outboxQueue = [];
+        this.actionOutboxQueue = [];
+        this.saveOutboxQueue();
+        this.saveActionOutboxQueue();
         this.resetForm(preserveInputs);
         this.updatePreviewAndTurn();
         if (this.currentView === 'kitchen') this.renderKDS();
@@ -3714,6 +3833,9 @@
             this.pushOrdersToServer(memoryOrders);
           }
         }
+
+        // Aplicar acciones locales aún en cola offline para que ningún poll viejo reviva estados
+        this.applyPendingActionsToData(data);
 
         this.db = data;
         this.activeEventId = serverEventId;
@@ -4109,17 +4231,33 @@
         const removed = this.getRemoved();
         const active = this.getActive();
 
-        // 1. MODO EDICIÓN: Modificar comanda existente
+        // 1. MODO EDICIÓN: Modificar comanda existente (Individual o Grupal)
         if (this.editingOrderId) {
           const editId = this.editingOrderId;
           const editTurn = this.editingOrderTurn;
+          const editedCurrentItem = {
+            protein: this.selectedProtein,
+            preset: this.selectedPreset,
+            is_bowl: this.selectedPreset === 'bowl',
+            ingredients: active,
+            removed_ingredients: removed,
+            notes: notes
+          };
+          const isGroupEdit = this.currentGroupItems.length > 0;
+          const finalEditItems = isGroupEdit
+            ? [...this.currentGroupItems, editedCurrentItem]
+            : [editedCurrentItem];
           const updatedPayload = {
             id: editId,
             guest_name: guestName,
             table: table,
-            protein: this.selectedProtein,
-            preset: this.selectedPreset,
-            is_bowl: this.selectedPreset === 'bowl',
+            protein: isGroupEdit ? finalEditItems.map(i => i.protein).join(' + ') : this.selectedProtein,
+            preset: isGroupEdit ? 'grupo' : this.selectedPreset,
+            is_bowl: finalEditItems.some(i => i.is_bowl),
+            is_group: isGroupEdit,
+            items_count: finalEditItems.length,
+            items: finalEditItems,
+            quantity: finalEditItems.length,
             ingredients: active,
             removed_ingredients: removed,
             notes: notes
@@ -4137,13 +4275,8 @@
           this.cancelEditOrder();
           this.switchView('kitchen');
 
-          try {
-            await fetch('/api/orders/update', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(updatedPayload)
-            });
-          } catch(e) {}
+          this.enqueueActionOutbox('/api/orders/update', updatedPayload, 'update:' + editId);
+          await this.processActionOutboxQueue();
           return;
         }
 
@@ -4217,12 +4350,25 @@
         this.editingOrderId = order.id;
         this.editingOrderTurn = order.turn;
 
-        this.selectedProtein = order.protein || 'Mixto';
-        this.selectedPreset = order.preset || (order.is_bowl ? 'bowl' : 'con-todo');
+        // Soporte completo para edición de pedidos grupales (carga bandeja + último ítem en el editor)
+        const hasGroupItems = order.is_group && Array.isArray(order.items) && order.items.length > 1;
+        let editableItem = order;
+        if (hasGroupItems) {
+          this.currentGroupItems = JSON.parse(JSON.stringify(order.items.slice(0, -1)));
+          editableItem = order.items[order.items.length - 1] || order;
+        } else {
+          this.currentGroupItems = [];
+          if (Array.isArray(order.items) && order.items.length === 1) {
+            editableItem = order.items[0];
+          }
+        }
+
+        this.selectedProtein = editableItem.protein || order.protein || 'Mixto';
+        this.selectedPreset = editableItem.preset || (editableItem.is_bowl ? 'bowl' : 'con-todo');
 
         // Mapeo de ingredientes
         this.ingredientPreferences = {};
-        const activeList = order.ingredients || [];
+        const activeList = editableItem.ingredients || order.ingredients || [];
         INGREDIENTS_CONFIG.forEach(i => {
           this.ingredientPreferences[i.id] = activeList.some(ai => ai.toLowerCase().includes(i.name.toLowerCase()) || ai.toLowerCase() === i.id);
         });
@@ -4232,8 +4378,9 @@
         const notesInp = document.getElementById('order-notes');
         if (nameInp) nameInp.value = order.guest_name || '';
         if (tableInp) tableInp.value = order.table || '';
-        if (notesInp) notesInp.value = order.notes || '';
+        if (notesInp) notesInp.value = editableItem.notes || order.notes || '';
 
+        this.updateGroupTrayUI();
         this.updateProteinCards();
         this.updatePresetPills();
         this.renderIngredientsMatrix();
@@ -4261,6 +4408,8 @@
       cancelEditOrder() {
         this.editingOrderId = null;
         this.editingOrderTurn = null;
+        this.currentGroupItems = [];
+        this.updateGroupTrayUI();
         
         const cancelBtn = document.getElementById('btn-cancel-edit');
         if (cancelBtn) cancelBtn.style.display = 'none';
@@ -4301,22 +4450,12 @@
           this.db.deleted_orders.push(deletedEntry);
         }
 
-        // Remover de la lista de activos
+        // Remover de la lista de activos y encolar borrado garantizado
         this.db.orders = (this.db.orders || []).filter(o => o.id !== orderId);
+        this.enqueueActionOutbox('/api/orders/delete', { id: orderId }, 'delete:' + orderId);
         this.syncData(this.db, true);
         this.showToast(`🗑️ Comanda Turno #${turn} eliminada (registrada en Admin)`, 'info');
-
-        try {
-          const res = await fetch('/api/orders/delete', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id: orderId })
-          });
-          if (res.ok) {
-            const data = await res.json();
-            if (data.db) this.syncData(data.db, true);
-          }
-        } catch(e) {}
+        await this.processActionOutboxQueue();
       }
 
       async toggleEventTimer() {
@@ -4750,8 +4889,8 @@
       }
 
       async updateStatus(id, newStatus) {
-        soundEngine.playClick();
-        const o = this.db.orders.find(item => item.id === id);
+        try { soundEngine?.playClick?.(); } catch(_) {}
+        const o = (this.db.orders || []).find(item => item.id === id);
         if (o) {
           const prevStatus = o.status;
           if (prevStatus !== newStatus && ['ready', 'delivered'].includes(newStatus)) {
@@ -4766,16 +4905,11 @@
           o.status = newStatus;
           if (newStatus === 'ready') o.prepared_at = new Date().toISOString();
           if (newStatus === 'delivered') o.delivered_at = new Date().toISOString();
-          this.syncData(this.db, true);
         }
 
-        try {
-          await fetch('/api/orders/status', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id: id, status: newStatus })
-          });
-        } catch(e) {}
+        this.enqueueActionOutbox('/api/orders/status', { id: id, status: newStatus }, 'status:' + id);
+        this.syncData(this.db, true);
+        await this.processActionOutboxQueue();
       }
 
       async markNextBatchReady() {
@@ -6809,16 +6943,25 @@
     }
 
     window.app = new AppState();
-    window.addEventListener('DOMContentLoaded', () => window.app.init());
+    window.bootApp = () => {
+      if (window._appBooted) return;
+      window._appBooted = true;
+      try { window.app.init(); } catch (e) { console.error('App init error:', e); }
+    };
+    if (document.readyState === 'loading') {
+      window.addEventListener('DOMContentLoaded', window.bootApp);
+    } else {
+      window.bootApp();
+    }
   </script>
   <script src="js/qrcode.js?v=20261012-v26"></script>
-  <script src="js/premium-ui.js?v=20261107-v49"></script>
-  <script src="js/unified-ui.js?v=20261107-v49"></script>
+  <script src="js/premium-ui.js?v=20261118-v70"></script>
+  <script src="js/unified-ui.js?v=20261118-v70"></script>
   <script src="js/supplies-ui.js?v=20260904-v6"></script>
   <script src="js/safety-ui.js?v=20260904-v6"></script>
-  <script src="js/i18n-ui.js?v=20261107-v49"></script>
-  <link rel="stylesheet" href="css/service.css?v=20261107-v49">
-  <script src="js/service-ui.js?v=20261107-v49"></script>
+  <script src="js/i18n-ui.js?v=20261118-v70"></script>
+  <link rel="stylesheet" href="css/service.css?v=20261118-v70">
+  <script src="js/service-ui.js?v=20261118-v70"></script>
   <script src="vendor/jszip.min.js"></script>
   <script src="js/report-template.js?v=20260904-v6"></script>
   <script src="js/reports-ui.js?v=20261012-v1"></script>
@@ -6875,6 +7018,9 @@
         return response;
       };
     })();
+  </script>
+  <script>
+    if (typeof window.bootApp === 'function') window.bootApp();
   </script>
 </body>
 </html>

@@ -162,6 +162,14 @@
   proto.renderDisplay=function() {
     ui.syncSpecialMotion();
     const orders=[...(this.db.orders||[])].filter(o=>o.status!=='cancelled').sort((a,b)=>Number(a.turn)-Number(b.turn));
+    const contracted=this.getContractedQty();
+    const ownerName=this.getEventOwnerName();
+    const deletedCount=(this.db?.deleted_orders||[]).length;
+    const langKey=document.documentElement?.lang||'es';
+    const dispSig=`${langKey}|${contracted}|${ownerName}|${deletedCount}|`+orders.map(o=>`${o.id}:${o.turn}:${o.status}:${o.updated_at||''}:${o.guest_ack?1:0}:${o.guest_name||''}:${o.items_count||1}`).join(';');
+    if(this._lastDisplaySig===dispSig && $('display-ready-list')?.childElementCount>0)return;
+    this._lastDisplaySig=dispSig;
+
     const delivered=orders.filter(o=>o.status==='delivered').sort((a,b)=>Number(a.turn)-Number(b.turn));
     const prep=orders.filter(o=>['pending','preparing'].includes(o.status));
     const ready=orders.filter(o=>o.status==='ready');
@@ -173,8 +181,6 @@
     const readyUnits=sumUnits(ready);
     const inKitchenUnits=prepUnits+readyUnits;
     const totalOrderedUnits=deliveredUnits+inKitchenUnits;
-    const contracted=this.getContractedQty();
-    const ownerName=this.getEventOwnerName();
 
     const remainingToDeliver=contracted>0?Math.max(0,contracted-deliveredUnits):0;
     const extraDelivered=contracted>0&&deliveredUnits>contracted?(deliveredUnits-contracted):0;
@@ -376,8 +382,8 @@
     ['Mixto','Pollo','Carne','Falafel'].forEach(p=>text('stat-'+p.toLowerCase(),all.filter(x=>x.item.protein===p).reduce((sum,x)=>sum+x.quantity,0)));
     this.updateOperatorDisplay();
     this.renderDeletedOrdersSection?.();
-    $('finance-locked-card').style.display=this.isFinanceUnlocked?'none':'flex';
-    $('finance-unlocked-card').style.display=this.isFinanceUnlocked?'block':'none';
+    if($('finance-locked-card'))$('finance-locked-card').style.display=this.isFinanceUnlocked?'none':'flex';
+    if($('finance-unlocked-card'))$('finance-unlocked-card').style.display=this.isFinanceUnlocked?'block':'none';
     if(this.isFinanceUnlocked){this.recalculateCosts();this.loadFixedFinances?.();}
     const archives=this.getVaultArchives();text('vault-total-orders',this.getVaultOrders().length);text('vault-total-events',archives.length);
     const clearHeader = archives.length ? `<div style="display:flex;justify-content:flex-end;margin-bottom:12px;">${button('Vaciar toda la Bóveda ('+archives.length+' eventos)','trash','app.clearVaultPrompt()','u-danger')}</div>` : '';
