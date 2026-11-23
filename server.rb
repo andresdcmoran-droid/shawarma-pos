@@ -831,6 +831,269 @@ mount_locked(server, '/api/event/chat') do |req, res|
   end
 end
 
+# API: Copiloto Inteligente de Cocina & Evento (Gemini API + Respaldo Local)
+# Nota: usa mount_proc (sin retener $db_mutex durante la llamada HTTPS) para nunca bloquear pedidos ni KDS.
+def build_copilot_event_snapshot(db)
+  orders = Array(db['orders']).reject { |o| o['status'] == 'cancelled' }
+  deleted = Array(db['deleted_orders'])
+  ev = db['event_info'] || {}
+  now = Time.now
+
+  unit_count = lambda do |o|
+    if o['is_group'] && o['items'].is_a?(Array) && !o['items'].empty?
+      o['items'].sum { |it| [it['quantity'].to_i, 1].max }
+    else
+      [o['quantity'].to_i, 1].max
+    end
+  end
+
+  wait_mins = lambda do |o|
+    t = Time.parse(o['created_at'].to_s) rescue nil
+    t ? [((now - t) / 60.0).floor, 0].max : 0
+  end
+
+  pending = orders.select { |o| o['status'] == 'pending' }
+  plancha = orders.select { |o| %w[preparing ready].include?(o['status']) }
+  delivered = orders.select { |o| o['status'] == 'delivered' }
+
+  total_units = orders.sum { |o| unit_count.call(o) }
+  delivered_units = delivered.sum { |o| unit_count.call(o) }
+  pending_units = pending.sum { |o| unit_count.call(o) }
+  plancha_units = plancha.sum { |o| unit_count.call(o) }
+  contracted = ev['contracted_qty'].to_i
+
+  proteins_pending = Hash.new(0)
+  proteins_plancha = Hash.new(0)
+  proteins_all = Hash.new(0)
+  kids_active = []
+  birthday_active = []
+
+  orders.each do |o|
+    items = (o['is_group'] && o['items'].is_a?(Array) && !o['items'].empty?) ? o['items'] : [o]
+    items.each do |it|
+      qty = [it['quantity'].to_i, 1].max
+      prot = (it['is_bowl'] || it['preset'] == 'bowl') ? "Bowl #{it['protein'] || 'Mixto'}" : (it['protein'] || 'Mixto')
+      proteins_all[prot] += qty
+      proteins_pending[prot] += qty if o['status'] == 'pending'
+      proteins_plancha[prot] += qty if %w[preparing ready].include?(o['status'])
+      if o['status'] != 'delivered'
+        if it['preset'] == 'ninos' && (it['prep_profile'] || 'nino') == 'nino'
+          kids_active << "##{o['turn']} #{o['guest_name']}"
+        end
+      end
+    end
+    if o['status'] != 'delivered' && "#{o['guest_name']} #{o['notes']}".downcase.match?(/cumplea[nñ]/)
+      birthday_active << "##{o['turn']} #{o['guest_name']}"
+    end
+  end
+
+  active_orders = (pending + plancha).map do |o|
+    {
+      turn: o['turn'],
+      guest: o['guest_name'] || 'Invitado',
+      status: o['status'] == 'pending' ? 'Armado' : 'Plancha y Entrega',
+      protein: o['protein'] || 'Mixto',
+      units: unit_count.call(o),
+      wait_min: wait_mins.call(o),
+      removed: Array(o['removed_ingredients']),
+      notes: o['notes'].to_s.strip
+    }
+  end.sort_by { |x| -x[:wait_min] }
+
+  {
+    event_name: (ev['owner_name'] && !ev['owner_name'].to_s.strip.empty?) ? ev['owner_name'] : (ev['name'] || 'Evento activo'),
+    contracted_qty: contracted,
+    total_units: total_units,
+    delivered_units: delivered_units,
+    pending_orders: pending.length,
+    pending_units: pending_units,
+    plancha_orders: plancha.length,
+    plancha_units: plancha_units,
+    remaining_to_order: contracted > 0 ? [contracted - total_units, 0].max : 0,
+    remaining_to_deliver: contracted > 0 ? [contracted - delivered_units, 0].max : (pending_units + plancha_units),
+    deleted_count: deleted.length,
+    proteins_pending: proteins_pending,
+    proteins_plancha: proteins_plancha,
+    proteins_all: proteins_all,
+    kids_active: kids_active.uniq,
+    birthday_active: birthday_active.uniq,
+    oldest_active: active_orders.first(5),
+    finances: ev['finances'] || {}
+  }
+end
+
+def build_local_copilot_answer(question, snap)
+  q = question.to_s.downcase
+  if q.match?(/ganancia|costo|gasto|dinero|financ|margen|cobr|rentabil/)
+    fin = snap[:finances] || {}
+    if fin['total_cost'].to_f > 0 || fin['revenue'].to_f > 0
+      return "En #{snap[:event_name]} el costo total con logística es de #{format('%.2f', (fin['total_event_cost'] || fin['total_cost']).to_f)} dólares, el ingreso registrado es de #{format('%.2f', fin['revenue'].to_f)} dólares y la ganancia neta es de #{format('%.2f', fin['net_profit'].to_f)} dólares con margen de #{fin['margin_pct']}%."
+    end
+    return "Todavía no hay montos financieros guardados para #{snap[:event_name]}. Abre Administración y entra a Costos y rentabilidad para sincronizarlos."
+  end
+
+  if q.match?(/atras|espera|demor|cuello|lent|tard/)
+    top = snap[:oldest_active].first
+    if top
+      return "El pedido con más tiempo es el turno #{top[:turn]} de #{top[:guest]} en #{top[:status]}, lleva #{top[:wait_min]} minutos. Tienes #{snap[:pending_orders]} en Armado y #{snap[:plancha_orders]} en Plancha y Entrega."
+    end
+    return "No hay pedidos atrasados ahora mismo. La cocina está al día."
+  end
+
+  if q.match?(/prote|mixto|pollo|carne|falafel|bowl/)
+    arm = snap[:proteins_pending].map { |k, v| "#{v} #{k}" }.join(', ')
+    pla = snap[:proteins_plancha].map { |k, v| "#{v} #{k}" }.join(', ')
+    parts = []
+    parts << "En Armado faltan: #{arm}" unless arm.empty?
+    parts << "En Plancha hay: #{pla}" unless pla.empty?
+    return parts.empty? ? "No hay proteínas pendientes en cocina en este momento." : "#{parts.join('. ')}."
+  end
+
+  if q.match?(/ni[nñ]o|cumple/)
+    parts = []
+    parts << "Pedidos de niño activos: #{snap[:kids_active].join(', ')}" unless snap[:kids_active].empty?
+    parts << "Cumpleañeros activos: #{snap[:birthday_active].join(', ')}" unless snap[:birthday_active].empty?
+    return parts.empty? ? "No hay pedidos de niño ni cumpleañeros pendientes en este momento." : "#{parts.join('. ')}."
+  end
+
+  base = "Evento #{snap[:event_name]}: van #{snap[:delivered_units]} entregados"
+  base += " de #{snap[:contracted_qty]} contratados" if snap[:contracted_qty] > 0
+  base += ". Ahora mismo hay #{snap[:pending_orders]} en Armado y #{snap[:plancha_orders]} en Plancha y Entrega"
+  base += ", y faltan #{snap[:remaining_to_order]} por pedir" if snap[:contracted_qty] > 0
+  base += ". Ojo con #{snap[:birthday_active].join(', ')} que es cumpleañero" unless snap[:birthday_active].empty?
+  "#{base}."
+end
+
+server.mount_proc '/api/copilot' do |req, res|
+  set_api_headers(res)
+  if req.request_method == 'OPTIONS'
+    res.status = 204
+    next
+  end
+  next unless require_api_auth(req, res)
+
+  api_key = ENV['GEMINI_API_KEY'].to_s.strip.gsub(/\A['"]|['"]\z/, '').strip
+  preferred_model = ENV['GEMINI_MODEL'].to_s.strip
+  models_to_try = ([preferred_model, 'gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-flash-latest'].reject(&:empty?).uniq)
+  model = models_to_try.first
+
+  if req.request_method == 'GET'
+    res.body = JSON.generate({
+      ok: true,
+      configured: !api_key.empty?,
+      model: model,
+      mode: api_key.empty? ? 'local' : 'gemini'
+    })
+    next
+  end
+
+  if req.request_method == 'POST'
+    begin
+      body = JSON.parse(req.body || '{}')
+      question = body['question'].to_s.strip[0, 400]
+      question = 'Dame un resumen rápido de cómo va el evento ahora mismo.' if question.empty?
+      history = Array(body['history']).last(4)
+
+      db_copy = $db_mutex.synchronize { load_db }
+      snap = build_copilot_event_snapshot(db_copy)
+
+      if api_key.empty?
+        res.body = JSON.generate({
+          ok: true,
+          mode: 'local',
+          configured: false,
+          answer: build_local_copilot_answer(question, snap)
+        })
+        next
+      end
+
+      system_prompt = <<~PROMPT
+        Eres el Copiloto de Cocina y Evento de "Shawarma en Casa", un catering en vivo.
+        Hablas directo al oído del jefe de cocina por audífonos.
+        Reglas estrictas:
+        - Responde SIEMPRE en español natural, directo, claro y sereno (máximo 2 a 3 frases cortas, ~45 palabras).
+        - PROHIBIDO usar asteriscos, viñetas, markdown o emojis porque tu respuesta se lee en voz alta.
+        - Usa ÚNICAMENTE los datos reales del JSON del evento en vivo; nunca inventes turnos ni cifras.
+        - Si detectas un pedido de niño, cumpleañero o cuello de botella real, menciónalo brevemente si es relevante.
+      PROMPT
+
+      contents = []
+      history.each do |h|
+        role = h['role'] == 'model' ? 'model' : 'user'
+        txt = h['text'].to_s.strip[0, 300]
+        contents << { role: role, parts: [{ text: txt }] } unless txt.empty?
+      end
+      contents << {
+        role: 'user',
+        parts: [{ text: "ESTADO EN VIVO DEL EVENTO (JSON):\n#{JSON.generate(snap)}\n\nPREGUNTA DEL JEFE DE COCINA:\n#{question}" }]
+      }
+
+      last_err = 'unknown'
+      models_to_try.each do |candidate_model|
+        uri = URI("https://generativelanguage.googleapis.com/v1beta/models/#{candidate_model}:generateContent?key=#{api_key}")
+        http = Net::HTTP.new(uri.host, uri.port)
+        http.use_ssl = true
+        http.open_timeout = 5
+        http.read_timeout = 12
+
+        greq = Net::HTTP::Post.new(uri)
+        greq['Content-Type'] = 'application/json'
+        greq.body = JSON.generate({
+          system_instruction: { parts: [{ text: system_prompt }] },
+          contents: contents,
+          generationConfig: {
+            temperature: 0.25,
+            maxOutputTokens: 220
+          }
+        })
+
+        gres = http.request(greq)
+        if gres.is_a?(Net::HTTPSuccess)
+          parsed = JSON.parse(gres.body)
+          answer = parsed.dig('candidates', 0, 'content', 'parts', 0, 'text').to_s.strip
+          answer = answer.gsub(/[*_`#]/, '').gsub(/\s+/, ' ').strip
+          unless answer.empty?
+            res.body = JSON.generate({
+              ok: true,
+              mode: 'gemini',
+              configured: true,
+              model: candidate_model,
+              answer: answer
+            })
+            last_err = nil
+            break
+          end
+          last_err = "empty_response_#{candidate_model}"
+        else
+          err_msg = (JSON.parse(gres.body).dig('error', 'message') rescue nil).to_s[0, 120]
+          last_err = "HTTP #{gres.code} (#{candidate_model})#{err_msg.empty? ? '' : ": #{err_msg}"}"
+          # Solo reintentar otro modelo si fue 404 (modelo no disponible) o 429 (cuota de ese modelo)
+          break unless %w[404 429 503].include?(gres.code.to_s)
+        end
+      end
+      next if last_err.nil?
+
+      res.body = JSON.generate({
+        ok: true,
+        mode: 'local',
+        configured: true,
+        fallback_reason: last_err,
+        answer: build_local_copilot_answer(question, snap)
+      })
+    rescue StandardError => e
+      db_copy = $db_mutex.synchronize { load_db } rescue {}
+      snap = build_copilot_event_snapshot(db_copy)
+      res.body = JSON.generate({
+        ok: true,
+        mode: 'local',
+        configured: !api_key.empty?,
+        fallback_reason: e.message.to_s[0, 80],
+        answer: build_local_copilot_answer(question || '', snap)
+      })
+    end
+  end
+end
+
 mount_locked(server, '/api/event/reset') do |req, res|
   set_api_headers(res)
 
