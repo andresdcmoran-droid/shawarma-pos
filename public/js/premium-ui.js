@@ -1682,6 +1682,21 @@
     this.applyWelcomeTargetRoute();
   };
 
+  proto.gateKeypadPress = function(key) {
+    try { window.soundEngine?.playClick?.(); } catch(_) {}
+    const inp = $('b-gate-pin-input');
+    const err = $('b-gate-pin-error');
+    if (!inp) return;
+    if (err) { err.style.display = 'none'; err.textContent = ''; }
+    if (key === 'clear') {
+      inp.value = '';
+    } else if (key === 'back') {
+      inp.value = inp.value.slice(0, -1);
+    } else if (inp.value.length < 16) {
+      inp.value += String(key);
+    }
+  };
+
   proto.lockAppGate = function() {
     window.soundEngine?.playClick?.();
     try {
@@ -1692,8 +1707,9 @@
     const welcomeStep = $('b-gate-step-welcome');
     if (pinStep) pinStep.style.display = 'flex';
     if (welcomeStep) welcomeStep.style.display = 'none';
+    const inp = $('b-gate-pin-input');
+    if (inp) inp.value = '';
     document.documentElement.dataset.gate = 'locked';
-    setTimeout(() => $('b-gate-pin-input')?.focus?.(), 80);
   };
 
   proto.changeAccessPinPrompt = function() {
@@ -1722,9 +1738,6 @@
     this.updatePreviewAndTurn();
     this.renderTeamChat?.();
     this.renderPosContractBar?.();
-    if (document.documentElement.dataset.gate === 'locked') {
-      setTimeout(() => $('b-gate-pin-input')?.focus?.(), 100);
-    }
   });
   // Exposed only for deterministic regression tests, not a second application.
   window.ShawarmaPremium={recipe,recipeHTML,batchRecipeHTML,prepProfile,title,duration,elapsed,esc,icon,core,orderItems,orderUnits,preparationKey,groupPreparation,productionBatches,syncSpecialMotion,proteinIcon,stripEmoji,birthdayMention,specialOrder,bowlFormat,specialClasses,specialLabelsHTML,signatureHTML,formatBirthdayName,handleActionClick};

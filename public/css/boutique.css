@@ -4842,6 +4842,56 @@ body.premium-ui #view-order .summary-card-pos {
   }
 }
 
+/* ============================================================================
+   20. v106 iPad 7th GEN PWA KEYBOARD FIX & BUILT-IN TACTILE ACCESS KEYPAD
+   ============================================================================ */
+body.premium-ui input,
+body.premium-ui textarea,
+body.premium-ui .b-gate-input,
+body.premium-ui .text-input-pos {
+  -webkit-user-select: text !important;
+  user-select: text !important;
+  touch-action: manipulation !important;
+  font-size: 16px !important;
+}
+
+body.premium-ui .b-gate-keypad {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+body.premium-ui .b-kp-btn {
+  height: 44px;
+  border-radius: var(--b-radius-sm);
+  background: var(--b-s2);
+  border: 1px solid var(--b-border);
+  color: var(--b-t1);
+  font-size: 17px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  touch-action: manipulation;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.12s ease, border-color 0.12s ease;
+}
+body.premium-ui .b-kp-btn:hover {
+  background: var(--b-s3);
+  border-color: var(--b-border-s);
+}
+body.premium-ui .b-kp-btn:active {
+  background: var(--b-brand-soft);
+  border-color: var(--b-brand);
+}
+body.premium-ui .b-kp-btn.is-fn {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--b-t2);
+}
+
+
 
 
 
