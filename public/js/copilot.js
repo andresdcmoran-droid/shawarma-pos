@@ -1,6 +1,7 @@
 /* ============================================================================
-   SHAWARMA EN CASA · COPILOTO DE VOZ (GEMINI AI + RESPALDO LOCAL)
-   Módulo 100% aislado: solo lectura del evento en vivo, cero riesgo al POS/KDS.
+   SHAWARMA EN CASA · COPILOTO OPERATIVO CON VOZ HUMANA GEMINI + ACCIONES SEGURAS
+   100% aislado: ejecuta solo acciones seguras (avanzar turno, chat, vista).
+   Nunca puede eliminar pedidos ni reiniciar el evento.
    ============================================================================ */
 (() => {
   'use strict';
@@ -12,18 +13,18 @@
     open: false,
     mode: 'local', // 'gemini' | 'local'
     configured: false,
-    model: 'gemini-2.5-flash',
+    model: 'gemini-2.5-flash-lite',
     voiceOut: true,
     earpieceAlerts: false,
     listening: false,
     thinking: false,
     recognition: null,
-    history: [], // { role: 'user'|'model', text: string, mode?: string }
+    audioEl: null,
+    history: [], // { role: 'user'|'model', text: string, mode?: string, reason?: string, actionNote?: string, voiceEngine?: string }
     seenOrderIds: new Set(),
     alertedOverdueIds: new Set(),
     alertedMilestones: new Set(),
-    watchTimer: null,
-    preferredVoice: null
+    watchTimer: null
   };
 
   function esc(str) {
@@ -32,47 +33,101 @@
     }[c]));
   }
 
-  function pickBestSpanishVoice() {
-    if (!('speechSynthesis' in window)) return null;
-    const voices = window.speechSynthesis.getVoices() || [];
-    if (!voices.length) return null;
-    const esVoices = voices.filter(v => /^es/i.test(v.lang || ''));
-    if (!esVoices.length) return null;
-    const preferredNames = ['paulina', 'mónica', 'monica', 'siri', 'luciana', 'diego', 'jorge', 'elena', 'google español'];
-    for (const target of preferredNames) {
-      const found = esVoices.find(v => (v.name || '').toLowerCase().includes(target));
-      if (found) return found;
-    }
-    return esVoices.find(v => /es-(us|mx|419)/i.test(v.lang)) || esVoices[0];
-  }
-
-  function speak(text) {
-    if (!state.voiceOut || !text || !('speechSynthesis' in window)) return;
-    try {
-      window.speechSynthesis.cancel();
-      const utter = new SpeechSynthesisUtterance(String(text));
-      utter.lang = 'es-US';
-      utter.rate = 1.04;
-      utter.pitch = 1.0;
-      if (!state.preferredVoice) state.preferredVoice = pickBestSpanishVoice();
-      if (state.preferredVoice) utter.voice = state.preferredVoice;
-      window.speechSynthesis.speak(utter);
-    } catch (_) {}
-  }
-
   function stopSpeaking() {
+    if (state.audioEl) {
+      try {
+        state.audioEl.pause();
+        state.audioEl.currentTime = 0;
+      } catch (_) {}
+      state.audioEl = null;
+    }
     try { window.speechSynthesis?.cancel?.(); } catch (_) {}
   }
 
-  function primeAudioForIOS() {
-    // Unlocks iOS Safari speechSynthesis on first user tap
-    if (!('speechSynthesis' in window)) return;
+  function playNeuralAudio(base64, mime) {
+    if (!state.voiceOut || !base64) return;
+    stopSpeaking();
     try {
-      state.preferredVoice = pickBestSpanishVoice();
-      const silent = new SpeechSynthesisUtterance('');
-      silent.volume = 0;
-      window.speechSynthesis.speak(silent);
+      const src = `data:${mime || 'audio/wav'};base64,${base64}`;
+      const audio = new Audio(src);
+      audio.playsInline = true;
+      state.audioEl = audio;
+      audio.play().catch(() => {});
     } catch (_) {}
+  }
+
+  async function executeSafeAction(action) {
+    if (!action || !action.type || action.type === 'none') return '';
+    const app = window.app;
+    if (!app) return '';
+
+    try {
+      if (action.type === 'advance_turn' && Number(action.turn) > 0) {
+        const t = Number(action.turn);
+        const ord = (app.db?.orders || []).find(o => Number(o.turn) === t && o.status !== 'cancelled');
+        if (!ord) return `Turno #${t} no encontrado`;
+        if (ord.status === 'delivered') return `Turno #${t} ya fue entregado`;
+        if (typeof app.updateOrderStatus === 'function') {
+          await app.updateOrderStatus(ord.id, 'preparing');
+          return `Turno #${t} pasado a Plancha`;
+        }
+      }
+
+      if (action.type === 'deliver_turn' && Number(action.turn) > 0) {
+        const t = Number(action.turn);
+        const ord = (app.db?.orders || []).find(o => Number(o.turn) === t && o.status !== 'cancelled');
+        if (!ord) return `Turno #${t} no encontrado`;
+        if (typeof app.updateOrderStatus === 'function') {
+          await app.updateOrderStatus(ord.id, 'delivered');
+          return `Turno #${t} marcado Entregado`;
+        }
+      }
+
+      if (action.type === 'batch_to_plancha') {
+        if (typeof app.markNextBatchReady === 'function') {
+          await app.markNextBatchReady();
+          return 'Tanda pasada a Plancha';
+        }
+      }
+
+      if (action.type === 'send_chat' && action.message) {
+        const msgText = String(action.message).trim().slice(0, 220);
+        if (msgText) {
+          const sender = app.getOperatorName?.() || 'Copiloto';
+          const res = await fetch('/api/event/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text: msgText, sender: `${sender} (Voz)`, stage: 'Todos' })
+          });
+          if (res.ok) {
+            const data = await res.json();
+            if (data.event_info && app.db) {
+              app.db.event_info = data.event_info;
+              app.renderTeamChat?.();
+            }
+            app.showToast?.(`Aviso enviado al chat: "${msgText}"`, 'info');
+            return 'Aviso enviado al chat del equipo';
+          }
+        }
+      }
+
+      if (action.type === 'switch_view') {
+        const validViews = ['order', 'kitchen', 'display', 'admin'];
+        if (validViews.includes(action.view) && typeof app.switchView === 'function') {
+          app.switchView(action.view);
+        }
+        const validStations = ['armado', 'plancha', 'delivered', 'all'];
+        if (validStations.includes(action.station) && typeof app.setKdsStation === 'function') {
+          app.setKdsStation(action.station);
+        }
+        return action.station
+          ? `Vista cambiada a ${action.station}`
+          : `Vista cambiada a ${action.view}`;
+      }
+    } catch (_) {
+      return '';
+    }
+    return '';
   }
 
   async function checkStatus() {
@@ -96,10 +151,10 @@
     if (pill) {
       if (state.configured && state.mode === 'gemini') {
         pill.className = 'cp-mode-pill is-gemini';
-        pill.textContent = 'Gemini AI · En vivo';
+        pill.textContent = 'Gemini AI · Voz Humana';
       } else {
         pill.className = 'cp-mode-pill is-local';
-        pill.textContent = 'Modo Local · Respaldo';
+        pill.textContent = 'Modo Local · Comandos';
       }
     }
     if (hdrBtn) {
@@ -114,17 +169,23 @@
     if (!state.history.length) {
       box.innerHTML = `
         <div class="cp-empty">
-          <p>Pregúntame por voz o toca un resumen rápido para escucharlo por tus audífonos.</p>
-          <small>${state.configured ? 'Conectado a Gemini AI con datos reales de este evento.' : 'Respaldo local activo. Agrega GEMINI_API_KEY en Render para activar respuestas abiertas con Gemini.'}</small>
+          <p>Dime qué hacer o pregúntame sobre el evento.</p>
+          <small>Ejemplos: "Pasa el turno 7 a plancha", "Entrega el turno 4", "Avísale al mesero que ya casi no queda carne" o "¿Cómo vamos hoy?"</small>
         </div>
       `;
       return;
     }
     box.innerHTML = state.history.map(m => {
       const isUser = m.role === 'user';
+      const metaParts = [];
+      if (!isUser && m.mode) metaParts.push(m.mode === 'gemini' ? (m.voiceEngine ? 'Gemini AI · Voz humana' : 'Gemini AI') : 'Respaldo local');
+      if (!isUser && m.reason) metaParts.push(m.reason);
       return `<div class="cp-msg ${isUser ? 'is-user' : 'is-bot'}">
-        <div class="cp-msg-bubble">${esc(m.text)}</div>
-        ${!isUser && m.mode ? `<span class="cp-msg-meta">${m.mode === 'gemini' ? 'Gemini AI' : 'Respaldo local'}${m.reason ? ' · ' + esc(m.reason) : ''}</span>` : ''}
+        <div class="cp-msg-bubble">
+          ${esc(m.text)}
+          ${m.actionNote ? `<div class="cp-action-tag">✓ ${esc(m.actionNote)}</div>` : ''}
+        </div>
+        ${metaParts.length ? `<span class="cp-msg-meta">${esc(metaParts.join(' · '))}</span>` : ''}
       </div>`;
     }).join('');
     box.scrollTop = box.scrollHeight;
@@ -135,14 +196,13 @@
     const btn = document.getElementById('cp-mic-btn');
     const lbl = document.getElementById('cp-mic-label');
     if (btn) btn.classList.toggle('is-thinking', state.thinking);
-    if (lbl && state.thinking) lbl.textContent = 'Consultando evento...';
-    else if (lbl && !state.listening) lbl.textContent = SpeechRec ? 'Tocar para hablar' : 'Voz no soportada · escribe abajo';
+    if (lbl && state.thinking) lbl.textContent = 'Procesando con Gemini…';
+    else if (lbl && !state.listening) lbl.textContent = SpeechRec ? 'Tocar para hablar' : 'Escribe tu orden o pregunta abajo';
   }
 
   async function ask(question) {
     const q = String(question || '').trim();
     if (!q || state.thinking) return;
-    primeAudioForIOS();
     stopSpeaking();
 
     state.history.push({ role: 'user', text: q });
@@ -156,6 +216,7 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           question: q,
+          want_audio: state.voiceOut,
           history: state.history.slice(-6).map(h => ({ role: h.role, text: h.text }))
         })
       });
@@ -166,22 +227,34 @@
       if (data.configured !== undefined) state.configured = !!data.configured;
       updateStatusBadge();
 
-      state.history.push({ role: 'model', text: answer, mode: state.mode, reason: data.fallback_reason || '' });
+      const actionNote = await executeSafeAction(data.action);
+
+      state.history.push({
+        role: 'model',
+        text: answer,
+        mode: state.mode,
+        reason: data.fallback_reason || '',
+        actionNote,
+        voiceEngine: data.voice_engine || ''
+      });
       renderMessages();
-      speak(answer);
+
+      // Solo reproducir voz neural humana real de Gemini (cero voz robótica del navegador)
+      if (data.audio_base64) {
+        playNeuralAudio(data.audio_base64, data.audio_mime);
+      }
     } catch (_) {
-      const fallback = buildOfflineAnswer(q);
+      const fallback = buildOfflineAnswer();
       state.mode = 'local';
       updateStatusBadge();
       state.history.push({ role: 'model', text: fallback, mode: 'local' });
       renderMessages();
-      speak(fallback);
     } finally {
       setThinking(false);
     }
   }
 
-  function buildOfflineAnswer(q) {
+  function buildOfflineAnswer() {
     const db = window.app?.db || {};
     const orders = (db.orders || []).filter(o => o.status !== 'cancelled');
     const pending = orders.filter(o => o.status === 'pending');
@@ -189,16 +262,14 @@
     const delivered = orders.filter(o => o.status === 'delivered');
     const contracted = Number(db.event_info?.contracted_qty || 0);
     const owner = db.event_info?.owner_name || db.event_info?.name || 'el evento';
-    return `Sin conexión al servidor, lectura local de ${owner}: ${delivered.length} entregados${contracted > 0 ? ` de ${contracted}` : ''}, ${pending.length} en Armado y ${plancha.length} en Plancha y Entrega.`;
+    return `Lectura local de ${owner}: ${delivered.length} entregados${contracted > 0 ? ` de ${contracted}` : ''}, ${pending.length} en Armado y ${plancha.length} en Plancha y Entrega.`;
   }
 
   function toggleListening() {
-    primeAudioForIOS();
     stopSpeaking();
     if (!SpeechRec) {
-      const inp = document.getElementById('cp-text-input');
-      inp?.focus();
-      window.app?.showToast?.('Tu navegador no permite dictado; escribe tu pregunta abajo.', 'info');
+      document.getElementById('cp-text-input')?.focus();
+      window.app?.showToast?.('Tu navegador no permite dictado; escribe tu orden abajo.', 'info');
       return;
     }
     if (state.listening && state.recognition) {
@@ -242,7 +313,7 @@
     if (lbl) {
       lbl.textContent = state.listening
         ? 'Escuchando… toca para detener'
-        : (SpeechRec ? 'Tocar para hablar' : 'Escribe tu pregunta abajo');
+        : (SpeechRec ? 'Tocar para hablar' : 'Escribe tu orden abajo');
     }
   }
 
@@ -278,9 +349,9 @@
           const items = (o.is_group && Array.isArray(o.items) && o.items.length) ? o.items : [o];
           const isKid = items.some(it => it.preset === 'ninos' && (it.prep_profile || 'nino') === 'nino');
           if (isBirthday) {
-            alerts.push(`Atención: turno ${o.turn}, ${o.guest_name || 'invitado'}, es cumpleañero.`);
+            alerts.push(`Aviso rápido: entró el turno ${o.turn} de ${o.guest_name || 'invitado'} y es cumpleañero.`);
           } else if (isKid) {
-            alerts.push(`Turno ${o.turn}, ${o.guest_name || 'invitado'}, es pedido de niño, solo pan y proteína.`);
+            alerts.push(`Entró el turno ${o.turn} de ${o.guest_name || 'invitado'}: es pedido de niño, solo pan y proteína.`);
           }
         }
       }
@@ -289,40 +360,19 @@
         const mins = getWaitMinutes(o);
         if (mins >= OVERDUE_ALERT_MINUTES) {
           state.alertedOverdueIds.add(id);
-          alerts.push(`Aviso: el turno ${o.turn} de ${o.guest_name || 'invitado'} lleva ${mins} minutos en Armado.`);
+          alerts.push(`Ojo: el turno ${o.turn} de ${o.guest_name || 'invitado'} ya lleva ${mins} minutos en Armado.`);
         }
       }
     });
 
-    const contracted = Number(db.event_info?.contracted_qty || 0);
-    if (contracted > 0) {
-      const totalUnits = orders.reduce((sum, o) => {
-        if (o.is_group && Array.isArray(o.items) && o.items.length) {
-          return sum + o.items.reduce((s, it) => s + Math.max(1, Number(it.quantity) || 1), 0);
-        }
-        return sum + Math.max(1, Number(o.quantity) || 1);
-      }, 0);
-      const remaining = contracted - totalUnits;
-      const evtKey = String(db.event_info?.id || 'evt');
-      if (remaining === 5 && !state.alertedMilestones.has(evtKey + ':5')) {
-        state.alertedMilestones.add(evtKey + ':5');
-        alerts.push(`Faltan solo 5 shawarmas para completar los ${contracted} contratados.`);
-      } else if (remaining <= 0 && !state.alertedMilestones.has(evtKey + ':0')) {
-        state.alertedMilestones.add(evtKey + ':0');
-        alerts.push(`Meta alcanzada: ya entraron los ${contracted} shawarmas contratados del evento.`);
-      }
-    }
-
     if (alerts.length) {
-      const msg = alerts[0]; // Speak at most 1 concise alert at a time (zero spam)
-      state.history.push({ role: 'model', text: msg, mode: 'local' });
+      window.app?.showToast?.(alerts[0], 'info');
+      state.history.push({ role: 'model', text: alerts[0], mode: 'local' });
       if (state.open) renderMessages();
-      speak(msg);
     }
   }
 
   function toggleEarpieceAlerts() {
-    primeAudioForIOS();
     state.earpieceAlerts = !state.earpieceAlerts;
     const chk = document.getElementById('cp-alerts-toggle');
     if (chk) chk.setAttribute('aria-pressed', String(state.earpieceAlerts));
@@ -330,7 +380,7 @@
     if (state.earpieceAlerts) {
       snapshotExistingOrdersForAlerts();
       if (!state.watchTimer) state.watchTimer = setInterval(checkEarpieceAlerts, 15000);
-      speak('Alertas al oído activadas. Solo te avisaré lo importante.');
+      window.app?.showToast?.('Alertas inteligentes activadas (solo eventos críticos).', 'info');
     } else {
       stopSpeaking();
       if (state.watchTimer) { clearInterval(state.watchTimer); state.watchTimer = null; }
@@ -345,7 +395,7 @@
     if (btn) {
       btn.setAttribute('aria-pressed', String(state.voiceOut));
       btn.classList.toggle('is-on', state.voiceOut);
-      btn.textContent = state.voiceOut ? 'Voz: Activa' : 'Voz: Silencio';
+      btn.textContent = state.voiceOut ? 'Voz humana: ON' : 'Voz: Silencio';
     }
   }
 
@@ -359,9 +409,9 @@
     el.innerHTML = `
       <header class="cp-head">
         <div>
-          <span class="cp-eyebrow">Copiloto de Servicio</span>
+          <span class="cp-eyebrow">Copiloto Operativo</span>
           <div class="cp-title-row">
-            <h2>Guía por Voz</h2>
+            <h2>Asistente Gemini</h2>
             <span id="cp-mode-pill" class="cp-mode-pill is-local">Modo Local</span>
           </div>
         </div>
@@ -371,10 +421,10 @@
       <div class="cp-controls-bar">
         <button type="button" id="cp-alerts-toggle" class="cp-toggle-chip" aria-pressed="false" onclick="window.ShawarmaCopilot.toggleEarpieceAlerts()">
           <span class="cp-dot"></span>
-          <span>Alertas al oído</span>
+          <span>Alertas</span>
         </button>
         <button type="button" id="cp-voice-toggle" class="cp-toggle-chip is-on" aria-pressed="true" onclick="window.ShawarmaCopilot.toggleVoiceOut()">
-          Voz: Activa
+          Voz humana: ON
         </button>
         <button type="button" class="cp-toggle-chip" onclick="window.ShawarmaCopilot.stopSpeaking()">
           Callar
@@ -382,10 +432,10 @@
       </div>
 
       <div class="cp-quick-grid">
-        <button type="button" class="cp-quick-btn" onclick="window.ShawarmaCopilot.ask('Dame un resumen rápido de cómo va el evento ahora mismo.')">Resumen del evento</button>
-        <button type="button" class="cp-quick-btn" onclick="window.ShawarmaCopilot.ask('¿Qué pedidos están atrasados o dónde está el cuello de botella?')">Atrasos y cuello</button>
-        <button type="button" class="cp-quick-btn" onclick="window.ShawarmaCopilot.ask('¿Cuántos shawarmas de cada proteína faltan en armado y en plancha?')">Proteínas pendientes</button>
-        <button type="button" class="cp-quick-btn" onclick="window.ShawarmaCopilot.ask('¿Cómo vamos en costos, ingreso y ganancia neta del evento?')">Balance financiero</button>
+        <button type="button" class="cp-quick-btn" onclick="window.ShawarmaCopilot.ask('¿Cómo vamos ahorita con el evento y qué es lo más urgente?')">¿Cómo vamos?</button>
+        <button type="button" class="cp-quick-btn" onclick="window.ShawarmaCopilot.ask('¿Cuál es el pedido más atrasado y dónde está el cuello?')">Más atrasado</button>
+        <button type="button" class="cp-quick-btn" onclick="window.ShawarmaCopilot.ask('Pasa la siguiente tanda a plancha')">Pasar tanda →</button>
+        <button type="button" class="cp-quick-btn" onclick="window.ShawarmaCopilot.ask('¿Cuántos shawarmas de cada proteína faltan en armado y plancha?')">Proteínas</button>
       </div>
 
       <div id="cp-messages" class="cp-messages" aria-live="polite"></div>
@@ -393,10 +443,10 @@
       <div class="cp-footer">
         <button type="button" id="cp-mic-btn" class="cp-mic-btn" onclick="window.ShawarmaCopilot.toggleListening()">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
-          <span id="cp-mic-label">${SpeechRec ? 'Tocar para hablar' : 'Escribe tu pregunta abajo'}</span>
+          <span id="cp-mic-label">${SpeechRec ? 'Tocar para hablar' : 'Escribe tu orden abajo'}</span>
         </button>
         <form class="cp-text-form" onsubmit="event.preventDefault(); window.ShawarmaCopilot.submitInput();">
-          <input type="text" id="cp-text-input" class="cp-text-input" placeholder="O escribe una pregunta sobre el evento…" autocomplete="off">
+          <input type="text" id="cp-text-input" class="cp-text-input" placeholder="Ej: Pasa el turno 7 a plancha o avisa al mesero…" autocomplete="off">
           <button type="submit" class="cp-send-btn">Enviar</button>
         </form>
       </div>
@@ -417,7 +467,6 @@
 
   function open() {
     ensureDrawer();
-    primeAudioForIOS();
     state.open = true;
     document.getElementById('copilot-drawer')?.classList.add('is-open');
     checkStatus();
@@ -434,12 +483,6 @@
   function toggle() {
     if (state.open) close();
     else open();
-  }
-
-  if ('speechSynthesis' in window) {
-    window.speechSynthesis.onvoiceschanged = () => {
-      state.preferredVoice = pickBestSpanishVoice();
-    };
   }
 
   window.ShawarmaCopilot = {

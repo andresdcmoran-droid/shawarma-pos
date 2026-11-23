@@ -964,6 +964,97 @@ def build_local_copilot_answer(question, snap)
   "#{base}."
 end
 
+def build_wav_from_pcm16(pcm_bytes, sample_rate = 24000, channels = 1, bits_per_sample = 16)
+  byte_rate = sample_rate * channels * (bits_per_sample / 8)
+  block_align = channels * (bits_per_sample / 8)
+  data_size = pcm_bytes.bytesize
+  header = [
+    'RIFF', 36 + data_size, 'WAVE',
+    'fmt ', 16, 1, channels, sample_rate, byte_rate, block_align, bits_per_sample,
+    'data', data_size
+  ].pack('a4Va4a4VvvVVvva4V')
+  header + pcm_bytes
+end
+
+def synthesize_gemini_human_audio(text, api_key)
+  return nil if api_key.empty? || text.to_s.strip.empty?
+  require 'base64'
+  tts_model = ENV['GEMINI_TTS_MODEL'].to_s.strip
+  tts_model = 'gemini-2.5-flash-preview-tts' if tts_model.empty?
+  voice_name = ENV['GEMINI_VOICE'].to_s.strip
+  voice_name = 'Aoede' if voice_name.empty?
+
+  uri = URI("https://generativelanguage.googleapis.com/v1beta/models/#{tts_model}:generateContent?key=#{api_key}")
+  http = Net::HTTP.new(uri.host, uri.port)
+  http.use_ssl = true
+  http.open_timeout = 4
+  http.read_timeout = 10
+
+  req = Net::HTTP::Post.new(uri)
+  req['Content-Type'] = 'application/json'
+  req.body = JSON.generate({
+    contents: [{ parts: [{ text: "Lee esto en español latinoamericano natural, cálido y fluido como un compañero de cocina real:\n#{text}" }] }],
+    generationConfig: {
+      responseModalities: ['AUDIO'],
+      speechConfig: {
+        voiceConfig: {
+          prebuiltVoiceConfig: { voiceName: voice_name }
+        }
+      }
+    }
+  })
+
+  res = http.request(req)
+  return nil unless res.is_a?(Net::HTTPSuccess)
+
+  parsed = JSON.parse(res.body)
+  part = parsed.dig('candidates', 0, 'content', 'parts', 0, 'inlineData')
+  return nil unless part && part['data']
+
+  mime = part['mimeType'].to_s
+  raw = Base64.decode64(part['data'])
+  if mime.include?('audio/L16') || mime.include?('pcm')
+    rate = (mime[/rate=(\d+)/, 1] || '24000').to_i
+    wav = build_wav_from_pcm16(raw, rate)
+    return { audio_base64: Base64.strict_encode64(wav), audio_mime: 'audio/wav' }
+  end
+  { audio_base64: part['data'], audio_mime: mime.empty? ? 'audio/wav' : mime }
+rescue StandardError
+  nil
+end
+
+def parse_local_copilot_action(question, snap)
+  q = question.to_s.strip
+  ql = q.downcase
+  if (m = ql.match(/(?:pasa|pasar|mueve|mover|env[ií]a|enviar|pon|poner).{0,20}turno\s*#?(\d+).{0,20}(?:plancha|prepar)/))
+    t = m[1].to_i
+    return { reply: "Listo, paso el turno #{t} a Plancha y Entrega.", action: { type: 'advance_turn', turn: t } }
+  end
+  if (m = ql.match(/(?:entrega|entregar|confirma|confirmar|marca|marcar).{0,25}turno\s*#?(\d+)/)) && ql.match?(/entreg/)
+    t = m[1].to_i
+    return { reply: "Perfecto, confirmo la entrega del turno #{t}.", action: { type: 'deliver_turn', turn: t } }
+  end
+  if ql.match?(/pasa.{0,20}tanda|siguiente tanda|tanda a plancha/)
+    return { reply: 'Dale, paso la siguiente tanda a plancha.', action: { type: 'batch_to_plancha' } }
+  end
+  if (m = q.match(/(?:av[ií]sa(?:le)?|dile|manda(?:le)?\s+mensaje|escribe)\s+(?:al\s+mesero|al\s+equipo|a\s+cocina|en\s+el\s+chat)?\s*(?:que\s+)?(.+)/i))
+    msg = m[1].to_s.strip[0, 220]
+    unless msg.empty?
+      return { reply: "Listo, ya envié el aviso al chat del equipo.", action: { type: 'send_chat', message: msg } }
+    end
+  end
+  if ql.match?(/(?:abre|abrir|mu[eé]strame|cambia|ir a).{0,15}monitor/)
+    return { reply: 'Abriendo el Monitor del evento.', action: { type: 'switch_view', view: 'display' } }
+  end
+  if ql.match?(/(?:abre|abrir|mu[eé]strame|cambia|ir a).{0,15}plancha/)
+    return { reply: 'Te muestro Plancha y Entrega.', action: { type: 'switch_view', view: 'kitchen', station: 'plancha' } }
+  end
+  if ql.match?(/(?:abre|abrir|mu[eé]strame|cambia|ir a).{0,15}armado/)
+    return { reply: 'Te muestro 1. Armado.', action: { type: 'switch_view', view: 'kitchen', station: 'armado' } }
+  end
+  { reply: build_local_copilot_answer(question, snap), action: { type: 'none' } }
+end
+
 server.mount_proc '/api/copilot' do |req, res|
   set_api_headers(res)
   if req.request_method == 'OPTIONS'
@@ -974,7 +1065,7 @@ server.mount_proc '/api/copilot' do |req, res|
 
   api_key = ENV['GEMINI_API_KEY'].to_s.strip.gsub(/\A['"]|['"]\z/, '').strip
   preferred_model = ENV['GEMINI_MODEL'].to_s.strip
-  models_to_try = ([preferred_model, 'gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-flash-latest'].reject(&:empty?).uniq)
+  models_to_try = ([preferred_model, 'gemini-2.5-flash-lite', 'gemini-2.5-flash', 'gemini-2.0-flash'].reject(&:empty?).uniq)
   model = models_to_try.first
 
   if req.request_method == 'GET'
@@ -992,29 +1083,45 @@ server.mount_proc '/api/copilot' do |req, res|
       body = JSON.parse(req.body || '{}')
       question = body['question'].to_s.strip[0, 400]
       question = 'Dame un resumen rápido de cómo va el evento ahora mismo.' if question.empty?
+      want_audio = body['want_audio'] != false
       history = Array(body['history']).last(4)
 
       db_copy = $db_mutex.synchronize { load_db }
       snap = build_copilot_event_snapshot(db_copy)
 
       if api_key.empty?
+        local_res = parse_local_copilot_action(question, snap)
         res.body = JSON.generate({
           ok: true,
           mode: 'local',
           configured: false,
-          answer: build_local_copilot_answer(question, snap)
+          answer: local_res[:reply],
+          action: local_res[:action]
         })
         next
       end
 
       system_prompt = <<~PROMPT
-        Eres el Copiloto de Cocina y Evento de "Shawarma en Casa", un catering en vivo.
-        Hablas directo al oído del jefe de cocina por audífonos.
-        Reglas estrictas:
-        - Responde SIEMPRE en español natural, directo, claro y sereno (máximo 2 a 3 frases cortas, ~45 palabras).
-        - PROHIBIDO usar asteriscos, viñetas, markdown o emojis porque tu respuesta se lee en voz alta.
-        - Usa ÚNICAMENTE los datos reales del JSON del evento en vivo; nunca inventes turnos ni cifras.
-        - Si detectas un pedido de niño, cumpleañero o cuello de botella real, menciónalo brevemente si es relevante.
+        Eres el Copiloto real de cocina y operaciones de "Shawarma en Casa" (un catering en vivo).
+        Hablas directo al oído del jefe de cocina con tono humano, cálido, ágil y natural (como un mano derecha real, nunca robótico ni formal).
+        Devuelve SIEMPRE un JSON válido con exactamente esta estructura:
+        {
+          "reply": "Tu respuesta hablada en español natural, máximo 2 frases cortas (~35 palabras), sin asteriscos ni emojis.",
+          "action": {
+            "type": "none | advance_turn | deliver_turn | batch_to_plancha | send_chat | switch_view",
+            "turn": 0,
+            "message": "",
+            "view": "",
+            "station": ""
+          }
+        }
+        Reglas de acciones:
+        - "advance_turn": cuando pidan pasar un turno específico a plancha (coloca el número en "turn").
+        - "deliver_turn": cuando pidan marcar entregado un turno específico (coloca el número en "turn").
+        - "batch_to_plancha": cuando pidan pasar la siguiente tanda a plancha.
+        - "send_chat": cuando pidan avisar algo al mesero o al equipo (coloca el texto limpio en "message").
+        - "switch_view": cuando pidan abrir monitor ("display"), pedidos ("order"), admin ("admin") o cocina ("kitchen" con station "armado", "plancha", "delivered" o "all").
+        - "none": si solo preguntan información o consejos. NUNCA inventes turnos ni datos fuera del JSON del evento.
       PROMPT
 
       contents = []
@@ -1025,7 +1132,7 @@ server.mount_proc '/api/copilot' do |req, res|
       end
       contents << {
         role: 'user',
-        parts: [{ text: "ESTADO EN VIVO DEL EVENTO (JSON):\n#{JSON.generate(snap)}\n\nPREGUNTA DEL JEFE DE COCINA:\n#{question}" }]
+        parts: [{ text: "ESTADO EN VIVO DEL EVENTO (JSON):\n#{JSON.generate(snap)}\n\nORDEN O PREGUNTA DEL JEFE:\n#{question}" }]
       }
 
       last_err = 'unknown'
@@ -1033,8 +1140,8 @@ server.mount_proc '/api/copilot' do |req, res|
         uri = URI("https://generativelanguage.googleapis.com/v1beta/models/#{candidate_model}:generateContent?key=#{api_key}")
         http = Net::HTTP.new(uri.host, uri.port)
         http.use_ssl = true
-        http.open_timeout = 5
-        http.read_timeout = 12
+        http.open_timeout = 4
+        http.read_timeout = 9
 
         greq = Net::HTTP::Post.new(uri)
         greq['Content-Type'] = 'application/json'
@@ -1042,24 +1149,36 @@ server.mount_proc '/api/copilot' do |req, res|
           system_instruction: { parts: [{ text: system_prompt }] },
           contents: contents,
           generationConfig: {
-            temperature: 0.25,
-            maxOutputTokens: 220
+            temperature: 0.35,
+            maxOutputTokens: 240,
+            responseMimeType: 'application/json'
           }
         })
 
         gres = http.request(greq)
         if gres.is_a?(Net::HTTPSuccess)
           parsed = JSON.parse(gres.body)
-          answer = parsed.dig('candidates', 0, 'content', 'parts', 0, 'text').to_s.strip
-          answer = answer.gsub(/[*_`#]/, '').gsub(/\s+/, ' ').strip
+          raw_text = parsed.dig('candidates', 0, 'content', 'parts', 0, 'text').to_s.strip
+          structured = (JSON.parse(raw_text) rescue nil)
+          answer = (structured.is_a?(Hash) ? structured['reply'].to_s : raw_text).gsub(/[*_`#]/, '').gsub(/\s+/, ' ').strip
+          action = (structured.is_a?(Hash) && structured['action'].is_a?(Hash)) ? structured['action'] : { 'type' => 'none' }
+
           unless answer.empty?
-            res.body = JSON.generate({
+            audio = want_audio ? synthesize_gemini_human_audio(answer, api_key) : nil
+            payload = {
               ok: true,
               mode: 'gemini',
               configured: true,
               model: candidate_model,
-              answer: answer
-            })
+              answer: answer,
+              action: action
+            }
+            if audio
+              payload[:audio_base64] = audio[:audio_base64]
+              payload[:audio_mime] = audio[:audio_mime]
+              payload[:voice_engine] = 'gemini-tts'
+            end
+            res.body = JSON.generate(payload)
             last_err = nil
             break
           end
@@ -1067,28 +1186,31 @@ server.mount_proc '/api/copilot' do |req, res|
         else
           err_msg = (JSON.parse(gres.body).dig('error', 'message') rescue nil).to_s[0, 120]
           last_err = "HTTP #{gres.code} (#{candidate_model})#{err_msg.empty? ? '' : ": #{err_msg}"}"
-          # Solo reintentar otro modelo si fue 404 (modelo no disponible) o 429 (cuota de ese modelo)
           break unless %w[404 429 503].include?(gres.code.to_s)
         end
       end
       next if last_err.nil?
 
+      local_res = parse_local_copilot_action(question, snap)
       res.body = JSON.generate({
         ok: true,
         mode: 'local',
         configured: true,
         fallback_reason: last_err,
-        answer: build_local_copilot_answer(question, snap)
+        answer: local_res[:reply],
+        action: local_res[:action]
       })
     rescue StandardError => e
       db_copy = $db_mutex.synchronize { load_db } rescue {}
       snap = build_copilot_event_snapshot(db_copy)
+      local_res = parse_local_copilot_action(question || '', snap)
       res.body = JSON.generate({
         ok: true,
         mode: 'local',
         configured: !api_key.empty?,
         fallback_reason: e.message.to_s[0, 80],
-        answer: build_local_copilot_answer(question || '', snap)
+        answer: local_res[:reply],
+        action: local_res[:action]
       })
     end
   end
