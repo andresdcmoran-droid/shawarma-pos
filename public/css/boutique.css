@@ -1,0 +1,4765 @@
+/* ============================================================================
+   SHAWARMA EN CASA · BOUTIQUE 1.0 DESIGN SYSTEM (v80)
+   Opción A: Precision Dark (Modo Noche) + Opción B: Boutique Hospitality (Modo Día)
+   Zero neon · Zero emojis · Native Apple SF Pro · Hairline surfaces · 60fps iPad
+   ============================================================================ */
+
+/* --- 1. DESIGN TOKENS --- */
+:root,
+html[data-theme="night"] {
+  --b-bg: #09090B;
+  --b-s1: #111114;
+  --b-s2: #18181B;
+  --b-s3: #222227;
+  --b-border: #232329;
+  --b-border-s: #32323B;
+  --b-t1: #FAFAFA;
+  --b-t2: #A1A1AA;
+  --b-t3: #71717A;
+
+  --b-brand: #D41473;
+  --b-brand-hover: #B81063;
+  --b-brand-soft: rgba(212, 20, 115, 0.14);
+  --b-brand-border: rgba(212, 20, 115, 0.34);
+  --b-brand-text: #F472B6;
+
+  --b-green: #059669;
+  --b-green-hover: #047857;
+  --b-green-soft: rgba(16, 185, 129, 0.12);
+  --b-green-border: rgba(16, 185, 129, 0.32);
+  --b-green-text: #34D399;
+
+  --b-amber: #D97706;
+  --b-amber-soft: rgba(245, 158, 11, 0.13);
+  --b-amber-border: rgba(245, 158, 11, 0.30);
+  --b-amber-text: #FBBF24;
+
+  --b-red: #DC2626;
+  --b-red-soft: rgba(239, 68, 68, 0.13);
+  --b-red-border: rgba(239, 68, 68, 0.30);
+  --b-red-text: #F87171;
+
+  --b-cyan: #0891B2;
+  --b-cyan-soft: rgba(8, 145, 178, 0.14);
+
+  --b-shadow-card: 0 1px 2px rgba(0, 0, 0, 0.32);
+  --b-shadow-elevated: 0 12px 32px rgba(0, 0, 0, 0.55);
+  --b-radius-sm: 8px;
+  --b-radius-md: 10px;
+  --b-radius-lg: 14px;
+
+  /* Map legacy tokens seamlessly */
+  --bg-dark: var(--b-bg);
+  --bg-surface: var(--b-s1);
+  --bg-surface-2: var(--b-s2);
+  --border-color: var(--b-border);
+  --text-white: var(--b-t1);
+  --text-dim: var(--b-t2);
+  --brand-pink: var(--b-brand);
+  --brand-pink-dark: var(--b-brand-hover);
+  --brand-pink-soft: var(--b-brand-soft);
+  --brand-pink-glow: transparent;
+  --yes-green: var(--b-green);
+  --yes-green-bg: var(--b-green-soft);
+  --yes-green-border: var(--b-green-border);
+  --no-red: var(--b-red);
+  --no-red-bg: var(--b-red-soft);
+  --no-red-border: var(--b-red-border);
+  --amber-gold: var(--b-amber);
+  --cyan-blue: var(--b-cyan);
+
+  --p-bg: var(--b-bg);
+  --p-surface: var(--b-s1);
+  --p-surface-2: var(--b-s2);
+  --p-surface-3: var(--b-s3);
+  --p-border: var(--b-border);
+  --p-border-strong: var(--b-border-s);
+  --p-text: var(--b-t1);
+  --p-muted: var(--b-t2);
+  --p-subtle: var(--b-t3);
+  --p-accent: var(--b-brand);
+  --p-accent-soft: var(--b-brand-soft);
+  --p-ok: var(--b-green);
+  --p-warn: var(--b-amber);
+  --p-danger: var(--b-red);
+
+  --u-bg: var(--b-bg);
+  --u-surface: var(--b-s1);
+  --u-surface-2: var(--b-s2);
+  --u-border: var(--b-border);
+  --u-text: var(--b-t1);
+  --u-muted: var(--b-t2);
+  --u-accent: var(--b-brand);
+}
+
+html[data-theme="day"],
+body.theme-day {
+  --b-bg: #F7F7F8;
+  --b-s1: #FFFFFF;
+  --b-s2: #F4F4F5;
+  --b-s3: #E4E4E7;
+  --b-border: #E4E4E7;
+  --b-border-s: #D4D4D8;
+  --b-t1: #09090B;
+  --b-t2: #52525B;
+  --b-t3: #71717A;
+
+  --b-brand: #D41473;
+  --b-brand-hover: #B81063;
+  --b-brand-soft: rgba(212, 20, 115, 0.08);
+  --b-brand-border: rgba(212, 20, 115, 0.26);
+  --b-brand-text: #BE185D;
+
+  --b-green: #059669;
+  --b-green-hover: #047857;
+  --b-green-soft: rgba(5, 150, 105, 0.09);
+  --b-green-border: rgba(5, 150, 105, 0.28);
+  --b-green-text: #047857;
+
+  --b-amber: #D97706;
+  --b-amber-soft: #FEF3C7;
+  --b-amber-border: #FDE68A;
+  --b-amber-text: #B45309;
+
+  --b-red: #DC2626;
+  --b-red-soft: #FEE2E2;
+  --b-red-border: #FECACA;
+  --b-red-text: #B91C1C;
+
+  --b-cyan: #0891B2;
+  --b-cyan-soft: rgba(8, 145, 178, 0.10);
+
+  --b-shadow-card: 0 1px 2px rgba(9, 9, 11, 0.04), 0 4px 12px rgba(9, 9, 11, 0.03);
+  --b-shadow-elevated: 0 14px 34px rgba(9, 9, 11, 0.12);
+
+  --bg-dark: var(--b-bg);
+  --bg-surface: var(--b-s1);
+  --bg-surface-2: var(--b-s2);
+  --border-color: var(--b-border);
+  --text-white: var(--b-t1);
+  --text-dim: var(--b-t2);
+  --p-bg: var(--b-bg);
+  --p-surface: var(--b-s1);
+  --p-surface-2: var(--b-s2);
+  --p-surface-3: var(--b-s3);
+  --p-border: var(--b-border);
+  --p-border-strong: var(--b-border-s);
+  --p-text: var(--b-t1);
+  --p-muted: var(--b-t2);
+  --p-subtle: var(--b-t3);
+  --u-bg: var(--b-bg);
+  --u-surface: var(--b-s1);
+  --u-surface-2: var(--b-s2);
+  --u-border: var(--b-border);
+  --u-text: var(--b-t1);
+  --u-muted: var(--b-t2);
+}
+
+/* --- 2. GLOBAL BASE & TYPOGRAPHY --- */
+html,
+body,
+body.premium-ui {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Inter", system-ui, sans-serif !important;
+  background-color: var(--b-bg) !important;
+  background-image: none !important;
+  color: var(--b-t1) !important;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  letter-spacing: -0.01em;
+}
+
+body.premium-ui::before,
+body.premium-ui::after {
+  display: none !important;
+  content: none !important;
+}
+
+.ui-icon {
+  stroke-width: 1.7;
+  flex-shrink: 0;
+}
+
+/* Theme logo visibility (high specificity so mobile rules never show both) */
+html[data-theme="day"] body.premium-ui .header-bar .brand-logo-night,
+body.premium-ui.theme-day .header-bar .brand-logo-night {
+  display: none !important;
+}
+html[data-theme="night"] body.premium-ui .header-bar .brand-logo-day,
+body.premium-ui:not(.theme-day) .header-bar .brand-logo-day {
+  display: none !important;
+}
+html[data-theme="day"] body.premium-ui .header-bar .brand-logo-day,
+body.premium-ui.theme-day .header-bar .brand-logo-day {
+  display: block !important;
+}
+html[data-theme="night"] body.premium-ui .header-bar .brand-logo-night,
+body.premium-ui:not(.theme-day) .header-bar .brand-logo-night {
+  display: block !important;
+}
+
+/* Never show hidden badges when JS sets display:none */
+body.premium-ui .badge-count[style*="display:none"],
+body.premium-ui .badge-count[style*="display: none"] {
+  display: none !important;
+}
+
+/* Quick Theme Button Icon visibility */
+html[data-theme="day"] .theme-icon-sun,
+body.theme-day .theme-icon-sun {
+  display: none !important;
+}
+html[data-theme="night"] .theme-icon-moon,
+body:not(.theme-day) .theme-icon-moon {
+  display: none !important;
+}
+
+/* Crisp Day Mode icon visibility for white PNG assets */
+html[data-theme="day"] .protein-card-btn:not(.selected) .protein-icon-art,
+body.theme-day .protein-card-btn:not(.selected) .protein-icon-art,
+html[data-theme="day"] .preset-pill-btn:not(.active) .preset-protein-art,
+body.theme-day .preset-pill-btn:not(.active) .preset-protein-art,
+html[data-theme="day"] .preset-pill-btn:not(.active) .protein-icon-art,
+body.theme-day .preset-pill-btn:not(.active) .protein-icon-art,
+html[data-theme="day"] .u-protein-icon,
+body.theme-day .u-protein-icon,
+html[data-theme="day"] .p-product-icon-wrap .protein-icon-art,
+body.theme-day .p-product-icon-wrap .protein-icon-art {
+  filter: brightness(0) opacity(0.82) !important;
+}
+html[data-theme="day"] .protein-card-btn.selected .protein-icon-art:not(.protein-art-mixto),
+body.theme-day .protein-card-btn.selected .protein-icon-art:not(.protein-art-mixto),
+html[data-theme="day"] .preset-pill-btn.active .protein-icon-art,
+body.theme-day .preset-pill-btn.active .protein-icon-art {
+  filter: brightness(0) saturate(100%) invert(18%) sepia(92%) saturate(4200%) hue-rotate(320deg) brightness(88%) contrast(102%) !important;
+}
+html[data-theme="day"] .sidebar-watermark-img,
+body.theme-day .sidebar-watermark-img {
+  filter: invert(1) opacity(0.35) !important;
+}
+html[data-theme="day"] .sidebar-watermark-verse,
+body.theme-day .sidebar-watermark-verse {
+  color: var(--b-t3) !important;
+}
+
+/* --- 3. UNIFIED 60px TOPBAR & NAVIGATION --- */
+body.premium-ui .header-bar {
+  height: 60px !important;
+  min-height: 60px !important;
+  padding: 0 24px !important;
+  display: grid !important;
+  grid-template-columns: 1fr auto 1fr !important;
+  align-items: center !important;
+  gap: 12px !important;
+  background: var(--b-s1) !important;
+  border-bottom: 1px solid var(--b-border) !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 100 !important;
+}
+
+body.premium-ui .brand-section {
+  justify-self: start !important;
+  display: flex !important;
+  align-items: center !important;
+  flex-shrink: 0 !important;
+  min-width: 110px !important;
+}
+body.premium-ui .brand-logo-img {
+  height: 28px !important;
+  max-height: 28px !important;
+  width: auto !important;
+  object-fit: contain !important;
+}
+
+body.premium-ui .header-right-cluster {
+  justify-self: end !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  flex-shrink: 0 !important;
+}
+
+/* Centered clean nav tabs IN FLOW inside the 60px topbar on iPad & Mac (zero overlap, zero click occlusion) */
+@media (min-width: 769px) {
+  body.premium-ui .header-bar .tabs-nav {
+    position: static !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    transform: none !important;
+    justify-self: center !important;
+    width: auto !important;
+    max-width: none !important;
+    z-index: auto !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 2px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    height: 36px !important;
+  }
+
+  body.premium-ui .tabs-nav .tab-btn {
+    height: 34px !important;
+    padding: 0 11px !important;
+    border-radius: var(--b-radius-sm) !important;
+    border: 1px solid transparent !important;
+    background: transparent !important;
+    color: var(--b-t2) !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    gap: 6px !important;
+    box-shadow: none !important;
+    white-space: nowrap !important;
+    transition: background 0.14s ease, color 0.14s ease, border-color 0.14s ease !important;
+  }
+
+  body.premium-ui .tabs-nav .tab-btn:hover {
+    color: var(--b-t1) !important;
+    background: var(--b-s2) !important;
+  }
+
+  body.premium-ui .tabs-nav .tab-btn.active {
+    background: var(--b-s2) !important;
+    border-color: var(--b-border) !important;
+    color: var(--b-t1) !important;
+    font-weight: 600 !important;
+    box-shadow: none !important;
+  }
+
+  body.premium-ui .tabs-nav .tab-btn.active .tab-icon svg {
+    color: var(--b-brand) !important;
+  }
+
+  body.premium-ui .tabs-nav .tab-icon svg {
+    width: 15px !important;
+    height: 15px !important;
+  }
+
+  body.premium-ui .tabs-nav .tab-icon-wrap {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+  }
+
+  body.premium-ui .tabs-nav .badge-count {
+    position: static !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-width: 19px !important;
+    height: 18px !important;
+    padding: 0 6px !important;
+    border-radius: 999px !important;
+    background: var(--b-brand) !important;
+    color: #FFFFFF !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    font-variant-numeric: tabular-nums !important;
+    box-shadow: none !important;
+  }
+
+  /* Compact right utility cluster: Clock + Stopwatch + Theme + Chat + Status */
+  body.premium-ui .header-station {
+    margin: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    flex-shrink: 0 !important;
+  }
+
+  body.premium-ui .header-clock-card,
+  body.premium-ui .header-timer-card {
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    gap: 6px !important;
+    box-shadow: none !important;
+  }
+
+  body.premium-ui .header-micro-label,
+  body.premium-ui .header-clock-icon,
+  body.premium-ui .header-timer-icon {
+    display: none !important;
+  }
+
+  body.premium-ui .header-station-divider {
+    width: 3px !important;
+    height: 3px !important;
+    border-radius: 50% !important;
+    background: var(--b-border-s) !important;
+    margin: 0 !important;
+  }
+
+  body.premium-ui .header-left-group {
+    justify-self: stretch !important;
+    width: 100% !important;
+    display: grid !important;
+    grid-template-columns: auto 1fr !important;
+    align-items: center !important;
+    min-width: 0 !important;
+  }
+
+  body.premium-ui .header-clock-left {
+    justify-self: center !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    flex-shrink: 0 !important;
+  }
+
+  body.premium-ui #event-clock-text {
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    color: #FBBF24 !important;
+    font-variant-numeric: tabular-nums !important;
+    white-space: nowrap !important;
+    letter-spacing: 0.01em !important;
+  }
+
+  html[data-theme="day"] body.premium-ui .header-clock-left,
+  body.premium-ui.theme-day .header-clock-left {
+    background: transparent !important;
+    border: none !important;
+  }
+  html[data-theme="day"] body.premium-ui #event-clock-text,
+  body.premium-ui.theme-day #event-clock-text {
+    color: #B45309 !important;
+  }
+
+  body.premium-ui #event-timer-text {
+    font-size: 12.5px !important;
+    font-weight: 600 !important;
+    color: var(--b-t1) !important;
+    font-variant-numeric: tabular-nums !important;
+    white-space: nowrap !important;
+  }
+
+  body.premium-ui .timer-control-btn {
+    width: 26px !important;
+    height: 26px !important;
+    border-radius: 6px !important;
+    background: var(--b-s2) !important;
+    border: 1px solid var(--b-border) !important;
+    color: var(--b-t2) !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+  }
+  body.premium-ui .timer-control-btn:hover {
+    color: var(--b-t1) !important;
+    border-color: var(--b-border-s) !important;
+  }
+}
+
+/* iPad 7th Gen (1024px) & Tablet: pure yellow clock centered cleanly between logo & Pedidos */
+@media (min-width: 769px) and (max-width: 1120px) {
+  body.premium-ui .header-bar {
+    padding: 0 14px !important;
+    gap: 8px !important;
+  }
+  body.premium-ui .brand-logo-img {
+    height: 24px !important;
+    max-height: 24px !important;
+  }
+  body.premium-ui .brand-section {
+    min-width: auto !important;
+  }
+  body.premium-ui .header-clock-left {
+    display: inline-flex !important;
+    justify-self: center !important;
+    padding: 0 !important;
+    background: transparent !important;
+    border: none !important;
+  }
+  body.premium-ui #event-clock-text {
+    font-size: 12.5px !important;
+  }
+  body.premium-ui #btn-timer-reset {
+    display: none !important;
+  }
+  body.premium-ui .tabs-nav .tab-btn {
+    padding: 0 9px !important;
+    font-size: 12.5px !important;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 900px) {
+  body.premium-ui .header-station {
+    display: none !important;
+  }
+}
+
+/* Right Header Utility Buttons */
+body.premium-ui .header-right-tools {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  flex-shrink: 0 !important;
+}
+
+body.premium-ui .header-theme-btn,
+body.premium-ui .header-chat-btn {
+  width: 34px !important;
+  height: 34px !important;
+  min-width: 34px !important;
+  border-radius: var(--b-radius-sm) !important;
+  background: var(--b-s2) !important;
+  border: 1px solid var(--b-border) !important;
+  color: var(--b-t2) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  position: relative !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+  transition: color 0.14s ease, border-color 0.14s ease, background 0.14s ease !important;
+}
+
+body.premium-ui .header-theme-btn:hover,
+body.premium-ui .header-chat-btn:hover {
+  color: var(--b-t1) !important;
+  border-color: var(--b-border-s) !important;
+  background: var(--b-s3) !important;
+}
+
+body.premium-ui .connection-badge {
+  height: 34px !important;
+  padding: 0 11px !important;
+  border-radius: var(--b-radius-sm) !important;
+  background: var(--b-s2) !important;
+  border: 1px solid var(--b-border) !important;
+  color: var(--b-t2) !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  gap: 6px !important;
+  white-space: nowrap !important;
+  box-shadow: none !important;
+}
+
+body.premium-ui .connection-dot {
+  width: 6px !important;
+  height: 6px !important;
+  background: #10B981 !important;
+  box-shadow: none !important;
+  animation: none !important;
+}
+body.premium-ui .connection-badge.offline .connection-dot,
+body.premium-ui .connection-badge.disconnected .connection-dot {
+  background: var(--b-red) !important;
+}
+
+/* --- 4. MAIN VIEW CONTAINERS --- */
+body.premium-ui .view-content {
+  max-width: 1440px !important;
+  width: 100% !important;
+  margin: 0 auto !important;
+  padding: 18px 24px 36px !important;
+}
+
+/* --- 5. KDS OPERATIONAL TOOLBAR (STATIONS + FILTERS + BATCH ACTION) --- */
+body.premium-ui .kds-ops-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+body.premium-ui .kds-station-bar {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 2px !important;
+  padding: 3px !important;
+  margin: 0 !important;
+  background: var(--b-s2) !important;
+  border: 1px solid var(--b-border) !important;
+  border-radius: var(--b-radius-md) !important;
+  box-shadow: none !important;
+}
+
+body.premium-ui .kds-station-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 7px !important;
+  height: 32px !important;
+  padding: 0 12px !important;
+  border: 1px solid transparent !important;
+  border-radius: 7px !important;
+  background: transparent !important;
+  color: var(--b-t2) !important;
+  font-size: 12.5px !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  white-space: nowrap !important;
+  box-shadow: none !important;
+  transition: background 0.14s ease, color 0.14s ease, border-color 0.14s ease !important;
+}
+
+body.premium-ui .kds-station-btn:hover {
+  color: var(--b-t1) !important;
+}
+
+body.premium-ui .kds-station-btn.active {
+  background: var(--b-s1) !important;
+  border-color: var(--b-border-s) !important;
+  color: var(--b-t1) !important;
+  font-weight: 600 !important;
+  box-shadow: var(--b-shadow-card) !important;
+}
+
+body.premium-ui .kds-station-btn.active .kds-st-svg {
+  color: var(--b-brand) !important;
+}
+
+body.premium-ui .kds-st-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-width: 20px !important;
+  height: 18px !important;
+  padding: 0 6px !important;
+  border-radius: 5px !important;
+  background: var(--b-s3) !important;
+  color: var(--b-t2) !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  font-variant-numeric: tabular-nums !important;
+}
+
+body.premium-ui .kds-station-btn.active .kds-st-badge {
+  background: var(--b-brand-soft) !important;
+  color: var(--b-brand-text) !important;
+}
+
+/* Status Filter Tabs */
+body.premium-ui .kds-filter-row {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  flex: 1 1 auto !important;
+  gap: 10px !important;
+  margin: 0 !important;
+  flex-wrap: wrap !important;
+}
+
+body.premium-ui .kds-filter-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin: 0 auto;
+}
+
+body.premium-ui .kds-filter-tab {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  height: 32px !important;
+  padding: 0 11px !important;
+  border-radius: var(--b-radius-sm) !important;
+  border: 1px solid transparent !important;
+  background: transparent !important;
+  color: var(--b-t2) !important;
+  font-size: 12.5px !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  box-shadow: none !important;
+  white-space: nowrap !important;
+}
+
+body.premium-ui .kds-filter-tab:hover {
+  color: var(--b-t1) !important;
+  background: var(--b-s2) !important;
+}
+
+body.premium-ui .kds-filter-tab.active {
+  background: var(--b-s1) !important;
+  border-color: var(--b-border) !important;
+  color: var(--b-t1) !important;
+  font-weight: 600 !important;
+  box-shadow: var(--b-shadow-card) !important;
+}
+
+body.premium-ui .kds-filter-tab strong {
+  color: var(--b-t3) !important;
+  font-weight: 600 !important;
+  font-variant-numeric: tabular-nums !important;
+  font-size: 12px !important;
+}
+body.premium-ui .kds-filter-tab.active strong {
+  color: var(--b-t1) !important;
+}
+
+/* Batch Action Button */
+body.premium-ui .p-batch-ready {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 7px !important;
+  height: 36px !important;
+  padding: 0 14px !important;
+  border-radius: var(--b-radius-sm) !important;
+  background: var(--b-s1) !important;
+  border: 1px solid var(--b-border-s) !important;
+  color: var(--b-t1) !important;
+  font-size: 12.5px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  box-shadow: var(--b-shadow-card) !important;
+  white-space: nowrap !important;
+  transition: border-color 0.14s ease, background 0.14s ease !important;
+}
+
+body.premium-ui .p-batch-ready:hover {
+  border-color: var(--b-brand) !important;
+  background: var(--b-brand-soft) !important;
+}
+
+body.premium-ui .p-batch-ready svg {
+  width: 14px !important;
+  height: 14px !important;
+  color: var(--b-brand) !important;
+}
+
+/* --- 6. PREPARACIONES IGUALES STRIP --- */
+body.premium-ui .kds-batching-bar {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 16px !important;
+  padding: 10px 16px !important;
+  margin-bottom: 18px !important;
+  background: var(--b-s1) !important;
+  border: 1px solid var(--b-border) !important;
+  border-radius: var(--b-radius-md) !important;
+  box-shadow: var(--b-shadow-card) !important;
+}
+
+body.premium-ui .p-batch-heading {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  gap: 2px !important;
+  padding-right: 16px !important;
+  margin: 0 !important;
+  border-bottom: none !important;
+  border-right: 1px solid var(--b-border) !important;
+  flex-shrink: 0 !important;
+}
+
+body.premium-ui .p-batch-heading span {
+  font-size: 10.5px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.06em !important;
+  color: var(--b-t3) !important;
+}
+
+body.premium-ui .p-batch-heading strong {
+  font-size: 12.5px !important;
+  font-weight: 600 !important;
+  color: var(--b-t1) !important;
+  font-variant-numeric: tabular-nums !important;
+}
+
+body.premium-ui .batch-chips-wrapper {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: flex-start !important;
+  gap: 8px !important;
+  flex: 1 !important;
+}
+
+body.premium-ui .p-batch-item {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  padding: 6px 11px !important;
+  border-radius: var(--b-radius-sm) !important;
+  background: var(--b-s2) !important;
+  border: 1px solid var(--b-border) !important;
+  box-shadow: none !important;
+}
+
+body.premium-ui .p-batch-item > strong {
+  font-size: 13.5px !important;
+  font-weight: 700 !important;
+  color: var(--b-t1) !important;
+  font-variant-numeric: tabular-nums !important;
+  min-width: auto !important;
+  background: transparent !important;
+  padding: 0 !important;
+}
+
+body.premium-ui .p-batch-item > div {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  gap: 6px !important;
+}
+
+body.premium-ui .b-batch-prot {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--b-t1);
+}
+
+body.premium-ui .p-batch-item .p-batch-turns {
+  font-size: 11px !important;
+  color: var(--b-t3) !important;
+  margin: 0 !important;
+}
+
+body.premium-ui .p-batch-item .p-batch-turns summary {
+  cursor: pointer;
+  color: var(--b-t3);
+  font-size: 11px;
+  list-style: none;
+}
+
+/* --- 7. PROTEIN COLOR DOTS & PILLS (ZERO EMOJIS) --- */
+.b-pdot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.b-pdot-mixto { background: #D41473; }
+.b-pdot-carne { background: #DC2626; }
+.b-pdot-pollo { background: #D97706; }
+.b-pdot-falafel { background: #059669; }
+.b-pdot-bowl { background: #0891B2; }
+
+.b-prot-pill {
+  margin-left: auto;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--b-t3);
+  background: var(--b-s2);
+  border: 1px solid var(--b-border);
+  padding: 2px 7px;
+  border-radius: 5px;
+  flex-shrink: 0;
+}
+
+/* --- 8. TANDA HAIRLINE DIVIDER --- */
+body.premium-ui .kds-batch-divider {
+  grid-column: 1 / -1 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 14px !important;
+  margin: 12px 0 4px !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: none !important;
+}
+
+body.premium-ui .kds-batch-divider-line {
+  flex: 1 !important;
+  height: 1px !important;
+  background: var(--b-border) !important;
+}
+
+body.premium-ui .kds-batch-divider-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.07em !important;
+  color: var(--b-t3) !important;
+}
+
+body.premium-ui .kds-batch-divider-num {
+  color: var(--b-t1) !important;
+  font-weight: 700 !important;
+}
+body.premium-ui .kds-batch-divider-sep {
+  opacity: 0.5;
+}
+body.premium-ui .kds-batch-divider-meats {
+  color: var(--b-t2) !important;
+  background: transparent !important;
+  padding: 0 !important;
+  border: none !important;
+}
+
+/* --- 9. KDS CARDS GRID & TICKET ARCHITECTURE --- */
+body.premium-ui .kds-cards-stream {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 16px !important;
+  align-items: stretch !important;
+}
+
+/* iPad 7th Gen (1024px) & 11" iPad: keep 3 crisp tickets per row with tailored proportions */
+@media (min-width: 920px) and (max-width: 1180px) {
+  body.premium-ui #view-kitchen.view-content {
+    padding: 14px 16px 28px !important;
+  }
+  body.premium-ui .kds-cards-stream {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 11px !important;
+  }
+  body.premium-ui .p-ticket {
+    padding: 13px 13px 14px !important;
+    border-radius: 12px !important;
+  }
+  body.premium-ui .p-ticket .turn-number-giant {
+    font-size: 28px !important;
+  }
+  body.premium-ui .p-guest-line {
+    padding: 2px 0 10px !important;
+    margin-bottom: 10px !important;
+  }
+  body.premium-ui .p-guest-line > strong {
+    font-size: 16px !important;
+  }
+  body.premium-ui .kds-item-head {
+    font-size: 13.5px !important;
+  }
+  body.premium-ui .p-ticket-footer {
+    margin-top: 12px !important;
+    padding-top: 10px !important;
+    gap: 8px !important;
+  }
+  body.premium-ui .p-ticket-actions-bar {
+    gap: 4px !important;
+  }
+  body.premium-ui .p-kds-tool-btn {
+    height: 30px !important;
+    padding: 0 4px !important;
+    font-size: 10.5px !important;
+    gap: 3px !important;
+  }
+  body.premium-ui .p-kds-tool-btn svg {
+    width: 12px !important;
+    height: 12px !important;
+  }
+  body.premium-ui .p-kds-main-btn {
+    height: 40px !important;
+    font-size: 12.5px !important;
+  }
+}
+
+@media (max-width: 919px) {
+  body.premium-ui .kds-cards-stream {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 640px) {
+  body.premium-ui .kds-cards-stream {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+body.premium-ui .p-ticket,
+body.premium-ui #kds-cards-grid .p-ticket[class*="kds-prot-"],
+body.premium-ui #kds-cards-grid .p-ticket.status-ready {
+  position: relative !important;
+  display: flex !important;
+  flex-direction: column !important;
+  padding: 18px !important;
+  border-radius: var(--b-radius-lg) !important;
+  background: var(--b-s1) !important;
+  border: 1px solid var(--b-border) !important;
+  border-top: 1px solid var(--b-border) !important;
+  box-shadow: var(--b-shadow-card) !important;
+  overflow: hidden !important;
+  gap: 0 !important;
+  transition: border-color 0.15s ease !important;
+}
+
+body.premium-ui .p-ticket::before {
+  content: "" !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  height: 3px !important;
+  background: var(--b-brand) !important;
+  display: block !important;
+}
+body.premium-ui .p-ticket.kds-prot-carne::before { background: #DC2626 !important; }
+body.premium-ui .p-ticket.kds-prot-pollo::before { background: #D97706 !important; }
+body.premium-ui .p-ticket.kds-prot-falafel::before { background: #059669 !important; }
+body.premium-ui .p-ticket.kds-prot-bowl::before { background: #0891B2 !important; }
+body.premium-ui .p-ticket.kds-prot-mixto::before,
+body.premium-ui .p-ticket.kds-prot-multiple::before { background: #D41473 !important; }
+body.premium-ui .p-ticket.p-nino::before,
+body.premium-ui #kds-cards-grid .p-ticket.p-nino::before { background: #38BDF8 !important; }
+
+/* Keep crisp neutral 1px border on all cards (never yellow border around the card) */
+body.premium-ui .p-ticket.p-overdue {
+  border-color: var(--b-border) !important;
+  box-shadow: var(--b-shadow-card) !important;
+}
+
+/* Ticket Header */
+body.premium-ui .p-ticket-head {
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: space-between !important;
+  padding-bottom: 10px !important;
+  margin-bottom: 0 !important;
+  border-bottom: none !important;
+  background: transparent !important;
+}
+
+body.premium-ui .kds-turn-modern {
+  display: flex !important;
+  align-items: baseline !important;
+  gap: 8px !important;
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+}
+
+body.premium-ui .p-ticket .turn-number-giant {
+  font-size: 34px !important;
+  font-weight: 700 !important;
+  line-height: 1 !important;
+  letter-spacing: -0.04em !important;
+  color: var(--b-t1) !important;
+  font-variant-numeric: tabular-nums !important;
+}
+
+body.premium-ui .p-ticket .turn-label-txt {
+  font-size: 10.5px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+  color: var(--b-t3) !important;
+}
+
+body.premium-ui .p-ticket-meta {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-end !important;
+  gap: 3px !important;
+  text-align: right !important;
+}
+
+body.premium-ui .p-status {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.01em !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  color: var(--b-t2) !important;
+}
+body.premium-ui .p-status::before {
+  content: "" !important;
+  display: inline-block !important;
+  width: 6px !important;
+  height: 6px !important;
+  border-radius: 50% !important;
+  background: var(--b-brand) !important;
+  flex-shrink: 0 !important;
+}
+
+body.premium-ui .p-status.p-status-preparing {
+  background: transparent !important;
+  border: none !important;
+  color: var(--b-t2) !important;
+}
+body.premium-ui .p-status.p-status-preparing::before {
+  background: #F59E0B !important;
+}
+
+body.premium-ui .p-status.p-status-ready,
+body.premium-ui .p-status.p-status-delivered {
+  background: transparent !important;
+  border: none !important;
+  color: var(--b-green-text) !important;
+}
+body.premium-ui .p-status.p-status-ready::before,
+body.premium-ui .p-status.p-status-delivered::before {
+  background: #10B981 !important;
+}
+
+body.premium-ui .p-status.is-overdue {
+  background: transparent !important;
+  border: none !important;
+  color: var(--b-amber-text) !important;
+}
+body.premium-ui .p-status.is-overdue::before {
+  background: #F59E0B !important;
+}
+
+body.premium-ui .p-age {
+  font-size: 13.5px !important;
+  font-weight: 600 !important;
+  color: var(--b-t1) !important;
+  font-variant-numeric: tabular-nums !important;
+}
+body.premium-ui .p-ticket.p-overdue .p-age {
+  color: var(--b-amber-text) !important;
+}
+
+body.premium-ui .p-received {
+  font-size: 11px !important;
+  color: var(--b-t3) !important;
+  font-variant-numeric: tabular-nums !important;
+}
+
+/* Guest Row */
+body.premium-ui .p-guest-line {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 8px !important;
+  padding: 4px 0 14px !important;
+  margin-bottom: 14px !important;
+  border-bottom: 1px solid var(--b-border) !important;
+}
+
+body.premium-ui .p-guest-line > strong {
+  font-size: 18px !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.02em !important;
+  color: var(--b-t1) !important;
+  line-height: 1.2 !important;
+}
+
+body.premium-ui .p-guest-line > span {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  color: var(--b-t2) !important;
+  background: var(--b-s2) !important;
+  border: 1px solid var(--b-border) !important;
+  padding: 3px 9px !important;
+  border-radius: 6px !important;
+  white-space: nowrap !important;
+}
+
+body.premium-ui .p-group-title {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  color: var(--b-brand-text) !important;
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  margin-bottom: 10px !important;
+}
+
+/* Ticket Items */
+body.premium-ui .p-ticket-items {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 14px !important;
+  flex: 1 1 auto !important;
+}
+
+body.premium-ui .p-ticket-item {
+  padding: 0 !important;
+  margin: 0 !important;
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+}
+
+body.premium-ui .p-ticket-item + .p-ticket-item {
+  padding-top: 12px !important;
+  border-top: 1px dashed var(--b-border) !important;
+}
+
+body.premium-ui .kds-item-head {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  margin: 0 0 6px 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: none !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  color: var(--b-t1) !important;
+  letter-spacing: -0.015em !important;
+}
+
+body.premium-ui .p-item-number {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 20px !important;
+  height: 20px !important;
+  border-radius: 5px !important;
+  background: var(--b-s2) !important;
+  border: 1px solid var(--b-border) !important;
+  color: var(--b-t2) !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+}
+
+body.premium-ui .p-star-star {
+  color: #F59E0B !important;
+  font-size: 13px !important;
+  margin-left: 3px !important;
+}
+
+body.premium-ui .p-standard {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  font-size: 12.5px !important;
+  font-weight: 500 !important;
+  color: var(--b-green-text) !important;
+  margin: 0 0 6px !important;
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+}
+body.premium-ui .p-standard span {
+  color: var(--b-t3) !important;
+  font-weight: 400 !important;
+}
+body.premium-ui .p-standard svg {
+  width: 14px !important;
+  height: 14px !important;
+}
+
+body.premium-ui .p-recipe-line {
+  font-size: 12px !important;
+  color: var(--b-t3) !important;
+  margin: 0 0 8px !important;
+}
+
+body.premium-ui .p-modifiers {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 6px !important;
+  margin-bottom: 8px !important;
+}
+
+body.premium-ui .p-mod {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  padding: 4px 9px !important;
+  border-radius: 6px !important;
+  background: var(--b-amber-soft) !important;
+  border: 1px solid var(--b-amber-border) !important;
+  color: var(--b-amber-text) !important;
+}
+
+body.premium-ui .p-mod.p-mod-picante,
+body.premium-ui .p-mod.p-extra {
+  background: var(--b-red-soft) !important;
+  border-color: var(--b-red-border) !important;
+  color: var(--b-red-text) !important;
+}
+
+body.premium-ui .p-mod.p-format {
+  background: var(--b-cyan-soft) !important;
+  border-color: rgba(8, 145, 178, 0.30) !important;
+  color: var(--b-cyan) !important;
+  margin-bottom: 6px !important;
+}
+
+body.premium-ui .p-recipe-details {
+  margin-top: 4px !important;
+  font-size: 12px !important;
+  color: var(--b-t3) !important;
+}
+body.premium-ui .p-recipe-details summary {
+  cursor: pointer !important;
+  color: var(--b-t3) !important;
+  font-weight: 500 !important;
+}
+body.premium-ui .p-recipe-details p {
+  margin-top: 6px !important;
+  color: var(--b-t2) !important;
+  line-height: 1.45 !important;
+}
+
+body.premium-ui .p-note {
+  display: flex !important;
+  align-items: center !important;
+  gap: 7px !important;
+  margin-top: 8px !important;
+  padding: 8px 10px !important;
+  border-radius: var(--b-radius-sm) !important;
+  background: var(--b-s2) !important;
+  border: 1px solid var(--b-border) !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  color: var(--b-t2) !important;
+}
+
+/* Ticket Footer: 4-col secondary bar + Full-width Semantic Brand CTA */
+body.premium-ui .p-ticket-footer {
+  margin-top: 16px !important;
+  padding-top: 14px !important;
+  border-top: 1px solid var(--b-border) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+}
+
+body.premium-ui .p-ticket-actions-bar {
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: 6px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+}
+
+body.premium-ui .p-kds-tool-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 5px !important;
+  height: 34px !important;
+  padding: 0 6px !important;
+  border-radius: var(--b-radius-sm) !important;
+  background: var(--b-s2) !important;
+  border: 1px solid var(--b-border) !important;
+  color: var(--b-t2) !important;
+  font-size: 11.5px !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  box-shadow: none !important;
+  transition: color 0.14s ease, border-color 0.14s ease, background 0.14s ease !important;
+}
+
+body.premium-ui .p-kds-tool-btn svg {
+  width: 13px !important;
+  height: 13px !important;
+}
+
+body.premium-ui .p-kds-tool-btn:hover {
+  color: var(--b-t1) !important;
+  border-color: var(--b-border-s) !important;
+  background: var(--b-s3) !important;
+}
+
+body.premium-ui .p-kds-tool-btn.p-tool-danger:hover {
+  color: var(--b-red-text) !important;
+  border-color: var(--b-red-border) !important;
+  background: var(--b-red-soft) !important;
+}
+
+/* Primary Action Button: Semantic Brand Magenta (Armado) vs Emerald (Entrega) */
+body.premium-ui .p-kds-main-btn {
+  width: 100% !important;
+  height: 44px !important;
+  border: none !important;
+  border-radius: var(--b-radius-md) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  font-size: 13.5px !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.01em !important;
+  color: #FFFFFF !important;
+  cursor: pointer !important;
+  box-shadow: none !important;
+  transition: background 0.14s ease, transform 0.08s ease !important;
+}
+
+body.premium-ui .p-kds-main-btn:active {
+  transform: scale(0.99);
+}
+
+body.premium-ui .p-kds-main-btn.p-to-plancha,
+body.premium-ui .p-kds-main-btn.p-ready {
+  background: var(--b-brand) !important;
+  color: #FFFFFF !important;
+}
+body.premium-ui .p-kds-main-btn.p-to-plancha:hover,
+body.premium-ui .p-kds-main-btn.p-ready:hover {
+  background: var(--b-brand-hover) !important;
+}
+
+body.premium-ui .p-kds-main-btn.p-deliver-confirm,
+body.premium-ui .p-kds-main-btn.p-deliver {
+  background: var(--b-green) !important;
+  color: #FFFFFF !important;
+}
+body.premium-ui .p-kds-main-btn.p-deliver-confirm:hover,
+body.premium-ui .p-kds-main-btn.p-deliver:hover {
+  background: var(--b-green-hover) !important;
+}
+
+body.premium-ui .p-complete {
+  width: 100% !important;
+  height: 44px !important;
+  min-height: 44px !important;
+  padding: 0 14px !important;
+  box-sizing: border-box !important;
+  border-radius: var(--b-radius-md) !important;
+  background: var(--b-green-soft) !important;
+  border: 1px solid var(--b-green-border) !important;
+  color: var(--b-green-text) !important;
+  font-size: 13.5px !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.01em !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  margin: 0 !important;
+}
+
+/* --- 10. POS PEDIDOS (#view-order) --- */
+body.premium-ui .pos-contract-bar {
+  background: var(--b-s1) !important;
+  border: 1px solid var(--b-border) !important;
+  border-radius: var(--b-radius-md) !important;
+  padding: 10px 16px !important;
+  margin-bottom: 14px !important;
+  box-shadow: var(--b-shadow-card) !important;
+  gap: 8px !important;
+}
+body.premium-ui .pos-contract-left {
+  font-size: 12.5px !important;
+  color: var(--b-t2) !important;
+}
+body.premium-ui .pos-contract-left strong {
+  color: var(--b-t1) !important;
+  font-variant-numeric: tabular-nums !important;
+}
+body.premium-ui .pos-contract-right {
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  color: var(--b-t2) !important;
+}
+body.premium-ui .pos-contract-track {
+  height: 4px !important;
+  background: var(--b-s3) !important;
+  border-radius: 99px !important;
+}
+body.premium-ui .pos-contract-fill {
+  background: var(--b-brand) !important;
+  border-radius: 99px !important;
+}
+body.premium-ui .pos-contract-bar.is-complete .pos-contract-fill {
+  background: var(--b-green) !important;
+}
+
+body.premium-ui .pos-card,
+body.premium-ui .summary-card-pos {
+  background: var(--b-s1) !important;
+  border: 1px solid var(--b-border) !important;
+  border-radius: var(--b-radius-lg) !important;
+  box-shadow: var(--b-shadow-card) !important;
+}
+
+body.premium-ui .field-label {
+  color: var(--b-t2) !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.01em !important;
+}
+
+body.premium-ui .text-input-pos {
+  background: var(--b-s2) !important;
+  border: 1px solid var(--b-border) !important;
+  border-radius: var(--b-radius-sm) !important;
+  color: var(--b-t1) !important;
+  font-size: 14px !important;
+  box-shadow: none !important;
+  transition: border-color 0.14s ease, background 0.14s ease !important;
+}
+body.premium-ui .text-input-pos:focus {
+  border-color: var(--b-brand) !important;
+  background: var(--b-s1) !important;
+  outline: none !important;
+  box-shadow: 0 0 0 3px var(--b-brand-soft) !important;
+}
+body.premium-ui .text-input-pos::placeholder {
+  color: var(--b-t3) !important;
+}
+
+body.premium-ui .pos-section-header {
+  border-bottom: 1px solid var(--b-border) !important;
+  padding-bottom: 6px !important;
+  margin-bottom: 10px !important;
+}
+body.premium-ui .pos-section-header span:first-child {
+  font-size: 12.5px !important;
+  font-weight: 600 !important;
+  color: var(--b-t1) !important;
+  text-transform: none !important;
+  letter-spacing: -0.01em !important;
+}
+body.premium-ui .pos-section-header span:last-child {
+  font-size: 11px !important;
+  font-weight: 500 !important;
+  color: var(--b-t3) !important;
+}
+
+body.premium-ui .protein-card-btn {
+  background: var(--b-s2) !important;
+  border: 1px solid var(--b-border) !important;
+  border-radius: var(--b-radius-md) !important;
+  color: var(--b-t1) !important;
+  box-shadow: none !important;
+  transition: border-color 0.14s ease, background 0.14s ease !important;
+}
+body.premium-ui .protein-card-btn:hover {
+  border-color: var(--b-border-s) !important;
+  background: var(--b-s3) !important;
+}
+body.premium-ui .protein-card-btn.selected {
+  background: var(--b-brand-soft) !important;
+  border: 1.5px solid var(--b-brand) !important;
+  box-shadow: none !important;
+}
+body.premium-ui .protein-card-btn .protein-title {
+  color: var(--b-t1) !important;
+  font-weight: 600 !important;
+}
+
+body.premium-ui .preset-pill-btn,
+body.premium-ui .quick-note-chip,
+body.premium-ui .p-repeat-search-btn {
+  background: var(--b-s2) !important;
+  border: 1px solid var(--b-border) !important;
+  border-radius: var(--b-radius-sm) !important;
+  color: var(--b-t2) !important;
+  font-size: 12.5px !important;
+  font-weight: 500 !important;
+  box-shadow: none !important;
+}
+body.premium-ui .preset-pill-btn:hover,
+body.premium-ui .quick-note-chip:hover,
+body.premium-ui .p-repeat-search-btn:hover {
+  color: var(--b-t1) !important;
+  border-color: var(--b-border-s) !important;
+}
+body.premium-ui .preset-pill-btn.active,
+body.premium-ui .quick-note-chip.active {
+  background: var(--b-brand-soft) !important;
+  border-color: var(--b-brand) !important;
+  color: var(--b-brand-text) !important;
+  font-weight: 600 !important;
+  box-shadow: none !important;
+}
+
+/* Ingredient rows */
+body.premium-ui .p-ingredient-row {
+  background: var(--b-s2) !important;
+  border: 1px solid var(--b-border) !important;
+  border-radius: var(--b-radius-sm) !important;
+  box-shadow: none !important;
+}
+body.premium-ui .p-ingredient-row.is-included {
+  border-color: var(--b-border) !important;
+}
+body.premium-ui .p-ingredient-row.is-excluded {
+  background: var(--b-red-soft) !important;
+  border-color: var(--b-red-border) !important;
+}
+body.premium-ui .p-ingredient-row .p-ing-name {
+  color: var(--b-t1) !important;
+}
+
+/* POS Sidebar Actions */
+body.premium-ui #btn-add-to-group {
+  background: var(--b-s2) !important;
+  border: 1px solid var(--b-border-s) !important;
+  border-radius: var(--b-radius-md) !important;
+  color: var(--b-t1) !important;
+  font-weight: 600 !important;
+  box-shadow: none !important;
+}
+body.premium-ui #btn-add-to-group:hover {
+  background: var(--b-s3) !important;
+}
+
+body.premium-ui .btn-submit-pos {
+  background: var(--b-brand) !important;
+  background-image: none !important;
+  border: none !important;
+  border-radius: var(--b-radius-md) !important;
+  color: #FFFFFF !important;
+  font-weight: 600 !important;
+  box-shadow: none !important;
+}
+body.premium-ui .btn-submit-pos:hover {
+  background: var(--b-brand-hover) !important;
+}
+
+body.premium-ui #btn-cancel-edit {
+  background: var(--b-s2) !important;
+  border: 1px solid var(--b-border-s) !important;
+  border-radius: var(--b-radius-md) !important;
+  color: var(--b-t2) !important;
+  padding: 10px 14px !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  width: 100% !important;
+  margin-top: 8px !important;
+  cursor: pointer !important;
+}
+
+body.premium-ui #group-tray-box {
+  background: var(--b-s2) !important;
+  border: 1px solid var(--b-brand-border) !important;
+  border-radius: var(--b-radius-md) !important;
+  padding: 12px !important;
+}
+
+/* POS Summary Card (RESUMEN DEL PEDIDO) strict contrast in both Day & Night */
+body.premium-ui .summary-card-pos .summary-top-tag,
+body.premium-ui .summary-card-pos .turn-label-txt {
+  color: var(--b-t3) !important;
+}
+body.premium-ui .summary-card-pos .turn-number-giant,
+body.premium-ui .summary-card-pos .p-guest-primary,
+body.premium-ui .summary-card-pos .p-preview-title,
+body.premium-ui .summary-card-pos .p-preview-title strong {
+  color: var(--b-t1) !important;
+}
+body.premium-ui .summary-card-pos .p-guest-primary.no-name {
+  color: var(--b-t3) !important;
+}
+body.premium-ui .summary-card-pos .p-product-icon-wrap {
+  background: var(--b-s2) !important;
+  border: 1px solid var(--b-border) !important;
+  border-radius: var(--b-radius-sm) !important;
+}
+body.premium-ui .summary-card-pos .summary-divider-line,
+body.premium-ui .summary-card-pos .p-summary-divider {
+  background: var(--b-border) !important;
+  border-color: var(--b-border) !important;
+}
+
+/* --- 11. MONITOR DE EVENTO & ADMIN & MODALS --- */
+body.premium-ui .turn-column-box,
+body.premium-ui .u-card,
+body.premium-ui .u-turn-card,
+body.premium-ui .u-metric,
+body.premium-ui .u-dialog,
+body.premium-ui .p-chat-panel {
+  background: var(--b-s1) !important;
+  border: 1px solid var(--b-border) !important;
+  border-radius: var(--b-radius-lg) !important;
+  box-shadow: var(--b-shadow-card) !important;
+  color: var(--b-t1) !important;
+}
+
+body.premium-ui .turn-column-header {
+  background: var(--b-s2) !important;
+  border-bottom: 1px solid var(--b-border) !important;
+  color: var(--b-t1) !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.01em !important;
+}
+
+body.premium-ui .u-button {
+  background: var(--b-s2) !important;
+  border: 1px solid var(--b-border-s) !important;
+  border-radius: var(--b-radius-sm) !important;
+  color: var(--b-t1) !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  box-shadow: none !important;
+}
+body.premium-ui .u-button:hover {
+  background: var(--b-s3) !important;
+}
+body.premium-ui .u-button.u-primary {
+  background: var(--b-brand) !important;
+  border-color: var(--b-brand) !important;
+  color: #FFFFFF !important;
+  font-weight: 600 !important;
+}
+body.premium-ui .u-button.u-primary:hover {
+  background: var(--b-brand-hover) !important;
+}
+body.premium-ui .u-button.is-active,
+body.premium-ui .u-theme-options .u-button[aria-pressed="true"],
+body.premium-ui .u-language-options .u-button[aria-pressed="true"] {
+  background: var(--b-brand-soft) !important;
+  border-color: var(--b-brand) !important;
+  color: var(--b-brand-text) !important;
+  font-weight: 600 !important;
+}
+body.premium-ui .u-button.u-danger {
+  background: var(--b-red-soft) !important;
+  border-color: var(--b-red-border) !important;
+  color: var(--b-red-text) !important;
+}
+
+body.premium-ui .u-muted,
+body.premium-ui .p-eyebrow {
+  color: var(--b-t2) !important;
+}
+
+body.premium-ui .p-empty {
+  background: var(--b-s1) !important;
+  border: 1px dashed var(--b-border-s) !important;
+  border-radius: var(--b-radius-lg) !important;
+  color: var(--b-t2) !important;
+}
+body.premium-ui .p-empty h2 {
+  color: var(--b-t1) !important;
+}
+
+/* Toasts */
+body.premium-ui .toast-msg {
+  background: var(--b-s1) !important;
+  border: 1px solid var(--b-border-s) !important;
+  color: var(--b-t1) !important;
+  border-radius: var(--b-radius-md) !important;
+  box-shadow: var(--b-shadow-elevated) !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+}
+
+/* ============================================================================
+   BOUTIQUE 1.1 (v81) — FULL 4-VIEW UNIFICATION + ACCESS GATE + KDS 1:1 POLISH
+   ============================================================================ */
+
+/* --- A. ACCESS GATE (CLAVE) & WELCOME EVENT SETUP --- */
+.b-gate-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: var(--b-bg);
+  color: var(--b-t1);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+  overflow-y: auto;
+}
+
+.b-gate-shell {
+  width: 100%;
+  max-width: 440px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.b-gate-brand {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2px;
+}
+
+.b-gate-logo {
+  height: 32px;
+  width: auto;
+  object-fit: contain;
+}
+
+html[data-theme="day"] .b-gate-overlay .brand-logo-night { display: none !important; }
+html[data-theme="night"] .b-gate-overlay .brand-logo-day { display: none !important; }
+
+.b-gate-card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 26px 24px;
+  background: var(--b-s1);
+  border: 1px solid var(--b-border);
+  border-radius: 16px;
+  box-shadow: var(--b-shadow-elevated);
+  position: relative;
+  overflow: hidden;
+}
+
+.b-gate-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--b-brand);
+}
+
+.b-gate-head {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.b-gate-eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--b-brand-text);
+}
+
+.b-gate-head h1 {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: var(--b-t1);
+  margin: 0;
+  line-height: 1.2;
+}
+
+.b-gate-head p {
+  font-size: 13px;
+  color: var(--b-t2);
+  margin: 0;
+  line-height: 1.45;
+}
+
+.b-welcome-active-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: var(--b-radius-sm);
+  background: var(--b-s2);
+  border: 1px solid var(--b-border);
+  font-size: 12.5px;
+  color: var(--b-t2);
+}
+.b-welcome-active-banner strong {
+  color: var(--b-t1);
+}
+
+.b-gate-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.b-gate-field > span,
+.b-gate-sublabel {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--b-t2);
+}
+
+.b-gate-input {
+  width: 100%;
+  height: 44px;
+  padding: 0 13px;
+  border-radius: var(--b-radius-sm);
+  background: var(--b-s2);
+  border: 1px solid var(--b-border);
+  color: var(--b-t1);
+  font-size: 15px;
+  font-weight: 500;
+  outline: none;
+  transition: border-color 0.14s ease, box-shadow 0.14s ease, background 0.14s ease;
+}
+
+.b-gate-input:focus {
+  border-color: var(--b-brand);
+  background: var(--b-s1);
+  box-shadow: 0 0 0 3px var(--b-brand-soft);
+}
+
+.b-gate-error {
+  margin: -6px 0 0;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--b-red-text);
+}
+
+.b-gate-remember {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  color: var(--b-t2);
+  cursor: pointer;
+}
+.b-gate-remember input {
+  width: 15px;
+  height: 15px;
+  accent-color: var(--b-brand);
+}
+
+.b-welcome-qty-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: -6px;
+}
+
+.b-qty-chip {
+  height: 32px;
+  padding: 0 12px;
+  border-radius: var(--b-radius-sm);
+  background: var(--b-s2);
+  border: 1px solid var(--b-border);
+  color: var(--b-t2);
+  font-size: 12.5px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+.b-qty-chip:hover {
+  color: var(--b-t1);
+  border-color: var(--b-border-s);
+}
+.b-qty-chip.is-active {
+  background: var(--b-brand-soft);
+  border-color: var(--b-brand);
+  color: var(--b-brand-text);
+}
+
+.b-welcome-station-pick {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.b-welcome-role-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+}
+
+.b-role-pill {
+  height: 36px;
+  padding: 0 10px;
+  border-radius: var(--b-radius-sm);
+  background: var(--b-s2);
+  border: 1px solid var(--b-border);
+  color: var(--b-t2);
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+.b-role-pill:hover {
+  color: var(--b-t1);
+  border-color: var(--b-border-s);
+}
+.b-role-pill.is-selected {
+  background: var(--b-brand-soft);
+  border-color: var(--b-brand);
+  color: var(--b-brand-text);
+  font-weight: 600;
+}
+
+.b-gate-primary-btn {
+  width: 100%;
+  height: 44px;
+  border: none;
+  border-radius: var(--b-radius-md);
+  background: var(--b-brand);
+  color: #FFFFFF;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  transition: background 0.14s ease;
+}
+.b-gate-primary-btn:hover {
+  background: var(--b-brand-hover);
+}
+
+.b-gate-secondary-link {
+  background: transparent;
+  border: none;
+  color: var(--b-t3);
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 4px;
+  text-align: center;
+}
+.b-gate-secondary-link:hover {
+  color: var(--b-t1);
+}
+
+/* --- B. KDS 1:1 FIXES: ROW 1 STATION + INLINE CONTRACT BAR, HORIZONTAL BATCH PILLS, ZERO STRIPE --- */
+body.premium-ui .kds-top-row {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  flex-wrap: wrap !important;
+  margin-bottom: 10px !important;
+}
+
+body.premium-ui #kds-station-bar.kds-station-bar {
+  width: auto !important;
+  max-width: max-content !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+}
+
+body.premium-ui .kds-contract-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  height: 38px;
+  padding: 0 14px;
+  border-radius: var(--b-radius-md);
+  background: var(--b-s1);
+  border: 1px solid var(--b-border);
+  color: var(--b-t2);
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: var(--b-shadow-card);
+  white-space: nowrap;
+  flex: 0 1 auto;
+  transition: border-color 0.14s ease, background 0.14s ease;
+}
+body.premium-ui .kds-contract-inline:hover {
+  border-color: var(--b-border-s);
+  background: var(--b-s2);
+}
+body.premium-ui .kds-ci-main {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+body.premium-ui .kds-ci-owner strong,
+body.premium-ui .kds-ci-ratio {
+  color: var(--b-t1);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+body.premium-ui .kds-ci-sep {
+  color: var(--b-t3);
+}
+body.premium-ui .kds-ci-track {
+  width: 92px;
+  height: 4px;
+  border-radius: 99px;
+  background: var(--b-s3);
+  overflow: hidden;
+  display: inline-block;
+  flex-shrink: 0;
+}
+body.premium-ui .kds-ci-fill {
+  display: block;
+  height: 100%;
+  background: var(--b-brand);
+  border-radius: 99px;
+}
+body.premium-ui .kds-contract-inline.is-complete .kds-ci-fill {
+  background: var(--b-green);
+}
+body.premium-ui .kds-ci-rem {
+  color: var(--b-t2);
+  font-size: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+body.premium-ui .kds-filter-row {
+  margin-bottom: 12px !important;
+}
+body.premium-ui .kds-filter-group {
+  margin: 0 !important;
+}
+
+/* 1-line horizontal PREPARACIONES IGUALES pills (overrides unified.css/premium.css 100%) */
+body.premium-ui #kds-batch-counters.batch-chips-wrapper {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  gap: 8px !important;
+  overflow-x: visible !important;
+  max-height: none !important;
+  padding: 0 !important;
+}
+
+body.premium-ui .b-batch-pill {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 7px !important;
+  min-height: 32px !important;
+  padding: 4px 11px !important;
+  border-radius: var(--b-radius-sm) !important;
+  background: var(--b-s2) !important;
+  border: 1px solid var(--b-border) !important;
+  color: var(--b-t1) !important;
+  font-size: 12.5px !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  flex: 0 0 auto !important;
+  width: auto !important;
+  white-space: nowrap !important;
+  box-shadow: none !important;
+  transition: border-color 0.14s ease, background 0.14s ease !important;
+}
+body.premium-ui .b-batch-pill:hover {
+  border-color: var(--b-border-s) !important;
+  background: var(--b-s3) !important;
+}
+body.premium-ui .b-bp-num {
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  color: var(--b-t1) !important;
+  font-variant-numeric: tabular-nums !important;
+}
+body.premium-ui .b-bp-prot {
+  font-weight: 600 !important;
+  color: var(--b-t1) !important;
+}
+body.premium-ui .b-bp-spec {
+  font-size: 12px !important;
+  color: var(--b-t2) !important;
+  font-weight: 400 !important;
+}
+body.premium-ui .b-bp-spec.is-mod {
+  color: var(--b-amber-text) !important;
+  font-weight: 500 !important;
+}
+body.premium-ui .b-bp-spec.is-hot {
+  color: var(--b-red-text) !important;
+  font-weight: 500 !important;
+}
+body.premium-ui .b-bp-turns {
+  display: none;
+  font-size: 11px;
+  color: var(--b-t3);
+  padding-left: 6px;
+  border-left: 1px solid var(--b-border);
+  font-variant-numeric: tabular-nums;
+}
+body.premium-ui .b-batch-pill.is-open .b-bp-turns {
+  display: inline;
+}
+
+/* Subtle translucent protein-tinted row inside KDS cards (instant visual recognition) */
+body.premium-ui .kds-item-head {
+  padding: 5px 9px !important;
+  border-radius: 7px !important;
+  border: none !important;
+  border-left: none !important;
+  background: var(--b-s2) !important;
+}
+body.premium-ui .kds-item-head.is-mixto   { background: rgba(212, 20, 115, 0.12) !important; }
+body.premium-ui .kds-item-head.is-pollo   { background: rgba(217, 119, 6, 0.13) !important; }
+body.premium-ui .kds-item-head.is-carne   { background: rgba(220, 38, 38, 0.12) !important; }
+body.premium-ui .kds-item-head.is-falafel { background: rgba(5, 150, 105, 0.13) !important; }
+body.premium-ui .kds-item-head.is-bowl    { background: rgba(8, 145, 178, 0.13) !important; }
+
+html[data-theme="day"] body.premium-ui .kds-item-head.is-mixto,
+body.premium-ui.theme-day .kds-item-head.is-mixto   { background: rgba(212, 20, 115, 0.08) !important; }
+html[data-theme="day"] body.premium-ui .kds-item-head.is-pollo,
+body.premium-ui.theme-day .kds-item-head.is-pollo   { background: rgba(217, 119, 6, 0.10) !important; }
+html[data-theme="day"] body.premium-ui .kds-item-head.is-carne,
+body.premium-ui.theme-day .kds-item-head.is-carne   { background: rgba(220, 38, 38, 0.08) !important; }
+html[data-theme="day"] body.premium-ui .kds-item-head.is-falafel,
+body.premium-ui.theme-day .kds-item-head.is-falafel { background: rgba(5, 150, 105, 0.09) !important; }
+html[data-theme="day"] body.premium-ui .kds-item-head.is-bowl,
+body.premium-ui.theme-day .kds-item-head.is-bowl    { background: rgba(8, 145, 178, 0.09) !important; }
+
+/* Compact inline modifier pills (kills full-width 3-col grid from premium.css & black border from unified.css) */
+body.premium-ui .p-ticket .p-modifiers,
+body.premium-ui .summary-card-pos .p-modifiers {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  grid-template-columns: none !important;
+  gap: 6px !important;
+  margin: 4px 0 8px !important;
+  width: auto !important;
+}
+
+body.premium-ui .p-ticket .p-mod,
+body.premium-ui .summary-card-pos .p-mod {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  width: auto !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  height: auto !important;
+  flex: 0 0 auto !important;
+  padding: 3px 9px !important;
+  border-radius: 6px !important;
+  font-size: 11.5px !important;
+  font-weight: 600 !important;
+  line-height: 1.35 !important;
+  white-space: nowrap !important;
+  text-align: left !important;
+  background: var(--b-amber-soft) !important;
+  border: 1px solid var(--b-amber-border) !important;
+  color: var(--b-amber-text) !important;
+}
+
+body.premium-ui .p-ticket .p-mod.p-mod-picante,
+body.premium-ui .p-ticket .p-mod[data-ingredient="picante"],
+body.premium-ui .p-ticket .p-mod.p-extra,
+body.premium-ui.theme-day .p-ticket .p-mod.p-mod-picante,
+body.premium-ui.theme-day .p-ticket .p-mod[data-ingredient="picante"],
+body.premium-ui.theme-day .p-ticket .p-mod:has(.ui-icon-chili),
+body.premium-ui .summary-card-pos .p-mod.p-mod-picante,
+body.premium-ui .summary-card-pos .p-mod.p-extra {
+  background: var(--b-red-soft) !important;
+  border: 1px solid var(--b-red-border) !important;
+  color: var(--b-red-text) !important;
+}
+
+body.premium-ui .p-ticket .p-mod.p-format,
+body.premium-ui .summary-card-pos .p-mod.p-format {
+  background: var(--b-cyan-soft) !important;
+  border: 1px solid rgba(8, 145, 178, 0.30) !important;
+  color: var(--b-cyan) !important;
+  margin-bottom: 6px !important;
+}
+
+/* Guarantee ZERO yellow border around overdue cards */
+body.premium-ui #kds-cards-grid .p-ticket.p-overdue,
+body.premium-ui.theme-day #kds-cards-grid .p-ticket.p-overdue {
+  border: 1px solid var(--b-border) !important;
+  box-shadow: var(--b-shadow-card) !important;
+}
+
+body.premium-ui .p-kds-main-btn,
+body.premium-ui .btn-submit-pos,
+body.premium-ui .p-primary {
+  text-transform: none !important;
+  letter-spacing: -0.01em !important;
+}
+
+/* --- C. FULL UNIFICATION FOR PEDIDOS (#view-order) --- */
+body.premium-ui #view-order .kiosk-grid {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) 368px !important;
+  gap: 18px !important;
+  align-items: start !important;
+}
+@media (max-width: 1020px) {
+  body.premium-ui #view-order .kiosk-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+body.premium-ui #view-order .pos-card {
+  padding: 20px !important;
+  gap: 16px !important;
+}
+
+body.premium-ui #view-order .text-input-pos {
+  height: 42px !important;
+  padding: 0 12px !important;
+  font-weight: 500 !important;
+}
+
+body.premium-ui #view-order .protein-selector-grid {
+  gap: 10px !important;
+}
+
+body.premium-ui #view-order .protein-card-btn {
+  padding: 14px 10px !important;
+  min-height: 92px !important;
+  gap: 8px !important;
+}
+body.premium-ui #view-order .protein-icon-art {
+  width: 30px !important;
+  height: 30px !important;
+}
+body.premium-ui #view-order .protein-title {
+  font-size: 13px !important;
+  letter-spacing: -0.01em !important;
+}
+
+body.premium-ui #view-order .presets-row {
+  gap: 8px !important;
+}
+body.premium-ui #view-order .preset-pill-btn {
+  min-height: 36px !important;
+  padding: 6px 11px !important;
+  gap: 6px !important;
+}
+
+body.premium-ui #view-order .ingredients-grid-pos {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 8px !important;
+}
+@media (max-width: 600px) {
+  body.premium-ui #view-order .ingredients-grid-pos {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+body.premium-ui #view-order .p-ingredient-row {
+  min-height: 44px !important;
+  padding: 6px 8px 6px 12px !important;
+  gap: 8px !important;
+}
+body.premium-ui #view-order .p-ingredient-row .p-seg-btn,
+body.premium-ui #view-order .p-ingredient-row button {
+  height: 30px !important;
+  border-radius: 6px !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  text-transform: none !important;
+  box-shadow: none !important;
+}
+
+body.premium-ui #view-order .quick-notes-container {
+  gap: 6px !important;
+  margin-bottom: 8px !important;
+}
+body.premium-ui #view-order .quick-note-chip {
+  height: 32px !important;
+  padding: 0 10px !important;
+  font-size: 12px !important;
+}
+
+/* POS Summary Card mirrors KDS Ticket architecture */
+body.premium-ui #view-order .summary-card-pos {
+  position: relative !important;
+  overflow: hidden !important;
+  padding: 20px !important;
+}
+body.premium-ui #view-order .summary-card-pos::before {
+  content: "" !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  height: 3px !important;
+  background: var(--b-brand) !important;
+}
+body.premium-ui #view-order .turn-badge-card {
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+}
+body.premium-ui #view-order .turn-number-giant {
+  font-size: 38px !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.04em !important;
+  font-variant-numeric: tabular-nums !important;
+}
+body.premium-ui #view-order .btn-submit-pos {
+  height: 46px !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+}
+body.premium-ui #view-order #btn-add-to-group {
+  height: 40px !important;
+  font-size: 13px !important;
+}
+
+/* --- D. FULL UNIFICATION FOR MONITOR DE EVENTO (#view-display) --- */
+body.premium-ui #view-display .p-monitor-contract-bar {
+  background: var(--b-s1) !important;
+  border: 1px solid var(--b-border) !important;
+  border-radius: var(--b-radius-lg) !important;
+  padding: 16px 18px !important;
+  margin-bottom: 16px !important;
+  box-shadow: var(--b-shadow-card) !important;
+}
+body.premium-ui #view-display .p-monitor-contract-title strong {
+  font-size: 14.5px !important;
+  font-weight: 600 !important;
+  color: var(--b-t1) !important;
+}
+body.premium-ui #view-display .p-monitor-contract-title span {
+  font-size: 12px !important;
+  color: var(--b-t2) !important;
+}
+body.premium-ui #view-display .p-monitor-contract-controls .text-input-pos {
+  height: 36px !important;
+  font-size: 13px !important;
+}
+body.premium-ui #view-display .p-monitor-contract-controls .u-button {
+  height: 36px !important;
+  padding: 0 12px !important;
+}
+
+body.premium-ui #view-display .turn-display-layout {
+  gap: 16px !important;
+}
+body.premium-ui #view-display .turn-column-box {
+  overflow: hidden !important;
+  padding: 0 !important;
+}
+body.premium-ui #view-display .turn-column-header {
+  padding: 14px 18px !important;
+  border-radius: 0 !important;
+}
+body.premium-ui #view-display .turns-cards-container {
+  padding: 14px !important;
+  gap: 10px !important;
+}
+body.premium-ui #view-display .u-turn-card {
+  border-radius: var(--b-radius-md) !important;
+  background: var(--b-s2) !important;
+  border: 1px solid var(--b-border) !important;
+  padding: 12px 14px !important;
+  box-shadow: none !important;
+  transition: border-color 0.14s ease !important;
+}
+body.premium-ui #view-display .u-turn-card:hover {
+  border-color: var(--b-border-s) !important;
+}
+body.premium-ui #view-display .u-turn-number {
+  font-size: 20px !important;
+  font-weight: 700 !important;
+  color: var(--b-t1) !important;
+  font-variant-numeric: tabular-nums !important;
+}
+body.premium-ui #view-display .u-turn-guest {
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  color: var(--b-t1) !important;
+}
+body.premium-ui #view-display .u-turn-product {
+  font-size: 12.5px !important;
+  color: var(--b-t2) !important;
+}
+body.premium-ui #view-display .p-balance-card,
+body.premium-ui #view-display .p-balance-kpi {
+  background: var(--b-s2) !important;
+  border: 1px solid var(--b-border) !important;
+  border-radius: var(--b-radius-md) !important;
+  box-shadow: none !important;
+}
+body.premium-ui #view-display .p-balance-kpi strong {
+  color: var(--b-t1) !important;
+  font-variant-numeric: tabular-nums !important;
+}
+
+/* --- E. FULL UNIFICATION FOR ADMINISTRACIÓN (#view-admin) --- */
+body.premium-ui #view-admin .u-page-heading {
+  display: flex !important;
+  align-items: flex-end !important;
+  justify-content: space-between !important;
+  padding-bottom: 14px !important;
+  margin-bottom: 18px !important;
+  border-bottom: 1px solid var(--b-border) !important;
+}
+body.premium-ui #view-admin .u-page-heading h1 {
+  font-size: 24px !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.025em !important;
+  color: var(--b-t1) !important;
+}
+body.premium-ui #view-admin .u-page-heading p {
+  font-size: 13px !important;
+  color: var(--b-t2) !important;
+}
+
+body.premium-ui #view-admin .u-admin-grid {
+  gap: 16px !important;
+}
+body.premium-ui #view-admin .u-card {
+  padding: 20px !important;
+}
+body.premium-ui #view-admin .u-section-title h2 {
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.015em !important;
+  color: var(--b-t1) !important;
+  gap: 8px !important;
+}
+body.premium-ui #view-admin .u-section-title h2 svg {
+  width: 16px !important;
+  height: 16px !important;
+  color: var(--b-t2) !important;
+}
+body.premium-ui #view-admin .u-section-title p {
+  font-size: 12.5px !important;
+  color: var(--b-t2) !important;
+}
+
+body.premium-ui #view-admin .u-metric {
+  background: var(--b-s2) !important;
+  border: 1px solid var(--b-border) !important;
+  border-radius: var(--b-radius-md) !important;
+  padding: 14px 12px !important;
+  box-shadow: none !important;
+}
+body.premium-ui #view-admin .u-metric strong {
+  font-size: 22px !important;
+  font-weight: 700 !important;
+  color: var(--b-t1) !important;
+  font-variant-numeric: tabular-nums !important;
+}
+body.premium-ui #view-admin .u-metric span {
+  font-size: 11.5px !important;
+  color: var(--b-t2) !important;
+}
+
+body.premium-ui #view-admin .u-button {
+  height: 36px !important;
+  padding: 0 13px !important;
+}
+body.premium-ui #view-admin .u-address {
+  background: var(--b-s2) !important;
+  border: 1px solid var(--b-border) !important;
+  border-radius: var(--b-radius-sm) !important;
+  color: var(--b-t1) !important;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 13px !important;
+}
+body.premium-ui #view-admin .u-table th {
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  color: var(--b-t3) !important;
+  border-bottom: 1px solid var(--b-border) !important;
+  background: var(--b-s2) !important;
+}
+body.premium-ui #view-admin .u-table td {
+  font-size: 13px !important;
+  color: var(--b-t1) !important;
+  border-bottom: 1px solid var(--b-border) !important;
+  font-variant-numeric: tabular-nums !important;
+}
+body.premium-ui #view-admin .u-finance-inputs input {
+  background: var(--b-s2) !important;
+  border: 1px solid var(--b-border) !important;
+  border-radius: var(--b-radius-sm) !important;
+  color: var(--b-t1) !important;
+  height: 38px !important;
+}
+
+/* ============================================================================
+   11A. UNIFIED KDS COMMAND DOCK (v84) — ARCHITECTURAL HIERARCHY & TACTILE BUTTONS
+   ============================================================================ */
+body.premium-ui .kds-command-dock {
+  background: var(--b-s1) !important;
+  border: 1px solid var(--b-border) !important;
+  border-radius: var(--b-radius-lg) !important;
+  box-shadow: var(--b-shadow-card) !important;
+  overflow: hidden !important;
+  margin-bottom: 16px !important;
+}
+
+body.premium-ui .kds-dock-row {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  flex-wrap: wrap !important;
+  padding: 10px 16px !important;
+  margin: 0 !important;
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+body.premium-ui .kds-dock-row + .kds-dock-row {
+  border-top: 1px solid var(--b-border) !important;
+}
+
+body.premium-ui .kds-dock-left {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  flex-wrap: wrap !important;
+  min-width: 0 !important;
+}
+
+body.premium-ui .kds-dock-label {
+  width: 66px !important;
+  flex-shrink: 0 !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.09em !important;
+  color: var(--b-t3) !important;
+  user-select: none !important;
+}
+
+/* Zone 1: Station Buttons (no nested outer box — 3 unmistakable tactile buttons) */
+body.premium-ui .kds-command-dock #kds-station-bar.kds-station-bar {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+body.premium-ui .kds-command-dock .kds-station-btn {
+  height: 34px !important;
+  padding: 0 12px !important;
+  border-radius: var(--b-radius-sm) !important;
+  background: var(--b-s2) !important;
+  border: 1px solid var(--b-border-s) !important;
+  color: var(--b-t2) !important;
+  font-size: 12.5px !important;
+  font-weight: 500 !important;
+  gap: 7px !important;
+  cursor: pointer !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 1px 2px rgba(0, 0, 0, 0.16) !important;
+  transition: background 0.14s ease, border-color 0.14s ease, color 0.14s ease, transform 0.08s ease !important;
+}
+body.premium-ui .kds-command-dock .kds-station-btn:hover {
+  background: var(--b-s3) !important;
+  border-color: var(--b-t3) !important;
+  color: var(--b-t1) !important;
+}
+body.premium-ui .kds-command-dock .kds-station-btn:active {
+  transform: translateY(0.5px);
+}
+body.premium-ui .kds-command-dock .kds-station-btn.active {
+  background: var(--b-brand-soft) !important;
+  border-color: var(--b-brand) !important;
+  color: var(--b-t1) !important;
+  font-weight: 600 !important;
+  box-shadow: 0 1px 2px rgba(212, 20, 115, 0.14) !important;
+}
+body.premium-ui .kds-command-dock .kds-station-btn.active .kds-st-svg {
+  color: var(--b-brand) !important;
+}
+
+/* Zone 1 Right: Tactile Event Contract Button with edit cue */
+body.premium-ui .kds-command-dock .kds-contract-inline {
+  height: 34px !important;
+  padding: 0 12px !important;
+  border-radius: var(--b-radius-sm) !important;
+  background: var(--b-s2) !important;
+  border: 1px solid var(--b-border-s) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 1px 2px rgba(0, 0, 0, 0.16) !important;
+  gap: 10px !important;
+}
+body.premium-ui .kds-command-dock .kds-contract-inline:hover {
+  background: var(--b-s3) !important;
+  border-color: var(--b-brand) !important;
+}
+body.premium-ui .kds-ci-edit {
+  display: inline-flex;
+  align-items: center;
+  color: var(--b-t3);
+  margin-left: 2px;
+}
+body.premium-ui .kds-ci-edit svg {
+  width: 12px !important;
+  height: 12px !important;
+}
+body.premium-ui .kds-contract-inline:hover .kds-ci-edit {
+  color: var(--b-t1);
+}
+
+/* Zone 2: Unmistakable Tactile Status Filter Buttons (Neutral high-contrast active vs Brand station) */
+body.premium-ui .kds-command-dock .kds-filter-group {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  flex-wrap: wrap !important;
+  margin: 0 !important;
+}
+
+body.premium-ui .kds-command-dock .kds-filter-tab {
+  height: 34px !important;
+  padding: 0 12px !important;
+  border-radius: var(--b-radius-sm) !important;
+  background: var(--b-s2) !important;
+  border: 1px solid var(--b-border-s) !important;
+  color: var(--b-t2) !important;
+  font-size: 12.5px !important;
+  font-weight: 500 !important;
+  gap: 7px !important;
+  cursor: pointer !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 1px 2px rgba(0, 0, 0, 0.16) !important;
+  transition: background 0.14s ease, border-color 0.14s ease, color 0.14s ease, transform 0.08s ease !important;
+}
+body.premium-ui .kds-command-dock .kds-filter-tab:hover {
+  background: var(--b-s3) !important;
+  border-color: var(--b-t3) !important;
+  color: var(--b-t1) !important;
+}
+body.premium-ui .kds-command-dock .kds-filter-tab:active {
+  transform: translateY(0.5px);
+}
+body.premium-ui .kds-command-dock .kds-filter-tab strong {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-width: 19px !important;
+  height: 18px !important;
+  padding: 0 5px !important;
+  border-radius: 5px !important;
+  background: var(--b-s3) !important;
+  color: var(--b-t2) !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+}
+body.premium-ui .kds-command-dock .kds-filter-tab.active {
+  background: var(--b-t1) !important;
+  border-color: var(--b-t1) !important;
+  color: var(--b-bg) !important;
+  font-weight: 600 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.22) !important;
+}
+body.premium-ui .kds-command-dock .kds-filter-tab.active strong {
+  background: rgba(127, 127, 127, 0.24) !important;
+  color: var(--b-bg) !important;
+}
+
+/* Zone 2 Right: Tactile Batch Action Button */
+body.premium-ui .kds-command-dock .p-batch-ready {
+  height: 34px !important;
+  padding: 0 14px !important;
+  border-radius: var(--b-radius-sm) !important;
+  background: var(--b-s2) !important;
+  border: 1px solid var(--b-border-s) !important;
+  color: var(--b-t1) !important;
+  font-size: 12.5px !important;
+  font-weight: 600 !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 1px 2px rgba(0, 0, 0, 0.18) !important;
+}
+body.premium-ui .kds-command-dock .p-batch-ready:hover {
+  background: var(--b-brand-soft) !important;
+  border-color: var(--b-brand) !important;
+}
+
+/* Zone 3: Preparaciones Iguales seamlessly integrated at bottom of Command Dock */
+body.premium-ui .kds-command-dock .kds-batching-bar {
+  justify-content: flex-start !important;
+  flex-wrap: nowrap !important;
+  gap: 16px !important;
+  padding: 10px 16px !important;
+  margin: 0 !important;
+  background: rgba(255, 255, 255, 0.015) !important;
+  border: none !important;
+  border-top: 1px solid var(--b-border) !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+html[data-theme="day"] body.premium-ui .kds-command-dock .kds-batching-bar,
+body.premium-ui.theme-day .kds-command-dock .kds-batching-bar {
+  background: #FAFAFB !important;
+}
+body.premium-ui .kds-command-dock .b-batch-pill {
+  background: var(--b-s2) !important;
+  border: 1px solid var(--b-border-s) !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.10) !important;
+}
+
+/* Day Mode crisp button elevation inside Command Dock */
+html[data-theme="day"] body.premium-ui .kds-command-dock .kds-station-btn:not(.active),
+html[data-theme="day"] body.premium-ui .kds-command-dock .kds-filter-tab:not(.active),
+html[data-theme="day"] body.premium-ui .kds-command-dock .kds-contract-inline,
+html[data-theme="day"] body.premium-ui .kds-command-dock .p-batch-ready,
+html[data-theme="day"] body.premium-ui .kds-command-dock .b-batch-pill,
+body.premium-ui.theme-day .kds-command-dock .kds-station-btn:not(.active),
+body.premium-ui.theme-day .kds-command-dock .kds-filter-tab:not(.active),
+body.premium-ui.theme-day .kds-command-dock .kds-contract-inline,
+body.premium-ui.theme-day .kds-command-dock .p-batch-ready,
+body.premium-ui.theme-day .kds-command-dock .b-batch-pill {
+  background: #FFFFFF !important;
+  border-color: #D4D4D8 !important;
+  box-shadow: 0 1px 2px rgba(9, 9, 11, 0.05) !important;
+}
+html[data-theme="day"] body.premium-ui .kds-command-dock .kds-station-btn:not(.active):hover,
+html[data-theme="day"] body.premium-ui .kds-command-dock .kds-filter-tab:not(.active):hover,
+body.premium-ui.theme-day .kds-command-dock .kds-station-btn:not(.active):hover,
+body.premium-ui.theme-day .kds-command-dock .kds-filter-tab:not(.active):hover {
+  background: #F4F4F5 !important;
+  border-color: #A1A1AA !important;
+}
+
+/* --- 11B. iPAD 7th GEN (920px - 1180px) COMPACT 3-COLUMN KDS CASCADE OVERRIDE --- */
+@media (min-width: 920px) and (max-width: 1180px) {
+  body.premium-ui #view-kitchen.view-content {
+    padding: 12px 14px 28px !important;
+  }
+  body.premium-ui .kds-command-dock {
+    margin-bottom: 12px !important;
+  }
+  body.premium-ui .kds-dock-row {
+    padding: 7px 12px !important;
+    gap: 8px !important;
+    flex-wrap: nowrap !important;
+  }
+  body.premium-ui .kds-dock-left {
+    gap: 8px !important;
+    flex-wrap: nowrap !important;
+  }
+  body.premium-ui .kds-dock-label {
+    width: 52px !important;
+    font-size: 9.5px !important;
+  }
+  body.premium-ui .kds-command-dock .kds-station-btn,
+  body.premium-ui .kds-command-dock .kds-filter-tab,
+  body.premium-ui .kds-command-dock .p-batch-ready,
+  body.premium-ui .kds-command-dock .kds-contract-inline {
+    height: 32px !important;
+    padding: 0 9px !important;
+    font-size: 11.5px !important;
+    gap: 5px !important;
+  }
+  body.premium-ui .kds-command-dock .kds-ci-unit {
+    display: none !important;
+  }
+  body.premium-ui .kds-command-dock .kds-ci-track {
+    width: 44px !important;
+  }
+  body.premium-ui .kds-command-dock .kds-batching-bar {
+    flex-wrap: nowrap !important;
+  }
+  body.premium-ui #kds-cards-grid.kds-cards-stream {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+  }
+  body.premium-ui #kds-cards-grid .p-ticket {
+    padding: 12px 12px 13px !important;
+    border-radius: 12px !important;
+  }
+  body.premium-ui #kds-cards-grid .p-ticket .turn-number-giant {
+    font-size: 27px !important;
+  }
+  body.premium-ui #kds-cards-grid .p-guest-line {
+    padding: 2px 0 9px !important;
+    margin-bottom: 9px !important;
+  }
+  body.premium-ui #kds-cards-grid .p-guest-line > strong {
+    font-size: 15.5px !important;
+  }
+  body.premium-ui #kds-cards-grid .kds-item-head {
+    font-size: 13px !important;
+    padding: 4px 7px !important;
+  }
+  body.premium-ui #kds-cards-grid .p-ticket-footer {
+    margin-top: 11px !important;
+    padding-top: 9px !important;
+    gap: 7px !important;
+  }
+  body.premium-ui #kds-cards-grid .p-ticket-actions-bar {
+    gap: 4px !important;
+  }
+  body.premium-ui #kds-cards-grid .p-kds-tool-btn {
+    height: 30px !important;
+    padding: 0 3px !important;
+    font-size: 10px !important;
+    gap: 3px !important;
+  }
+  body.premium-ui #kds-cards-grid .p-kds-tool-btn svg {
+    width: 11px !important;
+    height: 11px !important;
+  }
+  body.premium-ui #kds-cards-grid .p-kds-main-btn {
+    height: 39px !important;
+    font-size: 12.5px !important;
+  }
+}
+
+/* ============================================================================
+   11C. EDITORIAL HAIRLINE MENU & VERTICAL DIVIDERS (v86)
+   Full-bleed horizontal hairline bands · 1px vertical dividers · Brand underline
+   ============================================================================ */
+@media (min-width: 769px) {
+  /* Top Header: clean 56px editorial bar with vertical hairline dividers & brand underline */
+  body.premium-ui .header-bar {
+    height: 56px !important;
+    min-height: 56px !important;
+    background: var(--b-s1) !important;
+    border-bottom: 1px solid var(--b-border) !important;
+  }
+
+  body.premium-ui .header-left-group {
+    position: relative !important;
+    padding-right: 16px !important;
+  }
+  body.premium-ui .header-left-group::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 1px;
+    height: 22px;
+    background: var(--b-border);
+  }
+
+  body.premium-ui .header-bar .tabs-nav {
+    height: 56px !important;
+    gap: 6px !important;
+    padding: 0 14px !important;
+  }
+
+  body.premium-ui .header-bar .tabs-nav .tab-btn {
+    position: relative !important;
+    height: 56px !important;
+    padding: 0 12px !important;
+    border-radius: 0 !important;
+    border: none !important;
+    background: transparent !important;
+    color: var(--b-t2) !important;
+    font-size: 13.5px !important;
+    font-weight: 500 !important;
+    box-shadow: none !important;
+  }
+
+  body.premium-ui .header-bar .tabs-nav .tab-btn:hover {
+    background: transparent !important;
+    color: var(--b-t1) !important;
+  }
+
+  body.premium-ui .header-bar .tabs-nav .tab-btn.active {
+    background: transparent !important;
+    border: none !important;
+    color: var(--b-t1) !important;
+    font-weight: 600 !important;
+  }
+
+  body.premium-ui .header-bar .tabs-nav .tab-btn.active::after {
+    content: "";
+    position: absolute;
+    left: 10px;
+    right: 10px;
+    bottom: 0;
+    height: 2.5px;
+    background: var(--b-brand);
+    border-radius: 2px 2px 0 0;
+  }
+
+  /* Right utility cluster with crisp vertical hairline dividers & clean flat "En línea" */
+  body.premium-ui .header-right-cluster {
+    position: relative !important;
+    padding-left: 16px !important;
+    gap: 12px !important;
+  }
+  body.premium-ui .header-right-cluster::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 1px;
+    height: 22px;
+    background: var(--b-border);
+  }
+
+  body.premium-ui .header-right-tools {
+    position: relative !important;
+    padding-left: 12px !important;
+    gap: 8px !important;
+  }
+  body.premium-ui .header-right-tools::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 1px;
+    height: 18px;
+    background: var(--b-border);
+  }
+
+  body.premium-ui .connection-badge {
+    background: transparent !important;
+    border: none !important;
+    padding: 0 2px 0 4px !important;
+    height: auto !important;
+    color: var(--b-t1) !important;
+    font-size: 12.5px !important;
+    font-weight: 500 !important;
+    gap: 7px !important;
+  }
+  body.premium-ui .connection-dot {
+    width: 8px !important;
+    height: 8px !important;
+    background: #22C55E !important;
+  }
+
+  /* Full-Bleed Architectural Hairline Command Bands (NO outer floating box!) */
+  body.premium-ui #view-kitchen.view-content {
+    padding-top: 0 !important;
+  }
+
+  body.premium-ui .kds-command-dock {
+    margin: 0 -24px 18px -24px !important;
+    border: none !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+  }
+
+  body.premium-ui .kds-command-dock .kds-dock-row {
+    padding: 0 24px !important;
+    border-top: none !important;
+    border-bottom: 1px solid var(--b-border) !important;
+  }
+
+  /* Band 1: Station editorial underline tabs + Flat hairline-divided Event Summary */
+  body.premium-ui .kds-command-dock .kds-top-row {
+    min-height: 46px !important;
+    background: var(--b-s1) !important;
+  }
+
+  body.premium-ui .kds-dock-label {
+    width: auto !important;
+    padding-right: 12px !important;
+    border-right: 1px solid var(--b-border) !important;
+    height: 18px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+  }
+
+  body.premium-ui .kds-command-dock #kds-station-bar.kds-station-bar {
+    gap: 4px !important;
+    height: 46px !important;
+  }
+
+  body.premium-ui .kds-command-dock .kds-station-btn {
+    position: relative !important;
+    height: 46px !important;
+    padding: 0 12px !important;
+    border-radius: 0 !important;
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    color: var(--b-t2) !important;
+    font-size: 13.5px !important;
+    font-weight: 500 !important;
+  }
+
+  body.premium-ui .kds-command-dock .kds-station-btn:hover {
+    background: transparent !important;
+    color: var(--b-t1) !important;
+  }
+
+  body.premium-ui .kds-command-dock .kds-station-btn.active {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    color: var(--b-t1) !important;
+    font-weight: 600 !important;
+  }
+
+  body.premium-ui .kds-command-dock .kds-station-btn.active::after {
+    content: "";
+    position: absolute;
+    left: 10px;
+    right: 10px;
+    bottom: 0;
+    height: 2.5px;
+    background: var(--b-brand);
+    border-radius: 2px 2px 0 0;
+  }
+
+  /* Event Summary right side: clean flat typography separated by vertical 1px hairlines */
+  body.premium-ui .kds-command-dock .kds-contract-inline {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    height: 32px !important;
+    padding: 0 8px !important;
+    border-radius: 6px !important;
+    gap: 10px !important;
+    color: var(--b-t2) !important;
+    font-size: 13px !important;
+  }
+  body.premium-ui .kds-command-dock .kds-contract-inline:hover {
+    background: var(--b-s2) !important;
+  }
+  body.premium-ui .kds-ci-owner {
+    color: var(--b-t1) !important;
+    font-weight: 600 !important;
+  }
+  body.premium-ui .kds-ci-of {
+    color: var(--b-t3) !important;
+    font-weight: 400 !important;
+  }
+  body.premium-ui .kds-ci-vdiv {
+    display: inline-block;
+    width: 1px;
+    height: 14px;
+    background: var(--b-border-s);
+    flex-shrink: 0;
+  }
+  body.premium-ui .kds-ci-rem {
+    color: var(--b-t1) !important;
+    font-weight: 500 !important;
+  }
+
+  /* Band 2: Editorial Fucsia-Underline Status Filters + Batch Action Button */
+  body.premium-ui .kds-command-dock .kds-filter-row {
+    min-height: 44px !important;
+    padding: 0 24px !important;
+    background: var(--b-bg) !important;
+  }
+
+  body.premium-ui .kds-command-dock .kds-filter-group {
+    gap: 4px !important;
+    height: 44px !important;
+  }
+
+  body.premium-ui .kds-command-dock .kds-filter-tab,
+  html[data-theme="day"] body.premium-ui .kds-command-dock .kds-filter-tab:not(.active),
+  body.premium-ui.theme-day .kds-command-dock .kds-filter-tab:not(.active) {
+    position: relative !important;
+    height: 44px !important;
+    padding: 0 12px !important;
+    border-radius: 0 !important;
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    color: var(--b-t2) !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+  }
+
+  body.premium-ui .kds-command-dock .kds-filter-tab:hover,
+  html[data-theme="day"] body.premium-ui .kds-command-dock .kds-filter-tab:not(.active):hover,
+  body.premium-ui.theme-day .kds-command-dock .kds-filter-tab:not(.active):hover {
+    background: transparent !important;
+    border: none !important;
+    color: var(--b-t1) !important;
+  }
+
+  body.premium-ui .kds-command-dock .kds-filter-tab.active {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    color: var(--b-t1) !important;
+    font-weight: 600 !important;
+  }
+
+  body.premium-ui .kds-command-dock .kds-filter-tab.active strong {
+    background: var(--b-brand-soft) !important;
+    color: var(--b-brand-text) !important;
+  }
+
+  body.premium-ui .kds-command-dock .kds-filter-tab.active::after {
+    content: "";
+    position: absolute;
+    left: 10px;
+    right: 10px;
+    bottom: 0;
+    height: 2.5px;
+    background: var(--b-brand);
+    border-radius: 2px 2px 0 0;
+  }
+
+  /* 1px vertical hairline dividers between menu tabs, station buttons & status filters */
+  body.premium-ui .header-bar .tabs-nav .tab-btn + .tab-btn::before,
+  body.premium-ui .kds-command-dock .kds-station-btn + .kds-station-btn::before,
+  body.premium-ui .kds-command-dock .kds-filter-tab + .kds-filter-tab::before {
+    content: "";
+    position: absolute;
+    left: -2px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 1px;
+    height: 15px;
+    background: var(--b-border);
+    pointer-events: none;
+  }
+
+  /* Band 3: Preparaciones Iguales full-bleed hairline band */
+  body.premium-ui .kds-command-dock .kds-batching-bar {
+    padding: 9px 24px !important;
+    background: var(--b-bg) !important;
+    border-top: none !important;
+    border-bottom: 1px solid var(--b-border) !important;
+  }
+}
+
+/* iPad 7th Gen (920px - 1180px): keep full-bleed hairline bands strictly single-line */
+@media (min-width: 920px) and (max-width: 1180px) {
+  body.premium-ui .kds-command-dock {
+    margin: 0 -14px 12px -14px !important;
+  }
+  body.premium-ui .kds-command-dock .kds-dock-row,
+  body.premium-ui .kds-command-dock .kds-filter-row,
+  body.premium-ui .kds-command-dock .kds-batching-bar {
+    padding-left: 14px !important;
+    padding-right: 14px !important;
+  }
+  body.premium-ui .kds-command-dock .kds-top-row {
+    min-height: 44px !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+  }
+  body.premium-ui .kds-command-dock #kds-station-bar.kds-station-bar,
+  body.premium-ui .kds-command-dock .kds-station-btn,
+  body.premium-ui .kds-command-dock .kds-filter-group,
+  body.premium-ui .kds-command-dock .kds-filter-tab {
+    height: 44px !important;
+    font-size: 12.5px !important;
+    padding: 0 9px !important;
+  }
+  body.premium-ui .kds-command-dock .kds-filter-group {
+    padding: 0 !important;
+  }
+  body.premium-ui .kds-command-dock .kds-contract-inline {
+    font-size: 12px !important;
+    gap: 8px !important;
+  }
+  body.premium-ui .kds-command-dock .kds-ci-unit {
+    display: inline !important;
+  }
+  body.premium-ui .header-left-group {
+    padding-right: 10px !important;
+  }
+  body.premium-ui .header-right-cluster {
+    padding-left: 10px !important;
+    gap: 8px !important;
+  }
+  body.premium-ui .header-right-tools {
+    padding-left: 8px !important;
+  }
+}
+
+/* Day Mode subtle hairline polish for full-bleed editorial bands */
+html[data-theme="day"] body.premium-ui .kds-command-dock .kds-top-row,
+body.premium-ui.theme-day .kds-command-dock .kds-top-row {
+  background: #FFFFFF !important;
+}
+html[data-theme="day"] body.premium-ui .kds-command-dock .kds-filter-row,
+html[data-theme="day"] body.premium-ui .kds-command-dock .kds-batching-bar,
+body.premium-ui.theme-day .kds-command-dock .kds-filter-row,
+body.premium-ui.theme-day .kds-command-dock .kds-batching-bar {
+  background: #F7F7F8 !important;
+}
+
+/* --- 12. MOBILE (iPHONE <= 768px) POLISH --- */
+@media (max-width: 768px) {
+  body.premium-ui .header-bar {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    height: auto !important;
+    min-height: calc(60px + env(safe-area-inset-top, 0px)) !important;
+    padding: calc(9px + env(safe-area-inset-top, 0px)) 14px 9px 14px !important;
+    -webkit-transform: none !important;
+    transform: none !important;
+    will-change: auto !important;
+    isolation: auto !important;
+  }
+  body.premium-ui .header-left-group {
+    display: flex !important;
+    align-items: center !important;
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    gap: 8px !important;
+  }
+  body.premium-ui .header-clock-left {
+    display: none !important;
+  }
+  body.premium-ui .brand-section {
+    min-width: auto !important;
+    max-width: none !important;
+    width: auto !important;
+    flex: 0 0 auto !important;
+  }
+  body.premium-ui .brand-section .brand-logo-img {
+    height: 38px !important;
+    max-height: 38px !important;
+    width: 152px !important;
+    max-width: 152px !important;
+    object-fit: contain !important;
+    object-position: left center !important;
+  }
+  body.premium-ui .header-station {
+    display: none !important;
+  }
+  body.premium-ui .connection-badge #conn-text {
+    display: none !important;
+  }
+  body.premium-ui .connection-badge {
+    width: 34px !important;
+    padding: 0 !important;
+    justify-content: center !important;
+  }
+
+  body.premium-ui .header-bar .tabs-nav {
+    position: fixed !important;
+    top: auto !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    transform: none !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: calc(60px + env(safe-area-inset-bottom, 0px)) !important;
+    background: var(--b-s1) !important;
+    border: none !important;
+    border-top: 1px solid var(--b-border) !important;
+    border-radius: 0 !important;
+    padding: 6px 8px calc(6px + env(safe-area-inset-bottom, 0px)) !important;
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 4px !important;
+    z-index: 120 !important;
+  }
+
+  body.premium-ui .tabs-nav .tab-btn {
+    flex-direction: column !important;
+    justify-content: center !important;
+    gap: 3px !important;
+    padding: 6px 4px !important;
+    border-radius: var(--b-radius-sm) !important;
+    background: transparent !important;
+    border: none !important;
+    color: var(--b-t3) !important;
+    font-size: 11px !important;
+    font-weight: 500 !important;
+    box-shadow: none !important;
+  }
+
+  body.premium-ui .tabs-nav .tab-btn.active {
+    background: var(--b-brand-soft) !important;
+    color: var(--b-brand-text) !important;
+    font-weight: 600 !important;
+  }
+
+  /* Elevate mobile sticky review bar cleanly ABOVE bottom nav bar */
+  body.premium-ui .p-mobile-review {
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: calc(62px + env(safe-area-inset-bottom, 0px)) !important;
+    z-index: 115 !important;
+    background: var(--b-s1) !important;
+    border-top: 1px solid var(--b-border) !important;
+    border-bottom: none !important;
+    padding: 10px 14px !important;
+    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.08) !important;
+    color: var(--b-t1) !important;
+  }
+  body.premium-ui .p-mobile-review > div > span {
+    color: var(--b-t3) !important;
+  }
+  body.premium-ui .p-mobile-review > div > strong {
+    color: var(--b-t1) !important;
+  }
+  body.premium-ui #p-review-order,
+  body.premium-ui #p-review-order span {
+    background: var(--b-brand) !important;
+    color: #FFFFFF !important;
+    border: none !important;
+    border-radius: var(--b-radius-sm) !important;
+    font-weight: 600 !important;
+    box-shadow: none !important;
+  }
+
+  body.premium-ui .view-content {
+    padding: 12px 12px 104px !important;
+  }
+  body.premium-ui #view-order {
+    padding-bottom: 164px !important;
+  }
+
+  body.premium-ui .kds-dock-row {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    padding: 10px 12px !important;
+    gap: 8px !important;
+  }
+  body.premium-ui .kds-dock-left {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 6px !important;
+    width: 100% !important;
+  }
+  body.premium-ui .kds-dock-label {
+    width: auto !important;
+  }
+  body.premium-ui .kds-command-dock #kds-station-bar.kds-station-bar {
+    width: 100% !important;
+    max-width: none !important;
+    display: grid !important;
+    grid-template-columns: auto 1fr 1fr !important;
+    gap: 6px !important;
+  }
+  body.premium-ui .kds-contract-inline {
+    width: 100% !important;
+    justify-content: space-between !important;
+    height: auto !important;
+    padding: 8px 12px !important;
+    flex-wrap: wrap !important;
+    gap: 6px !important;
+  }
+  body.premium-ui .kds-ci-track {
+    display: none !important;
+  }
+  body.premium-ui .kds-station-btn {
+    justify-content: center !important;
+    padding: 0 8px !important;
+    font-size: 12px !important;
+  }
+  body.premium-ui .kds-filter-group {
+    width: 100% !important;
+    justify-content: space-between !important;
+    margin: 0 !important;
+  }
+  body.premium-ui .kds-filter-tab {
+    flex: 1 1 auto !important;
+    justify-content: center !important;
+    padding: 0 6px !important;
+    font-size: 11.5px !important;
+  }
+  body.premium-ui .kds-batching-bar {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+  body.premium-ui .p-batch-heading {
+    border-right: none !important;
+    border-bottom: 1px solid var(--b-border) !important;
+    padding: 0 0 8px 0 !important;
+  }
+  .b-gate-card {
+    padding: 20px 18px !important;
+  }
+  body.premium-ui .header-time-inline,
+  body.premium-ui #btn-header-admin {
+    display: none !important;
+  }
+}
+
+/* ============================================================================
+   13. v90 HEADER REBALANCE: LARGER LOGO, LEFT TIME+STOPWATCH, 3 NAV TABS, GEAR ICON
+   ============================================================================ */
+@media (min-width: 769px) {
+  body.premium-ui .header-bar {
+    height: 62px !important;
+    min-height: 62px !important;
+    padding: 0 24px !important;
+    grid-template-columns: 1fr auto 1fr !important;
+  }
+
+  /* Left: Larger brand wordmark + Yellow Clock + Stopwatch */
+  body.premium-ui .header-left-group {
+    display: flex !important;
+    align-items: center !important;
+    gap: 18px !important;
+    width: auto !important;
+    justify-self: start !important;
+    padding-right: 18px !important;
+  }
+
+  body.premium-ui .brand-section {
+    flex: 0 0 auto !important;
+    min-width: auto !important;
+  }
+
+  body.premium-ui .brand-section .brand-logo-img {
+    height: 36px !important;
+    max-height: 36px !important;
+    width: 144px !important;
+    max-width: 144px !important;
+    object-fit: contain !important;
+    object-position: left center !important;
+  }
+
+  body.premium-ui .header-time-inline {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    flex-shrink: 0 !important;
+  }
+
+  body.premium-ui #event-clock-text {
+    font-size: 14px !important;
+    font-weight: 700 !important;
+  }
+
+  body.premium-ui .header-time-inline .header-station {
+    display: inline-flex !important;
+    padding-left: 12px !important;
+    border-left: 1px solid var(--b-border) !important;
+  }
+
+  body.premium-ui #event-timer-text {
+    font-size: 13.5px !important;
+    font-weight: 600 !important;
+  }
+
+  /* Center: Only 3 larger, effortless-to-read nav tabs (Admin moves to gear icon) */
+  body.premium-ui .header-bar .tabs-nav {
+    height: 62px !important;
+    gap: 6px !important;
+    padding: 0 16px !important;
+  }
+
+  body.premium-ui .header-bar .tabs-nav #tab-admin {
+    display: none !important;
+  }
+
+  body.premium-ui .header-bar .tabs-nav .tab-btn {
+    height: 62px !important;
+    padding: 0 15px !important;
+    font-size: 14.5px !important;
+    font-weight: 500 !important;
+  }
+  body.premium-ui .header-bar .tabs-nav .tab-btn.active {
+    font-weight: 600 !important;
+  }
+
+  /* Right: Clean Utility Cluster with Theme + Chat + Admin Gear + Status */
+  body.premium-ui .header-right-tools {
+    padding-left: 0 !important;
+  }
+  body.premium-ui .header-right-tools::before {
+    display: none !important;
+  }
+
+  body.premium-ui .header-admin-btn {
+    width: 34px !important;
+    height: 34px !important;
+    min-width: 34px !important;
+    border-radius: var(--b-radius-sm) !important;
+    background: var(--b-s2) !important;
+    border: 1px solid var(--b-border) !important;
+    color: var(--b-t2) !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    padding: 0 !important;
+    transition: color 0.14s ease, border-color 0.14s ease, background 0.14s ease !important;
+  }
+  body.premium-ui .header-admin-btn:hover {
+    color: var(--b-t1) !important;
+    border-color: var(--b-border-s) !important;
+    background: var(--b-s3) !important;
+  }
+  body.premium-ui .header-admin-btn.is-active {
+    background: var(--b-brand-soft) !important;
+    border-color: var(--b-brand) !important;
+    color: var(--b-brand) !important;
+  }
+
+  /* Larger, cleaner typography across KDS command bands */
+  body.premium-ui .kds-command-dock .kds-station-btn {
+    font-size: 14px !important;
+    padding: 0 14px !important;
+  }
+  body.premium-ui .kds-command-dock .kds-filter-tab {
+    font-size: 13.5px !important;
+    padding: 0 14px !important;
+  }
+  body.premium-ui .kds-command-dock .kds-contract-inline {
+    font-size: 13.5px !important;
+  }
+  body.premium-ui .kds-command-dock .p-batch-ready {
+    font-size: 13px !important;
+    height: 36px !important;
+  }
+  body.premium-ui .kds-command-dock .b-batch-pill {
+    font-size: 13px !important;
+    min-height: 34px !important;
+    padding: 5px 12px !important;
+  }
+}
+
+/* iPad 7th Gen (920px - 1180px): keep all 3 zones + header crisp & uncrowded */
+@media (min-width: 920px) and (max-width: 1180px) {
+  body.premium-ui .header-bar {
+    height: 58px !important;
+    min-height: 58px !important;
+    padding: 0 14px !important;
+  }
+  body.premium-ui .header-left-group {
+    gap: 10px !important;
+    padding-right: 10px !important;
+  }
+  body.premium-ui .brand-section .brand-logo-img {
+    height: 32px !important;
+    max-height: 32px !important;
+    width: 128px !important;
+    max-width: 128px !important;
+  }
+  body.premium-ui .header-time-inline {
+    gap: 8px !important;
+  }
+  body.premium-ui .header-time-inline .header-station {
+    padding-left: 8px !important;
+  }
+  body.premium-ui #event-clock-text,
+  body.premium-ui #event-timer-text {
+    font-size: 12.5px !important;
+  }
+  body.premium-ui .header-bar .tabs-nav,
+  body.premium-ui .header-bar .tabs-nav .tab-btn {
+    height: 58px !important;
+    font-size: 13.5px !important;
+    padding: 0 11px !important;
+  }
+  body.premium-ui .kds-command-dock .kds-station-btn,
+  body.premium-ui .kds-command-dock .kds-filter-tab {
+    font-size: 13px !important;
+    padding: 0 10px !important;
+  }
+}
+
+/* ============================================================================
+   14. v91 RIGHT-SIDE CLOCK + STOPWATCH & EXECUTIVE EVENT MONITOR
+   ============================================================================ */
+@media (min-width: 769px) {
+  body.premium-ui .header-left-group {
+    padding-right: 0 !important;
+  }
+  body.premium-ui .header-left-group::after {
+    display: none !important;
+  }
+
+  body.premium-ui .header-right-cluster {
+    padding-left: 16px !important;
+    gap: 14px !important;
+  }
+  body.premium-ui .header-right-cluster .header-time-inline {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    padding-right: 14px !important;
+    border-right: 1px solid var(--b-border) !important;
+  }
+  body.premium-ui .header-right-cluster .header-station {
+    display: inline-flex !important;
+    padding-left: 12px !important;
+    border-left: 1px solid var(--b-border) !important;
+  }
+}
+
+@media (min-width: 920px) and (max-width: 1180px) {
+  body.premium-ui .header-right-cluster {
+    padding-left: 10px !important;
+    gap: 10px !important;
+  }
+  body.premium-ui .header-right-cluster .header-time-inline {
+    gap: 8px !important;
+    padding-right: 10px !important;
+  }
+  body.premium-ui .header-right-cluster .header-station {
+    padding-left: 8px !important;
+  }
+}
+
+/* --- EXECUTIVE EVENT MONITOR (#view-display) --- */
+body.premium-ui .m-telemetry-shell {
+  background: var(--b-s1);
+  border: 1px solid var(--b-border);
+  border-radius: var(--b-radius-lg);
+  box-shadow: var(--b-shadow-card);
+  overflow: hidden;
+  margin-bottom: 18px;
+}
+
+body.premium-ui .m-telemetry-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--b-border);
+}
+
+body.premium-ui .m-telemetry-identity {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+body.premium-ui .m-eyebrow {
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--b-t3);
+}
+
+body.premium-ui .m-title-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+body.premium-ui .m-title-row h1 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: var(--b-t1);
+}
+
+body.premium-ui .m-pulse-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 4px 11px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 500;
+  background: var(--b-s2);
+  border: 1px solid var(--b-border);
+  color: var(--b-t2);
+}
+body.premium-ui .m-pulse-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--b-green);
+  flex-shrink: 0;
+}
+body.premium-ui .m-pulse-pill.is-healthy {
+  background: var(--b-green-soft);
+  border-color: var(--b-green-border);
+  color: var(--b-green-text);
+}
+body.premium-ui .m-pulse-pill.is-complete {
+  background: var(--b-green-soft);
+  border-color: var(--b-green-border);
+  color: var(--b-green-text);
+}
+body.premium-ui .m-pulse-pill.is-warn {
+  background: var(--b-amber-soft);
+  border-color: var(--b-amber-border);
+  color: var(--b-amber-text);
+}
+body.premium-ui .m-pulse-pill.is-warn .m-pulse-dot {
+  background: var(--b-amber);
+}
+
+body.premium-ui .m-telemetry-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* 5-Column Full-Width KPI Strip */
+body.premium-ui .m-kpi-strip {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  border-bottom: 1px solid var(--b-border);
+}
+
+@media (max-width: 960px) {
+  body.premium-ui .m-kpi-strip {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (max-width: 600px) {
+  body.premium-ui .m-kpi-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+body.premium-ui .m-kpi {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px 20px;
+  border-right: 1px solid var(--b-border);
+  background: transparent;
+}
+body.premium-ui .m-kpi:last-child {
+  border-right: none;
+}
+
+body.premium-ui .m-kpi-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--b-t3);
+}
+
+body.premium-ui .m-kpi-val {
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.035em;
+  color: var(--b-t1);
+  font-variant-numeric: tabular-nums;
+}
+body.premium-ui .m-kpi.is-delivered .m-kpi-val { color: var(--b-green-text); }
+body.premium-ui .m-kpi.is-kitchen .m-kpi-val { color: var(--b-brand-text); }
+body.premium-ui .m-kpi.is-deleted .m-kpi-val { color: var(--b-red-text); }
+
+body.premium-ui .m-kpi-sub {
+  font-size: 12px;
+  color: var(--b-t2);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Progress + Protein Mix Footer */
+body.premium-ui .m-progress-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+  padding: 13px 20px;
+  background: var(--b-s2);
+}
+
+body.premium-ui .m-progress-bar-col {
+  flex: 1 1 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+body.premium-ui .m-progress-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 12.5px;
+  color: var(--b-t2);
+  font-variant-numeric: tabular-nums;
+}
+body.premium-ui .m-progress-meta strong {
+  color: var(--b-t1);
+}
+
+body.premium-ui .m-track {
+  height: 6px !important;
+  border-radius: 999px !important;
+  background: var(--b-s3) !important;
+  overflow: hidden !important;
+  display: flex !important;
+}
+body.premium-ui .m-track .p-balance-progress-fill.is-delivered {
+  background: var(--b-green) !important;
+}
+body.premium-ui .m-track .p-balance-progress-fill.is-kitchen {
+  background: var(--b-brand) !important;
+}
+
+body.premium-ui .m-protein-mix {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+body.premium-ui .m-prot-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  color: var(--b-t2);
+  font-variant-numeric: tabular-nums;
+}
+body.premium-ui .m-prot-item strong {
+  color: var(--b-t1);
+  font-weight: 600;
+}
+
+/* Deleted Audit Block inside Right Column */
+body.premium-ui .m-deleted-audit {
+  margin-bottom: 12px;
+  padding: 12px 14px;
+  border-radius: var(--b-radius-md);
+  background: var(--b-red-soft);
+  border: 1px solid var(--b-red-border);
+}
+body.premium-ui .m-deleted-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+body.premium-ui .m-deleted-head span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--b-red-text);
+}
+body.premium-ui .m-deleted-head small {
+  font-size: 11px;
+  color: var(--b-t2);
+}
+body.premium-ui .m-deleted-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+body.premium-ui .m-deleted-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 6px 10px;
+  border-radius: 7px;
+  background: var(--b-s1);
+  border: 1px solid var(--b-red-border);
+  font-size: 12.5px;
+  color: var(--b-t1);
+}
+body.premium-ui .m-del-turn {
+  font-weight: 700;
+  color: var(--b-red-text);
+  font-variant-numeric: tabular-nums;
+}
+body.premium-ui .m-del-meta,
+body.premium-ui .m-del-prod {
+  color: var(--b-t2);
+  font-size: 12px;
+}
+body.premium-ui .m-del-tag {
+  margin-left: auto;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--b-red-text);
+}
+
+/* ============================================================================
+   15. v92 HEADER ZERO-CLIP GRID (auto 1fr auto) & STREAMLINED ADMIN POLISH
+   ============================================================================ */
+@media (min-width: 769px) {
+  body.premium-ui .header-bar {
+    grid-template-columns: auto 1fr auto !important;
+  }
+  body.premium-ui .header-bar .tabs-nav {
+    justify-self: center !important;
+  }
+}
+
+body.premium-ui .u-admin-mini-conn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--b-border);
+  font-size: 12.5px;
+}
+
+body.premium-ui .u-address-inline {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12.5px;
+  color: var(--b-t1);
+  background: var(--b-s2);
+  border: 1px solid var(--b-border);
+  padding: 3px 9px;
+  border-radius: 6px;
+}
+
+body.premium-ui .u-archive-empty {
+  padding: 16px;
+  text-align: center;
+  font-size: 12.5px;
+  color: var(--b-t2);
+  background: var(--b-s2);
+  border: 1px dashed var(--b-border-s);
+  border-radius: var(--b-radius-md);
+}
+
+body.premium-ui .u-archive-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 12px 14px;
+  border-radius: var(--b-radius-md);
+  background: var(--b-s2);
+  border: 1px solid var(--b-border);
+}
+
+body.premium-ui .u-archive-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+body.premium-ui .u-archive-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--b-t1);
+}
+
+body.premium-ui .u-archive-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  font-size: 12px;
+  color: var(--b-t2);
+  font-variant-numeric: tabular-nums;
+}
+body.premium-ui .u-archive-meta strong {
+  color: var(--b-t1);
+}
+
+body.premium-ui .u-archive-fin {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--b-t2);
+  font-variant-numeric: tabular-nums;
+}
+body.premium-ui .u-archive-fin strong {
+  color: var(--b-t1);
+}
+body.premium-ui .u-archive-fin .is-pos strong {
+  color: var(--b-green-text);
+}
+body.premium-ui .u-archive-fin .is-neg strong {
+  color: var(--b-red-text);
+}
+
+body.premium-ui .u-archive-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* ============================================================================
+   16. v93 EXECUTIVE FINANCE & COSTING MODULE (MERCURY / STRIPE P&L PANEL)
+   ============================================================================ */
+body.premium-ui #view-admin #finance-unlocked-card.f-shell {
+  padding: 0 !important;
+  overflow: hidden !important;
+  background: var(--b-s1) !important;
+  border: 1px solid var(--b-border) !important;
+  border-radius: var(--b-radius-lg) !important;
+  box-shadow: var(--b-shadow-card) !important;
+}
+
+/* Header Band */
+body.premium-ui .f-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 18px 22px;
+  border-bottom: 1px solid var(--b-border);
+}
+body.premium-ui .f-header-title {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+body.premium-ui .f-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+body.premium-ui .f-event-badge {
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 10px;
+  border-radius: 99px;
+  background: var(--b-brand-soft);
+  border: 1px solid rgba(212, 20, 115, 0.30);
+  color: var(--b-t1);
+  font-size: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+body.premium-ui .f-header-title h2 {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 16px !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em;
+  color: var(--b-t1);
+}
+body.premium-ui .f-header-title h2 svg {
+  width: 17px !important;
+  height: 17px !important;
+  color: var(--b-brand) !important;
+}
+body.premium-ui .f-header-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* Segmented Mode Switcher (Pedidos reales | Simular contratados) */
+body.premium-ui .f-mode-seg {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px;
+  border-radius: var(--b-radius-sm);
+  background: var(--b-s2);
+  border: 1px solid var(--b-border-s);
+  gap: 2px;
+}
+body.premium-ui .f-seg-btn {
+  position: relative;
+  height: 30px;
+  padding: 0 13px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--b-t2);
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.14s ease, color 0.14s ease, box-shadow 0.14s ease;
+}
+body.premium-ui .f-seg-btn:hover {
+  color: var(--b-t1);
+}
+body.premium-ui .f-seg-btn.is-active {
+  background: var(--b-s1);
+  color: var(--b-t1);
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.24), inset 0 -2px 0 var(--b-brand);
+}
+html[data-theme="day"] body.premium-ui .f-seg-btn.is-active,
+body.premium-ui.theme-day .f-seg-btn.is-active {
+  background: #FFFFFF;
+  box-shadow: 0 1px 2px rgba(9, 9, 11, 0.08), inset 0 -2px 0 var(--b-brand);
+}
+
+body.premium-ui .f-sec-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding-left: 12px;
+  border-left: 1px solid var(--b-border);
+}
+body.premium-ui .f-sec-actions .u-button {
+  height: 34px !important;
+  padding: 0 11px !important;
+  font-size: 12.5px !important;
+}
+
+/* Asymmetric 2-Column P&L Grid */
+body.premium-ui .f-pnl-grid {
+  display: grid;
+  grid-template-columns: 310px minmax(0, 1fr);
+  border-bottom: 1px solid var(--b-border);
+}
+@media (max-width: 880px) {
+  body.premium-ui .f-pnl-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Left Column: Parameters Panel */
+body.premium-ui .f-inputs-panel {
+  padding: 20px 22px;
+  background: rgba(255, 255, 255, 0.015);
+  border-right: 1px solid var(--b-border);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+html[data-theme="day"] body.premium-ui .f-inputs-panel,
+body.premium-ui.theme-day .f-inputs-panel {
+  background: #FAFAFB;
+}
+@media (max-width: 880px) {
+  body.premium-ui .f-inputs-panel {
+    border-right: none;
+    border-bottom: 1px solid var(--b-border);
+  }
+}
+
+body.premium-ui .f-panel-label {
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--b-t3);
+  margin-bottom: 2px;
+}
+body.premium-ui .f-field-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+body.premium-ui .f-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+}
+body.premium-ui .f-field > span {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--b-t2);
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 6px;
+}
+body.premium-ui .f-field > span small {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--b-t3);
+}
+
+body.premium-ui .f-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: var(--b-s2);
+  border: 1px solid var(--b-border-s);
+  border-radius: var(--b-radius-sm);
+  height: 40px;
+  transition: border-color 0.14s ease, box-shadow 0.14s ease;
+}
+body.premium-ui .f-input-wrap:focus-within {
+  border-color: var(--b-brand);
+  box-shadow: 0 0 0 3px var(--b-brand-soft);
+}
+html[data-theme="day"] body.premium-ui .f-input-wrap,
+body.premium-ui.theme-day .f-input-wrap {
+  background: #FFFFFF;
+}
+body.premium-ui .f-prefix,
+body.premium-ui .f-suffix {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--b-t3);
+  user-select: none;
+  flex-shrink: 0;
+}
+body.premium-ui .f-prefix {
+  padding-left: 12px;
+  padding-right: 4px;
+}
+body.premium-ui .f-suffix {
+  padding-right: 12px;
+  padding-left: 6px;
+}
+body.premium-ui .f-input-wrap input {
+  width: 100% !important;
+  height: 100% !important;
+  border: none !important;
+  background: transparent !important;
+  outline: none !important;
+  box-shadow: none !important;
+  padding: 0 12px !important;
+  font-size: 14.5px !important;
+  font-weight: 600 !important;
+  font-variant-numeric: tabular-nums !important;
+  color: var(--b-t1) !important;
+  -moz-appearance: textfield;
+}
+body.premium-ui .f-input-wrap.has-prefix input {
+  padding-left: 4px !important;
+}
+body.premium-ui .f-input-wrap input::-webkit-outer-spin-button,
+body.premium-ui .f-input-wrap input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+body.premium-ui .f-input-wrap input::placeholder {
+  color: var(--b-t3);
+  font-weight: 400;
+}
+
+/* Right Column: Executive Scorecard */
+body.premium-ui .f-scorecard {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-width: 0;
+}
+
+body.premium-ui .f-hero-kpis {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  border-bottom: 1px solid var(--b-border);
+}
+@media (max-width: 600px) {
+  body.premium-ui .f-hero-kpis {
+    grid-template-columns: 1fr;
+  }
+}
+body.premium-ui .f-hero-kpi {
+  padding: 20px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+body.premium-ui .f-hero-kpi + .f-hero-kpi {
+  border-left: 1px solid var(--b-border);
+}
+@media (max-width: 600px) {
+  body.premium-ui .f-hero-kpi + .f-hero-kpi {
+    border-left: none;
+    border-top: 1px solid var(--b-border);
+  }
+}
+body.premium-ui .f-hero-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+body.premium-ui .f-hero-top > span {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--b-t3);
+}
+body.premium-ui .f-hero-val {
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  color: var(--b-t1);
+  font-variant-numeric: tabular-nums;
+}
+body.premium-ui .f-hero-val.is-pos {
+  color: #34D399;
+}
+body.premium-ui .f-hero-val.is-neg {
+  color: #F87171;
+}
+html[data-theme="day"] body.premium-ui .f-hero-val.is-pos,
+body.premium-ui.theme-day .f-hero-val.is-pos {
+  color: #059669;
+}
+html[data-theme="day"] body.premium-ui .f-hero-val.is-neg,
+body.premium-ui.theme-day .f-hero-val.is-neg {
+  color: #DC2626;
+}
+body.premium-ui .f-hero-kpi > small {
+  font-size: 12px;
+  color: var(--b-t2);
+  font-variant-numeric: tabular-nums;
+}
+
+body.premium-ui .f-margin-pill {
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 8px;
+  border-radius: 99px;
+  font-size: 11.5px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  background: var(--b-s2);
+  border: 1px solid var(--b-border-s);
+  color: var(--b-t2);
+}
+body.premium-ui .f-margin-pill.is-pos {
+  background: rgba(16, 185, 129, 0.14);
+  border-color: rgba(16, 185, 129, 0.34);
+  color: #34D399;
+}
+body.premium-ui .f-margin-pill.is-neg {
+  background: rgba(239, 68, 68, 0.14);
+  border-color: rgba(239, 68, 68, 0.34);
+  color: #F87171;
+}
+html[data-theme="day"] body.premium-ui .f-margin-pill.is-pos,
+body.premium-ui.theme-day .f-margin-pill.is-pos {
+  color: #047857;
+}
+html[data-theme="day"] body.premium-ui .f-margin-pill.is-neg,
+body.premium-ui.theme-day .f-margin-pill.is-neg {
+  color: #B91C1C;
+}
+
+/* Secondary 3-Column Unit Economics Strip */
+body.premium-ui .f-sub-kpis {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border-bottom: 1px solid var(--b-border);
+}
+@media (max-width: 560px) {
+  body.premium-ui .f-sub-kpis {
+    grid-template-columns: 1fr;
+  }
+}
+body.premium-ui .f-sub-kpi {
+  padding: 14px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+body.premium-ui .f-sub-kpi + .f-sub-kpi {
+  border-left: 1px solid var(--b-border);
+}
+@media (max-width: 560px) {
+  body.premium-ui .f-sub-kpi + .f-sub-kpi {
+    border-left: none;
+    border-top: 1px solid var(--b-border);
+  }
+}
+body.premium-ui .f-sub-kpi > span {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--b-t3);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+body.premium-ui .f-sub-kpi > strong {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--b-t1);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+/* Visual Cost-Mix Bar */
+body.premium-ui .f-mix-block {
+  padding: 16px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+body.premium-ui .f-mix-track {
+  display: flex;
+  width: 100%;
+  height: 7px;
+  border-radius: 99px;
+  overflow: hidden;
+  background: var(--b-s3);
+  gap: 2px;
+}
+body.premium-ui .f-mix-track > span {
+  display: block;
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.25s ease;
+}
+body.premium-ui .f-mix-legend {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+  font-size: 12px;
+  color: var(--b-t2);
+  font-variant-numeric: tabular-nums;
+}
+body.premium-ui .f-mix-legend > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+body.premium-ui .f-mix-legend i {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+body.premium-ui .f-mix-legend strong {
+  color: var(--b-t1);
+  font-weight: 600;
+}
+
+/* Table Header Action Bar */
+body.premium-ui .f-table-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  padding: 16px 22px;
+  border-bottom: 1px solid var(--b-border);
+}
+body.premium-ui .f-table-bar h3 {
+  margin: 0 0 2px;
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--b-t1);
+  letter-spacing: -0.01em;
+}
+body.premium-ui .f-table-bar p {
+  margin: 0;
+  font-size: 12px;
+  color: var(--b-t2);
+}
+
+/* Engineering Escandallo Table */
+body.premium-ui .f-table-wrap {
+  border: none !important;
+  border-radius: 0 !important;
+  margin: 0 !important;
+}
+body.premium-ui #view-admin .f-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+body.premium-ui #view-admin .f-table th {
+  padding: 10px 16px !important;
+  font-size: 10.5px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.06em !important;
+  color: var(--b-t3) !important;
+  background: var(--b-s2) !important;
+  border-bottom: 1px solid var(--b-border) !important;
+  text-align: left !important;
+  white-space: nowrap;
+}
+body.premium-ui #view-admin .f-table th:first-child,
+body.premium-ui #view-admin .f-table td:first-child {
+  padding-left: 22px !important;
+}
+body.premium-ui #view-admin .f-table th:last-child,
+body.premium-ui #view-admin .f-table td:last-child {
+  padding-right: 22px !important;
+}
+body.premium-ui #view-admin .f-table th.is-num,
+body.premium-ui #view-admin .f-table td.is-num {
+  text-align: right !important;
+  font-variant-numeric: tabular-nums !important;
+}
+
+/* Category Group Row */
+body.premium-ui #view-admin .f-table tr.f-cat-row td {
+  padding: 9px 16px !important;
+  background: rgba(255, 255, 255, 0.025) !important;
+  border-top: 1px solid var(--b-border) !important;
+  border-bottom: 1px solid var(--b-border) !important;
+  font-size: 11.5px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  color: var(--b-t2) !important;
+}
+html[data-theme="day"] body.premium-ui #view-admin .f-table tr.f-cat-row td,
+body.premium-ui.theme-day #view-admin .f-table tr.f-cat-row td {
+  background: #F4F4F5 !important;
+}
+body.premium-ui #view-admin .f-table .f-cat-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+body.premium-ui #view-admin .f-table tr.f-cat-row td.f-cat-sub {
+  color: var(--b-t1) !important;
+}
+
+/* Item Rows */
+body.premium-ui #view-admin .f-table tr.f-item-row td {
+  padding: 10px 16px !important;
+  font-size: 13px !important;
+  border-bottom: 1px solid var(--b-border) !important;
+  transition: background 0.12s ease;
+}
+body.premium-ui #view-admin .f-table tr.f-item-row:hover td {
+  background: rgba(255, 255, 255, 0.02) !important;
+}
+html[data-theme="day"] body.premium-ui #view-admin .f-table tr.f-item-row:hover td,
+body.premium-ui.theme-day #view-admin .f-table tr.f-item-row:hover td {
+  background: #FAFAFB !important;
+}
+body.premium-ui #view-admin .f-table td.f-col-name {
+  font-weight: 500;
+  color: var(--b-t1) !important;
+}
+body.premium-ui #view-admin .f-table td.f-col-formula {
+  font-size: 12px !important;
+  color: var(--b-t2) !important;
+}
+body.premium-ui #view-admin .f-table td.f-col-unit,
+body.premium-ui #view-admin .f-table td.f-col-pct {
+  color: var(--b-t2) !important;
+}
+body.premium-ui #view-admin .f-table td.f-col-sub {
+  font-weight: 600;
+  color: var(--b-t1) !important;
+}
+
+/* Bold Total Summary Footer Row */
+body.premium-ui #view-admin .f-table tr.f-total-row td {
+  padding: 14px 16px !important;
+  background: var(--b-s2) !important;
+  border-top: 2px solid var(--b-border-s) !important;
+  border-bottom: none !important;
+  font-size: 13.5px !important;
+  font-weight: 700 !important;
+  color: var(--b-t1) !important;
+}
+
+/* ============================================================================
+   17. v98-v100 COMPRESSED 1-ROW KDS PIPELINE BAR, ANTI-AI STATUS & BREATHING ROOM
+   ============================================================================ */
+body.premium-ui #kds-batching-row.is-hidden {
+  display: none !important;
+}
+body.premium-ui .kds-command-dock {
+  margin-bottom: 26px !important;
+}
+body.premium-ui .kds-command-dock .kds-top-row {
+  padding-top: 4px !important;
+  padding-bottom: 4px !important;
+}
+body.premium-ui .kds-command-dock .kds-station-bar {
+  gap: 6px !important;
+}
+body.premium-ui .kds-command-dock .kds-station-btn {
+  padding: 0 18px !important;
+}
+/* Subtle extra air separating active kitchen stations (Armado/Plancha) from Entregados/Todos */
+body.premium-ui .kds-command-dock .kds-station-btn[data-station="delivered"] {
+  margin-left: 14px !important;
+}
+body.premium-ui .kds-command-dock .kds-batching-bar {
+  padding-top: 13px !important;
+  padding-bottom: 13px !important;
+  align-items: center !important;
+}
+body.premium-ui .kds-command-dock .kds-batch-cta-wrap {
+  margin-left: auto !important;
+  flex-shrink: 0 !important;
+}
+body.premium-ui .kds-command-dock #kds-batch-counters.batch-chips-wrapper {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  gap: 10px !important;
+}
+
+/* Generous breathing room between Tanda divider & Order Cards (zero visual fatigue) */
+body.premium-ui #kds-cards-grid.kds-cards-stream {
+  gap: 20px !important;
+}
+body.premium-ui .p-tanda-band,
+body.premium-ui .p-tanda-heading {
+  margin: 4px 0 16px !important;
+}
+body.premium-ui .p-ticket-head {
+  padding-bottom: 14px !important;
+}
+body.premium-ui .p-ticket-meta {
+  gap: 4px !important;
+}
+
+@media (min-width: 920px) and (max-width: 1180px) {
+  body.premium-ui .kds-command-dock {
+    margin-bottom: 20px !important;
+  }
+  body.premium-ui .kds-command-dock .kds-station-btn {
+    padding: 0 14px !important;
+  }
+  body.premium-ui .kds-command-dock .kds-station-btn[data-station="delivered"] {
+    margin-left: 8px !important;
+  }
+  body.premium-ui #kds-cards-grid.kds-cards-stream {
+    gap: 16px !important;
+  }
+}
+
+/* ============================================================================
+   18. v103-v104 ZERO BUTTON GLOW / SHADOWS + FESTIVE GOOGLE-LIGHTS BIRTHDAY BAR
+   ============================================================================ */
+@keyframes bBirthdayGoogleFlow {
+  0%   { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+
+body.premium-ui .p-ticket.p-birthday::before,
+body.premium-ui #kds-cards-grid .p-ticket.p-birthday::before,
+body.premium-ui .summary-card-pos.p-birthday::before {
+  height: 4px !important;
+  background: linear-gradient(
+    90deg,
+    #4285F4 0%,
+    #EA4335 18%,
+    #FBBC05 36%,
+    #34A853 54%,
+    #A855F7 72%,
+    #D41473 86%,
+    #4285F4 100%
+  ) !important;
+  background-size: 200% 100% !important;
+  animation: bBirthdayGoogleFlow 3.2s linear infinite !important;
+}
+
+body.premium-ui .p-birthday-guest-badge {
+  box-shadow: none !important;
+  filter: none !important;
+  background: rgba(245, 158, 11, 0.10) !important;
+  border: 1px solid rgba(245, 158, 11, 0.35) !important;
+}
+
+body.premium-ui button,
+body.premium-ui .p-kds-main-btn,
+body.premium-ui .p-kds-main-btn:hover,
+body.premium-ui .p-kds-main-btn:active,
+body.premium-ui .p-primary.p-to-plancha,
+body.premium-ui .p-primary.p-to-plancha:hover,
+body.premium-ui .p-primary.p-deliver-confirm,
+body.premium-ui .p-primary.p-deliver-confirm:hover,
+body.premium-ui .p-kds-main-btn.p-primary.p-to-plancha,
+body.premium-ui .p-kds-main-btn.p-primary.p-deliver-confirm,
+body.premium-ui .p-to-plancha,
+body.premium-ui .p-deliver-confirm,
+body.premium-ui .p-primary,
+body.premium-ui .btn-submit-pos,
+body.premium-ui .u-button,
+body.premium-ui .u-button.u-primary,
+body.premium-ui .p-batch-ready,
+body.premium-ui .kds-station-btn,
+body.premium-ui .kds-contract-inline,
+body.premium-ui .b-batch-pill,
+body.premium-ui .p-kds-tool-btn,
+body.premium-ui .b-gate-btn {
+  box-shadow: none !important;
+  filter: none !important;
+}
+
+
+
+
+
+
+

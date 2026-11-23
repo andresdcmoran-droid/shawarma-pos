@@ -1241,3 +1241,265 @@
     grid-template-columns: 1fr 1fr;
   }
 }
+
+/* ==========================================================================
+   FASE 2: ESTACIONES KDS (ARMADO / PLANCHA), COLORES+EMOJIS Y BARRA CONTRATO
+   ========================================================================== */
+
+/* 1. Barra compacta de contrato en Pedidos (iPhone / iPad) */
+.premium-ui .pos-contract-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 14px;
+  padding: 9px 14px;
+  border-radius: 10px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  box-sizing: border-box;
+  width: 100%;
+}
+.premium-ui .pos-contract-bar.is-warn {
+  border-color: rgba(245, 158, 11, 0.55);
+  background: rgba(245, 158, 11, 0.1);
+}
+.premium-ui .pos-contract-bar.is-complete {
+  border-color: rgba(16, 185, 129, 0.5);
+  background: rgba(16, 185, 129, 0.1);
+}
+.premium-ui .pos-contract-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 13px;
+  line-height: 1.2;
+}
+.premium-ui .pos-contract-left {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-white);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.premium-ui .pos-contract-left span:last-child {
+  color: var(--text-dim);
+  font-weight: 500;
+}
+.premium-ui .pos-contract-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--brand-pink);
+  flex-shrink: 0;
+}
+.premium-ui .pos-contract-bar.is-warn .pos-contract-dot { background: #f59e0b; }
+.premium-ui .pos-contract-bar.is-complete .pos-contract-dot { background: #10b981; }
+.premium-ui .pos-contract-right {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--brand-pink);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.premium-ui .pos-contract-bar.is-warn .pos-contract-right { color: #fbbf24; }
+.premium-ui .pos-contract-bar.is-complete .pos-contract-right { color: #10b981; }
+.premium-ui .pos-contract-track {
+  width: 100%;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--bg-surface-2);
+  overflow: hidden;
+}
+.premium-ui .pos-contract-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--brand-pink);
+  transition: width 0.25s ease;
+}
+.premium-ui .pos-contract-bar.is-warn .pos-contract-fill { background: #f59e0b; }
+.premium-ui .pos-contract-bar.is-complete .pos-contract-fill { background: #10b981; }
+
+/* 2. Selector de Estación en Cocina (Todos · 1. Armado · 2. Plancha y Entrega) */
+.premium-ui .kds-station-bar {
+  display: grid;
+  grid-template-columns: auto 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 14px;
+  padding: 5px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  box-sizing: border-box;
+  width: 100%;
+}
+.premium-ui .kds-station-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 40px;
+  padding: 6px 14px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--text-dim);
+  font-size: 13.5px;
+  font-weight: 750;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  white-space: nowrap;
+  min-width: 0;
+}
+.premium-ui .kds-station-btn:hover {
+  color: var(--text-white);
+  background: var(--bg-surface-2);
+}
+.premium-ui .kds-station-btn.active {
+  background: var(--brand-pink-soft);
+  border-color: var(--brand-pink);
+  color: var(--text-white);
+}
+.premium-ui .kds-station-btn[data-station="plancha"].active {
+  background: rgba(245, 158, 11, 0.16);
+  border-color: #f59e0b;
+  color: #fde68a;
+}
+body.theme-day .premium-ui .kds-station-btn[data-station="plancha"].active,
+.premium-ui.theme-day .kds-station-btn[data-station="plancha"].active {
+  color: #92400e;
+}
+.premium-ui .kds-st-badge {
+  display: inline-grid;
+  place-items: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--bg-surface-2);
+  color: var(--text-white);
+  font-size: 12px;
+  font-weight: 850;
+}
+.premium-ui .kds-station-btn.active .kds-st-badge {
+  background: var(--brand-pink);
+  color: #ffffff;
+}
+.premium-ui .kds-station-btn[data-station="plancha"].active .kds-st-badge {
+  background: #f59e0b;
+  color: #111827;
+}
+
+/* 3. Botón principal de Armado -> A Plancha y estado En Plancha */
+.premium-ui .p-primary.p-to-plancha {
+  background: linear-gradient(135deg, #f97316, #ea580c) !important;
+  color: #ffffff !important;
+  border: none !important;
+  box-shadow: 0 4px 14px rgba(249, 115, 22, 0.32) !important;
+}
+.premium-ui .p-status-preparing {
+  color: #fbbf24 !important;
+  background: rgba(245, 158, 11, 0.16) !important;
+  border: 1px solid rgba(245, 158, 11, 0.4) !important;
+  font-weight: 750 !important;
+}
+body.theme-day .premium-ui .p-status-preparing,
+.premium-ui.theme-day .p-status-preparing {
+  color: #92400e !important;
+  background: rgba(245, 158, 11, 0.18) !important;
+}
+
+/* 4. Colores y Emojis por Proteína en Cocina (lectura en 1 segundo) */
+.premium-ui .p-ticket.kds-prot-carne   { border-top: 4px solid #ef4444 !important; }
+.premium-ui .p-ticket.kds-prot-pollo   { border-top: 4px solid #f59e0b !important; }
+.premium-ui .p-ticket.kds-prot-mixto   { border-top: 4px solid #d41473 !important; }
+.premium-ui .p-ticket.kds-prot-falafel { border-top: 4px solid #10b981 !important; }
+.premium-ui .p-ticket.kds-prot-bowl    { border-top: 4px solid #06b6d4 !important; }
+.premium-ui .p-ticket.kds-prot-multiple { border-top: 4px solid #8b5cf6 !important; }
+
+.premium-ui .kds-item-head {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  padding: 6px 10px !important;
+  border-radius: 8px !important;
+  border-left: 3.5px solid var(--brand-pink) !important;
+  background: rgba(255, 255, 255, 0.04) !important;
+}
+.premium-ui .kds-item-head.is-carne   { border-left-color: #ef4444 !important; background: rgba(239, 68, 68, 0.11) !important; }
+.premium-ui .kds-item-head.is-pollo   { border-left-color: #f59e0b !important; background: rgba(245, 158, 11, 0.11) !important; }
+.premium-ui .kds-item-head.is-mixto   { border-left-color: #d41473 !important; background: rgba(212, 20, 115, 0.12) !important; }
+.premium-ui .kds-item-head.is-falafel { border-left-color: #10b981 !important; background: rgba(16, 185, 129, 0.11) !important; }
+.premium-ui .kds-item-head.is-bowl    { border-left-color: #06b6d4 !important; background: rgba(6, 182, 212, 0.12) !important; }
+
+body.theme-day .premium-ui .kds-item-head.is-carne,
+.premium-ui.theme-day .kds-item-head.is-carne   { background: rgba(239, 68, 68, 0.08) !important; }
+body.theme-day .premium-ui .kds-item-head.is-pollo,
+.premium-ui.theme-day .kds-item-head.is-pollo   { background: rgba(245, 158, 11, 0.1) !important; }
+body.theme-day .premium-ui .kds-item-head.is-mixto,
+.premium-ui.theme-day .kds-item-head.is-mixto   { background: rgba(212, 20, 115, 0.08) !important; }
+body.theme-day .premium-ui .kds-item-head.is-falafel,
+.premium-ui.theme-day .kds-item-head.is-falafel { background: rgba(16, 185, 129, 0.09) !important; }
+body.theme-day .premium-ui .kds-item-head.is-bowl,
+.premium-ui.theme-day .kds-item-head.is-bowl    { background: rgba(6, 182, 212, 0.09) !important; }
+
+.premium-ui .kds-prot-emoji {
+  font-size: 18px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.premium-ui .kds-item-title {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.premium-ui .p-batch-item.kds-batch-carne   { border-left: 3px solid #ef4444 !important; }
+.premium-ui .p-batch-item.kds-batch-pollo   { border-left: 3px solid #f59e0b !important; }
+.premium-ui .p-batch-item.kds-batch-mixto   { border-left: 3px solid #d41473 !important; }
+.premium-ui .p-batch-item.kds-batch-falafel { border-left: 3px solid #10b981 !important; }
+.premium-ui .p-batch-item.kds-batch-bowl    { border-left: 3px solid #06b6d4 !important; }
+
+/* Ajuste compacto de barra de estación y contrato en iPhone */
+@media screen and (max-width: 767px) {
+  .premium-ui .kds-station-bar {
+    grid-template-columns: auto 1fr 1fr;
+    gap: 5px;
+    padding: 4px;
+    margin-bottom: 10px;
+  }
+  .premium-ui .kds-station-btn {
+    min-height: 36px;
+    padding: 5px 7px;
+    font-size: 12px;
+    gap: 4px;
+  }
+  .premium-ui .kds-st-emoji {
+    font-size: 13px;
+  }
+  .premium-ui .kds-st-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .premium-ui .kds-st-badge {
+    min-width: 19px;
+    height: 19px;
+    font-size: 11px;
+    padding: 0 4px;
+  }
+  .premium-ui .pos-contract-bar {
+    margin-bottom: 10px;
+    padding: 8px 11px;
+  }
+  .premium-ui .pos-contract-row {
+    font-size: 12px;
+  }
+  .premium-ui .kds-item-head {
+    padding: 5px 8px !important;
+    gap: 6px !important;
+  }
+  .premium-ui .kds-prot-emoji {
+    font-size: 16px;
+  }
+}

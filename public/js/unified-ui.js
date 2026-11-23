@@ -13,24 +13,149 @@
   const metric=(id,label,glyph)=>`<div class="u-metric">${glyph?(glyph.startsWith('<')?glyph:icon(glyph)):''}<strong id="${id}">0</strong><span>${label}</span></div>`;
   const card=(content,cls='')=>`<section class="pos-card u-card ${cls}">${content}</section>`;
   function adminTemplate() {
-    return `<div class="u-page-heading"><div><span class="p-eyebrow">Configuración y servicio</span><h1>Administración</h1></div><p>El mismo sistema. Todo en su lugar.</p></div>
+    return `<div class="u-page-heading"><div><span class="p-eyebrow">Configuración, costos y respaldos</span><h1>Administración</h1></div><p>Control financiero, respaldos y ajustes del servicio.</p></div>
     <div class="u-admin-grid">
-      ${card(heading('Apariencia','settings','La misma interfaz en Mac, iPad y celular.')+`<div class="u-theme-options">${[['noche','Noche','monitor'],['dia','Día','check'],['auto','Automático','settings']].map(([id,label,glyph])=>`<button type="button" class="u-button" id="btn-theme-${id}" onclick="app.setTheme('${id}')">${icon(glyph)}${label}</button>`).join('')}</div><div class="u-language-setting"><span id="u-language-label">Idioma de este dispositivo</span><div class="u-language-options" role="group" aria-labelledby="u-language-label"><button type="button" class="u-button" id="u-language-es" lang="es" data-i18n-ignore onclick="app.setLanguage('es')" aria-pressed="true">Español</button><button type="button" class="u-button" id="u-language-en" lang="en" data-i18n-ignore onclick="app.setLanguage('en')" aria-pressed="false">English</button></div></div>`)}
-      ${card(heading('Dispositivo y operador','person')+`<div class="u-between"><div><strong id="admin-operator-display">Andrés</strong><p class="u-muted">Selecciona el equipo o identifica quién envía mensajes y toma pedidos.</p></div>${button('Otro nombre','edit','app.promptChangeOperator()')}</div><div class="p-operator-presets-row" role="group" aria-label="Equipos predeterminados"><button type="button" class="u-button" data-operator-preset="Andrés" onclick="app.selectOperatorPreset('Andrés')">${icon('person')}<span>Andrés</span></button><button type="button" class="u-button" data-operator-preset="Anaíz" onclick="app.selectOperatorPreset('Anaíz')">${icon('person')}<span>Anaíz</span></button><button type="button" class="u-button" data-operator-preset="Leandro" onclick="app.selectOperatorPreset('Leandro')">${icon('person')}<span>Leandro</span></button></div>`)}
-      ${card(heading('Conexión entre pantallas','monitor','Pedidos, cocina y monitor deben usar el mismo servidor.')+`<div class="u-address" id="admin-url-text"></div><p class="u-muted" id="u-network-note"></p>`,'u-full')}
-      ${card(heading('Resumen del evento','order')+`<div class="u-metrics u-event-metrics">${metric('stat-total','Total unidades','order')}${metric('stat-mixto','Mixto',proteinIcon('Mixto','white'))}${metric('stat-pollo','Pollo',proteinIcon('Pollo','white'))}${metric('stat-carne','Carne',proteinIcon('Carne','white'))}${metric('stat-falafel','Falafel',proteinIcon('Falafel','white'))}${metric('stat-bowls','Bowls · sin pan','bowl')}</div><p class="u-stats-note">Las proteínas incluyen los bowls. Bowls es un dato adicional, no se suma otra vez al total.</p><div class="u-actions">${button('Resumen para el cliente','order','app.showClientInvoiceModal()','u-primary')}${button('Exportar pedidos CSV','list','app.exportRawCSV()')}</div><div id="admin-deleted-orders-container" class="u-deleted-orders-section" style="margin-top:16px; border-top:1px dashed var(--border-color); padding-top:14px;"></div>`,'u-full')}
-      ${card(heading('Código QR de Reseña','qr','Muestra el código QR oficial para que los comensales califiquen el servicio directamente.')+`<div class="u-actions">${button('Mostrar QR de Reseña','star','app.showGoogleReviewQRModal()','u-primary')}</div><p class="u-muted">Pide a los clientes que escaneen el código desde su celular para calificar directamente en segundos.</p>`,'u-full')}
-      <section id="finance-locked-card" class="pos-card u-card u-full u-between"><div>${heading('Costos y rentabilidad','settings')}<p class="u-muted">Accede con el PIN financiero configurado en este dispositivo.</p></div>${button('Abrir módulo financiero','settings','app.promptUnlockFinance()')}</section>
-      <section id="finance-unlocked-card" class="pos-card u-card u-full" style="display:none">
-        <div class="u-between">${heading('Costos y rentabilidad','settings')}<div class="u-actions">${button('Cambiar PIN','edit','app.changeFinancePinPrompt()')}${button('Bloquear','close','app.lockFinance()')}</div></div>
-        <div class="u-actions">${button('Editar insumos y empaques','edit','app.toggleCostSettingsModal(true)')}${button('Agregar renglón','plus','app.addSupplyRow()')}${button('Exportar costos CSV','list','app.exportFinancialCSV()')}</div>
-        <div class="u-finance-inputs"><label>Cantidad de shawarmas<input type="number" min="0" step="1" id="cost-input-shawarmas" placeholder="0" oninput="app.recalculateCosts()"></label><label>Ingreso del evento ($)<input type="number" step="0.01" min="0" id="cost-input-revenue" placeholder="0.00" oninput="app.recalculateCosts()"></label><label>Logística y otros gastos ($)<input type="number" step="0.01" min="0" id="cost-input-logistics" placeholder="0.00" oninput="app.recalculateCosts()"></label></div>
-        <div class="u-metrics">${metric('kpi-cost-total','Costo de insumos')}${metric('kpi-profit-net','Resultado neto')}${metric('kpi-margin-pct','Margen')}${metric('kpi-cost-per-unit','Costo por unidad')}${metric('kpi-single-plate-cost','Mixto estándar')}</div>
-        <h3 class="u-subheading">Insumos y empaques</h3><div class="u-table-scroll" tabindex="0" role="region" aria-label="Desglose de costos"><table class="u-table"><thead><tr><th>Insumo</th><th>Uso</th><th>Cantidad</th><th>Costo unitario</th><th>Subtotal</th></tr></thead><tbody id="cost-breakdown-tbody"></tbody></table></div>
+      ${card(heading('Dispositivo y operador','person','Identifica quién opera este equipo y ajusta idioma o tema automático.')+`<div class="u-between"><div><strong id="admin-operator-display">Andrés</strong><p class="u-muted">Operador activo en este dispositivo.</p></div>${button('Otro nombre','edit','app.promptChangeOperator()')}</div><div class="p-operator-presets-row" role="group" aria-label="Equipos predeterminados"><button type="button" class="u-button" data-operator-preset="Andrés" onclick="app.selectOperatorPreset('Andrés')">${icon('person')}<span>Andrés</span></button><button type="button" class="u-button" data-operator-preset="Anaíz" onclick="app.selectOperatorPreset('Anaíz')">${icon('person')}<span>Anaíz</span></button><button type="button" class="u-button" data-operator-preset="Leandro" onclick="app.selectOperatorPreset('Leandro')">${icon('person')}<span>Leandro</span></button></div><div class="u-language-setting"><span id="u-language-label">Idioma y tema</span><div class="u-language-options" role="group" aria-labelledby="u-language-label"><button type="button" class="u-button" id="u-language-es" lang="es" data-i18n-ignore onclick="app.setLanguage('es')" aria-pressed="true">Español</button><button type="button" class="u-button" id="u-language-en" lang="en" data-i18n-ignore onclick="app.setLanguage('en')" aria-pressed="false">English</button><button type="button" class="u-button" id="btn-theme-auto" onclick="app.setTheme('auto')" title="Seguir el modo Día/Noche del sistema">${icon('settings')}<span>Auto</span></button></div></div>`)}
+      ${card(heading('Acceso, evento y reseñas','order','Edita el anfitrión y meta del evento, gestiona la clave de acceso o muestra el QR de reseña.')+`<div class="u-actions">${button('Configurar evento','order','app.openWelcomeScreen()','u-primary')}${button('QR de reseña','qr','app.showGoogleReviewQRModal()')}${button('Cambiar clave','edit','app.changeAccessPinPrompt()')}${button('Bloquear','close','app.lockAppGate()')}</div><div class="u-admin-mini-conn"><span class="u-muted">Servidor local:</span><code class="u-address-inline" id="admin-url-text"></code></div><p class="u-muted" id="u-network-note"></p>`)}
+
+      <section id="finance-locked-card" class="pos-card u-card u-full u-between"><div>${heading('Costos, escandallo y rentabilidad','settings','Calcula costos reales o cotiza un evento por adelantado. Protegido con PIN.')}<p class="u-muted">Accede con tu PIN financiero (por defecto 1234).</p></div>${button('Abrir módulo financiero','settings','app.promptUnlockFinance()','u-primary')}</section>
+      <section id="finance-unlocked-card" class="pos-card u-card u-full f-shell" style="display:none">
+        <div class="f-header">
+          <div class="f-header-title">
+            <span class="m-eyebrow">Finanzas y escandallo</span>
+            <div class="f-title-row">
+              <h2>${icon('settings')}Costos y rentabilidad</h2>
+              <span id="f-event-badge" class="f-event-badge" style="display:none"></span>
+            </div>
+          </div>
+          <div class="f-header-controls">
+            <div class="f-mode-seg" role="group" aria-label="Modo de cálculo">
+              <button type="button" id="f-mode-real" class="f-seg-btn" onclick="app.applyFinancePresetMode('real')">Pedidos reales</button>
+              <button type="button" id="f-mode-sim" class="f-seg-btn is-active" onclick="app.applyFinancePresetMode('contracted')">Evento contratado</button>
+            </div>
+            <div class="f-sec-actions">
+              ${button('PIN','edit','app.changeFinancePinPrompt()')}
+              ${button('Bloquear','close','app.lockFinance()')}
+            </div>
+          </div>
+        </div>
+
+        <div class="f-pnl-grid">
+          <div class="f-inputs-panel">
+            <div class="f-panel-label">Parámetros del evento</div>
+            <div class="f-field-row">
+              <label class="f-field">
+                <span>Unidades</span>
+                <div class="f-input-wrap">
+                  <input type="number" min="0" step="1" id="cost-input-shawarmas" placeholder="Reales" oninput="app.onFinanceUnitsOrPriceChange()">
+                  <span class="f-suffix">uds</span>
+                </div>
+              </label>
+              <label class="f-field">
+                <span>Precio / shawarma</span>
+                <div class="f-input-wrap has-prefix">
+                  <span class="f-prefix">$</span>
+                  <input type="number" step="0.50" min="0" id="cost-input-unit-price" value="23" placeholder="23.00" oninput="app.onFinanceUnitsOrPriceChange()">
+                </div>
+              </label>
+            </div>
+            <div class="f-field-row">
+              <label class="f-field">
+                <span>Cobro shawarmas</span>
+                <div class="f-input-wrap has-prefix">
+                  <span class="f-prefix">$</span>
+                  <input type="number" step="0.01" min="0" id="cost-input-revenue" placeholder="0.00" oninput="app.onFinanceManualRevenueInput()">
+                </div>
+              </label>
+              <label class="f-field">
+                <span>Servicio adicional</span>
+                <div class="f-input-wrap has-prefix">
+                  <span class="f-prefix">$</span>
+                  <input type="number" step="0.01" min="0" id="cost-input-service" placeholder="0.00" oninput="app.recalculateCosts()">
+                </div>
+              </label>
+            </div>
+            <label class="f-field">
+              <span>Logística y otros gastos</span>
+              <div class="f-input-wrap has-prefix">
+                <span class="f-prefix">$</span>
+                <input type="number" step="0.01" min="0" id="cost-input-logistics" placeholder="0.00" oninput="app.recalculateCosts()">
+              </div>
+            </label>
+          </div>
+
+          <div class="f-scorecard">
+            <div class="f-hero-kpis">
+              <div class="f-hero-kpi is-profit">
+                <div class="f-hero-top">
+                  <span>Ganancia neta</span>
+                  <strong class="f-margin-pill" id="kpi-margin-pct">0%</strong>
+                </div>
+                <strong class="f-hero-val" id="kpi-profit-net">$0.00</strong>
+                <small id="f-profit-sub">Ingreso menos insumos y logística</small>
+              </div>
+              <div class="f-hero-kpi">
+                <div class="f-hero-top">
+                  <span>Costo evento + logística</span>
+                </div>
+                <strong class="f-hero-val" id="kpi-cost-total">$0.00</strong>
+                <small id="f-cost-sub">Calculado en tiempo real</small>
+              </div>
+            </div>
+
+            <div class="f-sub-kpis">
+              <div class="f-sub-kpi">
+                <span>Costo / unidad</span>
+                <strong id="kpi-cost-per-unit">$0.00</strong>
+              </div>
+              <div class="f-sub-kpi">
+                <span id="f-shawarmas-cost-label">Costo shawarmas (0 uds)</span>
+                <strong id="kpi-shawarmas-total">$0.00</strong>
+              </div>
+              <div class="f-sub-kpi">
+                <span>Punto de equilibrio</span>
+                <strong id="kpi-breakeven-units">—</strong>
+              </div>
+            </div>
+
+            <div class="f-mix-block" id="f-cost-mix-bar"></div>
+          </div>
+        </div>
+
+        <div class="f-table-bar">
+          <div>
+            <h3>Desglose de insumos y empaques</h3>
+            <p class="u-muted">Agrupado por categoría con participación exacta sobre el costo total.</p>
+          </div>
+          <div class="u-actions">
+            ${button('Editar precios','edit','app.toggleCostSettingsModal(true)')}
+            ${button('Agregar renglón','plus','app.addSupplyRow()')}
+            ${button('Exportar CSV','list','app.exportFinancialCSV()')}
+          </div>
+        </div>
+
+        <div class="u-table-scroll f-table-wrap" tabindex="0" role="region" aria-label="Desglose de costos">
+          <table class="u-table f-table">
+            <thead>
+              <tr>
+                <th>Insumo</th>
+                <th>Fórmula de uso</th>
+                <th class="is-num">Cant.</th>
+                <th class="is-num">Unitario</th>
+                <th class="is-num">% Costo</th>
+                <th class="is-num">Subtotal</th>
+              </tr>
+            </thead>
+            <tbody id="cost-breakdown-tbody"></tbody>
+          </table>
+        </div>
       </section>
-      ${card(heading('Historial de eventos archivados','box','Consulta los eventos guardados anteriormente y descarga su historial.')+`<div class="u-metrics u-two-metrics">${metric('vault-total-orders','Comandas guardadas')}${metric('vault-total-events','Eventos archivados')}</div><div id="vault-events-list" class="u-archive-list"></div><div class="u-actions">${button('Exportar historial CSV','list','app.exportVaultCSV()')}</div>`,'u-full')}
-      ${card(heading('Copia de seguridad del evento activo','box','Descarga una copia completa en archivo ZIP que contiene el Excel para consulta y el JSON para resguardo.')+`<p class="u-muted" id="u-safety-storage">Copias de recuperación del dispositivo: activo.</p><p class="u-muted" id="u-safety-wake">Pantalla activa: disponible.</p><div class="u-actions">${button('Descargar copia de seguridad (Excel + JSON)','box','app.downloadEventBundle()','u-primary')}${button('Mantener pantalla activa','monitor','app.toggleScreenAwake()')}${button('Importar y restaurar respaldo','box','app.openRecoveryFile()')}</div><input id="s-recovery-file" type="file" accept="application/json,.json" hidden onchange="app.inspectRecoveryFile(this.files[0]); this.value=''"><div id="s-recovery-preview" class="s-recovery-preview" hidden></div>`,'u-full')}
-      ${card(heading('Gestión y Cierre del Evento','alert','Cierra el evento con respaldo completo para comenzar el siguiente desde el Turno #1, o descarta pedidos de prueba.')+`<div class="u-actions">${button('Cerrar este evento, respaldar y próximo evento','check','app.closeEventBackupAndStartNext()','u-primary')}${button('Cerrar evento sin guardar','trash','app.closeEventWithoutSaving()','u-danger s-clear-button')}${button('Ver resumen / Reporte del evento','list','app.showClientInvoiceModal()')}</div><p class="u-muted"><strong>Cerrar este evento, respaldar y próximo evento:</strong> Guarda automáticamente la copia completa en Excel y JSON, muestra el resumen con el desglose de comandas servidas y reinicia todo el sistema limpiamente en el <strong>Turno #1</strong> para tu siguiente catering.</p><p class="u-muted"><strong>Cerrar evento sin guardar:</strong> Diseñado exclusivamente para pruebas de conexión y rendimiento previas al evento. Descarta todos los pedidos de prueba sin generar respaldos y deja el sistema 100% limpio en el <strong>Turno #1</strong> listo para el catering real.</p>`,'u-full')}
+
+      ${card(heading('Historial de eventos archivados','box','Cada evento cerrado conserva sus pedidos, unidades y balance financiero (ingreso, costo y ganancia neta).')+`<div class="u-metrics u-two-metrics"><div class="u-metric"><strong id="vault-total-orders">0</strong><span>Comandas guardadas</span></div><div class="u-metric"><strong id="vault-total-events">0</strong><span>Eventos archivados</span></div></div><div id="vault-events-list" class="u-archive-list"></div><div class="u-actions">${button('Exportar historial completo CSV','list','app.exportVaultCSV()')}${button('Exportar pedidos actuales CSV','list','app.exportRawCSV()')}</div><div id="admin-deleted-orders-container" class="u-deleted-orders-section" style="margin-top:14px; border-top:1px dashed var(--border-color); padding-top:12px;"></div>`,'u-full')}
+
+      ${card(heading('Copia de seguridad y pantalla','box','Descarga un ZIP con el Excel para cliente y el JSON de recuperación completa.')+`<p class="u-muted" id="u-safety-storage">Copias de recuperación del dispositivo: activo.</p><p class="u-muted" id="u-safety-wake">Pantalla activa: disponible.</p><div class="u-actions">${button('Descargar respaldo (Excel + JSON)','box','app.downloadEventBundle()','u-primary')}${button('Mantener pantalla activa','monitor','app.toggleScreenAwake()')}${button('Restaurar respaldo JSON','box','app.openRecoveryFile()')}</div><input id="s-recovery-file" type="file" accept="application/json,.json" hidden onchange="app.inspectRecoveryFile(this.files[0]); this.value=''"><div id="s-recovery-preview" class="s-recovery-preview" hidden></div>`)}
+
+      ${card(heading('Cierre del evento','alert','Archiva con respaldo completo y reinicia en Turno #1 para el próximo servicio, o limpia pedidos de prueba.')+`<div class="u-actions">${button('Cerrar, respaldar y próximo evento','check','app.closeEventBackupAndStartNext()','u-primary')}${button('Cerrar sin guardar (pruebas)','trash','app.closeEventWithoutSaving()','u-danger s-clear-button')}</div><p class="u-muted"><strong>Con respaldo:</strong> guarda Excel + JSON + finanzas y reinicia limpio en <strong>Turno #1</strong>.</p><p class="u-muted"><strong>Sin guardar:</strong> solo para pruebas previas al servicio; descarta los turnos sin archivar.</p>`)}
     </div>`;
   }
   function detailTemplate() {
@@ -62,7 +187,7 @@
     const fullProduct=entries.length===1?`${total>1?total+' × ':''}${title(item)}`:product;
     const {birthday,kids}=ui.specialOrder(order);
     const guest=birthday
-      ? `⭐ ${ui.formatBirthdayName ? ui.formatBirthdayName(order.guest_name, order.notes) : 'Cumpleañero ' + (order.guest_name||'')}`
+      ? `${ui.formatBirthdayName ? ui.formatBirthdayName(order.guest_name, order.notes) : 'Cumpleañero ' + (order.guest_name||'')}`
       : (order.guest_name||'Sin nombre');
     const identity=order.table?`${guest} · ${order.table}`:guest;
     const status=isDelivered?'Entregado':ready?'Listo':order.status==='preparing'?'Preparando':'En cola';
@@ -120,6 +245,17 @@
     if(inpOwner && document.activeElement!==inpOwner)inpOwner.value=finalOwner;
     const svcClientInp=$('service-client');
     if(svcClientInp && document.activeElement!==svcClientInp)svcClientInp.value=finalOwner;
+    // Sincronizar automáticamente la cantidad contratada y el evento con Costos y Rentabilidad
+    if (finalQty > 0) {
+      try {
+        localStorage.setItem('shawarma_finance_mode_v1', 'contracted');
+        localStorage.setItem('shawarma_manual_qty_calc', String(finalQty));
+      } catch(e){}
+      const calcQtyInp = $('cost-input-shawarmas');
+      if (calcQtyInp && document.activeElement !== calcQtyInp) calcQtyInp.value = String(finalQty);
+      this._manualRevOverride = false;
+    }
+    if (typeof this.recalculateCosts === 'function') this.recalculateCosts();
     this.renderDisplay();
     try {
       const res=await fetch('/api/event/meta',{
@@ -164,174 +300,162 @@
     const orders=[...(this.db.orders||[])].filter(o=>o.status!=='cancelled').sort((a,b)=>Number(a.turn)-Number(b.turn));
     const contracted=this.getContractedQty();
     const ownerName=this.getEventOwnerName();
-    const deletedCount=(this.db?.deleted_orders||[]).length;
+    const deletedList=(this.db?.deleted_orders||[]).slice().sort((a,b)=>Number(a.turn)-Number(b.turn));
+    const deletedCount=deletedList.length;
     const langKey=document.documentElement?.lang||'es';
     const dispSig=`${langKey}|${contracted}|${ownerName}|${deletedCount}|`+orders.map(o=>`${o.id}:${o.turn}:${o.status}:${o.updated_at||''}:${o.guest_ack?1:0}:${o.guest_name||''}:${o.items_count||1}`).join(';');
-    if(this._lastDisplaySig===dispSig && $('display-ready-list')?.childElementCount>0)return;
+    if(this._lastDisplaySig===dispSig && $('display-prep-list')?.childElementCount>0)return;
     this._lastDisplaySig=dispSig;
 
-    const delivered=orders.filter(o=>o.status==='delivered').sort((a,b)=>Number(a.turn)-Number(b.turn));
-    const prep=orders.filter(o=>['pending','preparing'].includes(o.status));
+    const delivered=orders.filter(o=>o.status==='delivered').sort((a,b)=>Number(b.turn)-Number(a.turn));
+    const pending=orders.filter(o=>o.status==='pending');
+    const preparing=orders.filter(o=>o.status==='preparing');
     const ready=orders.filter(o=>o.status==='ready');
-    const inKitchen=[...ready,...prep];
+    const inKitchen=[...ready,...preparing,...pending];
 
     const sumUnits=list=>list.reduce((sum,o)=>sum+units(o),0);
     const deliveredUnits=sumUnits(delivered);
-    const prepUnits=sumUnits(prep);
-    const readyUnits=sumUnits(ready);
-    const inKitchenUnits=prepUnits+readyUnits;
+    const pendingUnits=sumUnits(pending);
+    const planchaUnits=sumUnits(preparing)+sumUnits(ready);
+    const inKitchenUnits=pendingUnits+planchaUnits;
     const totalOrderedUnits=deliveredUnits+inKitchenUnits;
 
     const remainingToDeliver=contracted>0?Math.max(0,contracted-deliveredUnits):0;
     const extraDelivered=contracted>0&&deliveredUnits>contracted?(deliveredUnits-contracted):0;
     const remainingToOrder=contracted>0?Math.max(0,contracted-totalOrderedUnits):0;
+    const extraOrdered=contracted>0&&totalOrderedUnits>contracted?(totalOrderedUnits-contracted):0;
     const pctDelivered=contracted>0?Math.min(100,Math.round((deliveredUnits/contracted)*100)):0;
     const pctInKitchen=contracted>0?Math.min(100-pctDelivered,Math.round((inKitchenUnits/contracted)*100)):0;
 
-    const topBar=$('event-monitor-top-bar');
-    if(topBar && !topBar.querySelector('#monitor-contracted-input')) {
-      topBar.innerHTML=`
-        <div class="p-monitor-contract-bar">
-          <div class="p-monitor-contract-title">
-            ${icon('order')}
-            <div>
-              <strong>Registro del Evento · Dueño y Cantidad Contratada</strong>
-              <span>Guarda el nombre de la persona/dueño del evento y la cantidad de shawarmas contratados</span>
-            </div>
-          </div>
-          <div class="p-monitor-contract-controls">
-            <div class="p-monitor-owner-field">
-              ${icon('person')}
-              <input type="text" id="monitor-owner-input" class="text-input-pos p-owner-input" placeholder="Dueño / Evento (ej: Andrés)" value="${esc(ownerName)}" maxlength="100" onkeydown="if(event.key==='Enter')app.saveContractedQtyFromInput()">
-            </div>
-            <button type="button" class="u-button" onclick="app.adjustContractedQty(-5)">-5</button>
-            <input type="number" id="monitor-contracted-input" class="text-input-pos p-contract-input" min="0" step="1" placeholder="Cant. (40)" value="${contracted>0?contracted:''}" onkeydown="if(event.key==='Enter')app.saveContractedQtyFromInput()">
-            <button type="button" class="u-button" onclick="app.adjustContractedQty(5)">+5</button>
-            <button type="button" class="u-button" onclick="app.adjustContractedQty(10)">+10</button>
-            <button type="button" class="u-button u-primary" onclick="app.saveContractedQtyFromInput()">${icon('check')}<span>Guardar evento</span></button>
-          </div>
-        </div>
-      `;
-    } else if (topBar) {
-      const inp=$('monitor-contracted-input');
-      if(inp && document.activeElement!==inp) inp.value=contracted>0?String(contracted):'';
-      const inpOwner=$('monitor-owner-input');
-      if(inpOwner && document.activeElement!==inpOwner) inpOwner.value=ownerName;
-    }
-
-    const delivItems=delivered.flatMap(orderUnits);
+    // Event-wide protein breakdown
     const byProt={Mixto:0,Pollo:0,Carne:0,Falafel:0,Bowls:0};
-    delivItems.forEach(({item,quantity})=>{
+    orders.flatMap(orderUnits).forEach(({item,quantity})=>{
       if(byProt[item.protein]!==undefined)byProt[item.protein]+=quantity;
       if(item.is_bowl||item.preset==='bowl')byProt.Bowls+=quantity;
     });
 
-    const deliveredSummaryHTML=`
-      <div class="p-monitor-delivered-summary">
-        <span class="p-deliv-chip"><strong>${deliveredUnits}</strong> Total entregados</span>
-        <span class="p-deliv-chip">Mixto: <strong>${byProt.Mixto}</strong></span>
-        <span class="p-deliv-chip">Pollo: <strong>${byProt.Pollo}</strong></span>
-        <span class="p-deliv-chip">Carne: <strong>${byProt.Carne}</strong></span>
-        <span class="p-deliv-chip">Falafel: <strong>${byProt.Falafel}</strong></span>
-        ${byProt.Bowls?`<span class="p-deliv-chip">Bowls: <strong>${byProt.Bowls}</strong></span>`:''}
-      </div>
-    `;
+    // Live Event Health Pulse (deterministic real-time telemetry)
+    const overdueOrders=inKitchen.filter(o=>{const s=elapsed(o);return s!==null&&s>=15*60;});
+    let pulseCls='is-healthy';
+    let pulseText=`Servicio en curso · ${pendingUnits} por armar, ${planchaUnits} en plancha/listos`;
+    if(contracted<=0){
+      pulseCls='is-neutral';
+      pulseText='Configura el anfitrión y la cantidad contratada para activar el balance automático.';
+    } else if(overdueOrders.length>0){
+      pulseCls='is-warn';
+      pulseText=`Atención: ${overdueOrders.length} ${overdueOrders.length===1?'pedido supera':'pedidos superan'} 15 min (${overdueOrders.slice(0,3).map(o=>'#'+o.turn).join(', ')})`;
+    } else if(extraDelivered>0){
+      pulseCls='is-complete';
+      pulseText=`Meta de ${contracted} cumplida · +${extraDelivered} adicionales entregados`;
+    } else if(remainingToDeliver===0){
+      pulseCls='is-complete';
+      pulseText=`Meta exacta completada · ${contracted} de ${contracted} entregados`;
+    } else if(remainingToOrder<=5 && remainingToOrder>0){
+      pulseCls='is-warn';
+      pulseText=`Cierre próximo · Solo faltan ${remainingToOrder} por pedir para completar ${contracted}`;
+    } else if(inKitchenUnits===0 && deliveredUnits>0){
+      pulseCls='is-healthy';
+      pulseText=`Cocina al día · ${deliveredUnits} entregados · Faltan ${remainingToOrder} por pedir`;
+    }
 
-    html('display-prep-list', deliveredSummaryHTML + (delivered.length
-      ? delivered.map(renderMonitorCard).join('')
-      : `<div class="p-empty">${icon('box')}<h2>Aún no hay entregados</h2><p>Los pedidos que marques como entregados aparecerán aquí con su conteo exacto.</p></div>`));
-
-    const balanceStatusBanner = contracted <= 0
-      ? `<div class="p-balance-banner is-neutral">${icon('alert')}<span>Escribe arriba la cantidad de shawarmas que contrató el cliente (ej. <strong>40</strong>) para activar el descuento automático de faltantes.</span></div>`
-      : extraDelivered > 0
-        ? `<div class="p-balance-banner is-complete">${icon('check')}<span>¡Meta de <strong>${contracted} shawarmas</strong> cumplida! Se han entregado <strong>+${extraDelivered} adicionales</strong> (${deliveredUnits} en total).</span></div>`
-        : remainingToDeliver === 0
-          ? `<div class="p-balance-banner is-complete">${icon('check')}<span>¡Meta exacta alcanzada! Se entregaron los <strong>${contracted} shawarmas</strong> contratados.</span></div>`
-          : remainingToDeliver <= 5
-            ? `<div class="p-balance-banner is-warning">${icon('alert')}<span>¡Atención! Solo faltan <strong>${remainingToDeliver} shawarmas</strong> por entregar para completar los ${contracted} contratados.</span></div>`
-            : `<div class="p-balance-banner is-active">${icon('clock')}<span>Se han entregado <strong>${deliveredUnits} de ${contracted}</strong> shawarmas contratados (${pctDelivered}%). Faltan <strong>${remainingToDeliver}</strong> por entregar.</span></div>`;
-
-    const ownerBadgeHTML = ownerName
-      ? `<div class="p-balance-owner-badge">${icon('person')}<span>Evento / Dueño: <strong>${esc(ownerName)}</strong></span></div>`
-      : '';
-
-    const deletedList = (this.db?.deleted_orders || []).slice().sort((a,b) => Number(a.turn) - Number(b.turn));
-    const deletedMonitorHTML = deletedList.length ? `
-      <div class="p-balance-deleted-box" style="margin-top:14px; padding:12px 14px; border-radius:10px; background:rgba(239,68,68,0.08); border:1.5px dashed rgba(239,68,68,0.35);">
-        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
-          <span style="font-size:12.5px; font-weight:850; color:#f87171; display:inline-flex; align-items:center; gap:6px;">
-            ${icon('trash')} Pedidos Eliminados (${deletedList.length})
-          </span>
-          <span style="font-size:11px; color:var(--text-dim);">Turnos descartados</span>
-        </div>
-        <div style="display:flex; flex-direction:column; gap:6px;">
-          ${deletedList.map(d => {
-            const prod = d.protein ? (d.is_bowl ? `Bowl ${d.protein}` : `Shawarma ${d.protein}`) : 'Shawarma';
-            return `
-              <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:6px; padding:6px 10px; background:rgba(239,68,68,0.12); border-radius:6px; font-size:12.5px;">
-                <div style="display:flex; align-items:center; gap:6px;">
-                  <span style="background:#ef4444; color:#fff; font-weight:900; font-size:11px; padding:2px 7px; border-radius:4px;">Turno #${esc(d.turn)}</span>
-                  <strong style="color:var(--text-white);">${esc(d.guest_name || 'Comensal')}</strong>
-                  ${d.table ? `<span style="color:var(--text-dim); font-size:11.5px;">(${esc(d.table)})</span>` : ''}
-                  <span style="color:#fca5a5; font-size:11.5px;">• ${esc(prod)}</span>
-                </div>
-                <span style="font-size:11px; color:#fca5a5; font-weight:700;">Eliminado</span>
+    const topBar=$('event-monitor-top-bar');
+    if(topBar){
+      topBar.innerHTML=`
+        <section class="m-telemetry-shell" aria-label="Resumen ejecutivo del evento">
+          <div class="m-telemetry-head">
+            <div class="m-telemetry-identity">
+              <span class="m-eyebrow">Monitor en vivo</span>
+              <div class="m-title-row">
+                <h1>${esc(ownerName || 'Evento sin nombre')}</h1>
+                <span class="m-pulse-pill ${pulseCls}"><span class="m-pulse-dot"></span>${esc(pulseText)}</span>
               </div>
-            `;
+            </div>
+            <div class="m-telemetry-actions">
+              <button type="button" class="u-button" onclick="app.openWelcomeScreen()">${icon('edit')}<span>Editar evento</span></button>
+              <button type="button" class="u-button u-primary" onclick="app.showClientInvoiceModal()">${icon('order')}<span>Resumen cliente</span></button>
+            </div>
+          </div>
+
+          <div class="m-kpi-strip">
+            <div class="m-kpi">
+              <span class="m-kpi-label">Contratados</span>
+              <strong class="m-kpi-val">${contracted>0?contracted:'—'}</strong>
+              <small class="m-kpi-sub">Meta del evento</small>
+            </div>
+            <div class="m-kpi is-delivered">
+              <span class="m-kpi-label">Entregados</span>
+              <strong class="m-kpi-val">${deliveredUnits}</strong>
+              <small class="m-kpi-sub">${contracted>0?`${pctDelivered}% · `:''}${delivered.length} ${delivered.length===1?'turno':'turnos'}</small>
+            </div>
+            <div class="m-kpi is-kitchen">
+              <span class="m-kpi-label">En cocina ahora</span>
+              <strong class="m-kpi-val">${inKitchenUnits}</strong>
+              <small class="m-kpi-sub">${pendingUnits} armar · ${planchaUnits} plancha</small>
+            </div>
+            <div class="m-kpi is-remaining">
+              <span class="m-kpi-label">${extraOrdered>0?'Adicionales':'Faltan por pedir'}</span>
+              <strong class="m-kpi-val">${contracted>0?(extraOrdered>0?`+${extraOrdered}`:remainingToOrder):'—'}</strong>
+              <small class="m-kpi-sub">${contracted>0?`${remainingToDeliver} por entregar`:'Sin meta definida'}</small>
+            </div>
+            <div class="m-kpi ${deletedCount>0?'is-deleted':''}">
+              <span class="m-kpi-label">Eliminados</span>
+              <strong class="m-kpi-val">${deletedCount}</strong>
+              <small class="m-kpi-sub">${deletedCount>0?'Ver auditoría abajo':'Sin descartes'}</small>
+            </div>
+          </div>
+
+          <div class="m-progress-footer">
+            <div class="m-progress-bar-col">
+              <div class="m-progress-meta">
+                <span>Avance total: <strong>${deliveredUnits}</strong> entregados + <strong>${inKitchenUnits}</strong> en cocina${contracted>0?` de <strong>${contracted}</strong>`:''}</span>
+                ${contracted>0?`<strong>${pctDelivered}% entregado</strong>`:''}
+              </div>
+              <div class="p-balance-progress-track m-track">
+                <div class="p-balance-progress-fill is-delivered" style="width:${pctDelivered}%"></div>
+                <div class="p-balance-progress-fill is-kitchen" style="width:${pctInKitchen}%"></div>
+              </div>
+            </div>
+            <div class="m-protein-mix">
+              <span class="m-prot-item"><span class="b-pdot b-pdot-mixto"></span>Mixto <strong>${byProt.Mixto}</strong></span>
+              <span class="m-prot-item"><span class="b-pdot b-pdot-pollo"></span>Pollo <strong>${byProt.Pollo}</strong></span>
+              <span class="m-prot-item"><span class="b-pdot b-pdot-carne"></span>Carne <strong>${byProt.Carne}</strong></span>
+              <span class="m-prot-item"><span class="b-pdot b-pdot-falafel"></span>Falafel <strong>${byProt.Falafel}</strong></span>
+              ${byProt.Bowls?`<span class="m-prot-item"><span class="b-pdot b-pdot-bowl"></span>Bowls <strong>${byProt.Bowls}</strong></span>`:''}
+            </div>
+          </div>
+        </section>
+      `;
+    }
+
+    // Left Column (Priority #1): Active Orders In Kitchen Right Now
+    html('display-prep-list', inKitchen.length
+      ? inKitchen.map(renderMonitorCard).join('')
+      : `<div class="p-empty">${icon('check')}<h2>Cocina al día</h2><p>No hay comandas pendientes ni en plancha en este momento.</p></div>`);
+
+    // Right Column (History + Deleted Audit): Delivered + Deleted Orders
+    const deletedAuditHTML = deletedList.length ? `
+      <div class="m-deleted-audit">
+        <div class="m-deleted-head">
+          <span>${icon('trash')} Turnos eliminados (${deletedList.length})</span>
+          <small>Registro de auditoría</small>
+        </div>
+        <div class="m-deleted-list">
+          ${deletedList.map(d=>{
+            const prod=d.protein?(d.is_bowl?`Bowl ${d.protein}`:`Shawarma ${d.protein}`):'Shawarma';
+            return `<div class="m-deleted-row"><span class="m-del-turn">#${esc(d.turn)}</span><strong>${esc(d.guest_name||'Invitado')}</strong>${d.table?`<span class="m-del-meta">${esc(d.table)}</span>`:''}<span class="m-del-prod">${esc(prod)}</span><span class="m-del-tag">Eliminado</span></div>`;
           }).join('')}
         </div>
       </div>
     ` : '';
 
-    const balanceDashboardHTML = `
-      <div class="p-balance-card">
-        ${ownerBadgeHTML}
-        ${balanceStatusBanner}
-        <div class="p-balance-kpis">
-          <div class="p-balance-kpi">
-            <span>Contratados</span>
-            <strong>${contracted > 0 ? contracted : '—'}</strong>
-            <small>Meta del evento</small>
-          </div>
-          <div class="p-balance-kpi is-delivered">
-            <span>Ya entregados</span>
-            <strong>${deliveredUnits}</strong>
-            <small>${delivered.length} ${delivered.length===1?'turno entregado':'turnos entregados'}</small>
-          </div>
-          <div class="p-balance-kpi is-remaining">
-            <span>Faltan por entregar</span>
-            <strong>${contracted > 0 ? remainingToDeliver : '—'}</strong>
-            <small>${extraDelivered > 0 ? `+${extraDelivered} sobre contrato` : 'Segun lo entregado'}</small>
-          </div>
-          <div class="p-balance-kpi is-kitchen">
-            <span>Faltan por pedir</span>
-            <strong>${contracted > 0 ? remainingToOrder : '—'}</strong>
-            <small>${inKitchenUnits} ahora en cocina</small>
-          </div>
-        </div>
-        ${contracted > 0 ? `
-          <div class="p-balance-progress-wrap">
-            <div class="p-balance-progress-labels">
-              <span>Avance de entregas: <strong>${pctDelivered}%</strong> (${deliveredUnits}/${contracted})</span>
-              <span>En preparación/listos ahora: <strong>${inKitchenUnits} uds</strong></span>
-            </div>
-            <div class="p-balance-progress-track">
-              <div class="p-balance-progress-fill is-delivered" style="width:${pctDelivered}%"></div>
-              <div class="p-balance-progress-fill is-kitchen" style="width:${pctInKitchen}%"></div>
-            </div>
-          </div>
-        ` : ''}
-        ${deletedMonitorHTML}
-      </div>
-      <div class="p-balance-in-progress">
-        <h3 class="p-balance-subtitle">${icon('kitchen')}<span>En preparación y listos ahora (${inKitchenUnits} shawarmas en ${inKitchen.length} turnos)</span></h3>
-        ${inKitchen.length ? `<div class="p-balance-active-list">${inKitchen.map(renderMonitorCard).join('')}</div>` : `<p class="u-muted" style="padding:8px 0;">No hay pedidos activos en cocina en este momento.</p>`}
-      </div>
-    `;
+    html('display-ready-list', deletedAuditHTML + (delivered.length
+      ? delivered.map(renderMonitorCard).join('')
+      : `<div class="p-empty">${icon('box')}<h2>Aún no hay entregados</h2><p>Cada pedido entregado aparecerá aquí en orden cronológico inverso.</p></div>`));
 
-    html('display-ready-list', balanceDashboardHTML);
     document.querySelectorAll('#view-display .turn-column-header').forEach((el,i)=>{
-      el.innerHTML=`${icon(i?'monitor':'box')}<span>${i?'Balance de los que faltan':'Entregados'}</span><strong class="u-count">${i?(contracted>0?`${remainingToDeliver} faltan`:`${totalOrderedUnits} pedidos`):`${deliveredUnits} uds`}</strong>`;
+      el.innerHTML = i === 0
+        ? `${icon('kitchen')}<span>En curso ahora</span><strong class="u-count">${inKitchenUnits} uds · ${inKitchen.length} ${inKitchen.length===1?'turno':'turnos'}</strong>`
+        : `${icon('box')}<span>Entregados${deletedCount>0?` · ${deletedCount} eliminados`:''}</span><strong class="u-count">${deliveredUnits} uds</strong>`;
     });
   };
   function fillDetail(state,order) {

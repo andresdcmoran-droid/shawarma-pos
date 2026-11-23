@@ -66,6 +66,23 @@
     }
     return icon('wrap');
   };
+  function getProteinMeta(protein, isBowl = false) {
+    const p = normal(protein);
+    if (p === 'carne') return { name: 'Carne', emoji: isBowl ? '🥗🥩' : '🥩', slug: 'carne', color: '#ef4444' };
+    if (p === 'pollo') return { name: 'Pollo', emoji: isBowl ? '🥗🍗' : '🍗', slug: 'pollo', color: '#f59e0b' };
+    if (p === 'falafel') return { name: 'Falafel', emoji: isBowl ? '🥗🧆' : '🧆', slug: 'falafel', color: '#10b981' };
+    if (isBowl && !p) return { name: 'Bowl', emoji: '🥗', slug: 'bowl', color: '#06b6d4' };
+    return { name: 'Mixto', emoji: isBowl ? '🥗🥩🍗' : '🥩🍗', slug: 'mixto', color: '#d41473' };
+  }
+  function getDominantProteinSlug(units) {
+    const slugs = new Set();
+    (units || []).forEach(u => {
+      const it = u.item || {};
+      const isBowl = !!(it.is_bowl || it.preset === 'bowl');
+      slugs.add(isBowl ? 'bowl' : getProteinMeta(it.protein, false).slug);
+    });
+    return slugs.size === 1 ? [...slugs][0] : 'multiple';
+  }
   const text = (id, value) => { if ($(id)) $(id).textContent = value; };
   const html = (id, value) => { if ($(id)) $(id).innerHTML = value; };
   const core = () => INGREDIENTS_CONFIG.filter(i => i.isDefault);
@@ -103,8 +120,20 @@
     let out = '';
     if (item.is_bowl || item.preset === 'bowl') out += `<span class="p-mod p-format">${icon('bowl')} Sin pan · en plato</span>`;
     if (kids) {
-      out += `<span class="p-mod p-format p-format-${esc(prof.type)}">${icon(prof.icon)} ${esc(prof.label)}</span>`;
-      out += `<p class="p-recipe-line">${r.included.length ? 'Incluye: ' + esc(r.included.join(' · ')) : 'Solo pan y proteína'} · <strong>${esc(prof.hint)}</strong></p>`;
+      const whoLabel = prof.type === 'nino' ? 'Niño' : prof.type === 'mayor' ? 'Persona mayor' : 'Adulto';
+      const hasExtras = r.included.length > 0;
+      const badgeTxt = hasExtras ? `${whoLabel} · Pan y proteína` : `${whoLabel} · Solo pan y proteína`;
+      out += `<span class="p-mod p-format p-format-${esc(prof.type)}">${icon(prof.icon)} ${esc(badgeTxt)}</span>`;
+      if (hasExtras) {
+        out += `<p class="p-recipe-line"><strong>Con:</strong> ${esc(r.included.join(' · '))}</p>`;
+      } else {
+        const subLine = prof.type === 'nino'
+          ? 'Porción infantil · sin vegetales ni salsas'
+          : prof.type === 'mayor'
+            ? 'Porción suave · sin vegetales ni salsas'
+            : 'Sin vegetales ni salsas';
+        out += `<p class="p-recipe-line">${subLine}</p>`;
+      }
     } else if (r.standard) {
       out += `<p class="p-standard">${icon('check')} Con todo <span>· ${r.count}/${core().length} ingredientes</span></p>`;
     } else if (r.known) {
@@ -157,7 +186,7 @@
   function specialClasses(order) {
     const {birthday,kids,elder}=specialOrder(order);
     const bowl=bowlFormat(order).all;
-    return birthday||kids||elder||bowl?`p-special${bowl?' p-bowl':''}${(kids||elder)?' p-kids':''}${birthday?' p-birthday':''}`:'';
+    return birthday||kids||elder||bowl?`p-special${bowl?' p-bowl':''}${(kids||elder)?' p-kids':''}${kids?' p-nino':''}${birthday?' p-birthday':''}`:'';
   }
   function formatBirthdayName(rawName, notes) {
     const isFemale = /cumpleañera|cumpleanera/i.test((rawName || '') + ' ' + (notes || ''));
@@ -167,10 +196,11 @@
     return cleanName ? `${prefix} ${cleanName}` : prefix;
   }
   function specialLabelsHTML(order) {
+    if (!order || !order.is_group) return '';
     const {kids,elder,adultPlain}=specialOrder(order);
     const bowl=bowlFormat(order),labelBowl=bowl.some && (kids||elder||adultPlain||!bowl.all);
     if(!kids&&!elder&&!adultPlain&&!labelBowl)return '';
-    return `<span class="p-special-labels">${kids?`<span class="p-special-tag p-kids-tag">${icon('child')}${order.is_group?'Incluye niño · suave':'Niño · Preparación suave'}</span>`:''}${elder?`<span class="p-special-tag p-kids-tag">${icon('person')}${order.is_group?'Incluye persona mayor':'Persona mayor · Preparación suave'}</span>`:''}${adultPlain?`<span class="p-special-tag p-bowl-tag">${icon('person')}${order.is_group?'Incluye pan y proteína (Adulto)':'Adulto · Pan y proteína'}</span>`:''}${labelBowl?`<span class="p-special-tag p-bowl-tag">${icon('bowl')}${bowl.all?'Bowl sin pan':'Incluye bowls'}</span>`:''}</span>`;
+    return `<span class="p-special-labels">${kids?`<span class="p-special-tag p-kids-tag">${icon('child')}Incluye niño</span>`:''}${elder?`<span class="p-special-tag p-kids-tag">${icon('person')}Incluye persona mayor</span>`:''}${adultPlain?`<span class="p-special-tag p-bowl-tag">${icon('person')}Incluye pan y proteína (Adulto)</span>`:''}${labelBowl?`<span class="p-special-tag p-bowl-tag">${icon('bowl')}${bowl.all?'Bowl sin pan':'Incluye bowls'}</span>`:''}</span>`;
   }
   function signatureHTML(protein) {
     return '';
@@ -272,8 +302,80 @@
       b.setAttribute('aria-pressed', active);
     });
   };
+  proto.renderPosContractBar = function() {
+    const bar = $('pos-contract-bar');
+    const kdsBar = $('kds-contract-inline');
+    if (!bar && !kdsBar) return;
+    const serverVal = Number(this.db?.event_info?.contracted_qty);
+    let contracted = Number.isFinite(serverVal) && serverVal > 0 ? serverVal : 0;
+    if (!contracted && typeof this.getContractedQty === 'function') {
+      contracted = this.getContractedQty() || 0;
+    }
+    const validOrders = (this.db?.orders || []).filter(o => o.status !== 'cancelled');
+    const totalOrdered = validOrders.flatMap(orderUnits).reduce((s, u) => s + u.quantity, 0);
+    const deliveredUnits = validOrders.filter(o => o.status === 'delivered').flatMap(orderUnits).reduce((s, u) => s + u.quantity, 0);
+    const owner = (this.db?.event_info?.owner_name || (typeof this.getEventOwnerName === 'function' ? this.getEventOwnerName() : '') || '').trim();
+    const sig = `${contracted}|${totalOrdered}|${deliveredUnits}|${owner}`;
+
+    if (contracted <= 0) {
+      if (bar) bar.style.display = 'none';
+      if (kdsBar) {
+        if (kdsBar.dataset.sig !== sig || kdsBar.style.display === 'none') {
+          kdsBar.dataset.sig = sig;
+          kdsBar.className = 'kds-contract-inline is-empty';
+          kdsBar.style.display = 'inline-flex';
+          kdsBar.innerHTML = `<span class="pos-contract-dot"></span><span>${owner ? `Evento: <strong>${esc(owner)}</strong> · ` : ''}Definir contratados</span>`;
+        }
+      }
+      return;
+    }
+
+    const remaining = Math.max(0, contracted - totalOrdered);
+    const extra = Math.max(0, totalOrdered - contracted);
+    const pct = Math.min(100, Math.round((totalOrdered / contracted) * 100));
+    const stateCls = extra > 0 || remaining === 0 ? 'is-complete' : remaining <= 5 ? 'is-warn' : 'is-active';
+    const rightTxt = extra > 0
+      ? `+${extra} adicionales`
+      : remaining === 0
+        ? 'Meta alcanzada'
+        : `Faltan ${remaining} por pedir`;
+
+    if (bar && (bar.dataset.sig !== sig || bar.style.display === 'none')) {
+      bar.dataset.sig = sig;
+      bar.className = `pos-contract-bar ${stateCls}`;
+      bar.style.display = 'flex';
+      bar.innerHTML = `
+        <div class="pos-contract-row">
+          <span class="pos-contract-left">
+            <span class="pos-contract-dot"></span>
+            ${owner ? `<span>Evento: <strong>${esc(owner)}</strong> · </span>` : ''}
+            <strong>${totalOrdered} / ${contracted}</strong>
+            <span>contratados</span>
+          </span>
+          <span class="pos-contract-right">${esc(rightTxt)}</span>
+        </div>
+        <div class="pos-contract-track"><div class="pos-contract-fill" style="width:${pct}%"></div></div>
+      `;
+    }
+
+    if (kdsBar && (kdsBar.dataset.sig !== sig || kdsBar.style.display === 'none')) {
+      kdsBar.dataset.sig = sig;
+      kdsBar.className = `kds-contract-inline ${stateCls}`;
+      kdsBar.style.display = 'inline-flex';
+      kdsBar.innerHTML = `
+        <span class="kds-ci-main">
+          ${owner ? `<strong class="kds-ci-owner">${esc(owner)}</strong><span class="kds-ci-vdiv" aria-hidden="true"></span>` : ''}
+          <span class="kds-ci-ratio-wrap"><strong class="kds-ci-ratio">${totalOrdered}</strong> <span class="kds-ci-of">de</span> <strong class="kds-ci-ratio">${contracted}</strong> <span class="kds-ci-unit">pedidos</span></span>
+        </span>
+        <span class="kds-ci-vdiv" aria-hidden="true"></span>
+        <span class="kds-ci-rem">${esc(rightTxt)}</span>
+        <span class="kds-ci-edit" aria-hidden="true">${icon('edit')}</span>
+      `;
+    }
+  };
   proto.updatePreviewAndTurn = function() {
     syncSpecialMotion();
+    this.renderPosContractBar?.();
     const editing = !!(this.editingOrderId && this.editingOrderTurn);
     const turnCounter = Number(this.db?.event_info?.turn_counter) || 0;
     const activeOrders = this.db?.orders || [];
@@ -335,27 +437,78 @@
     if (s === null) return '—';
     return [Math.floor(s / 3600), Math.floor((s % 3600) / 60), s % 60].map(v => String(v).padStart(2, '0')).join(':');
   }
+  proto.getKdsStation = function() {
+    if (!this.kdsStation) {
+      try {
+        const saved = localStorage.getItem('shawarma_kds_station_v1');
+        this.kdsStation = ['armado', 'plancha', 'delivered', 'all'].includes(saved) ? saved : 'armado';
+      } catch(_) {
+        this.kdsStation = 'armado';
+      }
+    }
+    return this.kdsStation;
+  };
+  proto.setKdsStation = function(station) {
+    if (!['armado', 'plancha', 'delivered', 'all'].includes(station)) return;
+    try { window.soundEngine?.playClick?.(); } catch(_) {}
+    this.kdsStation = station;
+    try { localStorage.setItem('shawarma_kds_station_v1', station); } catch(_) {}
+    this.kdsFilter = station === 'delivered' ? 'delivered' : station === 'all' ? 'all' : 'active';
+    this._lastKdsSig = null;
+    this.renderKDS();
+  };
+  proto.setKdsFilter = function(filter) {
+    const map = { active: 'armado', ready: 'plancha', delivered: 'delivered', all: 'all' };
+    this.setKdsStation(map[filter] || 'armado');
+  };
   proto.renderKDS = function() {
     syncSpecialMotion();
     const grid = $('kds-cards-grid');
     if (!grid) return;
+    const station = this.getKdsStation();
     // Sort a copy: drawing the queue must not mutate the stored orders.
     const orders = [...(this.db.orders || [])].sort((a,b) => Number(a.turn) - Number(b.turn));
-    const active = orders.filter(o => ['pending','preparing'].includes(o.status));
-    const ready = orders.filter(o => o.status === 'ready');
+    const pendingOrders = orders.filter(o => o.status === 'pending');
+    const planchaOrders = orders.filter(o => o.status === 'preparing' || o.status === 'ready');
+    const activeAll = orders.filter(o => ['pending','preparing','ready'].includes(o.status));
     const delivered = orders.filter(o => o.status === 'delivered');
-    text('count-active-kds', active.length); text('count-ready-kds', ready.length);
-    text('count-delivered-kds', delivered.length); text('count-all-kds', orders.length);
+
+    // Actualizar barra única de línea de producción (4 pestañas)
+    text('count-station-armado', pendingOrders.length);
+    text('count-station-plancha', planchaOrders.length);
+    text('count-delivered-kds', delivered.length);
+    text('count-all-kds', orders.length);
+    document.querySelectorAll('.kds-station-btn').forEach(b => {
+      const isAct = b.dataset.station === station;
+      b.classList.toggle('active', isAct);
+      b.setAttribute('aria-selected', String(isAct));
+    });
+
     const kdsBadge = $('badge-kds-count');
     if (kdsBadge) {
-      kdsBadge.textContent = active.length;
-      kdsBadge.style.display = active.length > 0 ? 'inline-flex' : 'none';
+      const badgeCount = station === 'armado' ? pendingOrders.length : station === 'plancha' ? planchaOrders.length : activeAll.length;
+      kdsBadge.textContent = badgeCount;
+      kdsBadge.style.display = badgeCount > 0 ? 'inline-flex' : 'none';
     }
-    document.querySelectorAll('.kds-filter-tab').forEach(b => {b.classList.toggle('active', b.dataset.filter === this.kdsFilter);b.setAttribute('aria-pressed', b.dataset.filter === this.kdsFilter);});
+
+    // Mostrar/ocultar franja de preparaciones iguales y botón de tanda según etapa
+    const batchRow = $('kds-batching-row');
+    if (batchRow) {
+      batchRow.classList.toggle('is-hidden', station === 'delivered');
+    }
+    const batchButton = document.querySelector('button[onclick="app.markNextBatchReady()"]');
+    if (batchButton) {
+      const showBatchBtn = (station === 'armado' || station === 'all') && pendingOrders.length > 0;
+      batchButton.style.display = showBatchBtn ? '' : 'none';
+      if (showBatchBtn && batchButton.dataset.stationLbl !== 'armado') {
+        batchButton.dataset.stationLbl = 'armado';
+        batchButton.innerHTML = `${icon('kitchen')} Pasar tanda a plancha · hasta 6`;
+      }
+    }
 
     // Smart Diff Guard: evitar destruir y reconstruir el DOM si nada cambió (vital para iPad 7ª Gen y toques táctiles)
     const langKey = document.documentElement?.lang || 'es';
-    const kdsSig = `${this.kdsFilter}|${langKey}|` + orders.map(o => `${o.id}:${o.turn}:${o.status}:${o.updated_at || ''}:${o.guest_ack ? 1 : 0}:${o.guest_name || ''}:${o.table || ''}:${o.protein || ''}:${o.preset || ''}:${o.items_count || 1}:${o.notes || ''}`).join(';');
+    const kdsSig = `${station}|${langKey}|` + orders.map(o => `${o.id}:${o.turn}:${o.status}:${o.updated_at || ''}:${o.guest_ack ? 1 : 0}:${o.guest_name || ''}:${o.table || ''}:${o.protein || ''}:${o.preset || ''}:${o.items_count || 1}:${o.notes || ''}`).join(';');
     if (this._lastKdsSig === kdsSig && grid.childElementCount > 0) {
       this.updateTimers();
       return;
@@ -373,16 +526,57 @@
       if (k) window._openTicketDetailsKeys.add(k);
     });
 
-    const work = groupPreparation(active);
+    // Resumen de preparaciones iguales adaptado a la estación activa
+    const workSource = station === 'plancha' ? planchaOrders : pendingOrders;
+    const work = (() => {
+      const groups = new Map();
+      [...workSource].sort((a,b)=>Number(a.turn)-Number(b.turn)).forEach(order => {
+        orderUnits(order).forEach(({item, quantity, index}) => {
+          const key = preparationKey(item) + (Array.isArray(item.ingredients) ? '' : `|unknown:${order.id}:${index}`);
+          if (!groups.has(key)) groups.set(key, { key, item, count: 0, turns: [] });
+          const g = groups.get(key); g.count += quantity;
+          if (!g.turns.includes(order.turn)) g.turns.push(order.turn);
+        });
+      });
+      return [...groups.values()];
+    })();
+
     html('kds-batch-counters', work.length ? work.map(({item,count,turns}) => {
-      const batchKey = preparationKey(item);
-      const isBatchOpen = window._openBatchKeys.has(batchKey) ? ' open' : '';
-      return `<div class="p-batch-item"><strong>${count}</strong><div><span>${proteinIcon(item.protein, 'white')} ${esc(item.protein||'Shawarma')}</span>${batchRecipeHTML(item)}${item.notes?`<p class="p-batch-note">${esc(item.notes)}</p>`:''}<details class="p-batch-turns" data-batch-key="${esc(batchKey)}"${isBatchOpen}><summary>${turns.length} ${turns.length===1?'pedido':'pedidos'}</summary><small>Turnos ${turns.map(t=>'#'+esc(t)).join(', ')}</small></details></div></div>`;
-    }).join('') : '<p class="p-recipe-line">No hay pedidos pendientes.</p>');
-    text('p-batch-total', `${active.length} ${active.length === 1 ? 'pedido' : 'pedidos'} · ${work.reduce((sum,g)=>sum+g.count,0)} shawarmas`);
-    const filtered = {active, ready, delivered}[this.kdsFilter] || orders;
+      const isBowlItem = !!(item.is_bowl || item.preset === 'bowl');
+      const meta = getProteinMeta(item.protein, isBowlItem);
+      const slug = isBowlItem ? 'bowl' : meta.slug;
+      const r = recipe(item);
+      const prof = prepProfile(item);
+      let specLabel = 'Con todo';
+      let specCls = 'is-std';
+      if (isBowlItem) { specLabel = 'Bowl sin pan'; specCls = 'is-mod'; }
+      else if (prof.active) { specLabel = prof.label; specCls = 'is-mod'; }
+      else if (r.removed.length || r.additions.length) {
+        const parts = [
+          ...r.removed.slice(0, 2).map(s => `Sin ${s}`),
+          ...r.additions.slice(0, 1).map(i => `Con ${i.name.replace(/\s*\(Opcional\)/i, '')}`)
+        ];
+        if (r.removed.length > 2) parts.push(`+${r.removed.length - 2}`);
+        specLabel = parts.join(' · ');
+        specCls = r.additions.some(i => i.id === 'picante') ? 'is-hot' : 'is-mod';
+      }
+      if (item.notes) { specLabel += ` · ${item.notes}`; }
+      const turnsLabel = `Turnos ${turns.map(t => '#' + t).join(', ')}`;
+      return `<button type="button" class="b-batch-pill" onclick="this.classList.toggle('is-open')" title="${esc(turnsLabel)}"><strong class="b-bp-num">${count}</strong><span class="b-pdot b-pdot-${slug}" aria-hidden="true"></span><span class="b-bp-prot">${esc(item.protein || 'Shawarma')}</span><span class="b-bp-spec ${specCls}">${esc(specLabel)}</span><span class="b-bp-turns">${esc(turnsLabel)}</span></button>`;
+    }).join('') : `<p class="p-recipe-line">${station === 'plancha' ? 'No hay shawarmas en plancha ahora.' : 'No hay pedidos por armar.'}</p>`);
+    text('p-batch-total', `${workSource.length} ${workSource.length === 1 ? 'pedido' : 'pedidos'} · ${work.reduce((sum,g)=>sum+g.count,0)} uds`);
+
+    const filtered = station === 'armado' ? pendingOrders : station === 'plancha' ? planchaOrders : station === 'delivered' ? delivered : orders;
     if (!filtered.length) {
-      grid.innerHTML = `<div class="p-empty">${icon(this.kdsFilter === 'ready' ? 'check' : 'kitchen')}<h2>${this.kdsFilter === 'active' ? 'Cocina al día' : 'Sin pedidos en esta sección'}</h2><p>${this.kdsFilter === 'active' ? 'Los nuevos pedidos aparecerán aquí.' : 'Usa los filtros para ver las otras comandas.'}</p></div>`;
+      const emptyTitle = station === 'armado' ? 'Mesa de armado al día' : station === 'plancha' ? 'Plancha libre' : station === 'delivered' ? 'Aún no hay entregados' : 'Cocina al día';
+      const emptySub = station === 'armado'
+        ? 'Los nuevos pedidos del teléfono aparecerán aquí.'
+        : station === 'plancha'
+          ? 'Cuando Armado pase una comanda a plancha aparecerá aquí al instante.'
+          : station === 'delivered'
+            ? 'Los pedidos confirmados en Plancha y Entrega se registrarán aquí.'
+            : 'Los nuevos pedidos aparecerán aquí.';
+      grid.innerHTML = `<div class="p-empty">${icon(station === 'delivered' ? 'check' : 'kitchen')}<h2>${emptyTitle}</h2><p>${emptySub}</p></div>`;
       return;
     }
     const plan=productionBatches(orders);
@@ -390,12 +584,34 @@
       const completeUnits=orderUnits(o),units=portion||completeUnits,items=units.map(x=>x.item),count=completeUnits.reduce((sum,x)=>sum+x.quantity,0);
       const portionCount=units.reduce((sum,x)=>sum+x.quantity,0),partial=portionCount<count;
       const sec = elapsed(o);
+      const waitMins = sec !== null ? Math.floor(sec / 60) : 0;
       const waiting = ['pending','preparing'].includes(o.status);
       const overdue = waiting && sec !== null && sec >= WARN_WAIT_MINUTES * 60;
-      const status = {pending:'En preparación',preparing:'En preparación',ready:'Listo para entregar',delivered:'Entregado',cancelled:'Cancelado'}[o.status] || 'Revisar estado';
+      const status = {
+        pending: station === 'all' ? 'En armado' : 'Por armar',
+        preparing: 'En plancha',
+        ready: 'Listo para entregar',
+        delivered: 'Entregado',
+        cancelled: 'Cancelado'
+      }[o.status] || 'Revisar estado';
+      const statusBadgeText = overdue ? `Espera · ${waitMins} min` : status;
       const isDelivered = o.status === 'delivered';
       const isReady = o.status === 'ready';
-      const next = isDelivered ? null : (isReady ? ['delivered', count > 1 ? 'Confirmar entrega del grupo' : 'Confirmar entrega', 'box'] : ['ready', count > 1 ? 'Marcar grupo como listo' : 'Marcar como listo', 'check']);
+      const isPreparing = o.status === 'preparing';
+
+      // Botón principal unificado (2 pasos reales: Armado -> Plancha y Entrega -> Entregado)
+      let next = null;
+      let mainBtnCls = 'p-to-plancha';
+      if (!isDelivered) {
+        if (o.status === 'pending') {
+          next = ['preparing', count > 1 ? `Grupo armado (${count}) · Pasar a Plancha →` : 'Armado · Pasar a Plancha →', ''];
+          mainBtnCls = 'p-to-plancha';
+        } else {
+          next = ['delivered', count > 1 ? `Confirmar Entrega (${count})` : 'Confirmar Entrega', 'check'];
+          mainBtnCls = 'p-deliver-confirm';
+        }
+      }
+
       const date = new Date(o.created_at);
       let time = '—';
       if (Number.isFinite(date.getTime())) {
@@ -410,38 +626,50 @@
       const guestDisplayName = birthday
         ? `<span class="p-birthday-guest-badge">${icon('star')}${esc(formatBirthdayName(o.guest_name, o.notes))}</span>`
         : esc(o.guest_name || 'Sin nombre');
-      return `<article class="p-ticket status-${esc(o.status)} ${overdue ? 'p-overdue' : ''} ${specialClasses(visualOrder)}" data-order-id="${esc(o.id)}" aria-label="Turno ${esc(o.turn)}, ${esc(o.guest_name)}, ${status}">
-        <header class="p-ticket-head"><div class="turn-row-modern kds-turn-modern"><span class="turn-number-giant">${String(o.turn).padStart(2, '0')}</span><div class="turn-label-txt">Turno</div></div><div class="p-ticket-meta"><span class="p-status p-status-${esc(o.status)}">${icon(waiting ? 'kitchen' : 'check')}${status}</span><span class="p-age-label">${overdue ? '⚠️ Espera prolongada' : (waiting ? 'Desde el pedido' : 'Tiempo total')}</span><strong class="p-age" data-age-id="${esc(o.id)}">${duration(sec)}</strong><span class="p-received">Pedido · ${time}</span></div></header>
+      const protSlug = getDominantProteinSlug(completeUnits);
+
+      const firstToolBtn = (station === 'plancha' && (isPreparing || isReady))
+        ? `<button type="button" class="p-kds-tool-btn p-tool-undo" data-p-action="revert-armado" data-id="${esc(o.id)}" title="Regresar esta comanda a Armado">${icon('reset')}<span>Armado</span></button>`
+        : `<button type="button" class="p-kds-tool-btn p-tool-duplicate" data-p-action="duplicate" data-id="${esc(o.id)}" title="Duplicar comanda como nuevo pedido">${icon('copy')}<span>Duplicar</span></button>`;
+
+      const mainBtnHtml = next
+        ? `<button type="button" class="p-primary p-kds-main-btn ${mainBtnCls}" data-p-action="${esc(next[0])}" data-id="${esc(o.id)}">${next[2] ? icon(next[2]) : ''}<span>${esc(next[1])}</span></button>`
+        : `<p class="p-complete">${icon('check')}${status}</p>`;
+
+      return `<article class="p-ticket status-${esc(o.status)} kds-prot-${protSlug} ${overdue ? 'p-overdue' : ''} ${specialClasses(visualOrder)}" data-order-id="${esc(o.id)}" aria-label="Turno ${esc(o.turn)}, ${esc(o.guest_name)}, ${status}">
+        <header class="p-ticket-head"><div class="turn-row-modern kds-turn-modern"><span class="turn-number-giant">${String(o.turn).padStart(2, '0')}</span><div class="turn-label-txt">Turno</div></div><div class="p-ticket-meta"><span class="p-status p-status-${esc(o.status)} ${overdue ? 'is-overdue' : ''}">${esc(statusBadgeText)}</span><strong class="p-age" data-age-id="${esc(o.id)}">${duration(sec)}</strong><span class="p-received">Recibido · ${time}</span></div></header>
         <div class="p-guest-line"><strong>${guestDisplayName}</strong>${o.table ? `<span>${icon('pin')}${esc(o.table)}</span>` : ''}</div>
-        ${completeUnits.length > 1 ? `<div class="p-group-title">${icon('group')} Grupo · ${count} shawarmas</div>` : ''}
+        ${completeUnits.length > 1 ? `<div class="p-group-title">${icon('group')} Pedido grupal · ${count} shawarmas</div>` : ''}
         ${partial?`<p class="p-tanda-portion">En esta sección: ${portionCount} de ${count} unidades del turno. El pedido queda listo al terminar todas.</p>`:''}
         ${specialLabelsHTML(o)}
         ${o.guest_ack ? `<p class="p-ack">${icon('check')} El invitado viene a retirar</p>` : ''}
         <div class="p-ticket-items">${items.map((item,i) => {
           const ticketKey = `${o.id || o.turn}_${i}`;
           const isMixto = normal(item.protein) === 'mixto';
+          const isBowlItem = !!(item.is_bowl || item.preset === 'bowl');
+          const meta = getProteinMeta(item.protein, isBowlItem);
+          const slug = isBowlItem ? 'bowl' : meta.slug;
           const starIconHTML = isMixto ? '<span class="p-star-star" title="Especialidad de la casa">★</span>' : '';
-          return `<section class="p-ticket-item"><h3>${completeUnits.length > 1 ? `<span class="p-item-number">${(units[i].index??i)+1}</span>` : (item.is_bowl ? icon('bowl') : proteinIcon(item.protein, 'white'))}${units[i].quantity>1?`${units[i].quantity} × `:''}${esc(title(item))}${starIconHTML}</h3>${completeUnits.length>1?specialLabelsHTML(item):''}${recipeHTML(item,true,null,ticketKey)}${item.notes ? `<p class="p-note">${icon('edit')}${esc(item.notes)}</p>` : ''}</section>`;
+          return `<section class="p-ticket-item"><h3 class="kds-item-head is-${slug}">${completeUnits.length > 1 ? `<span class="p-item-number">${(units[i].index??i)+1}</span>` : ''}<span class="b-pdot b-pdot-${slug}" aria-hidden="true"></span><span class="kds-item-title">${units[i].quantity>1?`${units[i].quantity} × `:''}${esc(title(item))}${starIconHTML}</span><span class="b-prot-pill">${esc((isBowlItem ? 'BOWL' : meta.name).toUpperCase())}</span></h3>${completeUnits.length>1?specialLabelsHTML(item):''}${recipeHTML(item,true,null,ticketKey)}${item.notes ? `<p class="p-note">${icon('edit')}${esc(item.notes)}</p>` : ''}</section>`;
         }).join('')}</div>
-        <div class="p-ticket-actions-bar">
-          <button type="button" class="p-kds-tool-btn p-tool-duplicate" data-p-action="duplicate" data-id="${esc(o.id)}" title="Duplicar comanda como nuevo pedido">
-            ${icon('copy')}
-            <span>Duplicar</span>
-          </button>
-          <button type="button" class="p-kds-tool-btn" data-p-action="edit" data-id="${esc(o.id)}" title="Editar comanda">
-            ${icon('edit')}
-            <span>Editar</span>
-          </button>
-          <button type="button" class="p-kds-tool-btn p-tool-danger" data-p-action="delete" data-id="${esc(o.id)}" title="Eliminar comanda">
-            ${icon('trash')}
-            <span>Eliminar</span>
-          </button>
-          <button type="button" class="p-kds-tool-btn" data-p-action="qr" data-id="${esc(o.id)}" title="Mostrar código QR">
-            ${icon('qr')}
-            <span>QR</span>
-          </button>
+        <div class="p-ticket-footer">
+          <div class="p-ticket-actions-bar">
+            ${firstToolBtn}
+            <button type="button" class="p-kds-tool-btn" data-p-action="edit" data-id="${esc(o.id)}" title="Editar comanda">
+              ${icon('edit')}
+              <span>Editar</span>
+            </button>
+            <button type="button" class="p-kds-tool-btn" data-p-action="qr" data-id="${esc(o.id)}" title="Mostrar código QR">
+              ${icon('qr')}
+              <span>QR</span>
+            </button>
+            <button type="button" class="p-kds-tool-btn p-tool-danger" data-p-action="delete" data-id="${esc(o.id)}" title="Eliminar comanda">
+              ${icon('trash')}
+              <span>Eliminar</span>
+            </button>
+          </div>
+          ${mainBtnHtml}
         </div>
-        ${next ? button(next[0],o.id,next[1],next[2],`p-primary p-kds-main-btn ${next[0] === 'ready' ? 'p-ready' : 'p-deliver'}`) : `<p class="p-complete">${icon('check')}${status}</p>`}
       </article>`;
     };
     const activeIds = new Set(filtered.map(o => String(o.id)));
@@ -468,15 +696,16 @@
         const p = u.item?.protein || 'Mixto';
         pCounts[p] = (pCounts[p] || 0) + (u.quantity || 1);
       });
-      const pSummary = Object.entries(pCounts).map(([p, n]) => `${n} ${p}`).join(' · ');
+      const pSummary = Object.entries(pCounts).map(([p, n]) => `${n} ${p}`).join(', ');
 
       const dividerHtml = showDivider ? `
         <div class="kds-batch-divider" role="heading" aria-level="3">
           <div class="kds-batch-divider-line"></div>
           <div class="kds-batch-divider-badge">
-            <span>🌯</span>
-            <span class="kds-batch-divider-text">Tanda ${batch.number} · Shawarmas ${startNum} al ${endNum}</span>
-            ${pSummary ? `<span class="kds-batch-divider-meats">${pSummary}</span>` : ''}
+            <strong class="kds-batch-divider-num">TANDA ${batch.number}</strong>
+            <span class="kds-batch-divider-sep">·</span>
+            <span class="kds-batch-divider-text">UNIDADES ${startNum} AL ${endNum}</span>
+            ${pSummary ? `<span class="kds-batch-divider-sep">·</span><span class="kds-batch-divider-meats">${esc(pSummary.toUpperCase())}</span>` : ''}
           </div>
           <div class="kds-batch-divider-line"></div>
         </div>
@@ -492,7 +721,7 @@
     const s = String(now.getSeconds()).padStart(2, '0');
     const ampm = h >= 12 ? 'PM' : 'AM';
     h = h % 12 || 12;
-    const timeStr = `${h}:${m}:${s} ${ampm}`;
+    const timeStr = `${h}:${m} ${ampm}`;
 
     const headClock = $('event-clock-text');
     if (headClock) headClock.textContent = timeStr;
@@ -509,8 +738,11 @@
         const late = ['pending','preparing'].includes(o.status) && seconds !== null && seconds >= WARN_WAIT_MINUTES * 60;
         const ticket = el.closest('.p-ticket');
         ticket?.classList.toggle('p-overdue', late);
-        const label = ticket?.querySelector('.p-age-label');
-        if (label) label.textContent = late ? '⚠️ Espera prolongada' : (['pending','preparing'].includes(o.status) ? 'Desde el pedido' : 'Tiempo total');
+        const stBadge = ticket?.querySelector('.p-status');
+        if (stBadge && late) {
+          stBadge.classList.add('is-overdue');
+          stBadge.textContent = `Espera · ${Math.floor(seconds / 60)} min`;
+        }
       }
     });
   };
@@ -525,13 +757,18 @@
     originals.switchView.call(this,view);
     document.body.dataset.view = view;
     document.querySelectorAll('.tab-btn').forEach(b => b.setAttribute('aria-selected', b.id === `tab-${view}`));
+    const gear = $('btn-header-admin');
+    if (gear) {
+      gear.classList.toggle('is-active', view === 'admin');
+      gear.setAttribute('aria-pressed', String(view === 'admin'));
+    }
   });
   wrap('submitOrder', async function() {
     if (this.premiumSubmitting) return;
     const name = $('guest-name')?.value.trim();
     if (!name) {
       soundEngine?.playNotification?.();
-      this.showToast('⚠️ Por favor, ingresa el nombre del invitado para enviar la comanda.', 'warning');
+      this.showToast('Por favor, ingresa el nombre del invitado para enviar la comanda.', 'warning');
       const input = $('guest-name');
       if (input) {
         input.focus();
@@ -550,18 +787,24 @@
   });
   proto.markNextBatchReady=async function() {
     if(this.pTandaSubmitting)return;
-    const isActive=o=>['pending','preparing'].includes(o.status);
+    const station = this.getKdsStation();
+    const isArmado = station === 'armado';
+    const targetStatus = isArmado ? 'preparing' : 'ready';
+    const isActive = isArmado ? (o => o.status === 'pending') : (o => ['pending','preparing'].includes(o.status));
     const active=(this.db.orders||[]).filter(isActive).sort((a,b)=>Number(a.turn)-Number(b.turn));
     const plan=productionBatches(active);
     const batch=plan.batches[0];
-    if(!batch){this.showToast('No hay shawarmas pendientes en la plancha.','info');return;}
+    if(!batch){this.showToast(isArmado ? 'No hay shawarmas pendientes por armar.' : 'No hay shawarmas pendientes en cocina.','info');return;}
     const candidates=[...new Map(batch.units.filter(u=>isActive(u.order)).map(u=>[String(u.order.id),u.order])).values()];
     const crossing=candidates.filter(o=>plan.memberships.get(String(o.id)).size>1 || plan.outside.some(u=>u.order===o));
     const eligible=candidates.filter(o=>!crossing.includes(o));
     if(!eligible.length){this.showToast('Este grupo ocupa más de una tanda o incluye bowls. Confirma el grupo desde su tarjeta cuando esté completo.','info');return;}
     const quantity=eligible.flatMap(orderUnits).reduce((n,u)=>n+u.quantity,0);
     const excluded=crossing.length?`\nNo se marcarán completos los grupos que abarcan otras tandas o incluyen bowls.`:'';
-    if(!confirm(`¿Terminaste ${quantity} shawarmas de la tanda ${batch.number}?\nTurnos: ${eligible.map(o=>'#'+o.turn).join(', ')}${excluded}`))return;
+    const confirmMsg = isArmado
+      ? `¿Pasar ${quantity} shawarmas de la tanda ${batch.number} a PLANCHA?\nTurnos: ${eligible.map(o=>'#'+o.turn).join(', ')}${excluded}`
+      : `¿Terminaste ${quantity} shawarmas de la tanda ${batch.number}?\nTurnos: ${eligible.map(o=>'#'+o.turn).join(', ')}${excluded}`;
+    if(!confirm(confirmMsg))return;
     const prevStates = eligible.map(o => ({ id: o.id, prevStatus: o.status }));
     const turnRange = eligible.length === 1 ? `Turno #${eligible[0].turn}` : `Turnos #${eligible[0].turn} al #${eligible[eligible.length - 1].turn}`;
     this.recordKDSAction?.({
@@ -574,13 +817,14 @@
     try {
       const nowIso = new Date().toISOString();
       for(const order of eligible) {
-        order.status='ready';
-        order.prepared_at ||= nowIso;
-        this.enqueueActionOutbox?.('/api/orders/status', { id: order.id, status: 'ready' }, 'status:' + order.id);
+        order.status = targetStatus;
+        if (targetStatus === 'preparing') order.preparing_at ||= nowIso;
+        else order.prepared_at ||= nowIso;
+        this.enqueueActionOutbox?.('/api/orders/status', { id: order.id, status: targetStatus }, 'status:' + order.id);
       }
       this.syncData(this.db,true);
       await this.processActionOutboxQueue?.();
-      this.showToast(`${quantity} shawarmas de la tanda ${batch.number} confirmados listos.`, 'success');
+      this.showToast(isArmado ? `${quantity} shawarmas de la tanda ${batch.number} enviados a Plancha.` : `${quantity} shawarmas de la tanda ${batch.number} confirmados listos.`, 'success');
     } catch(error) {
       this.renderKDS();
       this.showToast('Tanda guardada en cola local. Se sincronizará automáticamente al recuperar señal.','info');
@@ -658,6 +902,13 @@
     else if(action==='edit') app.editOrder(id);
     else if(action==='duplicate') await app.duplicateOrderWithConfirm(id);
     else if(action==='delete') {const o=(app.db.orders||[]).find(x=>String(x.id)===id);if(o) await app.deleteOrderPrompt(o.id,o.turn);}
+    else if(action==='revert-armado') {
+      const o=(app.db.orders||[]).find(x=>String(x.id)===String(id));
+      if(o) {
+        await app.updateStatus(id,'pending');
+        app.showToast?.(`Turno #${o.turn} regresado a 1. Armado.`, 'info');
+      }
+    }
     else if(action==='undo-order' || action==='revert-preparing' || action==='revert-ready') {
       const o=(app.db.orders||[]).find(x=>String(x.id)===String(id));
       if(o) {
@@ -763,14 +1014,14 @@
       const resetSpan = $('timer-reset-icon'); if (resetSpan) resetSpan.innerHTML = icon('reset'); else if ($('btn-timer-reset')) $('btn-timer-reset').innerHTML = icon('reset');
       const kdsResetSpan = $('kds-timer-reset-icon'); if (kdsResetSpan) kdsResetSpan.innerHTML = icon('reset');
       const batch = document.querySelector('.kds-batching-bar');
-      if (batch) batch.innerHTML = `<div class="p-batch-heading"><span>${icon('kitchen')} Preparaciones iguales</span><strong id="p-batch-total"></strong></div><div class="batch-chips-wrapper" id="kds-batch-counters"></div>`;
-      const filters = {active:['clock','En preparación','active'],ready:['check','Listos','ready'],delivered:['box','Entregados','delivered'],all:['list','Todos','all']};
+      if (batch) batch.innerHTML = `<div class="p-batch-heading"><span>Preparaciones iguales</span><strong id="p-batch-total"></strong></div><div class="batch-chips-wrapper" id="kds-batch-counters"></div><div class="desktop-only-kds-summary kds-batch-cta-wrap"><button type="button" class="p-batch-ready" onclick="app.markNextBatchReady()">${icon('kitchen')}<span>Pasar tanda a plancha · hasta 6</span></button></div>`;
+      const filters = {active:['En preparación','active'],ready:['Listos','ready'],delivered:['Entregados','delivered'],all:['Todos','all']};
       document.querySelectorAll('.kds-filter-tab').forEach(b => {
         const entry = filters[b.dataset.filter];
-        if (entry) { const [glyph, label, id] = entry; b.innerHTML = `${icon(glyph)}<span>${label}</span><strong id="count-${id}-kds">0</strong>`; }
+        if (entry) { const [label, id] = entry; b.innerHTML = `<span>${label}</span><strong id="count-${id}-kds">0</strong>`; }
       });
       const batchButton = document.querySelector('button[onclick="app.markNextBatchReady()"]');
-      if (batchButton) { batchButton.className = 'p-batch-ready'; batchButton.innerHTML = `${icon('check')} Marcar tanda lista · hasta 6 shawarmas`; }
+      if (batchButton) { batchButton.className = 'p-batch-ready'; batchButton.innerHTML = `${icon('kitchen')}<span>Pasar tanda a plancha · hasta 6</span>`; }
       document.querySelectorAll('#view-display .turn-column-header').forEach((el, i) => { el.innerHTML = `${icon(i ? 'monitor' : 'box')}<span>${i ? 'Balance de los que faltan' : 'Entregados'}</span>`; });
       if (!document.querySelector('.p-mobile-review')) {
         document.body.insertAdjacentHTML('beforeend', `<div class="p-mobile-review"><div><span>Pedido actual</span><strong id="p-mobile-summary"></strong></div><button type="button" id="p-review-order">${icon('order')}<span id="p-mobile-action-text">Revisar pedido</span></button></div>`);
@@ -1259,6 +1510,7 @@
       }
     }
     this.renderTeamChat?.();
+    this.renderPosContractBar?.();
   });
 
   wrap('resetForm', function(...args) {
@@ -1271,7 +1523,209 @@
       if (txt) txt.textContent = 'Pan y proteína';
     }
   });
-  wrap('init', function() {decorate();originals.init.call(this);this.updatePreviewAndTurn();this.renderTeamChat?.();});
+  /* =========================================================================
+     BOUTIQUE ACCESS GATE (CLAVE) & WELCOME EVENT SETUP SCREEN
+     ========================================================================= */
+  proto.welcomeTarget = 'order';
+
+  proto.getAccessPin = function() {
+    try {
+      const saved = (localStorage.getItem('shawarma_access_pin_v1') || '').trim();
+      return saved || '2026';
+    } catch (_) {
+      return '2026';
+    }
+  };
+
+  proto.submitAccessGate = async function() {
+    const inp = $('b-gate-pin-input');
+    const err = $('b-gate-pin-error');
+    const btn = $('b-gate-pin-submit');
+    const supplied = (inp?.value || '').trim();
+    if (!supplied) return;
+    if (err) { err.style.display = 'none'; err.textContent = ''; }
+
+    const localPin = this.getAccessPin();
+    let ok = supplied.toLowerCase() === localPin.toLowerCase();
+
+    // Si también existe clave de servidor en Render, intentar /api/auth/login transparentemente
+    if (!ok) {
+      try {
+        if (btn) btn.disabled = true;
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password: supplied })
+        });
+        if (res.ok) ok = true;
+      } catch (_) {
+      } finally {
+        if (btn) btn.disabled = false;
+      }
+    }
+
+    if (!ok) {
+      window.soundEngine?.playNotification?.();
+      if (err) {
+        err.textContent = 'Clave incorrecta. Intenta de nuevo.';
+        err.style.display = 'block';
+      }
+      if (inp) { inp.value = ''; inp.focus(); }
+      return;
+    }
+
+    window.soundEngine?.playClick?.();
+    const remember = !!$('b-gate-remember-chk')?.checked;
+    try {
+      sessionStorage.setItem('shawarma_gate_ok_v1', '1');
+      if (remember) localStorage.setItem('shawarma_gate_remember_v1', '1');
+      else localStorage.removeItem('shawarma_gate_remember_v1');
+    } catch (_) {}
+    if (inp) inp.value = '';
+    this.openWelcomeScreen();
+  };
+
+  proto.openWelcomeScreen = function() {
+    const pinStep = $('b-gate-step-pin');
+    const welcomeStep = $('b-gate-step-welcome');
+    if (pinStep) pinStep.style.display = 'none';
+    if (welcomeStep) welcomeStep.style.display = 'flex';
+    document.documentElement.dataset.gate = 'welcome';
+
+    const owner = (this.db?.event_info?.owner_name || (typeof this.getEventOwnerName === 'function' ? this.getEventOwnerName() : '') || '').trim();
+    const qty = Number(this.db?.event_info?.contracted_qty) || (typeof this.getContractedQty === 'function' ? this.getContractedQty() : 0) || 0;
+    const validOrders = (this.db?.orders || []).filter(o => o.status !== 'cancelled');
+    const orderedUnits = validOrders.flatMap(orderUnits).reduce((s, u) => s + u.quantity, 0);
+
+    const ownerInp = $('b-welcome-owner');
+    const qtyInp = $('b-welcome-qty');
+    if (ownerInp) ownerInp.value = owner;
+    if (qtyInp) qtyInp.value = qty > 0 ? String(qty) : '';
+
+    document.querySelectorAll('.b-qty-chip').forEach(c => {
+      c.classList.toggle('is-active', Number(c.textContent.trim()) === qty);
+    });
+
+    const banner = $('b-welcome-active-banner');
+    if (banner) {
+      if (owner || qty > 0) {
+        banner.style.display = 'flex';
+        banner.innerHTML = `<span class="pos-contract-dot"></span><span>Evento actual: <strong>${esc(owner || 'Sin nombre')}</strong>${qty > 0 ? ` · <strong>${qty}</strong> contratados` : ''}${orderedUnits > 0 ? ` (${orderedUnits} pedidos)` : ''}</span>`;
+      } else {
+        banner.style.display = 'none';
+      }
+    }
+
+    // Pre-seleccionar vista/estación actual del dispositivo
+    let defaultTarget = 'order';
+    if (this.currentView === 'kitchen') {
+      const st = this.getKdsStation?.() || 'all';
+      defaultTarget = st === 'armado' ? 'armado' : st === 'plancha' ? 'plancha' : 'kitchen';
+    }
+    this.selectWelcomeTarget(defaultTarget, false);
+    setTimeout(() => { (owner ? qtyInp : ownerInp)?.focus?.(); }, 80);
+  };
+
+  proto.setWelcomeQty = function(val) {
+    window.soundEngine?.playClick?.();
+    const qtyInp = $('b-welcome-qty');
+    if (qtyInp) qtyInp.value = String(val);
+    document.querySelectorAll('.b-qty-chip').forEach(c => {
+      c.classList.toggle('is-active', Number(c.textContent.trim()) === Number(val));
+    });
+  };
+
+  proto.selectWelcomeTarget = function(target, playSfx = true) {
+    if (playSfx) window.soundEngine?.playClick?.();
+    this.welcomeTarget = target || 'order';
+    document.querySelectorAll('[data-welcome-target]').forEach(btn => {
+      btn.classList.toggle('is-selected', btn.dataset.welcomeTarget === this.welcomeTarget);
+    });
+  };
+
+  proto.applyWelcomeTargetRoute = function() {
+    const t = this.welcomeTarget || 'order';
+    if (t === 'armado') {
+      this.setKdsStation?.('armado');
+      this.switchView('kitchen');
+    } else if (t === 'plancha') {
+      this.setKdsStation?.('plancha');
+      this.switchView('kitchen');
+    } else if (t === 'kitchen') {
+      this.setKdsStation?.('all');
+      this.switchView('kitchen');
+    } else {
+      this.switchView('order');
+    }
+  };
+
+  proto.submitWelcomeEvent = async function() {
+    window.soundEngine?.playClick?.();
+    const ownerVal = ($('b-welcome-owner')?.value || '').trim();
+    const qtyRaw = ($('b-welcome-qty')?.value || '').trim();
+    const qtyVal = qtyRaw !== '' ? Math.max(0, Math.round(Number(qtyRaw) || 0)) : undefined;
+
+    if (typeof this.saveEventMeta === 'function' && (ownerVal || qtyVal !== undefined)) {
+      await this.saveEventMeta({
+        ownerName: ownerVal || this.getEventOwnerName?.() || '',
+        qty: qtyVal !== undefined ? qtyVal : (this.getContractedQty?.() || 0)
+      });
+    }
+    document.documentElement.dataset.gate = 'open';
+    this.applyWelcomeTargetRoute();
+    this.renderPosContractBar?.();
+  };
+
+  proto.skipWelcomeScreen = function() {
+    window.soundEngine?.playClick?.();
+    document.documentElement.dataset.gate = 'open';
+    this.applyWelcomeTargetRoute();
+  };
+
+  proto.lockAppGate = function() {
+    window.soundEngine?.playClick?.();
+    try {
+      sessionStorage.removeItem('shawarma_gate_ok_v1');
+      localStorage.removeItem('shawarma_gate_remember_v1');
+    } catch (_) {}
+    const pinStep = $('b-gate-step-pin');
+    const welcomeStep = $('b-gate-step-welcome');
+    if (pinStep) pinStep.style.display = 'flex';
+    if (welcomeStep) welcomeStep.style.display = 'none';
+    document.documentElement.dataset.gate = 'locked';
+    setTimeout(() => $('b-gate-pin-input')?.focus?.(), 80);
+  };
+
+  proto.changeAccessPinPrompt = function() {
+    window.soundEngine?.playClick?.();
+    const current = this.getAccessPin();
+    const entered = prompt('Ingresa la clave actual para cambiarla:', '');
+    if (entered === null) return;
+    if (entered.trim().toLowerCase() !== current.toLowerCase()) {
+      this.showToast('Clave actual incorrecta.', 'danger');
+      return;
+    }
+    const nextPin = prompt('Ingresa la nueva clave de acceso (mínimo 4 caracteres):', '');
+    if (nextPin === null) return;
+    const clean = nextPin.trim();
+    if (clean.length < 4) {
+      this.showToast('La clave debe tener al menos 4 caracteres.', 'warning');
+      return;
+    }
+    try { localStorage.setItem('shawarma_access_pin_v1', clean); } catch (_) {}
+    this.showToast('Clave de acceso actualizada en este dispositivo.', 'success');
+  };
+
+  wrap('init', function() {
+    decorate();
+    originals.init.call(this);
+    this.updatePreviewAndTurn();
+    this.renderTeamChat?.();
+    this.renderPosContractBar?.();
+    if (document.documentElement.dataset.gate === 'locked') {
+      setTimeout(() => $('b-gate-pin-input')?.focus?.(), 100);
+    }
+  });
   // Exposed only for deterministic regression tests, not a second application.
   window.ShawarmaPremium={recipe,recipeHTML,batchRecipeHTML,prepProfile,title,duration,elapsed,esc,icon,core,orderItems,orderUnits,preparationKey,groupPreparation,productionBatches,syncSpecialMotion,proteinIcon,stripEmoji,birthdayMention,specialOrder,bowlFormat,specialClasses,specialLabelsHTML,signatureHTML,formatBirthdayName,handleActionClick};
 })();
