@@ -4757,6 +4757,91 @@ body.premium-ui .b-gate-btn {
   filter: none !important;
 }
 
+/* ============================================================================
+   19. v105 iOS / iPadOS PWA SAFE-AREA HEADER & FLUSH ORDER SUMMARY ALIGNMENT
+   ============================================================================ */
+body.premium-ui .header-bar {
+  height: auto !important;
+  min-height: calc(64px + env(safe-area-inset-top, 0px)) !important;
+  padding-top: env(safe-area-inset-top, 0px) !important;
+  padding-bottom: 0 !important;
+  box-sizing: border-box !important;
+}
+
+@media (min-width: 769px) {
+  body.premium-ui .header-bar {
+    padding-left: max(22px, env(safe-area-inset-left, 0px)) !important;
+    padding-right: max(22px, env(safe-area-inset-right, 0px)) !important;
+  }
+  body.premium-ui .header-bar .tabs-nav {
+    align-self: end !important;
+    height: 62px !important;
+  }
+  body.premium-ui .header-bar .tabs-nav .tab-btn {
+    height: 62px !important;
+  }
+}
+
+@media (min-width: 920px) and (max-width: 1180px) {
+  body.premium-ui .header-bar {
+    height: auto !important;
+    min-height: calc(60px + env(safe-area-inset-top, 0px)) !important;
+    padding-top: env(safe-area-inset-top, 0px) !important;
+    padding-left: max(16px, env(safe-area-inset-left, 0px)) !important;
+    padding-right: max(16px, env(safe-area-inset-right, 0px)) !important;
+  }
+  body.premium-ui .header-bar .tabs-nav,
+  body.premium-ui .header-bar .tabs-nav .tab-btn {
+    height: 58px !important;
+  }
+}
+
+@media (max-width: 768px) {
+  body.premium-ui .header-bar {
+    height: auto !important;
+    min-height: calc(58px + env(safe-area-inset-top, 0px)) !important;
+    padding-top: calc(env(safe-area-inset-top, 0px) + 4px) !important;
+    padding-bottom: 6px !important;
+    padding-left: max(14px, env(safe-area-inset-left, 0px)) !important;
+    padding-right: max(14px, env(safe-area-inset-right, 0px)) !important;
+  }
+}
+
+/* Standalone PWA mode (iPad 7th Gen, iPad Pro, iPhone Add-to-Home-Screen):
+   Guarantee clean breathing space below iOS system clock, Wi-Fi & battery */
+@media all and (display-mode: standalone) {
+  body.premium-ui .header-bar {
+    padding-top: calc(max(env(safe-area-inset-top, 0px), 26px) + 6px) !important;
+    min-height: calc(62px + max(env(safe-area-inset-top, 0px), 26px) + 6px) !important;
+  }
+  body.premium-ui #view-order .sidebar-pos {
+    top: calc(84px + max(env(safe-area-inset-top, 0px), 26px)) !important;
+  }
+}
+
+/* Fix #view-order RESUMEN DEL PEDIDO flush top alignment (kills legacy core.css top: 86px offset) */
+body.premium-ui #view-order .kiosk-grid {
+  align-items: start !important;
+}
+body.premium-ui #view-order .sidebar-pos {
+  position: sticky !important;
+  top: calc(78px + env(safe-area-inset-top, 0px)) !important;
+  align-self: start !important;
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+body.premium-ui #view-order .summary-card-pos {
+  position: relative !important;
+  top: 0 !important;
+  margin-top: 0 !important;
+}
+@media (max-width: 1020px) {
+  body.premium-ui #view-order .sidebar-pos {
+    position: static !important;
+    top: auto !important;
+  }
+}
+
 
 
 
