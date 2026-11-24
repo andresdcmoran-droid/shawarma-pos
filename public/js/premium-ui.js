@@ -136,6 +136,10 @@
       }
     } else if (r.standard) {
       out += `<p class="p-standard">${icon('check')} Con todo <span>· ${r.count}/${core().length} ingredientes</span></p>`;
+      if (r.additions.length) {
+        const extraPills = r.additions.map(i => `<span class="p-mod p-extra ${i.id === 'picante' ? 'p-mod-picante' : ''}" data-ingredient="${esc(i.id)}">${icon(names[i.id])} Con ${esc(i.name.replace(/\s*\(Opcional\)/i, ''))}</span>`);
+        out += `<div class="p-modifiers">${extraPills.join('')}</div>`;
+      }
     } else if (r.known) {
       const items = [
         ...r.removed.map(s => `<span class="p-mod">Sin ${esc(s)}</span>`),
@@ -497,9 +501,11 @@
       batchRow.classList.toggle('is-hidden', station === 'delivered');
     }
     const batchButton = document.querySelector('button[onclick="app.markNextBatchReady()"]');
+    const batchWrap = batchButton?.closest?.('.kds-batch-cta-wrap');
     if (batchButton) {
       const showBatchBtn = (station === 'armado' || station === 'all') && pendingOrders.length > 0;
-      batchButton.style.display = showBatchBtn ? '' : 'none';
+      batchButton.classList.toggle('is-hidden', !showBatchBtn);
+      if (batchWrap) batchWrap.classList.toggle('is-hidden', !showBatchBtn);
       if (showBatchBtn && batchButton.dataset.stationLbl !== 'armado') {
         batchButton.dataset.stationLbl = 'armado';
         batchButton.innerHTML = `${icon('kitchen')} Pasar tanda a plancha · hasta 6`;
@@ -1373,7 +1379,6 @@
       this.updateChatBadge();
       this.updateOperatorDisplay();
       this.renderTeamChat();
-      setTimeout(() => $('team-chat-input')?.focus(), 80);
     }
   };
 
@@ -1738,6 +1743,24 @@
     this.updatePreviewAndTurn();
     this.renderTeamChat?.();
     this.renderPosContractBar?.();
+    // iPadOS (7th Gen / standalone PWA) native keyboard activator:
+    // Forces synchronous focus inside the real user touchend gesture so iOS ALWAYS opens the official keyboard.
+    const isIPadTouch = (/iPad/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1));
+    if (isIPadTouch && !window._ipadKeyboardFixBound) {
+      window._ipadKeyboardFixBound = true;
+      document.addEventListener('touchend', (ev) => {
+        const target = ev.target?.closest?.('input, textarea');
+        if (!target || target.disabled || target.readOnly) return;
+        const t = (target.type || 'text').toLowerCase();
+        if (['checkbox', 'radio', 'button', 'submit', 'file', 'range', 'color', 'hidden'].includes(t)) return;
+        try {
+          if (document.activeElement === target) target.blur();
+          target.focus({ preventScroll: false });
+        } catch (_) {
+          try { target.focus(); } catch (__) {}
+        }
+      }, { passive: true, capture: true });
+    }
   });
   // Exposed only for deterministic regression tests, not a second application.
   window.ShawarmaPremium={recipe,recipeHTML,batchRecipeHTML,prepProfile,title,duration,elapsed,esc,icon,core,orderItems,orderUnits,preparationKey,groupPreparation,productionBatches,syncSpecialMotion,proteinIcon,stripEmoji,birthdayMention,specialOrder,bowlFormat,specialClasses,specialLabelsHTML,signatureHTML,formatBirthdayName,handleActionClick};

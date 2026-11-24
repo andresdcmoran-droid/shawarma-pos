@@ -4633,7 +4633,9 @@ body.premium-ui #view-admin .f-table tr.f-total-row td {
 /* ============================================================================
    17. v98-v100 COMPRESSED 1-ROW KDS PIPELINE BAR, ANTI-AI STATUS & BREATHING ROOM
    ============================================================================ */
-body.premium-ui #kds-batching-row.is-hidden {
+body.premium-ui #kds-batching-row.is-hidden,
+body.premium-ui .kds-batch-cta-wrap.is-hidden,
+body.premium-ui .p-batch-ready.is-hidden {
   display: none !important;
 }
 body.premium-ui .kds-command-dock {
@@ -4687,14 +4689,35 @@ body.premium-ui .p-ticket-meta {
   body.premium-ui .kds-command-dock {
     margin-bottom: 20px !important;
   }
+  body.premium-ui .kds-command-dock .kds-station-bar {
+    gap: 2px !important;
+  }
   body.premium-ui .kds-command-dock .kds-station-btn {
-    padding: 0 14px !important;
+    padding: 0 10px !important;
+    font-size: 12.5px !important;
+    gap: 5px !important;
   }
   body.premium-ui .kds-command-dock .kds-station-btn[data-station="delivered"] {
-    margin-left: 8px !important;
+    margin-left: 4px !important;
+  }
+  body.premium-ui .kds-command-dock .kds-contract-inline {
+    font-size: 12px !important;
+    gap: 6px !important;
   }
   body.premium-ui #kds-cards-grid.kds-cards-stream {
     gap: 16px !important;
+  }
+  /* Prevent Picante (Opcional) & Salsa de Ajonjolí label clip on iPad 7th Gen 1024px */
+  body.premium-ui #view-order .p-ingredient-label {
+    font-size: 11.5px !important;
+    line-height: 1.2 !important;
+    gap: 5px !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+  }
+  body.premium-ui #view-order .switch-dual-btn .switch-opt {
+    padding: 0 7px !important;
+    font-size: 11.5px !important;
   }
 }
 
@@ -4890,4 +4913,27 @@ body.premium-ui .b-kp-btn.is-fn {
   font-weight: 500;
   color: var(--b-t2);
 }
+
+/* ============================================================================
+   21. v112 iPad 7th GEN NATIVE iOS KEYBOARD FIX (CHAT, PIN, MODALS & INPUTS)
+   ============================================================================ */
+@media (pointer: coarse) {
+  body.premium-ui form,
+  body.premium-ui label,
+  body.premium-ui .b-gate-field,
+  body.premium-ui .p-chat-form,
+  body.premium-ui input,
+  body.premium-ui textarea {
+    -webkit-user-select: text !important;
+    user-select: text !important;
+    -webkit-touch-callout: default !important;
+    touch-action: manipulation !important;
+  }
+  body.premium-ui #team-chat-drawer.is-open,
+  body.premium-ui #team-chat-drawer.is-open .p-chat-panel {
+    transform: none !important;
+    -webkit-transform: none !important;
+  }
+}
+
 
