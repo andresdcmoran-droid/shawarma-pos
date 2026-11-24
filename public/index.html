@@ -5094,6 +5094,19 @@
         if (!confirm(confirmMsg)) return;
 
         try {
+          // Garantizar que los costos y finanzas actuales queden calculados y guardados en el evento antes de archivar
+          if (typeof this.recalculateCosts === 'function') this.recalculateCosts();
+          if (this.db?.event_info?.finances) {
+            await fetch('/api/event/meta', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                finances: this.db.event_info.finances,
+                owner_name: this.getEventOwnerName?.() || this.db.event_info.owner_name || '',
+                contracted_qty: this.getContractedQty?.() || Number(this.db.event_info.contracted_qty || 0)
+              })
+            }).catch(() => {});
+          }
           const res = await fetch('/api/event/close_and_start_next', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -5319,14 +5332,14 @@
   </script>
   <script src="js/qrcode.js?v=20261012-v26"></script>
   <script src="js/premium-ui.js?v=20261124-v114"></script></script></script></script></script>
-  <script src="js/unified-ui.js?v=20261124-v116"></script>
+  <script src="js/unified-ui.js?v=20261124-v118"></script>
   <script src="js/supplies-ui.js?v=20260904-v6"></script>
   <script src="js/safety-ui.js?v=20260904-v6"></script>
   <script src="js/i18n-ui.js?v=20261118-v82"></script>
   <script src="js/service-ui.js?v=20261118-v82"></script>
   <script src="vendor/jszip.min.js"></script>
   <script src="js/report-template.js?v=20260904-v6"></script>
-  <script src="js/reports-ui.js?v=20261124-v117"></script>
+  <script src="js/reports-ui.js?v=20261124-v118"></script>
   <script>
     (() => {
       const nativeFetch = window.fetch.bind(window);

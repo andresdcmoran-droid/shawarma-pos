@@ -33,6 +33,99 @@
    zip.file(path,new XMLSerializer().serializeToString(doc));
  }
  function capture(){app.recalculateCosts();return {db:copy(app.db),meta:copy(app.getServiceMeta()),costs:copy(app.lastCostBreakdown||[]),backup:app.buildSafetyBackup()};}
+ function computeCostsForDb(db,costCfg){
+   const cfg=costCfg||app.costConfig||window.DEFAULT_COST_CONFIG||{};
+   const getUnit=(k,def)=>{const it=cfg[k];if(!it)return def;const p=parseFloat(it.pack_price??it.unit_cost??def),q=parseFloat(it.pack_qty||1);return Number.isFinite(p)&&q>0?p/q:def;};
+   const orders=(db?.orders||[]).filter(o=>o.status!=='cancelled');
+   let bread=0,bowls=0,plates=0,spicy=0,carne=0,pollo=0,falSh=0,regFal=0;
+   let tom=0,ceb=0,pep=0,tab=0,nab=0,hum=0,ajo=0,tah=0;
+   orders.forEach(o=>{
+     const list=(o.is_group&&Array.isArray(o.items)&&o.items.length)?o.items:[o];
+     list.forEach(it=>{
+       const q=Math.max(1,Number(it.quantity)||1);
+       plates+=q;
+       if(it.is_bowl||it.preset==='bowl')bowls+=q;else bread+=q;
+       const rem=(it.removed_ingredients||[]).map(x=>String(x).toLowerCase());
+       const inc=(it.ingredients||[]).map(x=>String(x).toLowerCase());
+       const notes=String(it.notes||o.notes||'').toLowerCase();
+       const isPlain=it.preset==='ninos';
+       const has=(kw)=>isPlain?inc.some(x=>x.includes(kw)):!rem.some(x=>x.includes(kw));
+       if(has('tomate'))tom+=q;if(has('cebolla'))ceb+=q;if(has('pepinillo'))pep+=q;if(has('tabule'))tab+=q;
+       if(has('nabo'))nab+=q;if(has('hummus'))hum+=q;if(has('ajo'))ajo+=q;if(has('ajonjol')||has('tahini'))tah+=q;
+       if(inc.some(x=>x.includes('picante'))||notes.includes('picante'))spicy+=q;
+       const p=String(it.protein||'Mixto').toLowerCase();
+       if(p.includes('falafel')||it.preset==='falafel')falSh+=q;
+       else{
+         if(has('falafel'))regFal+=q;
+         if(p.includes('mixto')){carne+=q;pollo+=q;}
+         else if(p.includes('carne'))carne+=q*2;
+         else if(p.includes('pollo'))pollo+=q*2;
+       }
+     });
+   });
+   const cups=plates+spicy;
+   const defs=[
+     ['waxed_paper','Hojas de Papel Encerado','3 hojas por shawarma en pan',bread*3,5.65/500],
+     ['plate_premium','Platos Plásticos Premium','1 por cada plato servido',plates,13.49/25],
+     ['black_napkin','Servilletas Negras de Fondo','1 por plato',plates,2.50/20],
+     ['sticker_logo','Stickers con Logo','1 por shawarma en pan',bread,80.00/400],
+     ['cup_black','Tacitas Negras (2 oz)','1 para salsa + 1 si piden picante',cups,4.69/250],
+     ['lid_black','Tapas para Tacitas Negras (2 oz)','1 por cada tacita',cups,4.50/250],
+     ['spoons','Cucharitas Plásticas','1 por plato',plates,1.50/45],
+     ['pita_bread','Pan Árabe Pita','1 por shawarma en pan',bread,1.75/6],
+     ['falafel','Falafeles (Bolsa de 70)','1 regular + 4 en Falafel',regFal+falSh*4,18.75/70],
+     ['protein_carne','Carne Sazonada','Porción carne',carne,75.00/22],
+     ['protein_pollo','Pollo Sazonado','Porción pollo',pollo,20.00/22],
+     ['ing_tomate','Tomate Fresco','Porción tomate',tom,0.98/5.333],
+     ['ing_cebolla','Cebolla Blanca','Porción cebolla',ceb,1.50/8],
+     ['ing_pepinillo','Pepinillos Encurtidos','Porción pepinillo',pep,11.00/55],
+     ['ing_tabule','Ensalada Tabule','Porción tabule',tab,0.20],
+     ['ing_nabo','Nabo Encurtido Rosa','Porción nabo',nab,0.15],
+     ['ing_hummus','Hummus de Garbanzo','Porción hummus',hum,0.24],
+     ['ing_salsa_ajo','Salsa de Ajo (Toum)','Tacita ajo',ajo,4.50/17],
+     ['ing_salsa_tahini','Salsa de Ajonjolí (Tahini)','Tacita tahini',tah,4.50/17],
+     ['ing_picante','Picante Especial Casero','Porción picante',spicy,0.16]
+   ];
+   return defs.map(([k,name,formula,qty,def])=>({name:cfg[k]?.name||name,formula:cfg[k]?.qty_formula||formula,qty,unitCost:getUnit(k,def)})).filter(x=>x.qty>0);
+ }
+ function buildAllReportEntries(customSnapshot){
+   const entries=[];
+   const seen=new Set();
+   const addEntry=(id,dbObj,metaObj,costsArr,isActive)=>{
+     if(!dbObj||!dbObj.event_info)return;
+     const eid=String(id||dbObj.event_info.id||('evt_'+entries.length));
+     if(seen.has(eid))return;
+     seen.add(eid);
+     const computedCosts=(Array.isArray(costsArr)&&costsArr.length)?costsArr:computeCostsForDb(dbObj);
+     const snap={db:copy(dbObj),meta:copy(metaObj||{}),costs:copy(computedCosts),backup:{financial_inputs:dbObj.event_info?.finances||{}}};
+     const f=extractFinances(snap);
+     const ev=dbObj.event_info||{};
+     const rawDate=ev.created_at||dbObj.date||new Date().toISOString();
+     const dt=new Date(rawDate);
+     const validDt=Number.isFinite(dt.getTime())?dt:new Date();
+     const dateKey=`${validDt.getFullYear()}-${String(validDt.getMonth()+1).padStart(2,'0')}-${String(validDt.getDate()).padStart(2,'0')}`;
+     const owner=(ev.owner_name||metaObj?.client||ev.name||'Evento Shawarma en Casa').trim();
+     entries.push({id:eid,owner,dateKey,isoDate:validDt.toISOString(),isActive:!!isActive,units:f.realUnits,totalCost:f.totalEventCost,netProfit:f.netProfit,snapshot:snap});
+   };
+   if(customSnapshot&&customSnapshot.db){
+     addEntry(customSnapshot.db.event_info?.id||'closed_latest',customSnapshot.db,customSnapshot.meta,customSnapshot.costs,false);
+   }
+   const activeSnap=capture();
+   if((activeSnap.db?.orders||[]).length>0||(activeSnap.db?.event_info?.owner_name||'').trim()){
+     addEntry(activeSnap.db.event_info?.id||'active_now',activeSnap.db,activeSnap.meta,activeSnap.costs,true);
+   }
+   const archives=typeof app.getVaultArchives==='function'?app.getVaultArchives():[];
+   archives.forEach((arc,idx)=>{
+     const evInfo=Object.assign({id:arc.id||`arc_${idx}`,name:arc.name||'Evento Catering',created_at:arc.date||new Date().toISOString(),timer:arc.timer||null},arc.event_info||{});
+     const dbObj={event_info:evInfo,orders:Array.isArray(arc.orders)?arc.orders:[],deleted_orders:Array.isArray(arc.deleted_orders)?arc.deleted_orders:[]};
+     addEntry(evInfo.id,dbObj,arc.service_metadata||{},null,false);
+   });
+   if(!entries.length){
+     addEntry(activeSnap.db?.event_info?.id||'active_empty',activeSnap.db||{event_info:{id:'active_empty',name:'Evento actual',created_at:new Date().toISOString()},orders:[]},activeSnap.meta,activeSnap.costs,true);
+   }
+   entries.sort((a,b)=>Date.parse(b.isoDate)-Date.parse(a.isoDate));
+   return entries;
+ }
  function extractFinances(snapshot){
    const db=snapshot.db||{},costs=snapshot.costs||[],fin=db.event_info?.finances||{},raw=snapshot.backup?.financial_inputs||{};
    const orders=(db.orders||[]).filter(o=>o.status!=='cancelled');
@@ -261,32 +354,151 @@ recalc();renderOrders();
    const workbook=xmlDocument(await zip.file('xl/workbook.xml').async('string'));let calc=elements(workbook,'calcPr')[0];if(!calc){calc=workbook.createElementNS(ns,'calcPr');workbook.documentElement.appendChild(calc);}calc.setAttribute('fullCalcOnLoad','1');calc.setAttribute('forceFullCalc','1');zip.file('xl/workbook.xml',new XMLSerializer().serializeToString(workbook));
    return zip.generateAsync({type:'uint8array',compression:'DEFLATE'});
  }
- proto.openInteractiveReport=function(customSnapshot){
+ proto.openInteractiveReport=async function(customSnapshot,selectedEventId){
    try{
-     const snap=customSnapshot||capture();
-     const htmlStr=makeInteractiveReportHTML(snap);
+     if(typeof this.fetchVaultArchives==='function'){
+       await this.fetchVaultArchives().catch(()=>{});
+     }
+     const entries=buildAllReportEntries(customSnapshot);
+     let currentId=selectedEventId?String(selectedEventId):(entries[0]?.id||'');
+     if(!entries.some(e=>e.id===currentId))currentId=entries[0]?.id||'';
+     const initialEntry=entries.find(e=>e.id===currentId)||entries[0];
+     const initDate=initialEntry?new Date(initialEntry.isoDate):new Date();
+     let calYear=initDate.getFullYear(),calMonth=initDate.getMonth();
+     let selectedDateKey=initialEntry?initialEntry.dateKey:'';
+
      let modal=document.getElementById('interactive-report-modal');
      if(!modal){
        modal=document.createElement('div');
        modal.id='interactive-report-modal';
-       modal.style.cssText='position:fixed;inset:0;z-index:100020;background:rgba(0,0,0,0.82);display:flex;flex-direction:column;padding:14px;box-sizing:border-box;';
+       modal.style.cssText='position:fixed;inset:0;z-index:100020;background:rgba(0,0,0,0.86);display:flex;flex-direction:column;padding:12px;box-sizing:border-box;';
        document.body.appendChild(modal);
      }
-     const fname=`Shawarma_Reporte_Interactivo_${new Date().toISOString().slice(0,10)}.html`;
      modal.innerHTML=`
        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px;background:#111114;border:1px solid rgba(255,255,255,0.12);border-bottom:none;border-radius:12px 12px 0 0;">
-         <strong style="color:#FAFAFA;font-size:13.5px;font-weight:700;">Reporte Financiero y Operativo Interactivo</strong>
+         <div style="display:flex;align-items:center;gap:10px;min-width:0;">
+           <strong style="color:#FAFAFA;font-size:13.5px;font-weight:700;white-space:nowrap;">Calendario y Reportes Financieros</strong>
+           <span id="ir-count-pill" style="font-size:11.5px;color:#A1A1AA;background:#18181C;border:1px solid rgba(255,255,255,0.1);padding:2px 9px;border-radius:99px;">${entries.length} ${entries.length===1?'evento':'eventos'}</span>
+         </div>
          <div style="display:flex;gap:8px;align-items:center;">
            <button type="button" id="ir-btn-download" style="height:32px;padding:0 12px;border-radius:7px;border:1px solid rgba(255,255,255,0.16);background:#18181C;color:#FAFAFA;font-size:12px;font-weight:600;cursor:pointer;">Descargar HTML</button>
            <button type="button" id="ir-btn-close" style="height:32px;padding:0 12px;border-radius:7px;border:none;background:#D41473;color:#FFFFFF;font-size:12px;font-weight:700;cursor:pointer;">Cerrar ✕</button>
          </div>
        </div>
-       <iframe id="ir-iframe" title="Reporte interactivo del evento" style="flex:1 1 auto;width:100%;border:1px solid rgba(255,255,255,0.12);border-radius:0 0 12px 12px;background:#09090B;"></iframe>
+       <div id="ir-shell" style="flex:1 1 auto;min-height:0;display:grid;grid-template-columns:286px minmax(0,1fr);border:1px solid rgba(255,255,255,0.12);border-radius:0 0 12px 12px;overflow:hidden;background:#09090B;">
+         <aside style="background:#111114;border-right:1px solid rgba(255,255,255,0.10);display:flex;flex-direction:column;min-height:0;overflow-y:auto;padding:14px;gap:14px;">
+           <div>
+             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+               <button type="button" id="ir-cal-prev" style="width:28px;height:28px;border-radius:6px;border:1px solid rgba(255,255,255,0.12);background:#18181C;color:#FAFAFA;cursor:pointer;">‹</button>
+               <strong id="ir-cal-title" style="font-size:13px;color:#FAFAFA;text-transform:capitalize;"></strong>
+               <button type="button" id="ir-cal-next" style="width:28px;height:28px;border-radius:6px;border:1px solid rgba(255,255,255,0.12);background:#18181C;color:#FAFAFA;cursor:pointer;">›</button>
+             </div>
+             <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;text-align:center;font-size:10px;font-weight:700;color:#71717A;margin-bottom:4px;">
+               <span>D</span><span>L</span><span>M</span><span>M</span><span>J</span><span>V</span><span>S</span>
+             </div>
+             <div id="ir-cal-grid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;"></div>
+           </div>
+           <div style="border-top:1px solid rgba(255,255,255,0.09);padding-top:12px;display:flex;flex-direction:column;gap:8px;">
+             <div style="display:flex;align-items:center;justify-content:space-between;">
+               <span id="ir-list-label" style="font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#71717A;">Eventos guardados</span>
+               <button type="button" id="ir-show-all" style="font-size:11px;color:#D41473;background:none;border:none;cursor:pointer;font-weight:600;display:none;">Ver todos</button>
+             </div>
+             <div id="ir-evt-list" style="display:flex;flex-direction:column;gap:6px;"></div>
+           </div>
+         </aside>
+         <iframe id="ir-iframe" title="Reporte interactivo del evento" style="width:100%;height:100%;border:none;background:#09090B;"></iframe>
+       </div>
      `;
+
+     const byDate=new Map();
+     entries.forEach(e=>{
+       if(!byDate.has(e.dateKey))byDate.set(e.dateKey,[]);
+       byDate.get(e.dateKey).push(e);
+     });
+
      const iframe=modal.querySelector('#ir-iframe');
-     iframe.srcdoc=htmlStr;
+     let currentHtml='';
+     let currentFileName='Shawarma_Reporte_Interactivo.html';
+
+     const loadEntry=(entry)=>{
+       if(!entry)return;
+       currentId=entry.id;
+       currentHtml=makeInteractiveReportHTML(entry.snapshot);
+       const slug=entry.owner.replace(/[^a-zA-Z0-9_-]+/g,'_').slice(0,32)||'Evento';
+       currentFileName=`Shawarma_Reporte_${slug}_${entry.dateKey}.html`;
+       iframe.srcdoc=currentHtml;
+       renderList();
+     };
+
+     const renderCalendar=()=>{
+       const months=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+       modal.querySelector('#ir-cal-title').textContent=`${months[calMonth]} ${calYear}`;
+       const firstDay=new Date(calYear,calMonth,1).getDay();
+       const daysInMonth=new Date(calYear,calMonth+1,0).getDate();
+       let cells='';
+       for(let i=0;i<firstDay;i++)cells+='<div></div>';
+       for(let d=1;d<=daysInMonth;d++){
+         const key=`${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+         const dayEvts=byDate.get(key)||[];
+         const has=dayEvts.length>0;
+         const isSel=selectedDateKey===key;
+         const bg=isSel?'#D41473':(has?'rgba(212,20,115,0.18)':'transparent');
+         const bd=isSel?'#D41473':(has?'rgba(212,20,115,0.45)':'rgba(255,255,255,0.05)');
+         const colTxt=isSel?'#FFFFFF':(has?'#FAFAFA':'#71717A');
+         cells+=`<button type="button" data-cal-day="${key}" style="position:relative;height:32px;border-radius:7px;border:1px solid ${bd};background:${bg};color:${colTxt};font-size:12px;font-weight:${has?'700':'500'};cursor:${has?'pointer':'default'};display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;">
+           <span>${d}</span>
+           ${has?`<span style="width:4px;height:4px;border-radius:50%;background:${isSel?'#fff':'#D41473'};"></span>`:''}
+         </button>`;
+       }
+       const grid=modal.querySelector('#ir-cal-grid');
+       grid.innerHTML=cells;
+       grid.querySelectorAll('[data-cal-day]').forEach(btn=>{
+         btn.onclick=()=>{
+           const k=btn.getAttribute('data-cal-day');
+           const evs=byDate.get(k)||[];
+           if(!evs.length)return;
+           selectedDateKey=k;
+           renderCalendar();
+           loadEntry(evs[0]);
+         };
+       });
+     };
+
+     const renderList=()=>{
+       const filtered=selectedDateKey?(byDate.get(selectedDateKey)||entries):entries;
+       const showAllBtn=modal.querySelector('#ir-show-all');
+       if(showAllBtn)showAllBtn.style.display=selectedDateKey?'inline':'none';
+       modal.querySelector('#ir-list-label').textContent=selectedDateKey?`Eventos del ${selectedDateKey}`:`Todos los eventos (${entries.length})`;
+       const listEl=modal.querySelector('#ir-evt-list');
+       listEl.innerHTML=filtered.map(e=>{
+         const active=e.id===currentId;
+         return `<button type="button" data-ir-evt="${esc(e.id)}" style="text-align:left;padding:9px 10px;border-radius:8px;border:1px solid ${active?'#D41473':'rgba(255,255,255,0.09)'};background:${active?'rgba(212,20,115,0.14)':'#18181C'};color:#FAFAFA;cursor:pointer;display:flex;flex-direction:column;gap:3px;">
+           <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;">
+             <strong style="font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(e.owner)}</strong>
+             ${e.isActive?'<span style="font-size:9.5px;font-weight:700;color:#34D399;text-transform:uppercase;">En vivo</span>':''}
+           </div>
+           <span style="font-size:11px;color:#A1A1AA;font-variant-numeric:tabular-nums;">${esc(e.dateKey)} · ${e.units} uds · Costo $${e.totalCost.toFixed(2)}</span>
+         </button>`;
+       }).join('');
+       listEl.querySelectorAll('[data-ir-evt]').forEach(btn=>{
+         btn.onclick=()=>{
+           const found=entries.find(x=>x.id===btn.getAttribute('data-ir-evt'));
+           if(found)loadEntry(found);
+         };
+       });
+     };
+
+     modal.querySelector('#ir-cal-prev').onclick=()=>{calMonth--;if(calMonth<0){calMonth=11;calYear--;}renderCalendar();};
+     modal.querySelector('#ir-cal-next').onclick=()=>{calMonth++;if(calMonth>11){calMonth=0;calYear++;}renderCalendar();};
+     modal.querySelector('#ir-show-all').onclick=()=>{selectedDateKey='';renderCalendar();renderList();};
      modal.querySelector('#ir-btn-close').onclick=()=>{modal.style.display='none';};
-     modal.querySelector('#ir-btn-download').onclick=()=>{s.download(new Blob([htmlStr],{type:'text/html;charset=utf-8'}),fname);};
+     modal.querySelector('#ir-btn-download').onclick=()=>{if(currentHtml)s.download(new Blob([currentHtml],{type:'text/html;charset=utf-8'}),currentFileName);};
+     if(window.innerWidth<820){
+       modal.querySelector('#ir-shell').style.gridTemplateColumns='1fr';
+       modal.querySelector('#ir-shell').style.gridTemplateRows='270px 1fr';
+     }
+     renderCalendar();
+     if(initialEntry)loadEntry(initialEntry);
      modal.style.display='flex';
    }catch(e){
      this.showToast('No se pudo abrir el reporte interactivo.','error');

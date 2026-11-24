@@ -513,7 +513,8 @@
     const clearHeader = archives.length ? `<div style="display:flex;justify-content:flex-end;margin-bottom:12px;">${button('Vaciar toda la Bóveda ('+archives.length+' eventos)','trash','app.clearVaultPrompt()','u-danger')}</div>` : '';
     html('vault-events-list',clearHeader + (archives.length?archives.map((evt,index)=>{
       const d=new Date(evt.date),date=Number.isFinite(d.getTime())?d.toLocaleString('es',{dateStyle:'short',timeStyle:'short'}):'Fecha no registrada';
-      return `<article class="u-archive"><div><h3>${icon('box')}${esc(evt.name||'Evento de catering')}</h3><p>${esc(date)} · ${esc(evt.total_orders||evt.orders?.length||0)} pedidos · ${esc(evt.operator||'Dispositivo 1')}</p></div><div class="u-actions">${button('Exportar CSV','list',`app.exportSingleEventCSV(${index})`)}${button('Eliminar','trash',`app.deleteArchivedEventPrompt(${index})`,'u-danger')}</div></article>`;
+      const evtTitle=evt.event_info?.owner_name||evt.name||'Evento de catering';
+      return `<article class="u-archive"><div><h3>${icon('box')}${esc(evtTitle)}</h3><p>${esc(date)} · ${esc(evt.total_orders||evt.orders?.length||0)} pedidos · ${esc(evt.operator||'Respaldo guardado')}</p></div><div class="u-actions">${button('Ver reporte','monitor',`app.openInteractiveReport(null, '${esc(evt.id||index)}')`,'u-primary')}${button('Exportar CSV','list',`app.exportSingleEventCSV(${index})`)}${button('Eliminar','trash',`app.deleteArchivedEventPrompt(${index})`,'u-danger')}</div></article>`;
     }).join(''):'<p class="u-empty-message">No hay eventos archivados. Al cerrar un evento con respaldo aparecerá aquí.</p>'));
     const origin=window.location.origin;
     text('admin-url-text',this.isLocalPreview?'Prueba local · este navegador':/^https?:\/\//.test(origin)?origin:'Abre la aplicación desde su servidor');
