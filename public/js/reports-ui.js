@@ -33,6 +33,219 @@
    zip.file(path,new XMLSerializer().serializeToString(doc));
  }
  function capture(){app.recalculateCosts();return {db:copy(app.db),meta:copy(app.getServiceMeta()),costs:copy(app.lastCostBreakdown||[]),backup:app.buildSafetyBackup()};}
+ function extractFinances(snapshot){
+   const db=snapshot.db||{},costs=snapshot.costs||[],fin=db.event_info?.finances||{},raw=snapshot.backup?.financial_inputs||{};
+   const orders=(db.orders||[]).filter(o=>o.status!=='cancelled');
+   const realUnits=orders.reduce((s,o)=>s+(o.is_group&&Array.isArray(o.items)?o.items.reduce((a,it)=>a+Math.max(1,Number(it.quantity)||1),0):Math.max(1,Number(o.quantity)||1)),0);
+   const totalUnits=Number(fin.total_units)>0?Number(fin.total_units):realUnits;
+   const unitPrice=Number(fin.unit_sell_price)>0?Number(fin.unit_sell_price):23;
+   const totalCost=costs.length?costs.reduce((n,r)=>n+Number(r.qty||0)*Number(r.unitCost||0),0):Math.max(0,Number(fin.total_cost)||0);
+   const revShawarmas=fin.revenue_shawarmas!==undefined?Math.max(0,Number(fin.revenue_shawarmas)||0):(Math.max(0,Number(raw.revenue)||0)||totalUnits*unitPrice);
+   const serviceFee=Math.max(0,Number(fin.service_fee)||0);
+   const revenue=Number(fin.revenue)>0?Number(fin.revenue):(revShawarmas+serviceFee);
+   const logistics=Math.max(0,Number(fin.logistics??raw.logistics)||0);
+   const totalEventCost=totalCost+logistics;
+   const netProfit=revenue-totalEventCost;
+   const marginPct=revenue>0?((netProfit/revenue)*100):0;
+   const costPerUnit=totalUnits>0?(totalCost/totalUnits):0;
+   return {totalUnits,realUnits,unitPrice,revShawarmas,serviceFee,revenue,logistics,totalCost,totalEventCost,netProfit,marginPct,costPerUnit,contracted:Number(db.event_info?.contracted_qty)||0};
+ }
+ function makeInteractiveReportHTML(snapshot){
+   const {db,meta,costs}=snapshot,summary=s.summarize(db),rows=summary.rows||[],f=extractFinances(snapshot);
+   const ev=db.event_info||{},owner=(ev.owner_name||meta.client||ev.name||'Evento Shawarma en Casa').trim();
+   const dateStr=new Date(ev.created_at||Date.now()).toLocaleDateString('es-ES',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+   const timerSecs=Number(ev.timer?.elapsed_seconds||0);
+   const durStr=timerSecs>0?`${Math.floor(timerSecs/3600)}h ${Math.floor((timerSecs%3600)/60)}m`:'Servicio en vivo';
+   const deleted=Array.isArray(db.deleted_orders)?db.deleted_orders:[];
+   const protCounts={Mixto:0,Pollo:0,Carne:0,Falafel:0,Bowls:0};
+   rows.filter(r=>r.status!=='cancelled').forEach(r=>{
+     const q=Number(r.quantity)||1;
+     if(r.format==='Bowl')protCounts.Bowls+=q;
+     if(protCounts[r.protein]!==undefined)protCounts[r.protein]+=q;
+   });
+   const classify=(name)=>{
+     const n=String(name||'').toLowerCase();
+     if(/carne|pollo|pita|falafel/.test(n))return 'prot';
+     if(/tomate|cebolla|pepinillo|tabule|nabo|hummus|ajo|ajonjol|tahini|picante/.test(n))return 'veg';
+     if(/papel|plato|servilleta|sticker|tacita|tapa|cuchar/.test(n))return 'pack';
+     return 'other';
+   };
+   const catMeta=[
+     {id:'prot',label:'Proteínas y base',color:'#D41473'},
+     {id:'veg',label:'Vegetales y salsas',color:'#F59E0B'},
+     {id:'pack',label:'Empaques y presentación',color:'#06B6D4'},
+     {id:'other',label:'Otros insumos',color:'#8B5CF6'}
+   ];
+   const grouped={prot:[],veg:[],pack:[],other:[]},catSum={prot:0,veg:0,pack:0,other:0};
+   (costs||[]).forEach(c=>{const id=classify(c.name),sub=Number(c.qty||0)*Number(c.unitCost||0);grouped[id].push({...c,subtotal:sub});catSum[id]+=sub;});
+   const mixSegs=catMeta.filter(c=>catSum[c.id]>0).map(c=>({...c,val:catSum[c.id],pct:f.totalCost>0?(catSum[c.id]/f.totalCost)*100:0}));
+   const costRowsHTML=catMeta.map(c=>{
+     const list=grouped[c.id];if(!list.length)return '';
+     const cpct=f.totalCost>0?((catSum[c.id]/f.totalCost)*100).toFixed(0):'0';
+     return `<tr class="cat"><td colspan="4"><i style="background:${c.color}"></i>${esc(c.label)}</td><td class="num">${cpct}%</td><td class="num">$${catSum[c.id].toFixed(2)}</td></tr>`+list.map(it=>{
+       const p=f.totalCost>0?((it.subtotal/f.totalCost)*100).toFixed(1):'0.0';
+       return `<tr><td>${esc(it.name)}</td><td class="dim">${esc(it.formula||'')}</td><td class="num">${it.qty}</td><td class="num dim">$${Number(it.unitCost||0).toFixed(3)}</td><td class="num dim">${p}%</td><td class="num b">$${it.subtotal.toFixed(2)}</td></tr>`;
+     }).join('');
+   }).join('')+`<tr class="tot"><td colspan="4">Total de insumos (${f.totalUnits} unidades)</td><td class="num">100%</td><td class="num">$${f.totalCost.toFixed(2)}</td></tr>`;
+   const ordersJSON=JSON.stringify(rows.map(r=>({turn:r.turn,guest:r.guest||'Invitado',table:r.table||'',protein:r.protein||'Mixto',format:r.format||'Shawarma',qty:r.quantity||1,status:r.status,mods:r.modifications||r.recipe||'Con todo',notes:r.notes||''}))).replace(/</g,'\\u003c');
+   return `<!DOCTYPE html><html lang="es" data-theme="night"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Reporte · ${esc(owner)} · SHAWARMA en casa</title>
+<style>
+:root{--bg:#09090B;--s1:#111114;--s2:#18181C;--bd:rgba(255,255,255,.09);--t1:#FAFAFA;--t2:#A1A1AA;--t3:#71717A;--brand:#D41473;--pos:#34D399;--neg:#F87171}
+html[data-theme="day"]{--bg:#F7F7F8;--s1:#FFFFFF;--s2:#F4F4F5;--bd:rgba(9,9,11,.10);--t1:#09090B;--t2:#52525B;--t3:#71717A;--pos:#059669;--neg:#DC2626}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--t1);padding:24px 16px 60px;line-height:1.45}
+.wrap{max-width:1120px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;padding-bottom:16px;border-bottom:1px solid var(--bd)}
+.eyebrow{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--brand);display:block;margin-bottom:4px}
+h1{font-size:26px;font-weight:700;letter-spacing:-.03em}
+.sub{font-size:13px;color:var(--t2);margin-top:4px}
+.acts{display:flex;gap:8px;flex-wrap:wrap}
+.btn{height:36px;padding:0 14px;border-radius:8px;border:1px solid var(--bd);background:var(--s1);color:var(--t1);font-size:13px;font-weight:600;cursor:pointer}
+.btn.pri{background:var(--brand);border-color:var(--brand);color:#fff}
+.card{background:var(--s1);border:1px solid var(--bd);border-radius:14px;overflow:hidden}
+.pnl{display:grid;grid-template-columns:300px minmax(0,1fr)}
+@media(max-width:860px){.pnl{grid-template-columns:1fr}}
+.params{padding:20px;background:var(--s2);border-right:1px solid var(--bd);display:flex;flex-direction:column;gap:12px}
+@media(max-width:860px){.params{border-right:none;border-bottom:1px solid var(--bd)}}
+.lbl{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--t3)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fld{display:flex;flex-direction:column;gap:5px;font-size:12px;color:var(--t2)}
+.inp{display:flex;align-items:center;height:38px;border:1px solid var(--bd);border-radius:8px;background:var(--s1);padding:0 10px;gap:5px}
+.inp span{font-size:12px;color:var(--t3);font-weight:600}
+.inp input{width:100%;border:0;background:transparent;color:var(--t1);font-size:14px;font-weight:600;outline:none;font-variant-numeric:tabular-nums}
+.score{display:flex;flex-direction:column}
+.heroes{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--bd)}
+@media(max-width:600px){.heroes{grid-template-columns:1fr}}
+.hero{padding:20px 22px;display:flex;flex-direction:column;gap:6px}
+.hero+.hero{border-left:1px solid var(--bd)}
+@media(max-width:600px){.hero+.hero{border-left:none;border-top:1px solid var(--bd)}}
+.htop{display:flex;justify-content:space-between;align-items:center}
+.htop span{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--t3)}
+.pill{font-size:11.5px;font-weight:700;padding:2px 9px;border-radius:99px;background:var(--s2);border:1px solid var(--bd);font-variant-numeric:tabular-nums}
+.pill.pos{color:var(--pos);border-color:rgba(16,185,129,.35)}
+.pill.neg{color:var(--neg);border-color:rgba(239,68,68,.35)}
+.hval{font-size:32px;font-weight:700;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.hval.pos{color:var(--pos)}.hval.neg{color:var(--neg)}
+.hero small{font-size:12px;color:var(--t2);font-variant-numeric:tabular-nums}
+.subs{display:grid;grid-template-columns:repeat(3,1fr);border-bottom:1px solid var(--bd)}
+@media(max-width:600px){.subs{grid-template-columns:1fr}}
+.subk{padding:14px 22px;display:flex;flex-direction:column;gap:3px}
+.subk+.subk{border-left:1px solid var(--bd)}
+.subk span{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--t3)}
+.subk strong{font-size:18px;font-variant-numeric:tabular-nums}
+.mix{padding:16px 22px;display:flex;flex-direction:column;gap:9px}
+.track{display:flex;height:7px;border-radius:99px;overflow:hidden;background:var(--s2);gap:2px}
+.track span{display:block;height:100%}
+.leg{display:flex;flex-wrap:wrap;gap:14px;font-size:12px;color:var(--t2)}
+.leg i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px}
+.leg strong{color:var(--t1)}
+.strip{display:grid;grid-template-columns:repeat(6,1fr);border-bottom:1px solid var(--bd)}
+@media(max-width:720px){.strip{grid-template-columns:repeat(3,1fr)}}
+.st{padding:14px 16px;border-right:1px solid var(--bd);display:flex;flex-direction:column;gap:2px}
+.st:last-child{border-right:none}
+.st span{font-size:11px;color:var(--t3);text-transform:uppercase;font-weight:600}
+.st strong{font-size:20px;font-variant-numeric:tabular-nums}
+.headbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:16px 20px;border-bottom:1px solid var(--bd)}
+.headbar h2{font-size:15px;font-weight:700}
+.tscroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{padding:10px 16px;text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--t3);background:var(--s2);border-bottom:1px solid var(--bd);white-space:nowrap}
+td{padding:10px 16px;border-bottom:1px solid var(--bd);font-variant-numeric:tabular-nums}
+th.num,td.num{text-align:right}
+td.dim{color:var(--t2);font-size:12px}
+td.b{font-weight:600}
+tr.cat td{background:var(--s2);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--t2)}
+tr.cat i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:8px;vertical-align:middle}
+tr.tot td{background:var(--s2);font-weight:700;border-top:2px solid var(--bd);border-bottom:none;padding:13px 16px}
+.search{height:34px;padding:0 12px;border-radius:8px;border:1px solid var(--bd);background:var(--s2);color:var(--t1);font-size:13px;min-width:220px;outline:none}
+.tag{display:inline-block;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:600;background:var(--s2);border:1px solid var(--bd)}
+.tag.delivered{color:var(--pos);border-color:rgba(16,185,129,.35)}
+@media print{.no-print{display:none!important}body{background:#fff;color:#000;padding:0}.card{border-color:#ddd}}
+</style></head><body><div class="wrap">
+<header class="top">
+  <div><span class="eyebrow">SHAWARMA en casa · Reporte Interactivo del Evento</span><h1>${esc(owner)}</h1><p class="sub">${esc(dateStr)} · Duración: ${esc(durStr)} · ${f.realUnits} unidades servidas${f.contracted>0?` de ${f.contracted} contratadas`:''}</p></div>
+  <div class="acts no-print"><button class="btn" onclick="document.documentElement.dataset.theme=document.documentElement.dataset.theme==='day'?'night':'day'">☀ / 🌙 Tema</button><button class="btn pri" onclick="window.print()">Imprimir / Guardar PDF</button></div>
+</header>
+
+<section class="card">
+  <div class="pnl">
+    <div class="params">
+      <div class="lbl">Parámetros financieros (editables)</div>
+      <div class="row2">
+        <label class="fld">Unidades<div class="inp"><input id="r-uds" type="number" min="1" value="${f.totalUnits}" oninput="recalc()"><span>uds</span></div></label>
+        <label class="fld">Precio / ud<div class="inp"><span>$</span><input id="r-px" type="number" step="0.5" min="0" value="${f.unitPrice}" oninput="recalc()"></div></label>
+      </div>
+      <div class="row2">
+        <label class="fld">Servicio adicional<div class="inp"><span>$</span><input id="r-svc" type="number" step="0.01" min="0" value="${f.serviceFee.toFixed(2)}" oninput="recalc()"></div></label>
+        <label class="fld">Logística / gastos<div class="inp"><span>$</span><input id="r-log" type="number" step="0.01" min="0" value="${f.logistics.toFixed(2)}" oninput="recalc()"></div></label>
+      </div>
+      <p class="sub" style="font-size:11.5px">Puedes ajustar precios o gastos aquí para simular escenarios sin alterar el respaldo original.</p>
+    </div>
+    <div class="score">
+      <div class="heroes">
+        <div class="hero"><div class="htop"><span>Ganancia neta</span><span id="r-mgn" class="pill">${f.marginPct.toFixed(1)}%</span></div><strong id="r-net" class="hval">$${f.netProfit.toFixed(2)}</strong><small id="r-rev-sub">Sobre $${f.revenue.toFixed(2)} cobrados</small></div>
+        <div class="hero"><div class="htop"><span>Costo evento + logística</span></div><strong id="r-totc" class="hval">$${f.totalEventCost.toFixed(2)}</strong><small id="r-cost-sub">${f.totalUnits} uds ($${f.totalCost.toFixed(2)} insumos + $${f.logistics.toFixed(2)} logística)</small></div>
+      </div>
+      <div class="subs">
+        <div class="subk"><span>Costo / unidad</span><strong id="r-cu">$${f.costPerUnit.toFixed(2)}</strong></div>
+        <div class="subk"><span id="r-sh-lbl">Costo shawarmas (${f.totalUnits} uds)</span><strong>$${f.totalCost.toFixed(2)}</strong></div>
+        <div class="subk"><span>Punto de equilibrio</span><strong id="r-be">—</strong></div>
+      </div>
+      <div class="mix"><div class="track">${mixSegs.map(x=>`<span style="width:${x.pct.toFixed(1)}%;background:${x.color}"></span>`).join('')}</div><div class="leg">${mixSegs.map(x=>`<span><i style="background:${x.color}"></i>${esc(x.label)} <strong>${x.pct.toFixed(0)}%</strong> ($${x.val.toFixed(2)})</span>`).join('')}</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="card">
+  <div class="strip">
+    <div class="st"><span>Unidades</span><strong>${f.realUnits}</strong></div>
+    <div class="st"><span>Mixto</span><strong>${protCounts.Mixto}</strong></div>
+    <div class="st"><span>Pollo</span><strong>${protCounts.Pollo}</strong></div>
+    <div class="st"><span>Carne</span><strong>${protCounts.Carne}</strong></div>
+    <div class="st"><span>Falafel</span><strong>${protCounts.Falafel}</strong></div>
+    <div class="st"><span>Bowls / Elim.</span><strong>${protCounts.Bowls} / ${deleted.length}</strong></div>
+  </div>
+</section>
+
+<section class="card">
+  <div class="headbar"><h2>Desglose completo de insumos y gastos</h2><span class="sub">Total insumos: $${f.totalCost.toFixed(2)}</span></div>
+  <div class="tscroll"><table><thead><tr><th>Insumo</th><th>Fórmula</th><th class="num">Cant.</th><th class="num">Unitario</th><th class="num">% Costo</th><th class="num">Subtotal</th></tr></thead><tbody>${costRowsHTML}</tbody></table></div>
+</section>
+
+<section class="card">
+  <div class="headbar"><h2>Comandas del evento (${rows.length})</h2><input id="r-q" class="search no-print" placeholder="Buscar invitado, turno o proteína…" oninput="renderOrders()"></div>
+  <div class="tscroll"><table><thead><tr><th>Turno</th><th>Invitado</th><th>Producto</th><th>Detalle / Modificaciones</th><th>Estado</th></tr></thead><tbody id="r-orders"></tbody></table></div>
+</section>
+</div>
+<script>
+const BASE_COST=${f.totalCost.toFixed(4)},ORDERS=${ordersJSON};
+function recalc(){
+  const u=Math.max(1,Number(document.getElementById('r-uds').value)||1);
+  const px=Math.max(0,Number(document.getElementById('r-px').value)||0);
+  const svc=Math.max(0,Number(document.getElementById('r-svc').value)||0);
+  const log=Math.max(0,Number(document.getElementById('r-log').value)||0);
+  const revSh=u*px,rev=revSh+svc,totC=BASE_COST+log,net=rev-totC,mgn=rev>0?(net/rev)*100:0,cu=BASE_COST/u;
+  const netEl=document.getElementById('r-net'),mgnEl=document.getElementById('r-mgn');
+  netEl.textContent=(net<0?'-':'')+'$'+Math.abs(net).toFixed(2);
+  netEl.className='hval '+(net>=0?'pos':'neg');
+  mgnEl.textContent=mgn.toFixed(1)+'%';
+  mgnEl.className='pill '+(net>=0&&rev>0?'pos':'neg');
+  document.getElementById('r-rev-sub').textContent=svc>0?'Sobre $'+rev.toFixed(2)+' ($'+revSh.toFixed(0)+' shawarmas + $'+svc.toFixed(0)+' servicio)':'Sobre $'+rev.toFixed(2)+' cobrados ($'+px.toFixed(2)+' / ud)';
+  document.getElementById('r-totc').textContent='$'+totC.toFixed(2);
+  document.getElementById('r-cost-sub').textContent=u+' uds ($'+BASE_COST.toFixed(2)+' insumos + $'+log.toFixed(2)+' logística)';
+  document.getElementById('r-cu').textContent='$'+cu.toFixed(2);
+  document.getElementById('r-sh-lbl').textContent='Costo shawarmas ('+u+' uds)';
+  const sellU=rev/u;
+  document.getElementById('r-be').textContent=sellU>cu?Math.ceil(totC/sellU)+' uds':'—';
+}
+function renderOrders(){
+  const q=(document.getElementById('r-q').value||'').toLowerCase().trim();
+  const list=ORDERS.filter(o=>!q||String(o.turn).includes(q)||o.guest.toLowerCase().includes(q)||o.protein.toLowerCase().includes(q)||o.mods.toLowerCase().includes(q));
+  document.getElementById('r-orders').innerHTML=list.map(o=>'<tr><td class="b">#'+o.turn+'</td><td>'+o.guest+(o.table?' <span class="dim">('+o.table+')</span>':'')+'</td><td>'+(o.qty>1?o.qty+'× ':'')+o.format+' '+o.protein+'</td><td class="dim">'+o.mods+(o.notes?' · '+o.notes:'')+'</td><td><span class="tag '+o.status+'">'+(o.status==='delivered'?'Entregado':o.status)+'</span></td></tr>').join('')||'<tr><td colspan="5" class="dim">Sin coincidencias.</td></tr>';
+}
+recalc();renderOrders();
+</script></body></html>`;
+ }
  async function makeWorkbook(snapshot){
    const {db,meta,costs}=snapshot,summary=s.summarize(db),rows=summary.rows,last=Math.max(8,rows.length+7),zip=await JSZip.loadAsync(window.ShawarmaWorkbookTemplate,{base64:true});
    const detail=rows.map(r=>s.cells(r).map((v,j)=>j>=15&&j<=18?excelDate(v):v));
@@ -42,14 +255,45 @@
    const products=[...new Set(['Mixto','Pollo','Carne','Falafel',...rows.map(r=>r.protein)])],breakdown=products.flatMap(p=>['Shawarma','Bowl','Infantil'].map(f=>[p,f,rows.filter(r=>r.protein===p&&r.format===f&&r.status==='delivered').reduce((n,r)=>n+r.quantity,0)]));
    const sum=(condition)=>`SUMIF('Pedidos'!$J$8:$J$${last},"${condition}",'Pedidos'!$I$8:$I$${last})`;
    await fillSheet(zip,1,breakdown,{title,subtitle:`Invitados: ${meta.guests??'sin informar'} · Responsable: ${meta.responsible||app.operatorName||'—'} · Bowls no se suman dos veces.`,formulas:(i,j)=>j===2?`SUMIFS('Pedidos'!$I$8:$I$${last},'Pedidos'!$G$8:$G$${last},A${i+8},'Pedidos'!$H$8:$H$${last},B${i+8},'Pedidos'!$J$8:$J$${last},"Entregado")`:null,kpis:[['G8',meta.guests??'—'],['G9',summary.delivered,sum('Entregado')],['G10',summary.pending,`${sum('Por preparar')}+${sum('En preparación')}+${sum('Listo')}`],['G11',summary.cancelled,sum('Cancelado')]]});
-   const raw=snapshot.backup?.financial_inputs||{},revenue=Math.max(0,Number(raw.revenue)||0),logistics=Math.max(0,Number(raw.logistics)||0),totalCost=costs.reduce((n,r)=>n+r.qty*r.unitCost,0),count=costs.length;
+   const f=extractFinances(snapshot),revenue=f.revenue,logistics=f.logistics,totalCost=f.totalCost,count=costs.length;
    const costRows=[...costs.map(r=>[r.name,r.formula,r.qty,r.unitCost,r.qty*r.unitCost]),['','','','',''],['Ingreso del evento','','','',revenue],['Logística','','','',logistics],['Total insumos','','','',totalCost],['Resultado neto','','','',revenue-logistics-totalCost]];
-   await fillSheet(zip,3,costRows,{title,subtitle:'Uso interno. Configuración de este dispositivo. Si no has informado ingresos o logística, se muestran en cero.',formulas:(i,j)=>j!==4?null:i<count?`C${i+8}*D${i+8}`:i===count+3?(count?`SUM(E8:E${count+7})`:'0'):i===count+4?`E${count+9}-E${count+10}-E${count+11}`:null});
+   await fillSheet(zip,3,costRows,{title,subtitle:'Uso interno. Configuración de este dispositivo. Incluye cobro shawarmas + servicio adicional y logística.',formulas:(i,j)=>j!==4?null:i<count?`C${i+8}*D${i+8}`:i===count+3?(count?`SUM(E8:E${count+7})`:'0'):i===count+4?`E${count+9}-E${count+10}-E${count+11}`:null});
    const workbook=xmlDocument(await zip.file('xl/workbook.xml').async('string'));let calc=elements(workbook,'calcPr')[0];if(!calc){calc=workbook.createElementNS(ns,'calcPr');workbook.documentElement.appendChild(calc);}calc.setAttribute('fullCalcOnLoad','1');calc.setAttribute('forceFullCalc','1');zip.file('xl/workbook.xml',new XMLSerializer().serializeToString(workbook));
    return zip.generateAsync({type:'uint8array',compression:'DEFLATE'});
  }
+ proto.openInteractiveReport=function(customSnapshot){
+   try{
+     const snap=customSnapshot||capture();
+     const htmlStr=makeInteractiveReportHTML(snap);
+     let modal=document.getElementById('interactive-report-modal');
+     if(!modal){
+       modal=document.createElement('div');
+       modal.id='interactive-report-modal';
+       modal.style.cssText='position:fixed;inset:0;z-index:100020;background:rgba(0,0,0,0.82);display:flex;flex-direction:column;padding:14px;box-sizing:border-box;';
+       document.body.appendChild(modal);
+     }
+     const fname=`Shawarma_Reporte_Interactivo_${new Date().toISOString().slice(0,10)}.html`;
+     modal.innerHTML=`
+       <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px;background:#111114;border:1px solid rgba(255,255,255,0.12);border-bottom:none;border-radius:12px 12px 0 0;">
+         <strong style="color:#FAFAFA;font-size:13.5px;font-weight:700;">Reporte Financiero y Operativo Interactivo</strong>
+         <div style="display:flex;gap:8px;align-items:center;">
+           <button type="button" id="ir-btn-download" style="height:32px;padding:0 12px;border-radius:7px;border:1px solid rgba(255,255,255,0.16);background:#18181C;color:#FAFAFA;font-size:12px;font-weight:600;cursor:pointer;">Descargar HTML</button>
+           <button type="button" id="ir-btn-close" style="height:32px;padding:0 12px;border-radius:7px;border:none;background:#D41473;color:#FFFFFF;font-size:12px;font-weight:700;cursor:pointer;">Cerrar ✕</button>
+         </div>
+       </div>
+       <iframe id="ir-iframe" title="Reporte interactivo del evento" style="flex:1 1 auto;width:100%;border:1px solid rgba(255,255,255,0.12);border-radius:0 0 12px 12px;background:#09090B;"></iframe>
+     `;
+     const iframe=modal.querySelector('#ir-iframe');
+     iframe.srcdoc=htmlStr;
+     modal.querySelector('#ir-btn-close').onclick=()=>{modal.style.display='none';};
+     modal.querySelector('#ir-btn-download').onclick=()=>{s.download(new Blob([htmlStr],{type:'text/html;charset=utf-8'}),fname);};
+     modal.style.display='flex';
+   }catch(e){
+     this.showToast('No se pudo abrir el reporte interactivo.','error');
+   }
+ };
  proto.exportEventExcel=async function(){if(this.serviceExportBusy)return;this.serviceExportBusy=true;try{const snap=capture(),bytes=await makeWorkbook(snap);s.download(new Blob([bytes],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}),'Shawarma_Evento.xlsx');this.showToast(s.t('Excel generado. Comprueba el archivo en Descargas.','Excel generated. Check your Downloads.'));return true;}catch{this.showToast(s.t('No se pudo crear el Excel. Conserva el respaldo JSON.','Could not create Excel. Keep the JSON backup.'),'error');return false;}finally{this.serviceExportBusy=false;}};
- proto.downloadEventBundle=async function(){if(this.serviceExportBusy)return false;this.serviceExportBusy=true;try{const snap=capture(),xlsx=await makeWorkbook(snap),zip=new JSZip();zip.file('Shawarma_Evento.xlsx',xlsx);zip.file('Shawarma_Respaldo.json',JSON.stringify(snap.backup,null,2));zip.file('LEEME.txt','Privado: contiene nombres e información del negocio.\nExcel: consulta. JSON: recuperación y archivo.\nConserva este ZIP fuera del navegador. Su descarga no demuestra que el servidor tenga almacenamiento permanente.\n');const bytes=await zip.generateAsync({type:'uint8array',compression:'DEFLATE'});s.download(new Blob([bytes],{type:'application/zip'}),`Shawarma_Respaldo_${new Date().toISOString().replace(/[:.]/g,'-')}.zip`);this.showToast(s.t('Respaldo ZIP generado con Excel y JSON. Verifica la descarga.','ZIP backup generated with Excel and JSON. Verify the download.'));return true;}catch{this.showToast(s.t('No se pudo crear el ZIP. Descarga el JSON y no cierres el evento.','Could not create the ZIP. Download JSON and do not close the event.'),'error');return false;}finally{this.serviceExportBusy=false;}};
+ proto.downloadEventBundle=async function(){if(this.serviceExportBusy)return false;this.serviceExportBusy=true;try{const snap=capture(),xlsx=await makeWorkbook(snap),reportHtml=makeInteractiveReportHTML(snap),zip=new JSZip();zip.file('Shawarma_Reporte_Interactivo.html',reportHtml);zip.file('Shawarma_Evento.xlsx',xlsx);zip.file('Shawarma_Respaldo.json',JSON.stringify(snap.backup,null,2));zip.file('LEEME.txt','Privado: contiene nombres e información financiera del negocio.\n- Shawarma_Reporte_Interactivo.html: ábrelo en Safari o Chrome para ver costos, rentabilidad, simulador y comandas de forma interactiva.\n- Shawarma_Evento.xlsx: hoja de cálculo Excel.\n- Shawarma_Respaldo.json: recuperación completa del evento.\n');const bytes=await zip.generateAsync({type:'uint8array',compression:'DEFLATE'});s.download(new Blob([bytes],{type:'application/zip'}),`Shawarma_Respaldo_${new Date().toISOString().replace(/[:.]/g,'-')}.zip`);this.showToast(s.t('Respaldo ZIP generado (Reporte Interactivo HTML + Excel + JSON).','ZIP backup generated (Interactive HTML Report + Excel + JSON).'));return true;}catch{this.showToast(s.t('No se pudo crear el ZIP. Descarga el JSON y no cierres el evento.','Could not create the ZIP. Download JSON and do not close the event.'),'error');return false;}finally{this.serviceExportBusy=false;}};
  function validateBackup(value){
    if(!value||value.format!=='shawarma-recovery'||value.version!==1)throw Error('Formato no reconocido');
    const events=[value.current_event,...(Array.isArray(value.archived_events)?value.archived_events.map(e=>({event_info:{id:e.id,name:e.name,created_at:e.date,timer:e.timer},orders:e.orders})):[])];
